@@ -1,0 +1,79 @@
+---
+title: "Page Header"
+description: "Cabeçalho de página com título, subtítulo e ações"
+category: "Molecules"
+---
+
+# Page Header
+
+Cabeçalho de página que combina título, subtítulo/breadcrumbs e slot de ações. Usado como ponto de entrada visual em todas as páginas do sistema.
+
+## Uso básico
+
+\`\`\`tsx
+import { PageHeader } from "@/components/ui/page-header";
+
+export default function Demo() {
+  return (
+    <PageHeader
+      title="Alertas"
+      subtitle="Gerencie e monitore alertas em tempo real"
+    />
+  );
+}
+\`\`\`
+
+## Com breadcrumbs
+
+\`\`\`tsx
+<PageHeader
+  title="Configurações"
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Admin", href: "/admin" },
+    { label: "Configurações" },
+  ]}
+/>
+\`\`\`
+
+## Com ações
+
+\`\`\`tsx
+<PageHeader
+  title="Relatórios"
+  actions={
+    <Button variant="primary" size="sm">
+      Exportar
+    </Button>
+  }
+/>
+\`\`\`
+
+## Completo
+
+\`\`\`tsx
+<PageHeader
+  title="Monitoramento"
+  subtitle="Visão geral do sistema"
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Monitoramento" },
+  ]}
+  actions={
+    <>
+      <Button variant="ghost" size="sm">Filtrar</Button>
+      <Button variant="primary" size="sm">Novo Alerta</Button>
+    </>
+  }
+/>
+\`\`\`
+
+## Props
+
+| Prop          | Tipo                        | Padrão | Descrição                              |
+|---------------|-----------------------------|--------|----------------------------------------|
+| `title`       | `string`                    | —      | Título principal da página             |
+| `subtitle`    | `string \| undefined`       | —      | Texto secundário abaixo do título      |
+| `breadcrumbs` | `BreadcrumbItem[]`          | —      | Navegação hierárquica                  |
+| `actions`     | `ReactNode`                 | —      | Slot para botões/ações à direita       |
+| `className`   | `string`                    | —      | Classes CSS adicionais                 |

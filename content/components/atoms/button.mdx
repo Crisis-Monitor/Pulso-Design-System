@@ -1,0 +1,68 @@
+---
+title: "Button"
+description: "Ação principal para interações do usuário"
+category: "Atoms"
+---
+
+# Button
+
+Botão para ações e navegação. Suporta variantes de intenção, tamanhos e estado de carregamento.
+
+## Uso básico
+
+\`\`\`tsx
+import { Button } from "@/components/ui/button";
+
+export default function Demo() {
+  return <Button>Salvar alterações</Button>;
+}
+\`\`\`
+
+## Variantes
+
+O componente `Button` suporta as variantes `primary`, `secondary` e `ghost`, além das variantes semânticas `success`, `warn`, `error`, `info` e `neutral`.
+
+\`\`\`tsx
+<Button variant="primary">Primary</Button>
+<Button variant="secondary">Secondary</Button>
+<Button variant="ghost">Ghost</Button>
+<Button variant="success">Success</Button>
+<Button variant="warn">Warning</Button>
+<Button variant="error">Error</Button>
+<Button variant="info">Info</Button>
+<Button variant="neutral">Neutral</Button>
+\`\`\`
+
+## Tamanhos
+
+\`\`\`tsx
+<Button size="sm">Small</Button>
+<Button size="md">Medium</Button>
+<Button size="lg">Large</Button>
+\`\`\`
+
+## Estado de loading
+
+\`\`\`tsx
+<Button isLoading={true}>Salvando...</Button>
+\`\`\`
+
+## Como botão filho de outro componente
+
+\`\`\`tsx
+<Button asChild>
+  <Link href="/dashboard">Ir para Dashboard</Link>
+</Button>
+\`\`\`
+
+## Props
+
+| Prop         | Tipo                                    | Padrão      | Descrição                          |
+|--------------|-----------------------------------------|-------------|------------------------------------|
+| `variant`    | `primary \| secondary \| ghost \| success \| warn \| error \| info \| neutral` | `primary`   | Variante visual do botão           |
+| `size`       | `sm \| md \| lg \| icon-sm \| icon-lg \| hero` | `md`    | Tamanho do botão                   |
+| `isLoading`  | `boolean`                               | `false`     | Exibe spinner e desabilita clique  |
+| `disabled`   | `boolean`                               | `false`     | Desabilita o botão                 |
+| `asChild`    | `boolean`                               | `false`     | Renderiza como componente filho    |
+| `children`   | `ReactNode`                             | —           | Conteúdo do botão                  |
+| `onClick`    | `(e: React.MouseEvent) => void`         | —           | Handler de clique                  |
