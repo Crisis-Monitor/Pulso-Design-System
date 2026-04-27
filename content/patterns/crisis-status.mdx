@@ -1,0 +1,34 @@
+---
+title: Status de crise
+description: 7 status com mapeamento semântico para tokens delta. Cada status tem cor, label e dot indicator.
+---
+
+# Status de crise
+
+Padrão para representar o ciclo de vida de uma crise. Cada status mapeia para um token delta.
+
+## Status
+
+| Status | Label | Delta | Descrição |
+|--------|-------|-------|-----------|
+| `monitoramento` | Monitoramento | neutral | Estado inicial. Volume normal de menções. |
+| `atencao` | Atenção | warn | Sinal de alerta. Narrativa negativa em crescimento. |
+| `crise_ativa` | Em Crise | error | Crise declarada. Reputação sob pressão significativa. |
+| `em_decisao` | Em Decisão | error (pulsante) | Decisão crítica em andamento. Dot animado indica urgência. |
+| `em_execucao` | Em Execução | info | Plano de resposta em execução. |
+| `resolvida` | Resolvida | success | Crise controlada. Narrativa normalizada. |
+| `encerrado` | Encerrado | neutral (70%) | Ciclo encerrado. Monitoramento arquivado. |
+
+## Uso
+
+\`\`\`tsx
+import { StatusBadge } from "@/components/crises/status-badge"
+
+<StatusBadge status={crisis.status} />
+\`\`\`
+
+## Regras
+
+- Sempre use o componente `<StatusBadge>` — nunca recrie badges manualmente
+- Não adicione novos status sem atualizar o `statusConfig`
+- Status são mutuamente exclusivos — uma crise tem apenas um status por vez

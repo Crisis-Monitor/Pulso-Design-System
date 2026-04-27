@@ -1,0 +1,43 @@
+---
+title: Níveis de risco
+description: 5 níveis semânticos com tokens de cor dedicados para score de risco (0–100).
+---
+
+# Níveis de risco
+
+Sistema de 5 níveis para classificação de crises. Cada nível tem tokens `bg`, `border` e `text`.
+
+## Níveis
+
+| Nível | Score | Tokens | Contexto |
+|-------|-------|--------|----------|
+| **Estável** | 0–19 | `--risk-stable-*` | Sem atividade relevante |
+| **Monitor** | 20–39 | `--risk-monitor-*` | Sinais fracos detectados |
+| **Atenção** | 40–59 | `--risk-attention-*` | Monitoramento ativo |
+| **Alto** | 60–79 | `--risk-high-*` | Alerta significativo |
+| **Crítico** | 80–100 | `--risk-critical-*` | Crise ativa |
+
+## Aliases (retrocompatibilidade)
+
+| Alias | Mapeia para |
+|-------|-------------|
+| `--risk-safe-*` | `--risk-stable-*` |
+| `--risk-medium-*` | `--risk-attention-*` |
+
+## Uso
+
+\`\`\`tsx
+// Uso direto:
+<div className="bg-[var(--risk-stable-bg)] text-[var(--risk-stable-text)]">
+  Estável
+</div>
+
+// Via helper de utilidade:
+const riskToken = \`--risk-\${level}-bg\`
+\`\`\`
+
+## Regras
+
+- Sempre use tokens semânticos — nunca cores hardcoded para risco
+- Não use tokens de risco para estados de feedback de UI — use `--delta-error-*`
+- Novos componentes devem usar tokens canônicos, não aliases
