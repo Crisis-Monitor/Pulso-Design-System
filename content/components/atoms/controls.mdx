@@ -1,16 +1,29 @@
-# controls
+---
+title: Controls
+description: Wrapper para grupos de controles de formulário com espaçamento consistente.
+---
 
-Documentação do componente controls.
+# Controls
+
+Container para agrupar controles de formulário com espaçamento e alinhamento consistentes.
 
 ## Import
 
-```tsx
-import { controls } from "@/components/ui/controls";
-```
+\`\`\`tsx
+import { Controls } from "@/components/ui/controls"
+\`\`\`
 
-## Uso
+## Uso básico
 
-```tsx
-<controls />
-```
+\`\`\`tsx
+<Controls>
+  <Input placeholder="Buscar..." />
+  <Select><SelectTrigger><SelectValue placeholder="Filtrar" /></SelectTrigger></Select>
+  <Button>Aplicar</Button>
+</Controls>
+\`\`\`
 
+## Quando usar
+
+- Toolbars de filtro e busca
+- Grupos de ação em formulários

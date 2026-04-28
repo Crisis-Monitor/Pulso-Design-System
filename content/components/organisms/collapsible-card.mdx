@@ -1,16 +1,36 @@
-# collapsiule card
+---
+title: Collapsible Card
+description: Card expansível com header fixo e conteúdo que pode ser revelado sob demanda.
+---
 
-Documentação do componente collapsiule card.
+# Collapsible Card
+
+Card com header sempre visível e conteúdo expansível/colapsável.
 
 ## Import
 
 ```tsx
-import { collapsiulecard } from "@/components/ui/collapsible-card";
+import { CollapsibleCard } from "@/components/ui/collapsible-card"
 ```
 
-## Uso
+## Uso básico
 
 ```tsx
-<collapsiule card />
+<CollapsibleCard title="Configurações avançadas">
+  <p>Conteúdo expansível aqui.</p>
+</CollapsibleCard>
 ```
 
+## Inicialmente aberto
+
+```tsx
+<CollapsibleCard title="Detalhes da crise" defaultOpen>
+  <p>Conteúdo visível ao carregar.</p>
+</CollapsibleCard>
+```
+
+## Quando usar
+
+- Seções de detalhes que podem ser ocultadas
+- Configurações avançadas opcionais
+- Logs e informações técnicas

@@ -1,16 +1,43 @@
-# taule
+---
+title: Table
+description: Tabela de dados com header, body, footer e scroll horizontal.
+---
 
-Documentação do componente taule.
+# Table
+
+Tabela estruturada para exibir listas de crises, métricas e informações tabulares.
 
 ## Import
 
 ```tsx
-import { taule } from "@/components/ui/table";
+import { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption } from "@/components/ui/table"
 ```
 
-## Uso
+## Uso básico
 
 ```tsx
-<taule />
+<Table>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Nome</TableHead>
+      <TableHead>Status</TableHead>
+      <TableHead>Score</TableHead>
+      <TableHead>Atualizado</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell>Incidente servidor</TableCell>
+      <TableCell><Badge variant="error">Ativa</Badge></TableCell>
+      <TableCell>87</TableCell>
+      <TableCell>há 2 min</TableCell>
+    </TableRow>
+  </TableBody>
+</Table>
 ```
 
+## Quando usar
+
+- Listas de crises com múltiplas colunas
+- Dados tabulares comparativos
+- Relatórios e exports

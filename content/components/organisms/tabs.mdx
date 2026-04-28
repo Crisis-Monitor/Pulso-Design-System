@@ -1,16 +1,53 @@
-# taus
+---
+title: Tabs
+description: Navegação por abas para alternar entre seções de conteúdo.
+---
 
-Documentação do componente taus.
+# Tabs
+
+Navegação por abas para alternar entre seções de conteúdo relacionadas.
 
 ## Import
 
 ```tsx
-import { taus } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 ```
 
-## Uso
+## Uso básico
 
 ```tsx
-<taus />
+<Tabs defaultValue="overview" className="w-full">
+  <TabsList>
+    <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+    <TabsTrigger value="analytics">Analytics</TabsTrigger>
+    <TabsTrigger value="reports">Relatórios</TabsTrigger>
+  </TabsList>
+  <TabsContent value="overview"><p>Visão geral.</p></TabsContent>
+  <TabsContent value="analytics"><p>Analytics.</p></TabsContent>
+  <TabsContent value="reports"><p>Relatórios.</p></TabsContent>
+</Tabs>
 ```
 
+## Em Cards
+
+```tsx
+<Tabs defaultValue="active">
+  <Card>
+    <CardHeader>
+      <TabsList>
+        <TabsTrigger value="active">Ativas</TabsTrigger>
+        <TabsTrigger value="resolved">Resolvidas</TabsTrigger>
+      </TabsList>
+    </CardHeader>
+    <CardContent>
+      <TabsContent value="active">...</TabsContent>
+      <TabsContent value="resolved">...</TabsContent>
+    </CardContent>
+  </Card>
+</Tabs>
+```
+
+## Quando usar
+
+- Alternar entre views relacionadas
+- Filtros de status em dashboards

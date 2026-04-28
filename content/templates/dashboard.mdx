@@ -1,0 +1,111 @@
+---
+title: Dashboard
+description: Template de dashboard — visão geral de crises, métricas e alertas.
+---
+
+# Dashboard Template
+
+Layout principal do Orchids Crisis Manager. Apresenta visão geral de todas as crises ativas, métricas de reputação e alertas recentes.
+
+## Estrutura
+
+```
+┌─────────────────────────────────────────────┐
+│  Sidebar  │  Header                         │
+│  (nav)    │  Breadcrumbs + Ações            │
+│           ├─────────────────────────────────┤
+│           │  Metric Cards (4 colunas)       │
+│           ├─────────────────────────────────┤
+│           │  Crisis List Table              │
+│           │  ┌──────────────────────────┐   │
+│           │  │ Status | Nome | Score    │   │
+│           │  │──────────────────────────│   │
+│           │  │ Ativa  | Incid X | 42    │   │
+│           │  │ Monitor| Incid Y | 78    │   │
+│           │  └──────────────────────────┘   │
+│           ├─────────────────────────────────┤
+│           │  Activity Timeline              │
+└───────────┴─────────────────────────────────┘
+```
+
+## Componentes Utilizados
+
+| Seção | Componentes |
+|-------|-------------|
+| Header | `PageHeader`, `Breadcrumb`, `Button` |
+| Métricas | `MetricCard` (4×) |
+| Lista | `Table`, `Badge` (crisis-status), `DeltaChip` |
+| Timeline | `Card`, `Accordion`, `Avatar` |
+
+## Código
+
+```tsx
+import { MetricCard } from "@/components/ui/metric-card";
+import { CrisisStatus } from "@/components/crisis-view/crisis-status";
+import { DeltaChip } from "@/components/ui/delta-chip";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from "@/components/ui/table";
+
+export default function DashboardPage() {
+  return (
+    <div className="flex flex-col gap-6">
+      {/* Métricas */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <MetricCard
+          title="Crises Ativas"
+          value="12"
+          delta={{ value: 3, trend: "up" }}
+        />
+        <MetricCard
+          title="Score Médio"
+          value="72"
+          delta={{ value: -5, trend: "down" }}
+        />
+        <MetricCard
+          title="Menções Hoje"
+          value="1.4k"
+          delta={{ value: 12, trend: "up", unit: "%" }}
+        />
+        <MetricCard
+          title="Tempo de Resposta"
+          value="4.2m"
+          delta={{ value: -0.8, trend: "down", unit: "m" }}
+        />
+      </div>
+
+      {/* Tabela de Crises */}
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Status</TableHead>
+            <TableHead>Crise</TableHead>
+            <TableHead>Score</TableHead>
+            <TableHead>Delta</TableHead>
+            <TableHead>Atualizado</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {crises.map((crisis) => (
+            <TableRow key={crisis.id}>
+              <TableCell><CrisisStatus status={crisis.status} /></TableCell>
+              <TableCell>{crisis.name}</TableCell>
+              <TableCell className="font-mono font-bold">{crisis.score}</TableCell>
+              <TableCell><DeltaChip value={crisis.delta} /></TableCell>
+              <TableCell>{crisis.updatedAt}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+```
+
+## Responsividade
+
+| Breakpoint | Layout |
+|------------|--------|
+| `sm` | 1 coluna de métricas, tabela scroll horizontal |
+| `md` | 2 colunas de métricas |
+| `lg` | 4 colunas de métricas |

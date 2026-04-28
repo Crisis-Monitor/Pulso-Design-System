@@ -1,16 +1,44 @@
-# card
+---
+title: Card
+description: Container versátil com header, content, footer para agrupar conteúdo.
+---
 
-Documentação do componente card.
+# Card
+
+Container flexível com header, content e footer. Base para métricas, formulários, listas e detalhes.
 
 ## Import
 
 ```tsx
-import { card } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 ```
 
-## Uso
+## Uso básico
 
 ```tsx
-<card />
+<Card>
+  <CardHeader>
+    <CardTitle>Configurações de Notificação</CardTitle>
+    <CardDescription>Gerencie como e quando receber alertas.</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <p>Conteúdo do card aqui.</p>
+  </CardContent>
+  <CardFooter>
+    <Button>Salvar</Button>
+  </CardFooter>
+</Card>
 ```
 
+## Variantes
+
+| Variante | Uso |
+|----------|-----|
+| `default` | Card padrão com borda e fundo |
+| `interactive` | Card clicável com hover effect |
+
+## Quando usar
+
+- Agrupar conteúdo relacionado
+- Formulários e configurações
+- Detalhes de crises

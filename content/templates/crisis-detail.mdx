@@ -1,0 +1,69 @@
+---
+title: Crisis Detail
+description: Template de página de detalhe de crise — timeline, métricas, ações e análise.
+---
+
+# Crisis Detail Template
+
+Página de detalhe de uma crise específica. Concentra todas as informações, métricas, timeline e ações relacionadas a um incidente.
+
+## Estrutura
+
+```
+┌─────────────────────────────────────────────┐
+│  Header                                     │
+│  ← Back | Nome da Crise | [Status Badge]    │
+│  Descrição | Criado em | Última atualização │
+├─────────────────────────────────────────────┤
+│  Tabs: Visão Geral | Timeline | Cobertura   │
+│                                             │
+│  [Tab Content]                              │
+│  ┌──────────────────┐  ┌──────────────────┐ │
+│  │ Score Gauge      │  │ Timeline         │ │
+│  │ [visual circular]│  │ - Evento 1       │ │
+│  │ Score: 42        │  │ - Evento 2       │ │
+│  │ Risk: High       │  │ - Evento 3       │ │
+│  └──────────────────┘  └──────────────────┘ │
+│  ┌──────────────────┐  ┌──────────────────┐ │
+│  │ Fontes/Mídia     │  │ Ações Rápidas    │ │
+│  │ - Twitter: 342   │  │ [Dispatch]       │ │
+│  │ - News: 89       │  │ [Export PDF]     │ │
+│  │ - Reddit: 156    │  │ [Archive]        │ │
+│  └──────────────────┘  └──────────────────┘ │
+└─────────────────────────────────────────────┘
+```
+
+## Componentes Utilizados
+
+| Seção | Componentes |
+|-------|-------------|
+| Header | `PageHeader`, `Badge`, `Button` |
+| Tabs | `Tabs`, `TabsList`, `TabsContent` |
+| Score | `MetricCard`, `Progress`, `Badge` |
+| Timeline | `Accordion`, `Avatar`, `Separator` |
+| Fontes | `Card`, `MetricCard` compacto |
+| Ações | `DropdownMenu`, `Button` |
+
+## Padrão de Score
+
+O score de crise usa uma escala de 0-100 com bandas visuais:
+
+| Range | Label | Cor |
+|-------|-------|-----|
+| 0-20 | Crítico | `delta-error` |
+| 21-40 | Alto | `delta-warn` |
+| 41-60 | Moderado | `delta-info` |
+| 61-80 | Baixo | `delta-success` |
+| 81-100 | Mínimo | `delta-neutral` |
+
+## Estado Vazio
+
+Quando uma crise não tem dados de timeline:
+
+```tsx
+<EmptyState
+  icon={<Search className="size-8" />}
+  title="Nenhum evento registrado"
+  description="Os eventos aparecerão aqui conforme a crise evolui."
+/>
+```

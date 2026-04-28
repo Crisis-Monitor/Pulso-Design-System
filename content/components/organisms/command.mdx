@@ -1,16 +1,48 @@
-# command
+---
+title: Command
+description: Interface de comando com busca, lista de itens e atalhos de teclado.
+---
 
-Documentação do componente command.
+# Command
+
+Interface de comando com busca integrada e lista de itens navegáveis por teclado.
 
 ## Import
 
 ```tsx
-import { command } from "@/components/ui/command";
+import { Command, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, CommandShortcut } from "@/components/ui/command"
 ```
 
-## Uso
+## Uso básico
 
 ```tsx
-<command />
+<Command>
+  <CommandInput placeholder="Buscar comando..." />
+  <CommandList>
+    <CommandEmpty>Nenhum resultado encontrado.</CommandEmpty>
+    <CommandGroup heading="Crises">
+      <CommandItem><AlertTriangle className="size-4" /><span>Crises ativas</span></CommandItem>
+      <CommandItem><Plus className="size-4" /><span>Nova crise</span></CommandItem>
+    </CommandGroup>
+  </CommandList>
+</Command>
 ```
 
+## Como Dialog (⌘K)
+
+```tsx
+<CommandDialog open={open} onOpenChange={setOpen}>
+  <CommandInput placeholder="Buscar..." />
+  <CommandList>
+    <CommandGroup heading="Navegação">
+      <CommandItem onSelect={() => setOpen(false)}>Dashboard</CommandItem>
+    </CommandGroup>
+  </CommandList>
+</CommandDialog>
+```
+
+## Quando usar
+
+- Navegação rápida global (⌘K)
+- Busca de crises e alertas
+- Paleta de comandos

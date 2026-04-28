@@ -1,0 +1,103 @@
+---
+title: Quick Start
+description: Comece a usar o Pulso Design System em 5 minutos.
+---
+
+# Quick Start
+
+Guia rápido para começar a usar os componentes do Pulso Design System.
+
+## 1. Importe um componente
+
+```tsx
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+```
+
+## 2. Monte sua primeira tela
+
+```tsx
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+
+export default function DashboardPage() {
+  return (
+    <div className="flex flex-col gap-6 p-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Dashboard</h1>
+        <Button variant="default">Nova Crise</Button>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Crises Ativas
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">12</div>
+            <Badge variant="error">+3 hoje</Badge>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Score Médio
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">72</div>
+            <Badge variant="warn">-5 vs ontem</Badge>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Menções
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">1.4k</div>
+            <Badge variant="success">+12% vs ontem</Badge>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+```
+
+## 3. Padrões de layout
+
+Use as classes utilitárias do Tailwind para compor layouts consistentes:
+
+```tsx
+// Página com sidebar
+<div className="flex h-screen">
+  <Sidebar />
+  <main className="flex-1 overflow-y-auto">
+    {/* conteúdo */}
+  </main>
+</div>
+
+// Grid responsivo
+<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+  {/* cards */}
+</div>
+
+// Stack vertical
+<div className="flex flex-col gap-4">
+  {/* elementos empilhados */}
+</div>
+```
+
+## Próximos passos
+
+- Explore os [Foundations](/foundations/colors) para entender tokens
+- Veja os [Componentes](/components/atoms/button) disponíveis
+- Consulte os [Padrões](/patterns/crisis-status) para cenários reais

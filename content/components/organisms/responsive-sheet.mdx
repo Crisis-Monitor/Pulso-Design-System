@@ -1,16 +1,49 @@
-# responsive sheet
+---
+title: Responsive Sheet
+description: Painel lateral responsivo que adapta Sheet (desktop) e Drawer (mobile).
+---
 
-Documentação do componente responsive sheet.
+# Responsive Sheet
+
+Painel lateral que renderiza Sheet em desktop e Drawer em mobile automaticamente.
 
 ## Import
 
 ```tsx
-import { responsivesheet } from "@/components/ui/responsive-sheet";
+import { ResponsiveSheet } from "@/components/ui/responsive-sheet"
 ```
 
-## Uso
+## Uso básico
 
 ```tsx
-<responsive sheet />
+<ResponsiveSheet
+  trigger={<Button>Detalhes</Button>}
+  title="Detalhes da Crise"
+  description="Informações completas sobre a crise selecionada."
+>
+  <div className="space-y-4"><p>Conteúdo do sheet aqui.</p></div>
+</ResponsiveSheet>
 ```
 
+## Com controles
+
+```tsx
+<ResponsiveSheet
+  trigger={<Button>Abrir</Button>}
+  title="Nova Crise"
+  controls={
+    <div className="flex gap-2">
+      <Button variant="outline">Cancelar</Button>
+      <Button>Salvar</Button>
+    </div>
+  }
+>
+  <form className="space-y-4">{/* form fields */}</form>
+</ResponsiveSheet>
+```
+
+## Quando usar
+
+- Formulários de criação/edição
+- Painéis de detalhes
+- Configurações laterais

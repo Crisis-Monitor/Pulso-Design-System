@@ -1,16 +1,61 @@
-# accordion
+---
+title: Accordion
+description: Seção colapsável vertical que revela conteúdo sob demanda.
+---
 
-Documentação do componente accordion.
+# Accordion
+
+Seções verticalmente empilhadas que expandem/colapsam para revelar conteúdo. Ideal para FAQs, configurações e detalhes.
 
 ## Import
 
 ```tsx
-import { accordion } from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 ```
 
-## Uso
+## Uso básico
 
 ```tsx
-<accordion />
+<Accordion type="single" collapsible>
+  <AccordionItem value="item-1">
+    <AccordionTrigger>O que é o Crisis Manager?</AccordionTrigger>
+    <AccordionContent>
+      Uma plataforma de gerenciamento de crises que usa IA para detectar,
+      monitorar e responder a incidentes em tempo real.
+    </AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="item-2">
+    <AccordionTrigger>Como funciona o score de risco?</AccordionTrigger>
+    <AccordionContent>
+      O score é calculado com base em frequência, severidade e impacto
+      dos eventos detectados pelo sistema.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
 ```
 
+## Múltipla abertura
+
+```tsx
+<Accordion type="multiple">
+  <AccordionItem value="a">
+    <AccordionTrigger>Seção A</AccordionTrigger>
+    <AccordionContent>Conteúdo A</AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="b">
+    <AccordionTrigger>Seção B</AccordionTrigger>
+    <AccordionContent>Conteúdo B</AccordionContent>
+  </AccordionItem>
+</Accordion>
+```
+
+## Quando usar
+
+- FAQs e documentação
+- Configurações agrupadas por categoria
+- Detalhes de crises em lista
+
+## Acessibilidade
+
+- `AccordionTrigger` é um botão com `aria-expanded`
+- Navegação por teclado (Tab, Enter, Space)

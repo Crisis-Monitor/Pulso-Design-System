@@ -1,0 +1,88 @@
+---
+title: Motion
+description: Sistema de motion do Pulso — durações, easing, e diretrizes de animação.
+---
+
+# Motion
+
+Animações no Pulso são **funcionais**, não decorativas. Cada transição existe para comunicar estado, não para entreter.
+
+## Durações
+
+| Token | Valor | Uso |
+|-------|-------|-----|
+| `--duration-fast` | 150ms | Hover states, micro-interações |
+| `--duration-normal` | 200ms | Transições de UI padrão |
+| `--duration-slow` | 300ms | Dialogs, sheets, transições grandes |
+| `--duration-slower` | 500ms | Page transitions, loading |
+
+## Easing
+
+| Token | Valor | Uso |
+|-------|-------|-----|
+| `--ease-default` | `ease-out` | Entrada de elementos |
+| `--ease-in` | `ease-in` | Saída de elementos |
+| `--ease-out` | `ease-out` | Aparecimento |
+| `--ease-in-out` | `ease-in-out` | Transições suaves |
+
+## Padrões de Animação
+
+### Hover
+
+```tsx
+<Button className="transition-all duration-150 ease-out hover:scale-[1.02]">
+  Hover me
+</Button>
+```
+
+### Fade In
+
+```tsx
+<div className="animate-in fade-in duration-200">
+  Content appears
+</div>
+```
+
+### Slide In
+
+```tsx
+<Dialog className="animate-in slide-in-from-bottom-4 duration-300">
+  Dialog content
+</Dialog>
+```
+
+### Pulse (Loading)
+
+```tsx
+<Skeleton className="animate-pulse" />
+```
+
+### Spin (Loading)
+
+```tsx
+<Loader2 className="animate-spin size-4" />
+```
+
+## Regras
+
+1. **Respeite `prefers-reduced-motion`** — desabilite animações se o usuário preferir
+2. **Máximo 300ms** para transições de UI
+3. **Sem bounce** — animações são diretas, não elásticas
+4. **Feedback imediato** — hover em 150ms, clique em 100ms
+5. **Loading visível** — skeleton/spinner aparece em 200ms
+
+## Tailwind Config
+
+```ts
+// tailwind.config.ts
+theme: {
+  extend: {
+    transitionDuration: {
+      "150": "150ms",
+      "200": "200ms",
+      "300": "300ms",
+      "500": "500ms",
+    },
+  },
+}
+```

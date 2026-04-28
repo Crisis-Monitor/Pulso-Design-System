@@ -1,16 +1,53 @@
-# metric card
+---
+title: Metric Card
+description: Card de métrica com valor, label, delta e indicador de tendência.
+---
 
-Documentação do componente metric card.
+# Metric Card
+
+Card para exibir métricas do dashboard com valor principal, label, delta de variação e indicador de tendência.
 
 ## Import
 
 ```tsx
-import { metriccard } from "@/components/ui/metric-card";
+import { MetricCard } from "@/components/ui/metric-card"
 ```
 
-## Uso
+## Uso básico
 
 ```tsx
-<metric card />
+<MetricCard
+  title="Crises Ativas"
+  value="12"
+  delta={{ value: 8.2, trend: "up" }}
+  icon={<AlertTriangle className="size-4" />}
+/>
 ```
 
+## Com sparkline
+
+```tsx
+<MetricCard
+  title="Score Médio"
+  value="73"
+  delta={{ value: -2.1, trend: "down" }}
+  sparkline={[65, 70, 72, 68, 74, 73, 71, 73]}
+/>
+```
+
+## Em grid de dashboard
+
+```tsx
+<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+  <MetricCard title="Total" value="156" delta={{ value: 5.1, trend: "up" }} />
+  <MetricCard title="Ativas" value="12" delta={{ value: -3.2, trend: "down" }} />
+  <MetricCard title="Resolvidas" value="140" delta={{ value: 12.0, trend: "up" }} />
+  <MetricCard title="Tempo médio" value="4.2h" delta={{ value: 0, trend: "stable" }} />
+</div>
+```
+
+## Quando usar
+
+- Métricas de dashboard
+- KPIs e indicadores de desempenho
+- Cards de resumo em relatórios

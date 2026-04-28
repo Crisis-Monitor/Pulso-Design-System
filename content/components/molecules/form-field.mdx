@@ -1,16 +1,43 @@
-# form field
+---
+title: Form Field
+description: Wrapper para campos de formulário com label, input, descrição e mensagem de erro.
+---
 
-Documentação do componente form field.
+# Form Field
+
+Wrapper que organiza label, campo de entrada, descrição e mensagem de erro.
 
 ## Import
 
 ```tsx
-import { formfield } from "@/components/ui/form-field";
+import { Field } from "@/components/ui/field"
 ```
 
-## Uso
+## Uso básico
 
 ```tsx
-<form field />
+<Field
+  label="Nome da crise"
+  description="Um nome descritivo para identificar a crise"
+>
+  <Input placeholder="Ex: Incidente servidor principal" />
+</Field>
 ```
 
+## Com erro
+
+```tsx
+<Field label="Email" error="Email inválido">
+  <Input type="email" aria-invalid="true" />
+</Field>
+```
+
+## Quando usar
+
+- Campos de formulário com label e descrição
+- Para manter consistência visual em formulários
+
+## Acessibilidade
+
+- Label conectado ao input via `htmlFor`
+- Mensagem de erro conectada via `aria-describedby`

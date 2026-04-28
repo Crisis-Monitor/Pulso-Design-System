@@ -1,16 +1,48 @@
-# empty state
+---
+title: Empty State
+description: Tela ou seção para quando não há dados para exibir, com call-to-action.
+---
 
-Documentação do componente empty state.
+# Empty State
+
+Componente que ocupa o espaço quando não há dados para exibir. Inclui ilustração, texto explicativo e call-to-action.
 
 ## Import
 
 ```tsx
-import { emptystate } from "@/components/ui/empty-state";
+import { Empty } from "@/components/ui/empty"
 ```
 
-## Uso
+## Uso básico
 
 ```tsx
-<empty state />
+<Empty
+  title="Nenhuma crise encontrada"
+  description="Não há crises ativas no momento. Crie uma nova ou ajuste os filtros."
+/>
 ```
 
+## Com ação
+
+```tsx
+import { Plus } from "lucide-react"
+
+<Empty
+  title="Nenhuma métrica configurada"
+  description="Adicione métricas para começar a monitorar."
+  action={
+    <Button><Plus className="size-4" /> Adicionar métrica</Button>
+  }
+/>
+```
+
+## Quando usar
+
+- Listas vazias
+- Resultados de busca sem matches
+- Dashboards sem dados configurados
+
+## Quando não usar
+
+- Para erros de carregamento (use Alert)
+- Para loading (use Skeleton ou Spinner)

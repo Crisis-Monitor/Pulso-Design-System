@@ -1,16 +1,38 @@
-# input group
+---
+title: Input Group
+description: Campo de input com elementos anexos (ícones, botões, prefixos, sufixos).
+---
 
-Documentação do componente input group.
+# Input Group
+
+Wrapper para inputs com elementos visuais anexos.
 
 ## Import
 
 ```tsx
-import { inputgroup } from "@/components/ui/input-group";
+import { InputGroup, InputGroupText, InputGroupButton } from "@/components/ui/input-group"
 ```
 
-## Uso
+## Com ícone
 
 ```tsx
-<input group />
+<InputGroup>
+  <SearchIcon className="size-4 text-muted-foreground" />
+  <Input placeholder="Buscar crises..." />
+</InputGroup>
 ```
 
+## Com botão
+
+```tsx
+<InputGroup>
+  <Input placeholder="URL do webhook" />
+  <InputGroupButton><Button variant="ghost">Testar</Button></InputGroupButton>
+</InputGroup>
+```
+
+## Quando usar
+
+- Campos de busca com ícone
+- Inputs com ações secundárias
+- URLs com prefixo fixo

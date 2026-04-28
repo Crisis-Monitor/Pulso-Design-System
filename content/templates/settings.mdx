@@ -1,0 +1,92 @@
+---
+title: Settings
+description: Template de página de configurações — perfil, notificações, integrações e conta.
+---
+
+# Settings Template
+
+Página de configurações do Orchids Crisis Manager. Organizada em seções com formulário de campos.
+
+## Estrutura
+
+```
+┌─────────────────────────────────────────────┐
+│  Header                                     │
+│  Configurações                              │
+├─────────────────────────────────────────────┤
+│  Sidebar (seções)   │  Form Content         │
+│  ├─ Perfil          │  ┌──────────────────┐ │
+│  ├─ Notificações    │  │ FormField        │ │
+│  ├─ Integrações     │  │ FormField        │ │
+│  ├─ Equipe          │  │ FormField        │ │
+│  └─ Conta           │  │ [Salvar] [Cancelar]│
+│                     │  └──────────────────┘ │
+└────────────────────┴───────────────────────┘
+```
+
+## Componentes Utilizados
+
+| Seção | Componentes |
+|-------|-------------|
+| Navegação | `Sidebar`, `Button` (ghost) |
+| Formulários | `Form`, `FormField`, `Input`, `Switch`, `Select` |
+| Integrações | `Card`, `Badge`, `Button` |
+| Equipe | `Table`, `Avatar`, `DropdownMenu` |
+| Conta | `Dialog` (confirmar ações) |
+
+## Padrão de Formulário
+
+```tsx
+import { Form, FormField, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+
+export default function SettingsForm() {
+  return (
+    <form className="flex flex-col gap-6">
+      {/* Perfil */}
+      <div>
+        <h2 className="text-lg font-semibold mb-4">Perfil</h2>
+        <div className="flex flex-col gap-4">
+          <FormField label="Nome" required>
+            <Input placeholder="Seu nome" />
+          </FormField>
+          <FormField label="Email" required>
+            <Input type="email" placeholder="email@exemplo.com" />
+          </FormField>
+        </div>
+      </div>
+
+      {/* Notificações */}
+      <div>
+        <h2 className="text-lg font-semibold mb-4">Notificações</h2>
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Alertas por email</p>
+              <p className="text-sm text-muted-foreground">
+                Receba alertas de novas crises
+              </p>
+            </div>
+            <Switch />
+          </div>
+        </div>
+      </div>
+
+      {/* Ações */}
+      <div className="flex gap-2 justify-end">
+        <Button variant="outline">Cancelar</Button>
+        <Button variant="default">Salvar</Button>
+      </div>
+    </form>
+  );
+}
+```
+
+## Validação
+
+- Campos obrigatórios marcados com asterisco
+- Erros inline abaixo do campo com `FormMessage`
+- Botão salvar desabilitado até o form ser válido
+- Toast de confirmação após salvar com sucesso

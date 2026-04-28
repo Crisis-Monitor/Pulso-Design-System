@@ -1,16 +1,42 @@
-# progress
+---
+title: Progress
+description: Barra de progresso linear para indicar o avanço de uma operação.
+---
 
-Documentação do componente progress.
+# Progress
+
+Barra de progresso linear que indica o andamento de uma operação com valor conhecido.
 
 ## Import
 
-```tsx
-import { progress } from "@/components/ui/progress";
-```
+\`\`\`tsx
+import { Progress } from "@/components/ui/progress"
+\`\`\`
 
-## Uso
+## Uso básico
 
-```tsx
-<progress />
-```
+\`\`\`tsx
+<Progress value={66} />
+\`\`\`
 
+## Com Label
+
+\`\`\`tsx
+<div className="space-y-2">
+  <div className="flex justify-between text-sm">
+    <span>Upload</span>
+    <span>66%</span>
+  </div>
+  <Progress value={66} />
+</div>
+\`\`\`
+
+## Quando usar
+
+- Upload de arquivos
+- Processamento de dados com progresso conhecido
+- Onboarding multi-step
+
+## Acessibilidade
+
+- \`role="progressbar"\` com \`aria-valuenow\`

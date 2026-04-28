@@ -1,16 +1,38 @@
-# dropdown menu
+---
+title: Dropdown Menu
+description: Menu contextual com ações agrupadas, atalhos e submenus.
+---
 
-Documentação do componente dropdown menu.
+# Dropdown Menu
+
+Menu que aparece ao clicar em um trigger, com ações agrupadas e submenus.
 
 ## Import
 
 ```tsx
-import { dropdownmenu } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuGroup, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from "@/components/ui/dropdown-menu"
 ```
 
-## Uso
+## Uso básico
 
 ```tsx
-<dropdown menu />
+<DropdownMenu>
+  <DropdownMenuTrigger asChild><Button variant="outline">Abrir</Button></DropdownMenuTrigger>
+  <DropdownMenuContent>
+    <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+    <DropdownMenuSeparator />
+    <DropdownMenuGroup>
+      <DropdownMenuItem>Perfil</DropdownMenuItem>
+      <DropdownMenuItem>Configurações</DropdownMenuItem>
+    </DropdownMenuGroup>
+    <DropdownMenuSeparator />
+    <DropdownMenuItem variant="destructive">Sair</DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>
 ```
 
+## Quando usar
+
+- Ações contextuais em botões ou ícones
+- Menu de usuário (avatar no header)
+- Ações em linhas de tabela

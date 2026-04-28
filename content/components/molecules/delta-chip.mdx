@@ -1,16 +1,45 @@
-# delta chip
+---
+title: Delta Chip
+description: Indicador de variação numérica com direção (positivo/negativo/neutro).
+---
 
-Documentação do componente delta chip.
+# Delta Chip
+
+Chip especializado que mostra variação numérica com direção e cor semântica.
 
 ## Import
 
 ```tsx
-import { deltachip } from "@/components/ui/delta-chip";
+import { DeltaChip } from "@/components/ui/delta-chip"
 ```
 
-## Uso
+## Uso básico
 
 ```tsx
-<delta chip />
+<DeltaChip value={12.5} />
+<DeltaChip value={-8.3} />
+<DeltaChip value={0} />
 ```
 
+## Variantes automáticas
+
+| Valor | Cor | Ícone |
+|-------|-----|-------|
+| Positivo | `success` (verde) | ↑ |
+| Negativo | `error` (vermelho) | ↓ |
+| Zero | `neutral` (cinza) | → |
+
+## Em Metric Cards
+
+```tsx
+<div className="flex items-center gap-2">
+  <span className="text-2xl font-bold">1,234</span>
+  <DeltaChip value={12.5} size="sm" />
+</div>
+```
+
+## Quando usar
+
+- Variações de métricas no dashboard
+- Tendências de score de risco
+- Comparativos período a período

@@ -1,0 +1,111 @@
+---
+title: Instalação
+description: Como instalar e configurar o Pulso Design System no seu projeto.
+---
+
+# Instalação
+
+O Pulso Design System é distribuído como parte do **Orchids Crisis Manager**. Os componentes vivem no projeto e são consumidos via imports diretos.
+
+## Pré-requisitos
+
+- **Next.js 15** (App Router)
+- **React 19**
+- **Tailwind CSS v4**
+- **TypeScript 5+**
+- **bun** (package manager)
+
+## Componentes UI
+
+Os componentes base são fornecidos em `src/components/ui/`. Cada componente é um arquivo auto-contido que pode ser copiado para outros projetos:
+
+```
+src/components/ui/
+├── button.tsx
+├── input.tsx
+├── badge.tsx
+├── card.tsx
+├── dialog.tsx
+├── table.tsx
+├── tabs.tsx
+├── form.tsx
+├── select.tsx
+├── switch.tsx
+├── skeleton.tsx
+├── spinner.tsx
+└── ...
+```
+
+## Tokens CSS
+
+Os tokens de design são definidos em `src/app/globals.css`:
+
+```css
+@theme {
+  /* Cores base */
+  --color-background: hsl(222 14% 8%);
+  --color-foreground: hsl(210 40% 98%);
+
+  /* Cores de superfície */
+  --color-card: hsl(222 14% 10%);
+  --color-card-foreground: hsl(210 40% 98%);
+
+  /* Cores delta (status) */
+  --color-delta-success: hsl(142 71% 45%);
+  --color-delta-warn: hsl(38 92% 50%);
+  --color-delta-error: hsl(0 72% 51%);
+  --color-delta-info: hsl(217 91% 60%);
+  --color-delta-neutral: hsl(215 14% 60%);
+
+  /* Tipografia */
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+
+  /* Espaçamento */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+
+  /* Bordas */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+}
+```
+
+## Fonte
+
+O Pulso usa **Inter** como fonte principal e **JetBrains Mono** para código e dados numéricos:
+
+```tsx
+// layout.tsx
+import { Inter, JetBrains_Mono } from "next/font/google";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
+```
+
+## Configuração Tailwind
+
+Certifique-se de que o Tailwind está configurado para escanear todos os arquivos do projeto:
+
+```ts
+// tailwind.config.ts
+import type { Config } from "tailwindcss";
+
+const config: Config = {
+  content: [
+    "./src/**/*.{ts,tsx,mdx}",
+    "./content/**/*.{mdx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+
+export default config;
+```

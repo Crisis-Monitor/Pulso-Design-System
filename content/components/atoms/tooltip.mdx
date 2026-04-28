@@ -1,16 +1,41 @@
-# tooltip
+---
+title: Tooltip
+description: Informação contextual que aparece ao hover ou focus sobre um elemento.
+---
 
-Documentação do componente tooltip.
+# Tooltip
+
+Revela informações adicionais quando o usuário passa o mouse ou foca em um elemento.
 
 ## Import
 
-```tsx
-import { tooltip } from "@/components/ui/tooltip";
-```
+\`\`\`tsx
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+\`\`\`
 
-## Uso
+## Uso básico
 
-```tsx
-<tooltip />
-```
+\`\`\`tsx
+<TooltipProvider>
+  <Tooltip>
+    <TooltipTrigger><button>Hover me</button></TooltipTrigger>
+    <TooltipContent><p>Informação adicional aqui</p></TooltipContent>
+  </Tooltip>
+</TooltipProvider>
+\`\`\`
 
+## Posições
+
+\`\`\`tsx
+<TooltipContent side="top">Top</TooltipContent>
+<TooltipContent side="right">Right</TooltipContent>
+<TooltipContent side="bottom">Bottom</TooltipContent>
+<TooltipContent side="left">Left</TooltipContent>
+\`\`\`
+
+## Acessibilidade
+
+- Acessível via hover E focus
+- Delay padrão de 700ms para evitar flash
+- Fecha com ESC
+- \`TooltipProvider\` é obrigatório no parent

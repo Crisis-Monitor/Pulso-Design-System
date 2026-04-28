@@ -1,0 +1,57 @@
+---
+title: Typography
+description: Sistema tipográfico do Pulso — fontes, escala, pesos e diretrizes de uso.
+---
+
+# Typography
+
+O sistema tipográfico do Pulso usa duas famílias: **Inter** para texto geral e **JetBrains Mono** para dados numéricos e código.
+
+## Famílias
+
+| Família | Uso | Variável CSS |
+|---------|-----|-------------|
+| **Inter** | Texto geral, labels, headings | `--font-sans` |
+| **JetBrains Mono** | Scores, métricas, timestamps, código | `--font-mono` |
+
+## Escala Tipográfica
+
+| Classe | Size | Line-height | Weight | Uso |
+|--------|------|-------------|--------|-----|
+| `text-4xl` | 2.25rem | 2.5rem | 600 | Hero titles |
+| `text-3xl` | 1.875rem | 2.25rem | 600 | Page titles |
+| `text-2xl` | 1.5rem | 2rem | 600 | Section titles |
+| `text-xl` | 1.25rem | 1.75rem | 600 | Card titles |
+| `text-lg` | 1.125rem | 1.75rem | 500 | Subtitles |
+| `text-base` | 1rem | 1.5rem | 400 | Body text |
+| `text-sm` | 0.875rem | 1.25rem | 400 | Captions, labels |
+| `text-xs` | 0.75rem | 1rem | 400 | Footnotes, badges |
+
+## Pesos
+
+| Peso | Classe | Uso |
+|------|--------|-----|
+| 400 | `font-normal` | Body text, descrições |
+| 500 | `font-medium` | Labels, nav items |
+| 600 | `font-semibold` | Headings, títulos |
+| 700 | `font-bold` | Destaque, números grandes |
+
+## Métricas e Scores
+
+Números críticos (scores, métricas, deltas) sempre usam **JetBrains Mono** com peso bold:
+
+```tsx
+<span className="font-mono text-3xl font-bold tabular-nums">
+  87
+</span>
+```
+
+Use `tabular-nums` para alinhamento em tabelas e listas.
+
+## Diretrizes
+
+1. **Máximo 3 níveis de heading** por seção (h1 → h2 → h3)
+2. **Labels sempre em sentence case** (não uppercase)
+3. **Números sempre em mono** para facilitar comparação visual
+4. **Body text máximo 65ch** para legibilidade
+5. **Contraste mínimo AA** em todos os textos

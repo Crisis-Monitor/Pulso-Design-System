@@ -1,16 +1,36 @@
-# kicker
+---
+title: Kicker
+description: Rótulo curto e destacado que precede títulos para contextualizar o conteúdo.
+---
 
-Documentação do componente kicker.
+# Kicker
+
+Texto curto e estilizado que aparece acima de títulos para fornecer contexto ou categorização.
 
 ## Import
 
-```tsx
-import { kicker } from "@/components/ui/kicker";
-```
+\`\`\`tsx
+import { Kicker } from "@/components/ui/kicker"
+\`\`\`
 
-## Uso
+## Uso básico
 
-```tsx
-<kicker />
-```
+\`\`\`tsx
+<Kicker>Monitoramento</Kicker>
+<h2>Crise de segurança detectada</h2>
+\`\`\`
 
+## Em cards
+
+\`\`\`tsx
+<div className="p-6 border rounded-lg">
+  <Kicker>Nova crise</Kicker>
+  <h3 className="text-lg font-semibold">Incidente no servidor principal</h3>
+</div>
+\`\`\`
+
+## Quando usar
+
+- Categorizar seções de conteúdo
+- Identificar o tipo de card ou bloco
+- Pré-títulos em métricas e alertas

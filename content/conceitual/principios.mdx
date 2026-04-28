@@ -1,0 +1,71 @@
+---
+title: Princípios
+description: Princípios de design que guiam cada decisão no Pulso Design System.
+---
+
+# Princípios
+
+Os princípios do Pulso não são slogans — são **critérios de decisão**. Quando há dúvida sobre como implementar algo, esses princípios ditam a resposta.
+
+## 1. Clareza sobre ornamento
+
+Cada elemento visual existe para comunicar algo. Se não comunica, não existe.
+
+- ❌ Gradientes decorativos sem função
+- ✅ Cores semânticas que indicam status
+- ❌ Sombras profundas por estética
+- ✅ Elevação para indicar hierarquia
+
+## 2. Ação sobre decoração
+
+A interface é uma ferramenta de trabalho, não uma vitrine. O usuário está em situação de crise — precisa agir rápido.
+
+- Botões de ação são visíveis e claros
+- Estados de loading dão feedback imediato
+- Atalhos de teclado para ações frequentes
+- Confirmação antes de ações destrutivas
+
+## 3. Dados primeiro
+
+O conteúdo dita o layout, não o contrário. As métricas de crise são o protagonista.
+
+- Números grandes e legíveis (tabular-nums, mono)
+- Deltas visíveis ao lado das métricas
+- Gráficos quando ajudam, decorativos quando distraem
+- Tabelas densas para quem compara dados
+
+## 4. Status visível
+
+O usuário nunca deve se perguntar "qual é o estado disso?".
+
+- Badges de status em todo lugar relevante
+- Cores semânticas consistentes (delta tokens)
+- Indicadores de loading em toda operação assíncrona
+- Mensagens de erro claras e acionáveis
+
+## 5. Consistência contextual
+
+O mesmo padrão gera a mesma expectativa em todo o produto.
+
+- Mesmo badge de "Ativa" em toda a aplicação
+- Mesmo ícone de "deletar" em todo lugar
+- Mesmo padrão de formulário para criar/editar
+- Mesmo empty state para dados ausentes
+
+## 6. Acessibilidade como requisito
+
+Não é feature, é baseline.
+
+- Contraste mínimo AA em tudo
+- Focus ring visível em tudo que é interativo
+- Keyboard navigation em tudo
+- Screen reader labels em tudo
+
+## 7. Densidade contextual
+
+A interface se adapta ao contexto de uso:
+
+- **Dashboard**: densidade média — scan rápido
+- **Tabelas**: alta densidade — comparação de dados
+- **Forms**: baixa densidade — foco e precisão
+- **Alertas**: máxima visibilidade — ação imediata

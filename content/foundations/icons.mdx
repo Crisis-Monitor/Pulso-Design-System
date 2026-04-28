@@ -1,0 +1,73 @@
+---
+title: Icons
+description: Sistema de ícones do Pulso — biblioteca, tamanhos e diretrizes de uso.
+---
+
+# Icons
+
+O Pulso usa **Lucide React** como biblioteca de ícones. Todos os ícones são SVG inline, tree-shakeable e customizáveis.
+
+## Instalação
+
+```bash
+bun add lucide-react
+```
+
+## Uso Básico
+
+```tsx
+import { AlertTriangle, Check, X, ChevronDown } from "lucide-react";
+
+<AlertTriangle className="size-4 text-delta-warn" />
+<Check className="size-4 text-delta-success" />
+<X className="size-4 text-delta-error" />
+```
+
+## Tamanhos
+
+| Classe | Uso |
+|--------|-----|
+| `size-3` (12px) | Inline com texto xs |
+| `size-4` (16px) | Default — inline com body/sm |
+| `size-5` (20px) | Botões com ícone |
+| `size-6` (24px) | Empty states, illustrations |
+| `size-8` (32px) | Hero icons, placeholders |
+| `size-10` (40px) | Empty state large |
+| `size-12` (48px) | Hero illustration |
+
+## Cores Semânticas
+
+| Status | Cor do ícone |
+|--------|-------------|
+| Success | `text-delta-success-foreground` |
+| Warning | `text-delta-warn-foreground` |
+| Error | `text-delta-error-foreground` |
+| Info | `text-delta-info-foreground` |
+| Neutral | `text-muted-foreground` |
+
+## Ícones Mais Usados
+
+| Ícone | Import | Uso |
+|-------|--------|-----|
+| `AlertTriangle` | `lucide-react` | Alertas, warnings |
+| `CheckCircle` | `lucide-react` | Sucesso, aprovado |
+| `XCircle` | `lucide-react` | Erro, rejeitado |
+| `Info` | `lucide-react` | Informações |
+| `ChevronDown` | `lucide-react` | Dropdowns, expansão |
+| `ChevronRight` | `lucide-react` | Navegação, drill-down |
+| `Search` | `lucide-react` | Busca |
+| `Plus` | `lucide-react` | Adicionar, criar |
+| `Trash2` | `lucide-react` | Deletar |
+| `Settings` | `lucide-react` | Configurações |
+| `Bell` | `lucide-react` | Notificações |
+| `Eye` / `EyeOff` | `lucide-react` | Visibilidade |
+| `Loader2` | `lucide-react` | Loading/spinner |
+| `Shield` | `lucide-react` | Segurança, crise |
+
+## Diretrizes
+
+1. **Sempre definir tamanho** via className (`size-4`)
+2. **Ícones decorativos** devem ter `aria-hidden="true"`
+3. **Ícones funcionais** devem ter `role="img"` e `aria-label`
+4. **Cor nunca como único indicador** — sempre combinar com texto
+5. **Consistência** — mesmo ícone para mesma ação em todo o app

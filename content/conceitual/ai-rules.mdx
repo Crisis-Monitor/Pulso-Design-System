@@ -1,0 +1,53 @@
+---
+title: AI Rules
+description: Regras e diretrizes para uso de IA na criação e manutenção do Pulso Design System.
+---
+
+# AI Rules
+
+Este documento define como ferramentas de IA (Codex, Claude Code, ChatGPT) interagem com o Pulso Design System.
+
+## Divisão de Trabalho
+
+| Ferramenta | Responsabilidade |
+|------------|-----------------|
+| **Codex** | Backend, integrações, Cris assistant, lógica de domínio, documentação técnica |
+| **Claude Code** | UX, componentes visuais, design system, páginas internas, polish visual |
+| **ChatGPT** | Apoio em planejamento, estruturação, narrativa — sem ownership de código |
+
+## Regras para Geração de Componentes
+
+Quando uma IA gera um componente para o Pulso:
+
+1. **Usar tokens existentes** — nunca criar cores/valores hardcoded
+2. **Seguir atomic design** — classificar no nível correto (átomo, molécula, organismo)
+3. **Incluir acessibilidade** — focus ring, aria labels, keyboard support
+4. **Documentar** — MDX com uso básico, variantes, props e exemplos
+5. **Testar responsividade** — mobile-first, testar em 3 breakpoints
+
+## Regras para Documentação MDX
+
+1. **Front matter obrigatório** — title e description
+2. **Exemplo de import** — sempre mostrar como importar
+3. **Uso básico primeiro** — o exemplo mais simples vem antes
+4. **Variantes em tabela** — quando houver mais de 2 variantes
+5. **Quando usar / Quando não usar** — seção obrigatória para componentes complexos
+
+## Regras de Consistência
+
+- **Nunca renomear** tokens sem discutir na Issue
+- **Nunca adicionar** variantes sem usar caso real
+- **Nunca quebrar** compatibilidade sem migration path
+- **Sempre testar** contraste AA antes de commitar cores
+
+## Boundary Operacional
+
+Handoff entre ferramentas só existe quando há boundary operacional real:
+
+1. Troca de executor
+2. Troca de ferramenta dominante
+3. Mudança de tipo de trabalho
+4. Mudança de risco ou contrato
+5. Divisão real em paralelismo
+
+Fora disso: mesma Issue, mesma execução.

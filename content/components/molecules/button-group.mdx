@@ -1,16 +1,30 @@
-# uutton group
+---
+title: Button Group
+description: Grupo de botões visualmente conectados para ações relacionadas.
+---
 
-Documentação do componente uutton group.
+# Button Group
+
+Agrupa botões visualmente conectados para ações relacionadas, como toggles de visualização ou seletores de período.
 
 ## Import
 
 ```tsx
-import { uuttongroup } from "@/components/ui/button-group";
+import { ButtonGroup, ButtonGroupItem } from "@/components/ui/button-group"
 ```
 
-## Uso
+## Uso básico
 
 ```tsx
-<uutton group />
+<ButtonGroup>
+  <ButtonGroupItem>Diário</ButtonGroupItem>
+  <ButtonGroupItem variant="active">Semanal</ButtonGroupItem>
+  <ButtonGroupItem>Mensal</ButtonGroupItem>
+</ButtonGroup>
 ```
 
+## Quando usar
+
+- Toggles de visualização (lista/grid/tabela)
+- Seletores de período (dia/semana/mês)
+- Ações mutuamente exclusivas

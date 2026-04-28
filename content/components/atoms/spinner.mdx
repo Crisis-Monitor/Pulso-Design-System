@@ -1,16 +1,50 @@
-# spinner
+---
+title: Spinner
+description: Indicador de carregamento circular animado para operações assíncronas.
+---
 
-Documentação do componente spinner.
+# Spinner
+
+Indicador visual circular animado para operações em andamento.
 
 ## Import
 
-```tsx
-import { spinner } from "@/components/ui/spinner";
-```
+\`\`\`tsx
+import { Spinner } from "@/components/ui/spinner"
+\`\`\`
 
-## Uso
+## Uso básico
 
-```tsx
-<spinner />
-```
+\`\`\`tsx
+<Spinner />
+\`\`\`
 
+## Tamanhos
+
+| Tamanho | Uso |
+|---------|-----|
+| `sm` | Inline com texto pequeno |
+| `default` | Loading de seção |
+| `lg` | Loading de página inteira |
+
+\`\`\`tsx
+<Spinner size="sm" />
+<Spinner size="default" />
+<Spinner size="lg" />
+\`\`\`
+
+## Quando usar
+
+- Operações assíncronas sem estimativa de tempo
+- Loading de página ou seção completa
+- Submissão de formulários
+
+## Quando não usar
+
+- Para dados que carregam rápido (use Skeleton)
+- Para progresso com percentual conhecido (use Progress)
+
+## Acessibilidade
+
+- \`role="status"\` no container
+- \`aria-label="Carregando"\` para screen readers

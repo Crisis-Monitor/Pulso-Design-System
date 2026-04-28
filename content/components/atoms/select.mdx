@@ -1,16 +1,56 @@
-# select
+---
+title: Select
+description: Dropdown de seleção com suporte a busca, grupos e placeholder.
+---
 
-Documentação do componente select.
+# Select
+
+Menu dropdown para selecionar uma opção de uma lista.
 
 ## Import
 
-```tsx
-import { select } from "@/components/ui/select";
-```
+\`\`\`tsx
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from "@/components/ui/select"
+\`\`\`
 
-## Uso
+## Uso básico
 
-```tsx
-<select />
-```
+\`\`\`tsx
+<Select>
+  <SelectTrigger className="w-[180px]">
+    <SelectValue placeholder="Status" />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="active">Ativa</SelectItem>
+    <SelectItem value="resolved">Resolvida</SelectItem>
+    <SelectItem value="archived">Arquivada</SelectItem>
+  </SelectContent>
+</Select>
+\`\`\`
 
+## Com grupos
+
+\`\`\`tsx
+<Select>
+  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+  <SelectContent>
+    <SelectGroup>
+      <SelectLabel>Prioridade</SelectLabel>
+      <SelectItem value="low">Baixa</SelectItem>
+      <SelectItem value="medium">Média</SelectItem>
+      <SelectItem value="high">Alta</SelectItem>
+    </SelectGroup>
+  </SelectContent>
+</Select>
+\`\`\`
+
+## Quando usar
+
+- Seleção entre 3+ opções
+- Quando espaço é limitado
+- Para filtros em dashboards
+
+## Acessibilidade
+
+- Navegação por teclado (setas, Enter, ESC)
+- Busca por digitação (typeahead)

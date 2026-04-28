@@ -1,16 +1,52 @@
-# form
+---
+title: Form
+description: Wrapper para formulários com validação e integração com react-hook-form.
+---
 
-Documentação do componente form.
+# Form
+
+Sistema de formulários com validação, integração com react-hook-form e componentes de campo com mensagens de erro.
 
 ## Import
 
 ```tsx
-import { form } from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 ```
 
-## Uso
+## Uso com react-hook-form
 
 ```tsx
-<form />
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+
+const formSchema = z.object({
+  name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
+  email: z.string().email("Email inválido"),
+})
+
+function CrisisForm() {
+  const form = useForm({ resolver: zodResolver(formSchema) })
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField control={form.control} name="name" render={({ field }) => (
+          <FormItem>
+            <FormLabel>Nome</FormLabel>
+            <FormControl><Input {...field} /></FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
+        <Button type="submit">Criar crise</Button>
+      </form>
+    </Form>
+  )
+}
 ```
 
+## Quando usar
+
+- Formulários com validação
+- Criação e edição de crises
+- Configurações de usuário

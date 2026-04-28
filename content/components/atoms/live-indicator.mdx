@@ -1,16 +1,34 @@
-# live indicator
+---
+title: Live Indicator
+description: Indicador visual de status em tempo real com ponto pulsante animado.
+---
 
-Documentação do componente live indicator.
+# Live Indicator
+
+Indicador visual que mostra se um dado ou monitoramento está ativo e em tempo real. Usa um ponto pulsante animado.
 
 ## Import
 
-```tsx
-import { live indicator } from "@/components/ui/live-indicator";
-```
+\`\`\`tsx
+import { LiveIndicator } from "@/components/ui/live-indicator"
+\`\`\`
 
-## Uso
+## Uso básico
 
-```tsx
-<live indicator />
-```
+\`\`\`tsx
+<LiveIndicator label="Ao vivo" />
+\`\`\`
 
+## Estados
+
+\`\`\`tsx
+<LiveIndicator status="live" label="Ao vivo" />
+<LiveIndicator status="offline" label="Offline" />
+<LiveIndicator status="connecting" label="Conectando..." />
+\`\`\`
+
+## Quando usar
+
+- Mostrar que dados estão sendo atualizados em tempo real
+- Status de conexão com serviços
+- Indicador de monitoramento ativo

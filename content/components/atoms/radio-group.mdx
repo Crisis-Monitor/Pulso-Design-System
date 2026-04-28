@@ -1,16 +1,41 @@
-# radio group
+---
+title: Radio Group
+description: Grupo de opções mutuamente exclusivas para seleção única.
+---
 
-Documentação do componente radio group.
+# Radio Group
+
+Grupo de botões de rádio onde apenas uma opção pode ser selecionada por vez.
 
 ## Import
 
-```tsx
-import { radio group } from "@/components/ui/radio-group";
-```
+\`\`\`tsx
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+\`\`\`
 
-## Uso
+## Uso básico
 
-```tsx
-<radio group />
-```
+\`\`\`tsx
+<RadioGroup defaultValue="daily">
+  <div className="flex items-center space-x-2">
+    <RadioGroupItem value="daily" id="daily" />
+    <Label htmlFor="daily">Diário</Label>
+  </div>
+  <div className="flex items-center space-x-2">
+    <RadioGroupItem value="weekly" id="weekly" />
+    <Label htmlFor="weekly">Semanal</Label>
+  </div>
+</RadioGroup>
+\`\`\`
 
+## Quando usar
+
+- Seleção única entre 2-7 opções
+- Quando todas as opções precisam ser visíveis
+- Configurações e preferências
+
+## Acessibilidade
+
+- Navegação por setas dentro do grupo
+- Label sempre associado via \`htmlFor\`

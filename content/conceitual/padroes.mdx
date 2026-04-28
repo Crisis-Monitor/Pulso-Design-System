@@ -1,0 +1,69 @@
+---
+title: Padrões
+description: Padrões de design transversais — como o Pulso aborda problemas recorrentes.
+---
+
+# Padrões
+
+Além de componentes individuais, o Pulso define **padrões de design** — soluções recorrentes para problemas que aparecem em múltiplas superfícies.
+
+## Padrão de Status
+
+Todo status no sistema segue o mesmo contrato:
+
+| Propriedade | Valor |
+|-------------|-------|
+| Label | Texto curto e claro |
+| Cor | Token delta correspondente |
+| Ícone | Opcional, para reforço visual |
+| Tooltip | Explicação adicional no hover |
+
+Exemplo: uma crise pode estar "Ativa", "Monitorando", "Resolvida", "Arquivada" ou "Em análise".
+
+## Padrão de Métrica
+
+Toda métrica segue a estrutura:
+
+```
+[Label]          ← text-sm, muted-foreground
+[Valor]          ← text-3xl, font-mono, font-bold
+[Delta]          ← DeltaChip com trend e cor
+```
+
+Isso se aplica a MetricCards, tabelas e inline stats.
+
+## Padrão de Formulário
+
+Todo formulário segue:
+
+1. **Label** acima do campo
+2. **Placeholder** como exemplo, não como label
+3. **Mensagem de erro** abaixo do campo
+4. **Botão de ação** alinhado à direita
+5. **Estado de loading** no botão de submit
+
+## Padrão de Lista/Tabela
+
+Toda lista segue:
+
+1. **Header** com título e ação de criar/filtrar
+2. **Colunas** com sort e filter quando relevante
+3. **Pagination** quando > 50 itens
+4. **Empty state** quando vazia
+5. **Loading state** skeleton enquanto carrega
+
+## Padrão de Confirmação
+
+Toda ação destrutiva segue:
+
+1. **Dialog** de confirmação com título claro
+2. **Descrição** da consequência
+3. **Botão cancel** (primary visual) e **confirm** (destructive)
+4. **Toast** de feedback após ação
+
+## Padrão de Navegação
+
+1. **Sidebar** para navegação principal
+2. **Breadcrumbs** para contexto de localização
+3. **Tabs** para seções dentro de uma página
+4. **Command palette** (⌘K) para acesso rápido

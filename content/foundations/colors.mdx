@@ -1,0 +1,70 @@
+---
+title: Colors
+description: Sistema de cores do Pulso — paleta base, semântica, delta tokens e diretrizes de contraste.
+---
+
+# Colors
+
+O sistema de cores do Pulso é baseado em **HSL** para garantir consistência e facilitar ajustes de tema.
+
+## Paleta Base
+
+| Token | Valor | Uso |
+|-------|-------|-----|
+| `--color-background` | `hsl(222 14% 8%)` | Fundo principal da aplicação |
+| `--color-foreground` | `hsl(210 40% 98%)` | Texto principal |
+| `--color-card` | `hsl(222 14% 10%)` | Fundo de cards e superfícies elevadas |
+| `--color-card-foreground` | `hsl(210 40% 98%)` | Texto sobre cards |
+| `--color-popover` | `hsl(222 14% 10%)` | Fundo de popovers e dropdowns |
+| `--color-popover-foreground` | `hsl(210 40% 98%)` | Texto sobre popovers |
+| `--color-muted` | `hsl(217 14% 20%)` | Fundo de elementos secundários |
+| `--color-muted-foreground` | `hsl(215 14% 60%)` | Texto secundário |
+| `--color-border` | `hsl(217 14% 20%)` | Bordas e separadores |
+| `--color-input` | `hsl(217 14% 20%)` | Bordas de inputs |
+
+## Cores Semânticas (Delta)
+
+O Pulso usa um sistema de **5 tokens delta** para comunicar status e mudanças:
+
+| Token | Valor | Uso |
+|-------|-------|-----|
+| `--color-delta-success` | `hsl(142 71% 45%)` | Métricas positivas, aprovações |
+| `--color-delta-warn` | `hsl(38 92% 50%)` | Alertas, atenção necessária |
+| `--color-delta-error` | `hsl(0 72% 51%)` | Crises ativas, erros, rejeições |
+| `--color-delta-info` | `hsl(217 91% 60%)` | Informações, estados neutros |
+| `--color-delta-neutral` | `hsl(215 14% 60%)` | Sem mudança, baseline |
+
+### Variantes de Saturação
+
+Cada cor delta tem 3 níveis de saturação:
+
+```css
+--delta-success-foreground: hsl(142 71% 45%);  /* texto/ícone */
+--delta-success-muted: hsl(142 71% 45% / 0.15);  /* fundo sutil */
+--delta-success-ring: hsl(142 71% 45% / 0.4);     /* focus ring */
+```
+
+## Ação e Interação
+
+| Token | Uso |
+|-------|-----|
+| `--color-primary` | Cor principal de ação (botões primários) |
+| `--color-primary-foreground` | Texto sobre primary |
+| `--color-secondary` | Ação secundária |
+| `--color-secondary-foreground` | Texto sobre secondary |
+| `--color-destructive` | Ações destrutivas |
+| `--color-destructive-foreground` | Texto sobre destructive |
+| `--color-accent` | Hover states e highlights |
+| `--color-accent-foreground` | Texto sobre accent |
+
+## Diretrizes de Contraste
+
+- **AA normal**: mínimo 4.5:1
+- **AA large**: mínimo 3:1
+- **AAA**: mínimo 7:1 (ideal para texto principal)
+
+Todos os tokens do Pulso são testados para garantir AA no mínimo.
+
+## Dark Mode
+
+O Pulso é **dark-first** — o tema padrão já é escuro. Light mode é uma inversão controlada dos mesmos tokens HSL, não uma paleta separada.

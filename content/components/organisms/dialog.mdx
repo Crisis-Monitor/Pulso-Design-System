@@ -1,16 +1,44 @@
-# dialog
+---
+title: Dialog
+description: Janela modal para confirmações, formulários e informações.
+---
 
-Documentação do componente dialog.
+# Dialog
+
+Janela modal que sobrepõe o conteúdo principal para confirmações, formulários e informações.
 
 ## Import
 
 ```tsx
-import { dialog } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog"
 ```
 
-## Uso
+## Uso básico
 
 ```tsx
-<dialog />
+<Dialog>
+  <DialogTrigger asChild><Button>Abrir</Button></DialogTrigger>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Confirmar exclusão</DialogTitle>
+      <DialogDescription>Esta ação não pode ser desfeita.</DialogDescription>
+    </DialogHeader>
+    <DialogFooter>
+      <Button variant="outline">Cancelar</Button>
+      <Button variant="destructive">Excluir</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
 ```
 
+## Quando usar
+
+- Confirmações de ações destrutivas
+- Formulários contextuais
+- Detalhes que requerem foco
+
+## Acessibilidade
+
+- Focus trap dentro do dialog
+- Fecha com ESC
+- Focus retorna ao trigger ao fechar

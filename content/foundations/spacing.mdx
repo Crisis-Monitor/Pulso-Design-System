@@ -1,0 +1,58 @@
+---
+title: Spacing
+description: Sistema de espaçamento do Pulso — escala, padding, gaps e diretrizes de layout.
+---
+
+# Spacing
+
+O sistema de espaçamento do Pulso é baseado numa escala de **4px** para consistência visual e previsibilidade.
+
+## Escala Base
+
+| Token | Valor | Classe Tailwind | Uso |
+|-------|-------|-----------------|-----|
+| `--spacing-1` | 0.25rem (4px) | `p-1`, `gap-1` | Espaçamento mínimo |
+| `--spacing-2` | 0.5rem (8px) | `p-2`, `gap-2` | Inline spacing, ícones |
+| `--spacing-3` | 0.75rem (12px) | `p-3`, `gap-3` | Compact spacing |
+| `--spacing-4` | 1rem (16px) | `p-4`, `gap-4` | Default spacing |
+| `--spacing-5` | 1.25rem (20px) | `p-5`, `gap-5` | Seções compactas |
+| `--spacing-6` | 1.5rem (24px) | `p-6`, `gap-6` | Card padding |
+| `--spacing-8` | 2rem (32px) | `p-8`, `gap-8` | Seções |
+| `--spacing-10` | 2.5rem (40px) | `p-10`, `gap-10` | Layout spacing |
+| `--spacing-12` | 3rem (48px) | `p-12`, `gap-12` | Page margins |
+| `--spacing-16` | 4rem (64px) | `p-16`, `gap-16` | Hero sections |
+
+## Alturas de Controle
+
+| Token | Valor | Uso |
+|-------|-------|-----|
+| `--control-height-compact` | 32px | Inputs em tabelas densas |
+| `--control-height-default` | 40px | Botões e inputs padrão |
+| `--control-height-prominent` | 48px | CTAs, botões de destaque |
+| `--control-height-hero` | 56px | Hero CTAs |
+
+## Padding de Container
+
+| Contexto | Padding |
+|----------|---------|
+| Page content | `p-6` (24px) |
+| Card content | `p-6` (24px) |
+| Dialog content | `p-6` (24px) |
+| Sidebar content | `p-4` (16px) |
+| Table cell | `px-4 py-2` |
+
+## Gaps em Grids
+
+| Layout | Gap |
+|--------|-----|
+| Card grid | `gap-4` (16px) |
+| Form fields | `gap-6` (24px) |
+| Inline elements | `gap-2` (8px) |
+| Navigation items | `gap-1` (4px) |
+
+## Diretrizes
+
+1. **Sempre usar a escala** — nunca valores arbitrários sem justificativa
+2. **Consistência vertical** — mesmo gap entre seções relacionadas
+3. **Respiração** — mais espaço ao redor de elementos importantes
+4. **Densidade contextual** — tabelas e listas usam escala compacta
