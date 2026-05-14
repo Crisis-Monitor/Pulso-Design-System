@@ -1,0 +1,355 @@
+---
+title: Roadmap v2
+description: Plano da segunda versão do Pulso DS — acessibilidade, voz, data viz, templates e governança. Próxima versão · em planejamento.
+---
+
+# Pulso DS · Plano v2
+
+> **Status:** Próxima versão · em planejamento · Q3–Q4 2026
+
+A v1 fechou o esqueleto: tokens, atoms, organisms, templates — o suficiente para construir o Crisis Monitor de forma consistente. **A v2 transforma o Pulso de uma biblioteca documentada num sistema operacional** — com acessibilidade auditável, voz própria, padrões de dado vivo e governança que sustente o crescimento.
+
+Este plano é dividido em **5 fases** com **23 iniciativas**, priorizadas em P0/P1/P2. A fase 1 (Acessibilidade) é não-negociável e bloqueante para qualquer release que sirva clientes regulados. As fases 2–5 podem rodar em paralelo a partir do fim da fase 1.
+
+---
+
+## North Star da v2
+
+### 01 · Audível — O DS bloqueia o anti-pattern
+
+Documentação é insuficiente. A v2 entrega lint rules, contraste auditado em CI, redundância de cor obrigatória em risco — guardrails que tornam o uso correto o caminho fácil.
+
+### 02 · Operacional — Pattern > componente
+
+Ninguém usa Button sozinho. A v2 promove padrões inteiros (search results, notification preferences, audit log) ao mesmo status de organism, com código copiável.
+
+### 03 · Sustentável — Governança como produto
+
+RFCs, deprecation policy, semver, métricas de adoção. Sem isso, o DS vira fardo em 18 meses. Investir agora multiplica por cinco a velocidade de feature.
+
+---
+
+## Fase 01 · Acessibilidade como contrato
+
+> **5 iniciativas · ≈ 4 semanas · P0 bloqueante**
+>
+> A fase bloqueante. Sem isso, o DS não serve clientes regulados.
+
+### 1.1 · Matriz de contraste auditada `P0`
+
+Hoje `fg-subtle` sobre `background` provavelmente falha WCAG AA. Vamos rodar Axe em todos os tokens combinados, gerar matriz pública, refatorar combinações que falham e travar regressão.
+
+**Entregáveis:**
+- Página **Foundations · Accessibility · Contraste** com matriz fg × bg auditada
+- Refator de `fg-subtle` e `fg-disabled` em light + dark para AA 4.5:1
+- CI step rodando `axe-core` nas 3 templates principais
+- Badge AA/AAA em cada token do Color page
+
+_Esforço: 5d · Owner: design + eng_
+
+### 1.2 · Redundância de cor em níveis de risco `P0`
+
+Cor nunca pode ser o único sinal — operador daltônico não distingue `attention` de `high`. Em produto de crise, isso vira incidente regulatório.
+
+**Entregáveis:**
+- Glifos de risk (●○◐◆■) atribuídos a cada nível, vivendo no DS
+- Refator de `RiskChip`, `RiskRing`, `RiskRail` com glifo + label obrigatórios
+- Lint rule: usar `--risk-*` sem componente Pulso vira warning
+- Página **Patterns · Risk · Redundância**
+
+_Esforço: 4d · Owner: design · Deps: 1.1_
+
+### 1.3 · Focus rings e keyboard map `P0`
+
+Hoje temos `--ring` mas não auditamos uso. Componentes interativos sem outline visível em dark mode ou com hit target < 44px são bloqueantes.
+
+**Entregáveis:**
+- Auditoria de focus em 100% dos atoms e form atoms
+- Tabela **Keyboard Map** por componente (Tab, Esc, ↑↓, Enter, Space)
+- Hit target ≥ 44×44px como contrato (token `--touch-target`)
+- Página **Foundations · Accessibility · Keyboard & Focus**
+
+_Esforço: 5d · Owner: eng + design_
+
+### 1.4 · Screen reader & ARIA contract `P0`
+
+Alertas críticos precisam ser anunciados — sem isso, operador com leitor de tela perde a crise. Cada componente recebe contrato ARIA explícito.
+
+**Entregáveis:**
+- `aria-live="assertive"` em Alert critical, `polite` em outros
+- Labels obrigatórios em IconButton, Switch, Checkbox sem visible label
+- Teste manual com VoiceOver + NVDA nas 3 templates
+- Página **Foundations · Accessibility · Screen Readers**
+
+_Esforço: 6d · Owner: eng · Deps: 1.3_
+
+### 1.5 · Reduced motion contract `P1`
+
+Animação em monitoramento real-time pode disparar enxaqueca, ataque vestibular. Respeitar `prefers-reduced-motion` é trivial e impactante.
+
+**Entregáveis:**
+- `@media (prefers-reduced-motion: reduce)` aplicado globalmente nos tokens motion
+- Mention card real-time pulse desativada
+- Documentado em **Foundations · Motion · Reduced**
+
+_Esforço: 2d · Owner: eng_
+
+---
+
+## Fase 02 · Voz, vocabulário e copy
+
+> **4 iniciativas · ≈ 3 semanas · P1 alto impacto**
+>
+> DS bonito gera produto inconsistente sem contrato de conteúdo.
+
+### 2.1 · Vocabulário do domínio `P1`
+
+Hoje cada PM escolhe entre _Crise_, _Incidente_, _Alerta_, _Menção_. Sem dicionário, a UI é Babel.
+
+**Entregáveis:**
+- Glossário canônico com 25–40 termos do Crisis Monitor
+- Distinção formal: Crise vs Incidente vs Alerta vs Menção vs Caso
+- Hierarquia: Operador vs Analista vs Cliente vs Gestor
+- Página **Foundations · Voice · Vocabulário**
+
+_Esforço: 3d · Owner: produto + design_
+
+### 2.2 · Microcopy patterns `P1`
+
+"Algo deu errado" é hostil. Erro vs warning vs info têm tons distintos. Empty states precisam de personalidade sem cinismo.
+
+**Entregáveis:**
+- Padrões de erro: network, validation, permission, fatal
+- Padrões de warning, info, success
+- Padrões de empty state (primeira vez, sem resultado, fim do feed)
+- Tom: direto, calmo, nunca apologético, nunca jocoso
+- Página **Foundations · Voice · Microcopy**
+
+_Esforço: 4d · Owner: design + content · Deps: 2.1_
+
+### 2.3 · Localização e formatação `P1`
+
+Datas, números, plural — cada componente precisa de contrato. Crisis Monitor pode escalar para clientes globais; preparar o terreno agora é barato, depois é refator.
+
+**Entregáveis:**
+- Token `--locale` e helpers (formatNumber, formatDate, formatRelative)
+- Plural pattern (1 menção · 2 menções · 0 menções)
+- Sinal de delta posicionado antes (pt-BR/en-US) ou depois (fr-FR)
+- Página **Foundations · Localização**
+
+_Esforço: 5d · Owner: eng + content · Deps: 2.1_
+
+### 2.4 · Tom AI · diretrizes para Pulso IA `P2`
+
+A IA escreve respostas sugeridas no domínio mais sensível possível. Sem diretriz, ela vira liability.
+
+**Entregáveis:**
+- Princípios: cauteloso, técnico, nunca jurídico, nunca emocional
+- Lista de termos proibidos para IA (peço desculpas, infelizmente, lamentavelmente)
+- Padrões de recomendação (sempre com par "se" + "então")
+- Página **Patterns · AI · Pulso IA Voice**
+
+_Esforço: 3d · Owner: design + AI · Deps: 2.1, 2.2_
+
+---
+
+## Fase 03 · Data viz
+
+> **5 iniciativas · ≈ 4 semanas · P1 estratégico**
+>
+> Gráficos são cidadãos de primeira classe — dados em movimento são o produto.
+
+### 3.1 · Chart primitives `P1`
+
+Recharts sem DS é faroeste. Cada chart type recebe token bridge e exemplos canônicos.
+
+**Entregáveis:**
+- Wrappers Pulso para Line, Bar, Area, Donut
+- Token bridge: `--chart-1` a `--chart-8` mapeados semanticamente
+- Tema dark/light automático via CSS vars
+- Página **Organisms · Charts · Primitivos**
+
+_Esforço: 6d · Owner: eng + design_
+
+### 3.2 · Escala categórica para múltiplas séries `P1`
+
+8 tokens chart genéricos não são suficientes quando há 12 veículos de mídia no mesmo gráfico.
+
+**Entregáveis:**
+- Paleta categórica para 12 séries (distinguíveis em daltonismo)
+- Lógica de degrade gracioso (prioridade às 4 primeiras)
+- Documentado em **Foundations · Colors · Charts**
+
+_Esforço: 3d · Owner: design · Deps: 3.1_
+
+### 3.3 · Axes, grids, tooltips, legendas `P1`
+
+Os elementos de suporte são onde os gráficos ficam feios. Tokens e contratos explícitos.
+
+**Entregáveis:**
+- `--chart-grid`, `--chart-axis`, `--chart-tooltip-bg` no token set
+- Tooltip canônico com timestamp, valor, label de série
+- Legenda posicionada (direita por default, embaixo em mobile)
+
+_Esforço: 4d · Owner: eng · Deps: 3.1_
+
+### 3.4 · Animação em update real-time `P2`
+
+Mention counter subindo em tempo real precisa de animação que informa sem distrair.
+
+**Entregáveis:**
+- Transição de valor numérico (contador roll-up, 300ms ease-out)
+- Live indicator pulsante com `prefers-reduced-motion` override
+- Documentado em **Foundations · Motion · Data**
+
+_Esforço: 3d · Owner: eng · Deps: 3.1, 1.5_
+
+### 3.5 · Recipes — combinações canônicas `P1`
+
+Não documenta primitivo. Documenta a solução completa para cada cenário do produto.
+
+**Entregáveis:**
+- Recipe: Score de Risco ao longo do tempo (Line + threshold band)
+- Recipe: Distribuição de sentimento (Stacked Bar + legenda inline)
+- Recipe: Volume de menções (Area + live indicator)
+- Página **Templates · Data · Recipes**
+
+_Esforço: 4d · Owner: design + eng · Deps: 3.1, 3.2, 3.3_
+
+---
+
+## Fase 04 · Templates + estados
+
+> **4 iniciativas · ≈ 3 semanas · P1 produto**
+>
+> Template sem estado é mockup. Produto é estado.
+
+### 4.1 · Templates faltantes `P1`
+
+Temos Dashboard, Crisis Detail, Settings. Faltam os fluxos de entrada e colaboração.
+
+**Entregáveis:**
+- Template: Login / SSO
+- Template: Onboarding (primeiro caso)
+- Template: Notifications center
+- Template: Audit log
+
+_Esforço: 6d · Owner: design + eng_
+
+### 4.2 · Matriz de estados `P0`
+
+Cada componente interativo tem: default, hover, focus, active, disabled, loading, error. Hoje documentamos apenas default.
+
+**Entregáveis:**
+- Tabela de estados por componente (12 atoms + 5 molecules priorizadas)
+- Storybook-style: cada estado navegável na doc
+- Página **Foundations · Estados**
+
+_Esforço: 5d · Owner: design_
+
+### 4.3 · Bulk actions & multi-select `P1`
+
+Tabela com 300 menções sem bulk action força N cliques. Padrão ausente é gap crítico de produto.
+
+**Entregáveis:**
+- Componente `BulkActionBar` (flutuante, com contador de seleção)
+- Checkbox de header com estado indeterminado
+- Ações: arquivar, exportar, atribuir, mudar status
+- Página **Organisms · Table · Bulk Actions**
+
+_Esforço: 5d · Owner: eng + design_
+
+### 4.4 · Responsive contract `P2`
+
+Produto roda em laptop 13". Breakpoints definidos mas não documentados. Sidebar colapsa sem regra.
+
+**Entregáveis:**
+- Breakpoints canônicos: `sm` 640 / `md` 768 / `lg` 1024 / `xl` 1280 / `2xl` 1536
+- Sidebar: collapsed < 1024, mini < 1280, full ≥ 1280
+- Página **Foundations · Layout · Responsive**
+
+_Esforço: 3d · Owner: design_
+
+---
+
+## Fase 05 · Governança & infra
+
+> **5 iniciativas · ≈ 3 semanas · P0/P1 sustentabilidade**
+>
+> Sem governança, o DS vira fardo. Com ela, vira alavanca.
+
+### 5.1 · Densidade como decisão de produto `P0`
+
+Hoje temos `comfortable` como default. `compact` e `spacious` existem como CSS mas sem toggle documentado, sem persistência, sem contrato.
+
+**Entregáveis:**
+- Três modos: `compact` (tabelas operacionais), `comfortable` (default), `spacious` (leitura longa)
+- Toggle em Settings → Personal com persistência em localStorage
+- Token `data-density` aplicado no `<html>`
+- Documentado em **Foundations · Densidade**
+
+_Esforço: 3d · Owner: eng · [Implementado parcialmente no CR — ver PR `chore/sync-pulso-ds-v1`]_
+
+### 5.2 · Token architecture · 3 camadas `P0`
+
+Hoje temos primitivos misturados com semânticos. Sem hierarquia, refatorar uma cor exige tocar 40 lugares.
+
+**Entregáveis:**
+- Camada 1: Primitivos (escala de valores absolutos)
+- Camada 2: Semânticos (role → primitivo)
+- Camada 3: Componente (componente → semântico)
+- Migração dos tokens existentes para a hierarquia
+- Página **Foundations · Tokens · Arquitetura**
+
+_Esforço: 6d · Owner: design + eng_
+
+### 5.3 · Figma ↔ Code parity `P1`
+
+Hoje o Figma está adiantado em alguns componentes, o código em outros. Sem sync, handoff é dor constante.
+
+**Entregáveis:**
+- Audit: listar divergências Figma × código
+- Token sync script (Figma Tokens → CSS vars)
+- Política: Figma é fonte de verdade de design, código é fonte de verdade de implementação
+- Página **Contributing · Figma Sync**
+
+_Esforço: 4d · Owner: design · Deps: 5.2_
+
+### 5.4 · RFC process + deprecation policy `P1`
+
+Hoje qualquer um pode propor qualquer coisa informalmente. Isso não escala.
+
+**Entregáveis:**
+- Template de RFC (problema, proposta, alternativas, critério de aceite)
+- Deprecation policy: 2 minor releases de aviso antes de remover
+- Semver para o DS (breaking = major, new = minor, fix = patch)
+- Página **Contributing · RFC**
+
+_Esforço: 2d · Owner: produto_
+
+### 5.5 · Adoption metrics + performance budget `P2`
+
+Não sabemos quantos % dos componentes em produção vêm do DS. Sem métrica, não sabemos se estamos crescendo.
+
+**Entregáveis:**
+- Script de auditoria: % de classes Tailwind custom vs tokens Pulso
+- Performance budget: bundle size dos componentes core
+- Dashboard interno de adoção (planilha ok na v2)
+- Página **Contributing · Métricas**
+
+_Esforço: 3d · Owner: eng_
+
+---
+
+## Resumo
+
+| Fase | Iniciativas | Esforço | Prioridade |
+|------|-------------|---------|------------|
+| 01 · Acessibilidade | 5 | ≈ 4 sem | P0 bloqueante |
+| 02 · Voz e copy | 4 | ≈ 3 sem | P1 |
+| 03 · Data viz | 5 | ≈ 4 sem | P1 |
+| 04 · Templates + estados | 4 | ≈ 3 sem | P0/P1 |
+| 05 · Governança | 5 | ≈ 3 sem | P0/P1 |
+| **Total** | **23** | **≈ 17 sem** | — |
+
+As fases 2–5 podem começar em paralelo após a fase 1 estar 80% completa.
