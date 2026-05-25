@@ -1,0 +1,288 @@
+---
+title: Release v3.0
+description: Release consolidada da v3 do Pulso DS · 14 iniciativas em α (identidade) + β (IA patterns) + γ (mobile paridade) · 25 mai 2026.
+---
+
+# Pulso DS · Release v3.0
+
+> **Status:** Estável · publicada em 25 mai 2026
+
+A v2 fechou a infra do sistema operacional. A v3 entrega **identidade carregada por estrutura** (não pela cor), **gramática visual para conteúdo assistido pela Cris** com schema auditável end-to-end, e **mobile como canal de paridade** — gestures, offline-first, push handover, fundação de tokens nativos.
+
+| Métrica | Valor |
+|---------|-------|
+| Iniciativas | 14 |
+| Fases | 3 (α + β + γ) |
+| Tempo com paralelismo β ‖ γ | 12 semanas |
+| Cobertura de RFC | 100% |
+| Breaking moderado | 2 pontos (display scale + tabular nums) |
+
+---
+
+## ⚠ Breaking moderado
+
+A v3 mantém retro-compatibilidade total dos tokens da v2. Apenas dois pontos exigem atenção:
+
+1. **`--text-display-lg`** subiu de **28px → 34px** com weight 700. Telas que usam o token diretamente vão crescer ~20% no `<h1>`. Alias `--text-display-lg-v2: 28px` mantido por 2 minor releases para migração assistida.
+
+2. **Numerais tabulares default** em `.mono` e `[data-numeric]`. Tabelas operacionais ganham coluna mais estável; textos comuns em mono podem ter spacing levemente diferente. Reverter localmente com `font-variant-numeric: normal` se necessário.
+
+Tudo mais é aditivo.
+
+---
+
+## Fase α · Identidade carregada pelo sistema
+
+Pulso sem o roxo ainda é Pulso. 5 iniciativas formalizam o que carrega identidade fora da cor.
+
+### α.1 · Auditoria de identidade sem-cor `P0`
+
+6 telas-chave do Crisis Monitor pareadas em cor + monocromático. 5 elementos sobrevivem ao teste, 4 colapsam · 7 gaps priorizados alimentaram α.2–α.5.
+
+### α.2 · Tipografia confiante `P0`
+
+Display scale revisado · numerais tabulares default · kicker com tracking fixo em `0.12em` · uso de mono como assinatura.
+
+**Tokens:** `--text-display-lg` (34px), `--tracking-kicker` (0.12em)
+
+### α.3 · Ritmo e densidade calibrada `P0`
+
+Tokens de cadência vertical · regra anti-box-dentro-de-box · auditoria de border-use.
+
+**Tokens novos:**
+- `--rhythm-cadence-tight` · 12px
+- `--rhythm-cadence-beat` · 20px
+- `--rhythm-cadence-breath` · 40px
+
+### α.4 · Signature shapes `P1`
+
+7 formas-assinatura formalizadas — alteração exige RFC com 2/3 do council:
+
+| # | Shape | Função |
+|---|-------|--------|
+| 01 | Kicker | uppercase mono com tracking 0.12em |
+| 02 | Score Ring | anel concêntrico + numeral mono + meta |
+| 03 | Numeral display | mono · 56px · tabular |
+| 04 | Evidence border-left | 3px tonal · marca conteúdo citado |
+| 05 | Inline markers | [Fato] · [Inferência] · [Recomendação] |
+| 06 | Risk glyphs | ● ○ ◐ ◆ ■ · 5 níveis |
+| 07 | Meta separator dot | · entre itens em mono |
+
+### α.5 · Brand expression toolkit `P1`
+
+Templates fora de produto: deck institucional · doc PDF (light + dark) · 3 social card layouts canônicos.
+
+---
+
+## Fase β · IA como pattern, não componente
+
+Cris é vocabulário, não chrome. 5 iniciativas entregam gramática visual e schema auditável para todo conteúdo assistido.
+
+### β.1 · AI-content origin tracking `P0`
+
+4 marcadores visuais para conteúdo da Cris:
+
+| Marcador | Função | Usado em |
+|----------|--------|----------|
+| Borda 2px `--primary` | Coluna inteira | Alerta · briefing · draft |
+| Kicker mono "Escrito com Cris" | Label de origem | Topo de bloco prominente |
+| Monograma Cris 14px | Identidade fora da cor | Sempre antes do kicker |
+| Underline pontilhado | Trecho inline | Dentro de parágrafo humano |
+
+Popover de proveniência (render local em < 120ms) traz: timestamp, modelo, prompt version, confiança, 3–7 fontes, audit_id.
+
+**Schema `ai-content-block` v1:**
+
+```json
+{
+  "author": "cris",
+  "mode": "executive",
+  "generated_at": "2026-05-21T11:42:18Z",
+  "model": "cris-9",
+  "prompt_version": "brief-synth/2.7.1",
+  "confidence": { "score": 0.91, "label": "high" },
+  "sources": [...],
+  "audit_id": "248-b-7c2f",
+  "density": "prominent"
+}
+```
+
+### β.2 · Draft & regenerate `P0`
+
+`DraftStack` com versão atual + histórico colapsado. Regenerate por **chips em 4 categorias** (não prompt livre):
+
+- **Tom:** mais cauteloso · mais firme · mais formal · mais conciso
+- **Conteúdo:** sem jurídico · sem números · sem nomes próprios · sem hipótese
+- **Formato:** bullet list · parágrafo único · tweet (240) · comunicado oficial
+- **Tamanho:** mais curto (-30%) · mais longo (+30%) · manter
+
+Diff visual entre v(n−1) e v(n) · undo timeline imutável · `⌘Z / ⌘⇧Z / ⌘R` como atalhos primários.
+
+### β.3 · Cris embedding pattern `P0`
+
+4 formatos canônicos · catálogo fechado · sexto formato vira RFC:
+
+| # | Formato | Quando usar | Atalho | Espaço |
+|---|---------|-------------|--------|--------|
+| 01 | Sheet lateral | trabalho exploratório longo | ⌘K | 35% max |
+| 02 | Inline assist | foco em campo único | ⌥↵ | 33% altura |
+| 03 | Balão modal | decisão sensível pré-ação | programático | 480px max |
+| 04 | Ambient | console workshop | ⌘⇧C | rota inteira |
+
+Árvore de decisão de 3 perguntas resolve qual formato usar. Ambient **bloqueado em crise ativa**.
+
+### β.4 · Recommendation & action `P1`
+
+Confidence ladder em 4 níveis — label antes de número:
+
+| Nível | Score | UI |
+|-------|-------|-----|
+| Baixa | < 0.55 | sem CTA primário · só "Explorar" |
+| Média | 0.55–0.74 | CTA primário ativo |
+| Alta | 0.75–0.89 | CTA primário destacado |
+| Decisivo | ≥ 0.90 | CTA com halo · rejeição pede justificativa |
+
+`RecommendationCard` com contrato **"se · então"** binding (herdado da v2 · 2.4). Proposta decomposta em **slots editáveis** — aceitação parcial é caminho preferido. 3 desfechos canônicos: aceitar · modificar · rejeitar.
+
+### β.5 · Audit trail de ação assistida `P1`
+
+Novo evento `assisted_action` no audit log (extensão, **não** log paralelo). Filtro "Com Cris" + drill-down com diff slot-by-slot.
+
+**Política de retenção:**
+
+| Classe | Retenção | Aplicação |
+|--------|----------|-----------|
+| Crítica | 24 meses | Tier atenção+ · rejeição decisiva · comunicação externa |
+| Padrão | 12 meses | Demais ações assistidas |
+| Leve | 3 meses | Dispensas · Ambient · workshop |
+
+**Schema:**
+
+```json
+{
+  "audit_id": "248-r-9a4f",
+  "kind": "assisted_action",
+  "actor": { "type": "operator", "id": "op_42" },
+  "case_id": "case_248",
+  "action": { "name": "dispatch_tier2", "slots": {...} },
+  "cris_ref": {
+    "recommendation_id": "rec_248_r9a4f",
+    "model": "cris-9",
+    "confidence": { "score": 0.91, "label": "decisive" },
+    "slots_suggested": {...},
+    "slots_changed": ["vehicle"],
+    "outcome": "modified"
+  },
+  "retention_class": "critical",
+  "immutable": true
+}
+```
+
+---
+
+## Fase γ · Mobile como paridade
+
+Operador no Uber não é exceção. 4 iniciativas resolvem gesto, offline, handover e fundação nativa.
+
+### γ.1 · Mobile gestures `P1`
+
+5 gestos canônicos — catálogo fechado, sexto vira RFC:
+
+| # | Gesto | Tarefa | Háptico |
+|---|-------|--------|---------|
+| 01 | Swipe-to-ack | reconhecer alerta | light · ao soltar |
+| 02 | Pull-to-refresh | sincronizar manual | médio · ao soltar |
+| 03 | Long-press | menu de opções | light · aos 300ms |
+| 04 | Drag bottom-sheet | expandir/colapsar | light · ao trocar detent |
+| 05 | Two-finger select | seleção múltipla rápida | light · cada item |
+
+**Hit-target adaptativo:**
+- Default: `44 × 44px`
+- Crítico: `48 × 48px`
+- Dismiss: `32 × 32px`
+
+### γ.2 · Offline-first contract `P1`
+
+Tabela de capacidades por estado de rede — **ler briefing**, **ack alerta crítico** e **rascunhar nota** nunca dependem de rede.
+
+| Ação | Online | Instável | Offline |
+|------|--------|----------|---------|
+| Ler briefing | ✓ | ✓ | ✓ cache |
+| Ack alerta | ✓ | ✓ local + sync | ⏳ fila |
+| Rascunhar nota | ✓ | ✓ | ✓ local |
+| Regenerar com Cris | ✓ | ⏳ retry | × falha clara |
+| Escalar tier | ✓ | ⏳ reconfirma | × bloqueado |
+
+Queue lifecycle em 5 estados (captura → fila → envio → confirmação → resolução). Indicador de freshness em 4 níveis (fresh < 30s · stale · warning · offline 30min+).
+
+### γ.3 · Push handover web ↔ mobile `P1`
+
+Deep-link `pulso://crisis/{id}?action=ack` resolve scheme custom (mobile) ou https (web). 3 tiers de push:
+
+| Tier | Som | Vibração | Bypass DND | Persistência |
+|------|-----|----------|------------|--------------|
+| Crítico | distintivo | longo · 3× | sim · on-call | 30 min |
+| Alto | padrão | 2× médio | não | 15 min |
+| Monitor | nenhum | nenhuma | não | só central |
+
+**SLA mensurável:**
+- Push → desktop: `< 2s`
+- Ack → outros devices: `< 800ms`
+- Deep-link cold-start: `100%`
+- Entrega push crítico: `99.5% em < 10s`
+
+Tier 01 não pode exceder **5% do volume mensal** — auditoria interna alerta se passa.
+
+### γ.4 · Native token foundation `P2`
+
+Pipeline um JSON → três outputs:
+
+```
+tokens.json  →  CSS (web)
+             →  Swift constants (iOS)
+             →  XML + Kotlin (Android)
+```
+
+**Parity matrix:** 184 tokens primitive idênticos · drift detector em CI bloqueia merge com discrepância > 0. Sample apps minimalistas em SwiftUI + Compose como prova de pipeline — **não produto**.
+
+---
+
+## Como migrar
+
+### Caminho rápido · 1 dia
+
+Para times que só querem os tokens novos.
+
+1. Atualizar dependência do Pulso DS
+2. Rodar codemod do α.3 (cadence tokens)
+3. Smoke test em 5 telas críticas
+4. Ship
+
+### Caminho completo · 2 sprints
+
+Para times consumindo IA patterns + mobile.
+
+**Sprint 1:** Identidade (α) + origin tracking (β.1)
+**Sprint 2:** Draft & regenerate (β.2) + recommendation (β.4) + audit trail (β.5)
+**Opcional:** Mobile (γ) só onde produto precisa
+
+Backend precisa começar a emitir `cris_ref` nos eventos auditáveis (β.5). Audit log do produto ganha filtro "Com Cris" automaticamente.
+
+---
+
+## Não-objetivos da v3
+
+- **App mobile nativo** — γ entrega tokens e patterns, não app
+- **Cris como produto separado** — IA continua embutida no Crisis Monitor
+- **White-label productizado** — arquitetura habilita (v2 · 5.1), sem demanda
+- **Mais componentes novos** — v3 amplia ergonomia e identidade, não breadth
+
+---
+
+## Próximo capítulo · v4 (em discussão)
+
+Temas candidatos · composição > configuração (slot patterns), i18n piloto (es-419 ou en-US), telemetria de uso da Cris para tuning de modelos, app nativo real (se produto decidir construir). Sem decisão ainda · v3 estabilizou o sistema e os dados de adoção vão guiar prioridade.
+
+---
+
+[Roadmap detalhado v3](/roadmap/v3) · [Histórico v2](/roadmap/v2)
