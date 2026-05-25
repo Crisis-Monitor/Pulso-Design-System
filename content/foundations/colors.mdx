@@ -1,70 +1,79 @@
 ---
 title: Colors
-description: Sistema de cores do Pulso — paleta base, semântica, delta tokens e diretrizes de contraste.
+description: Sistema de cores do Pulso v3 — superfícies, marca, risco, delta e origem de IA.
 ---
 
 # Colors
 
-O sistema de cores do Pulso é baseado em **HSL** para garantir consistência e facilitar ajustes de tema.
+Pulso v3 é **light-first**, com dark mode editorial near-black. A identidade não depende do roxo: cor comunica estado, risco e origem; estrutura, tipografia e ritmo carregam reconhecimento.
 
-## Paleta Base
+## Superfícies
 
-| Token | Valor | Uso |
-|-------|-------|-----|
-| `--color-background` | `hsl(222 14% 8%)` | Fundo principal da aplicação |
-| `--color-foreground` | `hsl(210 40% 98%)` | Texto principal |
-| `--color-card` | `hsl(222 14% 10%)` | Fundo de cards e superfícies elevadas |
-| `--color-card-foreground` | `hsl(210 40% 98%)` | Texto sobre cards |
-| `--color-popover` | `hsl(222 14% 10%)` | Fundo de popovers e dropdowns |
-| `--color-popover-foreground` | `hsl(210 40% 98%)` | Texto sobre popovers |
-| `--color-muted` | `hsl(217 14% 20%)` | Fundo de elementos secundários |
-| `--color-muted-foreground` | `hsl(215 14% 60%)` | Texto secundário |
-| `--color-border` | `hsl(217 14% 20%)` | Bordas e separadores |
-| `--color-input` | `hsl(217 14% 20%)` | Bordas de inputs |
+| Token | Light | Dark | Uso |
+|-------|-------|------|-----|
+| `--background` | `#F5F4FA` | `#0F0C1A` | Fundo de página |
+| `--foreground` | `#171629` | `#F6F3FF` | Texto principal |
+| `--card` | `#FFFFFF` | `#151126` | Cards e painéis |
+| `--muted` | `#F1EEFA` | `#1B1630` | Áreas secundárias |
+| `--elevated` | `#ECE7F8` | `#221B3D` | Superfície acima do card |
+| `--border` | `#DDD7EE` | `#302A50` | Hairlines e separadores |
 
-## Cores Semânticas (Delta)
+## Hierarquia de texto
 
-O Pulso usa um sistema de **5 tokens delta** para comunicar status e mudanças:
+| Token | Light | Dark | Uso |
+|-------|-------|------|-----|
+| `--fg-strong` | `#0A0A14` | `#FFFFFF` | Títulos críticos |
+| `--fg` | `#171629` | `#F6F3FF` | Texto padrão |
+| `--fg-secondary` | `#4A4961` | `#C9C3E6` | Labels e subtítulos |
+| `--fg-muted` | `#73718A` | `#9891B8` | Suporte |
+| `--fg-subtle` | `#A09CB4` | `#6E678E` | Metadados discretos |
+| `--fg-ghost` | `#C5C2D2` | `#4E4775` | Elementos quase inativos |
 
-| Token | Valor | Uso |
-|-------|-------|-----|
-| `--color-delta-success` | `hsl(142 71% 45%)` | Métricas positivas, aprovações |
-| `--color-delta-warn` | `hsl(38 92% 50%)` | Alertas, atenção necessária |
-| `--color-delta-error` | `hsl(0 72% 51%)` | Crises ativas, erros, rejeições |
-| `--color-delta-info` | `hsl(217 91% 60%)` | Informações, estados neutros |
-| `--color-delta-neutral` | `hsl(215 14% 60%)` | Sem mudança, baseline |
+## Marca e ação
 
-### Variantes de Saturação
+| Token | Light | Dark | Uso |
+|-------|-------|------|-----|
+| `--primary` | `#6C46F5` | `#8A63FF` | Ação primária e origem IA |
+| `--primary-hover` | `#5C39DA` | `#9B7BFF` | Hover |
+| `--primary-pressed` | `#4D2FD0` | `#6C46F5` | Pressed |
+| `--primary-soft` | `#EEE8FF` | `#2A1F55` | Fundo de baixa intensidade |
+| `--ring` | `color-mix(...)` | `color-mix(...)` | Focus ring |
 
-Cada cor delta tem 3 níveis de saturação:
+Use roxo como acento de ação ou proveniência, não como banho visual da página.
 
-```css
---delta-success-foreground: hsl(142 71% 45%);  /* texto/ícone */
---delta-success-muted: hsl(142 71% 45% / 0.15);  /* fundo sutil */
---delta-success-ring: hsl(142 71% 45% / 0.4);     /* focus ring */
+## Risco operacional
+
+A taxonomia canônica é `stable / monitor / attention / high / critical`. `safe` e `medium` existem só como aliases de retrocompatibilidade.
+
+| Nível | Tokens | Uso |
+|-------|--------|-----|
+| `stable` | `--risk-stable-*` | Situação sob controle |
+| `monitor` | `--risk-monitor-*` | Acompanhar sem escalada |
+| `attention` | `--risk-attention-*` | Atenção necessária |
+| `high` | `--risk-high-*` | Escalada provável |
+| `critical` | `--risk-critical-*` | Ação imediata |
+
+Cada nível possui `text`, `bg` e `border`. Combine sempre cor + texto + forma; cor nunca é o único indicador.
+
+## Delta de métricas
+
+Tokens `--delta-success`, `--delta-warn`, `--delta-neutral`, `--delta-info` e `--delta-error` descrevem movimento de métrica, não risco do caso.
+
+```tsx
+<span style={{ color: "var(--delta-warn)" }}>+18% em 2h</span>
 ```
 
-## Ação e Interação
+## Origem de IA
 
-| Token | Uso |
-|-------|-----|
-| `--color-primary` | Cor principal de ação (botões primários) |
-| `--color-primary-foreground` | Texto sobre primary |
-| `--color-secondary` | Ação secundária |
-| `--color-secondary-foreground` | Texto sobre secondary |
-| `--color-destructive` | Ações destrutivas |
-| `--color-destructive-foreground` | Texto sobre destructive |
-| `--color-accent` | Hover states e highlights |
-| `--color-accent-foreground` | Texto sobre accent |
+A v3 adiciona tokens para conteúdo assistido pela Cris:
 
-## Diretrizes de Contraste
+| Token | Valor | Uso |
+|-------|-------|-----|
+| `--ai-marker-border` | `2px solid var(--primary)` | Borda de bloco gerado/assistido |
+| `--ai-marker-bg-mix` | `4%` | Fundo sutil com primary |
 
-- **AA normal**: mínimo 4.5:1
-- **AA large**: mínimo 3:1
-- **AAA**: mínimo 7:1 (ideal para texto principal)
+Use junto de kicker explícito (`Escrito com Cris`) e metadados auditáveis quando houver proveniência.
 
-Todos os tokens do Pulso são testados para garantir AA no mínimo.
+## Sidebar
 
-## Dark Mode
-
-O Pulso é **dark-first** — o tema padrão já é escuro. Light mode é uma inversão controlada dos mesmos tokens HSL, não uma paleta separada.
+A sidebar usa chrome fixo near-black em light e dark: `--sidebar: #0F0C1A`. Ela é uma exceção intencional para estabilidade operacional e reconhecimento do produto.

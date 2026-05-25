@@ -34,7 +34,7 @@ Layout principal do Orchids Crisis Manager. Apresenta visão geral de todas as c
 |-------|-------------|
 | Header | `PageHeader`, `Breadcrumb`, `Button` |
 | Métricas | `MetricCard` (4×) |
-| Lista | `Table`, `Badge` (crisis-status), `DeltaChip` |
+| Lista | `Table`, `Badge` (crisis-status), `DeltaChip`, score mono tabular |
 | Timeline | `Card`, `Accordion`, `Avatar` |
 
 ## Código
@@ -90,7 +90,7 @@ export default function DashboardPage() {
             <TableRow key={crisis.id}>
               <TableCell><CrisisStatus status={crisis.status} /></TableCell>
               <TableCell>{crisis.name}</TableCell>
-              <TableCell className="font-mono font-bold">{crisis.score}</TableCell>
+              <TableCell className="mono font-bold" data-numeric>{crisis.score}</TableCell>
               <TableCell><DeltaChip value={crisis.delta} /></TableCell>
               <TableCell>{crisis.updatedAt}</TableCell>
             </TableRow>

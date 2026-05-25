@@ -5,7 +5,7 @@ description: Indicador de variação numérica com direção (positivo/negativo/
 
 # Delta Chip
 
-Chip especializado que mostra variação numérica com direção e cor semântica.
+Chip especializado que mostra variação numérica com direção e token delta. Delta descreve movimento de métrica; risco operacional usa `--risk-*`.
 
 ## Import
 
@@ -25,15 +25,15 @@ import { DeltaChip } from "@/components/ui/delta-chip"
 
 | Valor | Cor | Ícone |
 |-------|-----|-------|
-| Positivo | `success` (verde) | ↑ |
-| Negativo | `error` (vermelho) | ↓ |
-| Zero | `neutral` (cinza) | → |
+| Positivo | `--delta-success` | ↑ |
+| Negativo | `--delta-error` | ↓ |
+| Zero | `--delta-neutral` | → |
 
 ## Em Metric Cards
 
 ```tsx
 <div className="flex items-center gap-2">
-  <span className="text-2xl font-bold">1,234</span>
+  <span className="mono text-2xl font-bold" data-numeric>1,234</span>
   <DeltaChip value={12.5} size="sm" />
 </div>
 ```

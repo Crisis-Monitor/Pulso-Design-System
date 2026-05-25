@@ -1,19 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 /**
- * Pulso Design System — v2 (Premium Direction)
+ * Pulso Design System — v3 (Identity · AI Patterns · Mobile Parity)
  *
  * Source of truth for the Crisis Monitor product.
  * Drop into src/app/globals.css of Pulso-Design-System repo.
  *
- * v2 shifts from v1:
- *   - Cool neutrals replace purple-tinted backgrounds
- *   - Sharper radii (4–10px) replace 12–22px softness
- *   - Hairlines (rgba 8%) replace shadows for structure
- *   - Brand purple narrowed to accent-only (was pervasive bg tint)
- *   - Mono numerics standard (IBM Plex Mono on numbers/data)
- *   - Strict 8pt spacing grid
- *   - Three density modes (compact / comfortable / spacious)
- *   - Light-first; dark is editorial near-black, not pure black
+ * v3 shifts from v2:
+ *   - Identity carried by type, rhythm and signature shapes, not only color
+ *   - AI-origin markers for Cris-authored or Cris-assisted content
+ *   - Native/mobile parity tokens for critical touch and haptic feedback
+ *   - Tabular numerals become default for mono and numeric data
+ *   - v2 display alias retained for assisted migration
  */
 
 @import "tailwindcss";
@@ -95,7 +92,8 @@
   --font-pulso-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 
   /* ── Type scale ────────────────────────────────────────────── */
-  --text-display-lg:   2.125rem;  /* 34px — hero page titles */
+  --text-display-lg:   2.125rem;  /* 34px — hero page titles (v3) */
+  --text-display-lg-v2: 1.75rem;  /* 28px — temporary migration alias */
   --text-display:      1.5rem;    /* 24px — page title */
   --text-h1:           1.125rem;  /* 18px — section header */
   --text-h2:           0.9375rem; /* 15px — card title */
@@ -110,7 +108,7 @@
 
   --tracking-tight:   -0.02em;
   --tracking-normal:  -0.005em;
-  --tracking-kicker:   0.08em;
+  --tracking-kicker:   0.12em;
 
   /* ── Radius scale — sharper, more confident ─────────────── */
   --radius-xs: 0.25rem;   /* 4px  — chips, small toggles */
@@ -138,6 +136,9 @@
   --rhythm-tight:     1.5rem;   /* 24px — dense dashboards */
   --rhythm-comfort:   2.5rem;   /* 40px — standard surfaces */
   --rhythm-editorial: 4.5rem;   /* 72px — marketing */
+  --rhythm-cadence-tight:  0.75rem; /* 12px — compact intra-block spacing */
+  --rhythm-cadence-beat:   1.25rem; /* 20px — related block spacing */
+  --rhythm-cadence-breath: 2.5rem;  /* 40px — section spacing */
 
   /* ── Density tokens (overridable per surface) ────────────── */
   /* Default = comfortable */
@@ -158,8 +159,14 @@
   --motion-duration-fast:    120ms;
   --motion-duration-default: 200ms;
   --motion-duration-slow:    320ms;
+  --motion-haptic-light:     8ms;
   --motion-easing:           cubic-bezier(0.2, 0.9, 0.3, 1);
   --motion-easing-emphasized: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ── AI + mobile foundations (v3 additive) ─────────────── */
+  --ai-marker-border: 2px solid var(--primary);
+  --ai-marker-bg-mix: 4%;
+  --touch-target-critical: 48px;
 
   /* ── Z-index scale ───────────────────────────────────────── */
   --z-base:    0;
@@ -617,6 +624,11 @@
   }
   code, kbd, pre, samp {
     font-family: var(--font-pulso-mono);
+  }
+  .mono,
+  [data-numeric] {
+    font-family: var(--font-pulso-mono);
+    font-variant-numeric: tabular-nums;
   }
 }
 

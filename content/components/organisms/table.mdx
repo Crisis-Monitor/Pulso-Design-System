@@ -28,8 +28,19 @@ import { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableC
   <TableBody>
     <TableRow>
       <TableCell>Incidente servidor</TableCell>
-      <TableCell><Badge variant="error">Ativa</Badge></TableCell>
-      <TableCell>87</TableCell>
+      <TableCell>
+        <span
+          className="rounded-sm border px-2 py-1 text-xs font-medium"
+          style={{
+            color: "var(--risk-critical-text)",
+            borderColor: "var(--risk-critical-border)",
+            background: "var(--risk-critical-bg)",
+          }}
+        >
+          Em Crise
+        </span>
+      </TableCell>
+      <TableCell className="mono font-bold" data-numeric>87</TableCell>
       <TableCell>há 2 min</TableCell>
     </TableRow>
   </TableBody>

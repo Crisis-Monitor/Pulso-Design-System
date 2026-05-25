@@ -1,57 +1,66 @@
 ---
 title: Typography
-description: Sistema tipográfico do Pulso — fontes, escala, pesos e diretrizes de uso.
+description: Sistema tipográfico do Pulso v3 — Manrope, IBM Plex Mono, display scale e numerais tabulares.
 ---
 
 # Typography
 
-O sistema tipográfico do Pulso usa duas famílias: **Inter** para texto geral e **JetBrains Mono** para dados numéricos e código.
+Pulso v3 usa tipografia como assinatura. A identidade deve sobreviver em monocromático: escala, peso, mono e tracking carregam reconhecimento mesmo sem cor.
 
 ## Famílias
 
-| Família | Uso | Variável CSS |
-|---------|-----|-------------|
-| **Inter** | Texto geral, labels, headings | `--font-sans` |
-| **JetBrains Mono** | Scores, métricas, timestamps, código | `--font-mono` |
+| Família | Variável | Uso |
+|---------|----------|-----|
+| **Manrope** | `--font-pulso-sans` / `--font-sans` | Texto geral, títulos, navegação |
+| **IBM Plex Mono** | `--font-pulso-mono` / `--font-mono` | Métricas, timestamps, código, kickers |
 
-## Escala Tipográfica
+## Escala de tokens
 
-| Classe | Size | Line-height | Weight | Uso |
-|--------|------|-------------|--------|-----|
-| `text-4xl` | 2.25rem | 2.5rem | 600 | Hero titles |
-| `text-3xl` | 1.875rem | 2.25rem | 600 | Page titles |
-| `text-2xl` | 1.5rem | 2rem | 600 | Section titles |
-| `text-xl` | 1.25rem | 1.75rem | 600 | Card titles |
-| `text-lg` | 1.125rem | 1.75rem | 500 | Subtitles |
-| `text-base` | 1rem | 1.5rem | 400 | Body text |
-| `text-sm` | 0.875rem | 1.25rem | 400 | Captions, labels |
-| `text-xs` | 0.75rem | 1rem | 400 | Footnotes, badges |
+| Token | Valor | Uso |
+|-------|-------|-----|
+| `--text-display-lg` | 34px | Hero titles e telas críticas |
+| `--text-display-lg-v2` | 28px | Alias temporário de migração |
+| `--text-display` | 24px | Título de página |
+| `--text-h1` | 18px | Header de seção |
+| `--text-h2` | 15px | Título de card |
+| `--text-body` | 14px | Texto principal |
+| `--text-support` | 13px | Descrições |
+| `--text-label` | 12px | Labels e badges |
+| `--text-micro` | 11px | Kicker e metadados |
 
-## Pesos
+## Line-height e tracking
 
-| Peso | Classe | Uso |
-|------|--------|-----|
-| 400 | `font-normal` | Body text, descrições |
-| 500 | `font-medium` | Labels, nav items |
-| 600 | `font-semibold` | Headings, títulos |
-| 700 | `font-bold` | Destaque, números grandes |
+| Token | Valor | Uso |
+|-------|-------|-----|
+| `--leading-tight` | `1.2` | Títulos |
+| `--leading-normal` | `1.45` | Corpo |
+| `--leading-relaxed` | `1.6` | Texto longo |
+| `--tracking-tight` | `-0.02em` | Displays |
+| `--tracking-normal` | `-0.005em` | Texto padrão |
+| `--tracking-kicker` | `0.12em` | Kicker uppercase mono |
 
-## Métricas e Scores
+## Numerais tabulares
 
-Números críticos (scores, métricas, deltas) sempre usam **JetBrains Mono** com peso bold:
+A v3 torna numerais tabulares default em `.mono` e `[data-numeric]`.
 
 ```tsx
-<span className="font-mono text-3xl font-bold tabular-nums">
+<strong className="mono text-[56px] font-bold" data-numeric>
   87
-</span>
+</strong>
 ```
 
-Use `tabular-nums` para alinhamento em tabelas e listas.
+Reverta com `font-variant-numeric: normal` apenas quando o mono for usado para texto corrido.
+
+## Signature shapes tipográficas
+
+- **Kicker:** uppercase mono com `--tracking-kicker`.
+- **Numeral display:** mono grande, tabular, com contexto textual próximo.
+- **Meta separator dot:** `·` entre itens em mono.
+- **Inline markers:** `[Fato]`, `[Inferência]`, `[Recomendação]` para conteúdo de análise.
 
 ## Diretrizes
 
-1. **Máximo 3 níveis de heading** por seção (h1 → h2 → h3)
-2. **Labels sempre em sentence case** (não uppercase)
-3. **Números sempre em mono** para facilitar comparação visual
-4. **Body text máximo 65ch** para legibilidade
-5. **Contraste mínimo AA** em todos os textos
+1. Use no máximo 3 níveis hierárquicos por seção.
+2. Números críticos sempre usam mono + tabular.
+3. Kicker é assinatura, não decoração.
+4. Texto de decisão deve priorizar clareza e consequência sobre ênfase visual.
