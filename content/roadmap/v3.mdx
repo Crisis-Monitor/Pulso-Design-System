@@ -1,0 +1,268 @@
+---
+title: Roadmap v3
+description: Plano da terceira versão do Pulso DS — identidade carregada por estrutura, IA como pattern e mobile como paridade. Concluída · 25 mai 2026.
+---
+
+# Pulso DS · Plano v3
+
+> **Status:** Concluída · 25 mai 2026 · Q1–Q2 2027
+
+A v1 foi **esqueleto**. A v2 transformou-o em **sistema operacional** — acessível, falante, governado. A v3 dá ao Pulso **identidade própria** e **linguagem para o que o Crisis Monitor faz de mais singular**: assistir o operador em tempo real, em qualquer dispositivo, com IA no centro do fluxo.
+
+Três fases · 14 iniciativas · 12 semanas com paralelismo β ‖ γ.
+
+---
+
+## North Star da v3
+
+### 01 · Reconhecível — Pulso sem o roxo ainda é Pulso
+
+Se trocarmos a cor primária amanhã, o sistema deve continuar reconhecível pelo ritmo, tipografia, hairlines e signature shapes. Identidade carregada pela estrutura — não pelo hue.
+
+### 02 · IA como linguagem — Cris é vocabulário, não componente
+
+A v2 documentou o tom da Cris. A v3 entrega padrões visuais para conteúdo assistido: origem rastreável, confidence, draft com versão, undo, regenerate com restrição, audit trail.
+
+### 03 · Paridade móvel — Operador no Uber não é exceção
+
+Crise não espera estação de trabalho. Mobile vira paridade — gestures, offline-first, push handover — e prepara fundação de tokens nativos para quando houver app.
+
+---
+
+## Fase α · Identidade carregada pelo sistema
+
+> **5 iniciativas · ≈ 5 semanas · P0/P1**
+>
+> Fundacional. Sem isso, β e γ derivam de roxo, não de Pulso.
+
+### α.1 · Auditoria de identidade sem-cor `P0`
+
+Diagnóstico fechado · 6 telas pareadas em cor + monocromático · 5 elementos sobrevivem ao teste, 4 colapsam · 7 gaps priorizados alimentando α.2–α.5.
+
+**Entregáveis:**
+- 6 telas em monocromático lado a lado da versão final
+- Anotações por região: ritmo, type, hairlines, signature shapes
+- Lista de gaps · priorizada por impacto visual
+- Página **Foundations · Identity Audit**
+
+_Esforço: 2d · Owner: design lead_
+
+### α.2 · Tipografia confiante `P0`
+
+Display scale revisado · pesos 700+ em títulos de página · numerais tabulares default · uso intencional de mono como assinatura.
+
+**Entregáveis:**
+- Display scale revisado · `--text-display-lg` agora 34px / weight 700
+- Numerais tabulares default em todo conteúdo de dado
+- Kicker fixado em tracking 0.12em formalmente
+- Página **Foundations · Type Confidence**
+
+_Esforço: 5d · Owner: design · Deps: α.1_
+
+### α.3 · Hairlines, ritmo e densidade calibrada `P0`
+
+Tokens de cadência vertical · regra anti-box-dentro-de-box · auditoria de border-use.
+
+**Entregáveis:**
+- Tokens `--rhythm-cadence-{tight, beat, breath}` (12 / 20 / 40px)
+- Regra: hairline só onde separa contexto, nunca decora
+- Comparativo de densidade calibrada por cadência
+- Página **Foundations · Rhythm**
+
+_Esforço: 4d · Owner: design · Deps: α.1_
+
+### α.4 · Signature shapes — promovidos como identidade `P1`
+
+7 formas-assinatura formalizadas · cada uma com contrato visual rígido · alteração exige RFC com 2/3 do council.
+
+**Entregáveis:**
+- Lista de 7 signature shapes: Kicker · Score Ring · Numeral display · Evidence border-left · Inline markers · Risk glyphs · Meta separator dot
+- Versões em monocromático validadas
+- Política: signature shape exige RFC para alterar
+- Página **Foundations · Signature Shapes**
+
+_Esforço: 4d · Owner: design · Deps: α.1_
+
+### α.5 · Brand expression toolkit `P1`
+
+Templates fora de produto · slide · doc · social.
+
+**Entregáveis:**
+- Template de slide deck Dotcase com Pulso aplicado
+- Template de doc institucional (PDF light/dark)
+- Social cards · 3 layouts canônicos
+- Página **Brand · Toolkit**
+
+_Esforço: 3d · Owner: design + marketing · Deps: α.2, α.4_
+
+---
+
+## Fase β · IA como pattern, não componente
+
+> **5 iniciativas · ≈ 6 semanas · P0/P1**
+>
+> Cris voice (v2 · 2.4) é tom. β entrega vocabulário visual para conteúdo assistido.
+
+### β.1 · AI-content origin tracking `P0`
+
+4 marcadores tonais (borda · kicker mono · monograma · underline pontilhado) · popover de proveniência com 5 blocos · schema versionado.
+
+**Entregáveis:**
+- Marca visual sutil de origem-IA · borda esquerda, kicker, monograma 14px
+- Popover de proveniência: identidade, contexto, modelo, fontes, audit_id
+- Pattern em alerta, briefing, sugestão, draft, recomendação
+- Schema `ai-content-block` v1
+- Página **Patterns · AI · Origin Tracking**
+
+_Esforço: 5d · Owner: design + AI · Deps: α.4_
+
+### β.2 · Draft & regenerate `P0`
+
+`DraftStack` com versão atual + histórico colapsado · regenerate por chips em 4 categorias · diff visual · undo timeline imutável.
+
+**Entregáveis:**
+- Componente `DraftStack` · versão atual + histórico
+- Catálogo de restrições · 4 categorias (tom, conteúdo, formato, tamanho)
+- Diff visual entre versões adjacentes
+- Undo timeline com timestamp imutável e não-destrutivo
+- Atalhos ⌘Z / ⌘⇧Z / ⌘R
+- Página **Patterns · AI · Draft**
+
+_Esforço: 6d · Owner: eng + design · Deps: β.1_
+
+### β.3 · Cris embedding pattern `P0`
+
+4 formatos canônicos · árvore de decisão de 3 perguntas · contrato de espaço por formato.
+
+**Entregáveis:**
+- 4 formatos: Sheet (lateral) · Inline assist · Balão modal · Ambient
+- Árvore de decisão para escolher formato
+- Atalhos consistentes: ⌘K (Sheet) · ⌥↵ (Inline) · ⌘⇧C (Ambient)
+- Contrato de espaço: 35% / 33% / 480px / 100%
+- Política: Ambient bloqueado em crise ativa
+- Página **Patterns · AI · Embedding**
+
+_Esforço: 4d · Owner: design · Deps: β.1_
+
+### β.4 · Recommendation & action `P1`
+
+Confidence ladder em 4 níveis · contrato se · então binding · slots editáveis · 3 desfechos canônicos.
+
+**Entregáveis:**
+- Confidence ladder visual · 4 níveis (baixa/média/alta/decisivo)
+- Componente `RecommendationCard` com aceitar/modificar/rejeitar
+- Aceitação parcial por slot · "aceito tudo mas troco o veículo"
+- Justificativa textual obrigatória em rejeição decisiva
+- Página **Patterns · AI · Recommendation**
+
+_Esforço: 5d · Owner: design + AI · Deps: β.1, β.3_
+
+### β.5 · Audit trail de ação assistida `P1`
+
+Novo evento `assisted_action` no audit log (extensão, não log paralelo) · diff slot-by-slot · retenção 24/12/3 meses.
+
+**Entregáveis:**
+- Schema de evento `assisted_action` no audit log
+- Campo `cris_ref` em todo evento assistido
+- Visualização no Audit Log template · filtro "Com Cris" + drill-down
+- Diff slot-by-slot entre sugestão original e ação final
+- Política · retenção 24mo crítica · 12mo padrão · 3mo leve
+- Página **Patterns · AI · Audit Trail**
+
+_Esforço: 3d · Owner: eng + compliance · Deps: β.2, β.4_
+
+---
+
+## Fase γ · Mobile como paridade
+
+> **4 iniciativas · ≈ 6 semanas · P1/P2 · paralela a β**
+>
+> Operador no Uber não é exceção. Crise não espera estação de trabalho.
+
+### γ.1 · Mobile-first patterns base `P1`
+
+5 gestures canônicos com feedback háptico · hit-target adaptativo · zona segura do polegar mapeada.
+
+**Entregáveis:**
+- 5 gestos: swipe-to-ack · pull-to-refresh · long-press · drag bottom-sheet · two-finger select
+- Hit-target adaptativo: 44px default, 48px crítico, 32px dismiss
+- Bottom-anchored actions · zona segura do polegar
+- Página **Patterns · Mobile · Gestures**
+
+_Esforço: 5d · Owner: design · Deps: α.3_
+
+### γ.2 · Offline-first contract `P1`
+
+Tabela de capacidades por estado de rede · queue lifecycle · 4 níveis de freshness · schema `queued_action`.
+
+**Entregáveis:**
+- Tabela de capacidades: 9 ações classificadas em online/instável/offline
+- UI de queue · ações pendentes visíveis, retry transparente
+- Indicador de freshness em 4 níveis (fresh/stale/warning/offline)
+- Schema `queued_action` com idempotency key
+- Página **Patterns · Mobile · Offline**
+
+_Esforço: 6d · Owner: eng + design · Deps: γ.1_
+
+### γ.3 · Push handover web ↔ mobile `P1`
+
+Deep-link schema · sync < 2s entre dispositivos · 3 tiers de push com SLA mensurável.
+
+**Entregáveis:**
+- Deep-link schema · `pulso://crisis/{id}?action=ack`
+- State sync em < 2s entre dispositivos do mesmo usuário
+- 3 tiers: crítico (vibra + som, bypass DND) · alto · monitor (silent)
+- SLA: 99.5% entrega tier 01 em < 10s
+- Página **Patterns · Mobile · Handover**
+
+_Esforço: 4d · Owner: eng · Deps: γ.1_
+
+### γ.4 · Native token foundation `P2`
+
+Pipeline 1 JSON → 3 outputs · parity matrix 100% · drift detector em CI · sample apps minimalistas.
+
+**Entregáveis:**
+- iOS sample app consumindo `@pulso/tokens-ios` em SwiftUI
+- Android sample app consumindo `@pulso/tokens-android` em Compose
+- Audit de drift web ↔ nativo · 100% paridade nos primitives
+- Drift detector em CI bloqueia merge com discrepância
+- Documentação · onboarding para time nativo futuro
+- Página **Foundations · Native Token Foundation**
+
+_Esforço: 4d · Owner: eng · Deps: v2 · 5.2_
+
+---
+
+## Não-objetivos da v3
+
+- **App mobile nativo.** γ entrega tokens e patterns, não app. Decisão de produto, não de DS.
+- **Cris como produto separado.** IA continua embutida no Crisis Monitor. Não há intenção de extrair Cris como SDK público.
+- **White-label productizado.** Arquitetura habilita (v2 · 5.1), mas não há demanda comercial.
+- **Mais componentes novos.** v3 amplia ergonomia (composição) e identidade · não breadth.
+- **Refatoração de tokens semantic.** A v2 · 5.1 fechou. Mudança nessa camada agora exige RFC duro.
+
+---
+
+## Métricas de sucesso · v3
+
+| Métrica | Alvo | Status | Como medir |
+|---------|------|--------|------------|
+| Reconhecimento sem-cor | ≥ 80% | ✓ 84% | Teste com 8 usuários · 6 telas mono |
+| Conteúdo AI marcado | 100% | ✓ | Audit script percorre superfícies |
+| Mobile task success | ≥ 90% | ✓ 92% | Smoke test 10 operadores |
+| Parity web ↔ native | 100% | ✓ | Drift detector em CI |
+| RFC por signature shape | 100% | ✓ | Sem alterações silenciosas |
+| Offline task survival | ≥ 95% | ✓ 100% | Read + ack + draft sem rede |
+
+---
+
+## Resumo
+
+| Fase | Iniciativas | Esforço | Prioridade |
+|------|-------------|---------|------------|
+| α · Identidade | 5 | ≈ 5 sem | P0/P1 fundacional |
+| β · IA Patterns | 5 | ≈ 6 sem | P0/P1 |
+| γ · Mobile | 4 | ≈ 6 sem | P1/P2 paralela a β |
+| **Total** | **14** | **≈ 12 sem com paralelismo** | — |
+
+Detalhamento completo em [Release Notes v3](/release/v3).

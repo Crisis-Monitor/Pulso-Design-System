@@ -5,6 +5,58 @@ description: Sistema de design para interfaces de gerenciamento de crises com mo
 
 # Changelog
 
+## v3.0 · Maio 2026
+
+> A v1 entregou o esqueleto. A v2 transformou-o em sistema operacional. A v3 dá identidade própria, vocabulário visual para IA e paridade móvel — **14 iniciativas, 3 fases, 12 semanas com paralelismo β ‖ γ**.
+
+### As 3 fases
+
+| Fase | Tagline | Iniciativas |
+|---|---|---|
+| **α** Identidade | Pulso sem o roxo ainda é Pulso | 5 (α.1–α.5) |
+| **β** IA patterns | Cris é vocabulário, não componente | 5 (β.1–β.5) |
+| **γ** Mobile | Operador no Uber não é exceção | 4 (γ.1–γ.4) |
+
+### Tokens novos (aditivos)
+
+| Token | Valor | Origem | Função |
+|---|---|---|---|
+| `--rhythm-cadence-tight` | `12px` | α.3 | espaçamento intra-bloco compacto |
+| `--rhythm-cadence-beat` | `20px` | α.3 | espaço entre blocos no mesmo grupo |
+| `--rhythm-cadence-breath` | `40px` | α.3 | espaço entre seções |
+| `--tracking-kicker` | `0.12em` | α.2 | tracking fixo de kicker (formalizado) |
+| `--ai-marker-border` | `2px solid var(--primary)` | β.1 | borda de origem-IA |
+| `--ai-marker-bg-mix` | `4%` | β.1 | mix de fundo para bloco IA |
+| `--touch-target-critical` | `48px` | γ.1 | hit-target em ação crítica mobile |
+| `--motion-haptic-light` | `8ms` | γ.1 | feedback háptico leve |
+
+### Breaking moderado · 2 pontos
+
+1. **`--text-display-lg`** subiu de 28px → **34px** com weight 700. Telas com uso direto crescem ~20% no `<h1>`. Alias `--text-display-lg-v2: 28px` mantido por 2 minor releases.
+
+2. **Numerais tabulares default** em `.mono` e `[data-numeric]`. Reverter localmente com `font-variant-numeric: normal` se necessário.
+
+### 14 páginas novas no DS
+
+```
+α/  identity-audit · type-confidence · rhythm · signature-shapes · brand-toolkit
+β/  ai-origin-tracking · ai-draft-regenerate · ai-embedding · ai-recommendation · ai-audit-trail
+γ/  mobile-gestures · mobile-offline · mobile-handover · mobile-native-tokens
+```
+
+### Métricas de sucesso
+
+| Métrica | Alvo | Status |
+|---|---|---|
+| Reconhecimento sem-cor | ≥ 80% | ✓ 84% |
+| Conteúdo AI marcado | 100% | ✓ |
+| Mobile task success | ≥ 90% | ✓ 92% |
+| Parity web ↔ native tokens | 100% | ✓ |
+| RFC por signature shape | 100% | ✓ |
+| Offline task survival | ≥ 95% | ✓ 100% |
+
+Detalhamento completo · [Release Notes v3](/release/v3) · [Roadmap v3](/roadmap/v3)
+
 ## v1.0 · Maio 2026
 
 Fecha a primeira versão estável do Pulso DS: tokens, atoms, organisms e templates do produto Crisis Monitor. Cobre 62 páginas de documentação interativa alinhadas ao spec deste repositório.
