@@ -1,0 +1,90 @@
+---
+title: Brand Toolkit
+description: Pulso fora do produto · templates de deck, doc institucional, social cards e email. Vocabulário α atravessa DS e brand system.
+---
+
+# Brand expression toolkit
+
+> **Fase α · 05 · entregue na v3.0**
+
+O Pulso aparece fora do produto · slide para Dotcase, doc institucional para cliente, social card para anúncio. Sem template, cada peça reinventa. Este toolkit fecha o gap entre **DS** e **brand system**.
+
+## Princípio
+
+Brand toolkit usa o mesmo vocabulário do produto — tipografia α.2, ritmo α.3, signature shapes α.4 — com permissões diferentes por superfície. Pulso reconhecível em qualquer formato, **com ou sem o roxo**.
+
+## 3 surfaces · 3 templates
+
+### 01 · Deck Dotcase · 16:9
+
+Slide all-hands, comercial, board, investor. 3 layouts canônicos.
+
+| Slot | Spec |
+|------|------|
+| Formato | 16:9 · 1920×1080 |
+| Fundos | Title · gradient indigo · Section · `surface-2` · Content · card |
+| Kicker | mono · `0.18em` tracking (mais ousado que UI) |
+| Numeral | mono · tabular · weight 700 · até 64px |
+| Layouts | Capa · Secção · Conteúdo |
+| Distribuição | `.key` · `.pptx` · Figma library |
+
+### 02 · Doc institucional · A4 print
+
+Relatório de incidente, briefing executivo, post-mortem, política regulatória. Light para imprimir · Dark para email/screen. Marcadores `[Fato]` / `[Inferência]` / `[Recomendação]` presentes · vocabulário Cris atravessa o produto e a marca.
+
+| Slot | Spec |
+|------|------|
+| Formato | 8.5×11 in · 240 dpi |
+| Variantes | Light · impressão · Dark · email/screen |
+| Marcadores | `[Fato]` · `[Inferência]` · `[Recomendação]` (signature 05) |
+| Métricas | Score · Menções · Veículos · Sentimento — numerais mono tabulares |
+| Ferramentas | InDesign · Affinity · Pages |
+
+### 03 · Social cards · 1:1
+
+3 layouts canônicos · cada um servindo um propósito comunicativo claro.
+
+| Layout | Propósito | Spec |
+|--------|-----------|------|
+| **A · Quote / manifesto** | Frase-chave, depoimento | Fundo escuro `#14101F` · type 19px / 700 · `-0.012em` |
+| **B · Número / data point** | Métrica, conquista, release | Fundo claro `#F5F4FA` · grid lavender · numeral 64px / 800 · tabular |
+| **C · Lista / anúncio** | Release, feature drop, hiring | Band escura + body claro + foot · bullets máx 3 · sempre com glifo |
+
+Ratios disponíveis: 1:1 (LinkedIn / IG) · 16:9 (LinkedIn link / X card) · 9:16 (story) · 4:5 (IG portrait).
+
+## Regras de uso · brand × DS
+
+Brand toolkit usa o mesmo vocabulário do produto · mas com permissões diferentes. Cada superfície tem seu range.
+
+1. **Tracking de kicker pode crescer fora do produto.** UI usa `0.12em` (α.2). Em deck e social, `0.16–0.18em` é permitido — formatos grandes pedem mais respiro. PDF mantém o mesmo do produto.
+2. **Numerais podem ir até weight 800 fora do produto.** UI fixa em 700 (α.2 evita "editorial"). Em social card de número, **800 é permitido** — a métrica é o protagonista. Deck e PDF mantêm 700.
+3. **Marcadores `[Fato]/[Inferência]/[Recomendação]` são canônicos cross-surface.** Mesmo vocabulário epistêmico em produto, PDF, social. Reforça que Crisis Monitor é a única ferramenta com esse rigor — assinatura cross-canal.
+4. **Logomark sempre presente, sempre canto inferior.** Em deck · canto inferior esquerdo + numeração à direita. Em social · canto inferior · sempre acompanhado da edição/tag. Em PDF · linha de rodapé com classificação. **Nunca centralizado, nunca no topo.**
+5. **Fundo escuro = posicionamento; fundo claro = conteúdo.** Indigo-deep (`#14101F`) carrega afirmação de marca · capa, manifesto, lançamento. Light (`#F5F4FA`) carrega informação · número, lista, body. **Não há social card que mistura** · escolha uma.
+
+## Arquivos · onde achar
+
+Templates vivem em `dotcase-brand/` · sincronizados via Tokens.studio (v2 · 5.2). Atualização do DS cascateia para os templates.
+
+| Asset | Conteúdo | Formato |
+|-------|----------|---------|
+| **Deck · 14 slides** | Capa · secção · conteúdo · número · lista · quote · CTA | `.key` · `.pptx` · Figma library |
+| **PDF institucional** | Capa · sumário · briefing · relatório · post-mortem · light + dark | InDesign · Affinity · Pages |
+| **Social · 3 layouts × 4 ratios** | Quote · número · lista · 1:1 / 16:9 / 9:16 / 4:5 | Figma library · Canva enterprise |
+| **Email · header + footer** | Mark + kicker + assinatura · pronto para newsletter, dispatch, release notes | HTML email · MJML |
+
+## Entregas · α.5
+
+- Template de deck · 3 layouts canônicos (capa, secção, conteúdo)
+- Template de doc institucional · light + dark, A4 print-ready
+- Social cards · 3 layouts (quote · número · lista)
+- Email · header e footer canônicos
+- 5 regras de uso · brand × DS
+- Página **Brand · Toolkit**
+
+## Dependências
+
+- **α.2 · Type confidence** — display scale, tracking de kicker, numerais tabulares atravessam.
+- **α.3 · Rhythm** — cadência vertical informa layout de slide e doc.
+- **α.4 · Signature shapes** — kicker, numeral, marcadores, glifos aparecem em todas as superfícies.
+- **v2 · 5.2 · Figma ↔ Code** — pipeline Tokens.studio cascateia tokens para templates.

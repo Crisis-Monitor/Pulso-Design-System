@@ -1,0 +1,131 @@
+---
+title: Mobile Push Handover
+description: Push → deep-link → desktop em < 2s · scheme pulso://crisis/{id}?action=ack · 3 tiers (crítico bypassa DND · alto respeita · monitor passivo) · SLA mensurável.
+---
+
+# Push handover · web ↔ mobile
+
+> **Fase γ · 03 · entregue na v3.0**
+
+Push chega no celular · operador continua no desktop. Estado flui em **&lt; 2s** · deep-link entrega contexto exato · três tiers de push (crítico · alto · monitor) com vibração e som calibrados. Sem isso, mobile vira ilha · com isso, **mobile é canal de paridade**.
+
+## Princípio · um caso, dois dispositivos
+
+O operador tem uma única caixa de trabalho · que vive em dois dispositivos. Push no celular **não cria sessão paralela** · entrega contexto + acelera o salto. Ack no mobile reflete no desktop em &lt;2s. Decisão começada no celular pode continuar no desktop sem repetir leitura.
+
+> **A regra é:** deep-link entrega contexto · sync mantém estado.
+
+Operador chega na mesma tela onde a Cris pausou, com o mesmo draft em aberto, mesma seleção, mesma posição no audit log.
+
+## Anatomia · push → deep-link → desktop
+
+Três momentos:
+
+1. **Push recebido** · notificação na tela de bloqueio.
+2. **Operador toca** · deep-link resolve com contexto.
+3. **Desktop sincronizado** em &lt;2s · ação sugerida destacada.
+
+## Deep-link schema
+
+URL canônica · scheme custom para mobile, https para web. Cada segmento tem responsabilidade clara.
+
+```
+pulso://crisis/248?action=ack&from=push&push_id=p_9b22
+```
+
+| Segmento | Conteúdo | Notas |
+|----------|----------|-------|
+| `scheme` | `pulso://` mobile · `https://pulso.app` web | Resolução automática · mesmo deep-link funciona nos dois |
+| `host` | Tipo da entidade · `crisis`, `audit`, `case-list` | Determina rota de destino |
+| `path` | Separador estrutural · path-style | Permite hierarquia (`/crisis/248/notes/v3`) |
+| `id` | ID estável do recurso · `248` | Sem ambiguidade entre clientes |
+| `action` | Intenção pré-resolvida · `ack`, `view`, `escalate` | Desktop abre a tela e destaca a ação |
+| `metadata` | `from=push` · `push_id=...` | Traça origem no audit log (β.5) · push virou ação |
+
+## Três tiers de push
+
+Cada tier define som, vibração, persistência e capacidade de bypass do modo silencioso. Operador escolhe nas configurações · default segue tier do caso.
+
+### Tier 01 · Crítico
+
+Caso novo crítico · escalada decisiva · falha bloqueante. Operador on-call **precisa** ver.
+
+| Slot | Spec |
+|------|------|
+| Som | Áudio distintivo · **sobrepõe silenciamento** |
+| Vibração | Padrão longo · 3× pulsos fortes |
+| Bypass DND | **Sim** · contas on-call |
+| Persistência | Não dismiss automático · 30 min na central |
+| Apple alert | `time-sensitive` · sobrepõe modo Foco |
+
+### Tier 02 · Alto
+
+Caso em tier atenção · recomendação decisiva da Cris aguardando · update relevante em caso ativo.
+
+| Slot | Spec |
+|------|------|
+| Som | Padrão · sistema |
+| Vibração | 2× pulsos médios |
+| Bypass DND | Não · respeita silenciamento |
+| Persistência | 15 min na central |
+| Apple alert | `active` · padrão |
+
+### Tier 03 · Monitor
+
+Resumo diário · digest · sugestões de baixa confiança · sinais informativos sem ação imediata.
+
+| Slot | Spec |
+|------|------|
+| Som | Nenhum |
+| Vibração | Nenhuma |
+| Bypass DND | Não · agrupa silenciosamente |
+| Persistência | Aparece só na central · sem badge |
+| Apple alert | `passive` · não interrompe |
+
+## SLA · 4 alvos de sync
+
+Métricas mensuráveis. Se qualquer um desliza, o sistema avisa internamente · **drift de mais de 2s entre dispositivos é incidente, não inconveniente**.
+
+| Alvo | Métrica | O que mede |
+|------|---------|------------|
+| **&lt; 2s** | push → desktop | Tempo entre push entregue e estado refletir no desktop logado |
+| **&lt; 800ms** | ack → outros devices | Ack no celular some do desktop · ou vice-versa · conexão estável |
+| **100%** | deep-link cold-start | App fechado · operador toca push · destino correto na primeira tela após auth |
+| **99.5%** | push entrega · crítico | Push tier 01 entregue em &lt; 10s em rede normal · failover de provider em 30s |
+
+## Regras
+
+### ✕ Não usar crítico fora de crítico
+
+Tier 01 sobrepõe silenciamento. Usar para update menor **queima a credibilidade**. Em 3 push falsos críticos, operador desliga · perde a próxima real.
+
+> **Auditoria de uso:** tier 01 **não pode exceder 5% do volume mensal** · alerta interno aciona se passa.
+
+### ✓ Deep-link sempre · push sem deep-link não existe
+
+Toda notificação carrega `pulso://` · tap leva exatamente à tela do contexto. Operador **nunca abre app e procura o caso que recebeu push**. Falhar deep-link parsing &gt; abrir lista de alertas. Sempre ter fallback graceful.
+
+### ✕ Não duplicar push entre devices
+
+Operador com celular + tablet + desktop recebe **um único push** · entregue no dispositivo mais ativo. Tier 01 entrega em todos como fallback · demais escolhem alvo. Backend mantém `focus_score` por device · push vai para o mais alto.
+
+### ✓ State sync via stream · não polling
+
+WebSocket / SSE persistente · cada ação propaga em ms. Polling perde mudanças, atrasa &lt; 2s SLA · sync precisa ser **empurrado, não puxado**. Em offline (γ.2), stream para · reconecta com diff desde último ack ao voltar.
+
+### ✕ Não fazer push ser único caminho de informação
+
+Push é veículo · **não fonte**. Estado completo vive no servidor · push é convite para olhar. Push perdido nunca leva a estado perdido. Quando push falha entrega, in-app badge no desktop continua mostrando · operador sabe ao abrir.
+
+### ✓ Auditoria de push no audit log
+
+Push enviado é evento auditável (β.5) · com tier, conteúdo, timestamp de entrega, ação resultante. Pergunta "por que recebi push às 3am?" tem resposta investigável. Evento `push_sent` com retention class definida pelo tier · crítico vira 24mo · monitor 3mo.
+
+## Dependências
+
+- **γ.1 · Gestures** — ações via push usam mesma gramática · swipe-to-ack na notificação reflete swipe-to-ack no app.
+- **γ.2 · Offline-first** — ack iniciado offline no mobile pode confirmar no desktop ao reconectar.
+- **v2 · 1.2 · Risk redundância** — glifo do tier (`● ◆ ○`) entra no título do push · cor sozinha não basta no lock screen.
+- **β.4 · Recommendation** — recomendação decisiva da Cris dispara push tier 02 · operador pode tocar e cair direto no `RecommendationCard`.
+- **β.5 · Audit trail** — push enviado + ação resultante encadeiam-se no audit log · investigação "do push até a ação" em 1 query.
+- **v2 · 4.4 · Notifications template** — preferences ganha aba "Push" · operador escolhe tier por canal (móvel, desktop, watch).

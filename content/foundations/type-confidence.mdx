@@ -1,0 +1,114 @@
+---
+title: Type Confidence
+description: Tipografia confiante · display scale revisado (28→34px), tabular numerals como default, kicker tracking 0.12em e 5 regras formalizadas.
+---
+
+# Tipografia confiante
+
+> **Fase α · 02 · entregue na v3.0**
+>
+> Manrope serve. Mas a v2 jogou seguro.
+
+Display weights, intencionalidade do mono, numerais tabulares e tracking de kicker estavam sub-aproveitados. A α.2 testa três níveis de ousadia e fixa uma direção.
+
+## Auditoria · onde mono é assinatura, onde é ruído
+
+A α.1 confirmou: mono carrega Pulso em **metadados**, **kicker** e **numeral**. Fora desses três, mono passa de assinatura a maneirismo.
+
+| Superfície | Hoje | v3 | Por quê |
+|------------|------|-----|---------|
+| Kicker (uppercase de seção) | mono | **SIGNATURE** | Marca registrada · uppercase + tracking + mono. Mantém. |
+| Numeral de métrica / score | mono | **SIGNATURE** | Tabular alignment, weight 700, optical adjustment. Mantém e amplia. |
+| Timestamp, ID, duração | mono | **SIGNATURE** | Mono = dado de máquina. Diferencia gerado de curado. Mantém. |
+| Marcador `[Fato]` / `[Inferência]` | mono | **SIGNATURE** | Vem da v2 · 2.4 (voz Cris). Pulso puro. Mantém. |
+| Tier badge (`TIER 1`) | mono | mantém | Lê como dado classificatório. Mantém em mono. |
+| Status chip (`CRÍTICO`, `ATIVO`) | mono | **reduzir** | Mono em UPPERCASE confunde com kicker. v3 alterna para sans semibold uppercase com tracking menor. |
+| Label de formulário | sans | mantém | Conteúdo curado, não dado. |
+| Botão / CTA | sans | mantém | Ação é gesto humano. Mono soa robótico. |
+| Body / parágrafo | sans | mantém | Leitura corrida pede sans. |
+| Heading H2 / H3 | sans | mantém | Hierarquia editorial. |
+| Empty state hint | mono | **cortar** | Vira ruído de máquina onde precisaria de calor humano. |
+| Tooltip body | mono | **cortar** | Tooltip explica · linguagem natural. Exceção: tooltip de timestamp (continua mono). |
+
+**Regra final:** mono = dado de máquina (número, ID, marcador estrutural, kicker). Sans = conteúdo humano (label, body, heading, ação). Quando em dúvida, sans.
+
+## Display scale · v2 vs v3
+
+A v2 ancorou `page-title` em 28px / 700. Confortável, mas tímido. A v3 sobe para **34px / 700** com optical adjustment.
+
+| Slot | v2 (atual) | v3 (proposto) |
+|------|------------|---------------|
+| `page-title` · display-lg | 28px · 700 · tracking −0.01em | **34px · 700 · tracking −0.015em** |
+| `section-h1` · h1 | 20px · 600 · tracking −0.005em | **22px · 700 · tracking −0.01em** |
+| numeral · metric (display) | 24px mono · 600 · proportional | **28px mono · 700 · tabular** |
+
+## Numerais tabulares · default em todo dado
+
+Numerais proporcionais quebram alinhamento quando o valor muda. Em monitoramento, valor muda toda hora.
+
+v3 fixa `font-variant-numeric: tabular-nums` como **default** em `--font-pulso-mono`.
+
+```css
+/* v3 — globals.css */
+:root {
+  --font-pulso-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+.mono,
+[data-numeric] {
+  font-family: var(--font-pulso-mono);
+  font-variant-numeric: tabular-nums;
+}
+```
+
+Override permitido apenas em texto corrido (parágrafo com valor numérico ocasional).
+
+## Kicker · tracking calibrado
+
+Kicker já é signature (α.1 confirmou). v3 ajusta o tracking para respiro mais confiante.
+
+| Variante | Tracking | Avaliação |
+|----------|----------|-----------|
+| v2 · atual | `0.12em` | Seguro, comum em DSs corporativos. |
+| **v3 · escolhido** | **`0.12em`** | Respiro confiante, ainda legível em 10px. |
+| Alternativa ousada | `0.18em` | Belíssimo · mas começa a "decorar" em vez de informar. |
+
+## 3 specimens · página de caso
+
+Três níveis de confiança tipográfica testados:
+
+- **A · Conservador** — status quo v2. Familiar. Não diferencia o produto de um shadcn-default.
+- **B · Atual+** — `recomendado`. Display ganha peso, numeral ganha presença, kicker respira. Operacional ainda · não vira poster.
+- **C · Ousado** — peso 800 + 30px em página densa engole as métricas vizinhas. Vira slide, não cockpit.
+
+**Decisão · variante B.** Combina display 34px + numerais tabulares + kicker tracking 0.12em.
+
+## Regras formalizadas · v3
+
+As decisões viram contrato. Lint rule + Figma constraint cobrem ambas as superfícies.
+
+1. **Mono = dado de máquina; Sans = conteúdo humano.** Mono permitido apenas em: kicker, numeral, timestamp/ID/duração, tier classificatório, marcadores `[Fato]/[Inferência]/[Recomendação]`. Tudo o mais é sans.
+2. **Numerais sempre tabulares em dado vivo.** `font-variant-numeric: tabular-nums` default em `--font-pulso-mono`. Override só em texto corrido.
+3. **Page-title em 34px / 700.** Display ganha presença. Antigo 28px deprecated · codemod converte automaticamente. Section-h1 sobe para 22px / 700.
+4. **Kicker tracking · 0.12em.** Token `--tracking-kicker` passa de `0.12em` para `0.12em`. Aplicado globalmente.
+5. **Status chip muda de mono → sans semibold.** `CRÍTICO`, `ATIVO`, `EM CRISE` hoje competem com kicker. v3 usa sans 600 com tracking 0.06em.
+
+## Tokens novos / atualizados
+
+| Token | Antes (v2) | Depois (v3) | Efeito |
+|-------|------------|-------------|--------|
+| `--text-display-lg` | `1.75rem` (28px) | `2.125rem` (34px) | Page-title ganha presença |
+| `--text-h1` | `1.25rem` (20px) | `1.375rem` (22px) | Section-h1 alinhado ao display |
+| `--text-display-num` | — | `1.75rem` (28px) · mono | **Novo** · numerais de métrica grande |
+| `--tracking-kicker` | `0.12em` | `0.12em` | Kicker mais confiante |
+| `--font-pulso-mono` (variant) | proportional | tabular-nums | Alinhamento em colunas |
+| `--weight-display` | 700 | 700 (mantém) | Não inflar para 800 · evitar "editorial" |
+
+> **Breaking moderado:** `--text-display-lg` é breaking. Alias `--text-display-lg-v2` mantido por 2 minor releases. Codemod converte usos diretos automaticamente.
+
+## Dependências
+
+- **α.1 · Identity audit** — gap 05 é input direto desta decisão.
+- **α.4 · Signature shapes** — kicker e numeral display formalizados como signature shapes.
+- **v2 · 5.2 · Figma ↔ Code** — Tokens.studio precisa publicar os novos valores.
+- **v2 · 4.5 · Density** — display scale não escala com densidade · `page-title` é 34px em qualquer modo.

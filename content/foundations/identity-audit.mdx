@@ -1,0 +1,88 @@
+---
+title: Identity Audit
+description: Auditoria sem-cor da identidade do Pulso · 6 telas testadas em monocromático, 4 dimensões, 7 gaps priorizados. Input da fase α.
+---
+
+# Auditoria de identidade sem-cor
+
+> **Fase α · 01 · entregue na v3.0**
+>
+> Se trocássemos o roxo amanhã, o Pulso ainda pareceria *do Pulso*?
+
+Esta auditoria testa essa pergunta em 6 telas representativas. Cada uma renderizada lado a lado com a versão monocromática (CSS `filter: grayscale(1)`) — sem outros ajustes, para isolar o que carrega identidade fora da cor.
+
+## Método
+
+Identidade avaliada em 4 dimensões. A mesma tela renderizada em cor e em monocromático. Cada dimensão recebe nota de 3 níveis · `forte` · `presente` · `ausente`.
+
+| Dimensão | O que avaliamos |
+|----------|-----------------|
+| **Tipografia** | Display, mono em metadados, kicker mono uppercase |
+| **Ritmo** | Hairlines, cadência vertical, hierarquia por espaço |
+| **Signature shapes** | Score Ring, border-left de evidência, marcadores `[Fato]/[Inferência]` |
+| **Encoding redundante** | Risco, sentimento, direção comunicados sem depender de cor |
+
+## Achados cross-screen
+
+Síntese das anotações nas 6 telas, agrupadas por dimensão.
+
+| Dimensão | Sobrevive sem cor? | Notas |
+|----------|-------------------|-------|
+| Tipografia | **Forte · 6/6** | Manrope display + mono em metadados é assinatura consistente. Marcadores `[Fato]`/`[Inferência]` e numerais grandes mono são Pulso puro. |
+| Kicker | **Forte · 6/6** | Uppercase mono com tracking `0.12em` é a marca registrada visual. Mantém identidade sem o roxo. |
+| Score Ring | **Forte · isolado** | Ring concêntrico + numeral grande + kicker pequeno é a forma-assinatura mais reconhecível. Candidato a signature shape (α.4). |
+| Hairlines | **Presente · 4/6** | Bordas 1px funcionam, mas contraste fundo↔borda colapsa em mono. Em ritmo · ok; em definição de bloco · perde força. |
+| Risk encoding | **Ausente · 2/6** | Chips `CRIT/HIGH/ATT` dependem 100% da cor. v2 · 1.2 entregou glifos · não foram aplicados nessas telas. **Ação mais imediata da α.** |
+| Tab ativa | **Ausente · 1/6** | Border-bottom colorido é o único sinal de seleção. |
+| Sentimento | **Ausente · 1/6** | Barra empilhada e linha de sentimento são encoding puramente colorido. |
+| Direção/movimento | **Presente · 3/6** | `+12`, `−42` carregam direção verbalmente. Falta encoding visual neutro à cor. |
+
+## Lista de gaps · priorizada
+
+Cada gap vira input para uma iniciativa subsequente da fase α.
+
+| # | Gap | Prioridade | Esforço | Vira |
+|---|-----|------------|---------|------|
+| 01 | Aplicar glifos de risco em todas as superfícies | **P0** · bloqueia α | 3 d | α.4 |
+| 02 | Encoding redundante em data viz de sentimento | **P0** · α + Data Viz | 5 d | α.4 + v2 · 3.x |
+| 03 | Tab ativa com indicador estrutural | P1 | 2 d | α.4 |
+| 04 | Hairlines com ritmo · não com presença permanente | P1 | 4 d | α.3 |
+| 05 | Numerais display · weight 700 com optical adjustment | P1 | 3 d | α.2 |
+| 06 | Direção de movimento explícita em deltas | P2 | 2 d | α.4 |
+| 07 | Score Ring · indicar arc-of-travel | P2 | 2 d | α.4 |
+
+## Conclusão · resposta à pergunta
+
+**Se trocássemos o roxo amanhã, o Pulso parcialmente continuaria reconhecível.**
+
+O que carrega Pulso fora da cor:
+
+- Kicker mono uppercase
+- Score Ring
+- Tipografia display + mono em metadados
+- Border-left de 3px em evidência
+- Marcadores `[Fato]` / `[Inferência]` / `[Recomendação]`
+
+O que **não** carrega:
+
+- **Risco** — depende de chip colorido
+- **Sentimento** — encoding puramente colorido
+- **Tab ativa** — border-bottom colorido
+- **CTA primário** — vira preto, perde acento
+
+**Direção da fase α:** formalizar e reforçar os 5 elementos que sobrevivem (α.2, α.4), e construir encoding redundante onde a cor é hoje o único sinal (α.3, α.4). Brand toolkit (α.5) testa essas decisões fora do produto.
+
+## Entregas · α.1
+
+- 6 telas em monocromático lado a lado da versão final
+- Anotações por região: ritmo, type, hairlines, signature shapes
+- Lista de gaps · 7 itens priorizados (2 P0, 3 P1, 2 P2)
+- Página **Foundations · Identity Audit**
+
+## Dependências
+
+- **v2 · 1.2 · Risk redundância** — sistema de glifos `● ○ ◐ ◆ ■` é input do gap 01.
+- **α.2 · Type confidence** — formaliza display scale e tabular numerals.
+- **α.3 · Rhythm** — refatora hairlines como sinal contextual.
+- **α.4 · Signature shapes** — promove 7 formas a contrato visual rígido.
+- **α.5 · Brand toolkit** — testa decisões fora do produto.

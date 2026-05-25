@@ -1,0 +1,143 @@
+---
+title: Mobile Gestures
+description: 5 gestos canônicos · swipe-to-ack · pull-to-refresh · long-press · drag bottom-sheet · two-finger select. Hit target adaptativo e thumb zone mapeada.
+---
+
+# Mobile gestures
+
+> **Fase γ · 01 · entregue na v3.0**
+
+A v2 · 4.4 entregou responsive (reflow). γ.1 entrega **vocabulário de gesto** · cinco padrões canônicos com feedback háptico, hit-target adaptativo e zona segura do polegar mapeada. **Operador no Uber não é exceção · é caso primário.**
+
+## Princípio · gesto é atalho confiável
+
+Mobile não é desktop encolhido. Operador no celular toca com o polegar, em movimento, com latência de rede. **Gesto bem desenhado tira fricção · gesto mal desenhado vira ansiedade.**
+
+γ.1 fixa **cinco gestos** · cada um com tarefa, área, hit-target e feedback háptico definidos. Sexto gesto vira RFC · não decisão de feature.
+
+## Os 5 gestos canônicos
+
+### 01 · Swipe-to-ack
+
+Deslize horizontal sobre o card de alerta · reconhece e remove do feed ativo. Direção é convencional do produto · esquerda em RTL, direita em LTR.
+
+| Slot | Valor |
+|------|-------|
+| háptico | `light` · 8ms |
+| min-distance | 56px |
+| velocity | ≥ 0.4 px/ms |
+| commit-at | 60% da largura |
+| cancel | solta antes do limiar |
+
+### 02 · Pull-to-refresh
+
+Puxar lista para baixo · sincroniza com servidor. Sinaliza freshness e oferece controle manual quando o operador desconfia que o estado pode estar atrasado.
+
+| Slot | Valor |
+|------|-------|
+| háptico | médio · ao soltar |
+| commit-threshold | 64px |
+| spinner-show | ao ultrapassar threshold |
+| refresh-min | 600ms (evita flash) |
+| sucesso | háptico light + chip `Atualizado · agora` |
+
+### 03 · Long-press · opções
+
+Toque sustentado revela menu de ações secundárias · escalar, atribuir, copiar link. Cris embedding (β.3) também usa este gesto para abrir Sheet no contexto do item.
+
+| Slot | Valor |
+|------|-------|
+| háptico | light · ao atingir 300ms |
+| duração | 300–500ms |
+| tolerância | 8px de movimento |
+| preview | sublinhado visual aos 200ms |
+| cancel | soltar ou mover além |
+
+### 04 · Drag bottom-sheet
+
+Sheet inferior com grabber visível · operador arrasta para expandir/colapsar · **três alturas** (peek 25% · half 55% · full 90%). Detents previsíveis · scroll dentro só na altura full.
+
+| Slot | Valor |
+|------|-------|
+| háptico | light · ao trocar de detent |
+| detents | 25% · 55% · 90% |
+| velocity-flick | 0.6 px/ms pula detent |
+| grabber | 32×4px · margem 10px |
+| swipe-down-bottom | fecha |
+
+### 05 · Two-finger select
+
+Dois dedos arrastando verticalmente sobre lista · seleção múltipla rápida. Usa o pattern multi-select da v2 · 4.3 · `SelectionBar` aparece quando começa.
+
+| Slot | Valor |
+|------|-------|
+| háptico | light · a cada item selecionado |
+| min-pointers | 2 |
+| min-distance | 24px vertical |
+| cancela-com | 3º dedo |
+| fallback-desktop | `Shift+click` range |
+
+## Hit target adaptativo
+
+44px é piso. Em alvo crítico · 48px. Em ação cancelável (dismiss, ghost) · 32px é aceitável. Token `--touch-target` da v2 · 1.3 fica como default · γ.1 adiciona variants.
+
+| Variant | Tamanho | Quando |
+|---------|---------|--------|
+| **Default** | 44 × 44 | Toda ação primária e secundária · botões, chips, toggles, links em lista |
+| **Crítico** | 48 × 48 | Ações irreversíveis ou de alta consequência · escalar, dispatch externo, aceitar recomendação decisiva |
+| **Dismiss** | 32 × 32 | Botões de dispensar/fechar inline · ghost actions · reservado para não-críticos com alternativa via gesto |
+
+Tokens novos:
+
+```css
+--touch-target:          44px;  /* default · v2 */
+--touch-target-critical: 48px;  /* novo · γ.1 */
+--touch-target-dismiss:  32px;  /* novo · γ.1 */
+```
+
+## Zona segura do polegar
+
+Smartphone em uma mão = polegar alcança ~58% da tela confortavelmente.
+
+| Zona | Range | O que vive aqui |
+|------|-------|-----------------|
+| **Polegar** | 58–100% (rodapé) | Onde a ação vive · CTAs primários · bottom-sheet · ações destrutivas inversas (cancelar) · sticky `SelectionBar` |
+| **Ok** | 30–58% (meio) | Navegação e conteúdo · lista principal · cards de alerta · navegação por abas |
+| **Difícil** | 0–30% (topo) | Status e contexto · header · status bar · indicador de freshness · **nada destrutivo aqui** |
+
+> **Regra:** ação destrutiva **nunca** no canto inferior direito · zona de scroll natural · candidata a slip.
+
+## Regras
+
+### ✕ Não usar gesto como única affordance
+
+Swipe-to-ack precisa ter botão `Ack` no long-press menu também. **Gesto é atalho · não é a única forma.** Acessibilidade pede equivalência. Em screen reader, gesto não é descoberto · ação precisa estar no menu rotular.
+
+### ✓ Feedback háptico em todo gesto bem-sucedido
+
+Sem haptic, gesto fica em dúvida. Operador deveria **sentir** que a ação registrou antes de a UI confirmar visualmente. Haptic é **confirmação, não decoração**. iOS usa `UIImpactFeedbackGenerator` · Android usa `HapticFeedbackConstants`.
+
+### ✕ Não inventar sexto gesto
+
+Pinch-to-zoom em alerta? Double-tap para escalar? **Não.** Catálogo é fechado · operador aprende uma vez e usa em qualquer tela. Gesto novo passa por RFC do council · com pesquisa de uso e teste em 5+ operadores.
+
+### ✓ Cancelamento sempre disponível
+
+Todo gesto tem janela de cancel · soltar antes do threshold, mover além da tolerância, ou desfazer com toast de 5s. **Erro de toque em movimento é regra · não exceção.** Toast de undo aparece no bottom da tela · zona do polegar · tappable em 44px.
+
+### ✕ Não esconder ação destrutiva atrás de gesto rápido
+
+Swipe único não deveria deletar sem confirmação. Em crise, slip vira incidente. **Swipe-to-ack é seguro (reversível) · swipe-to-delete não deveria existir.** Ação destrutiva fica no long-press menu · com label `Descartar` e cor destrutiva.
+
+### ✓ Aderir ao reduced-motion
+
+Operador com `prefers-reduced-motion` recebe gestos **sem animação** · só a ação. Haptic continua · vibração não é animação. Herdado da v2 · 1.5. **Reduced motion não é a11y opcional · é contrato.**
+
+## Dependências
+
+- **α.3 · Rhythm** — cadence vertical informa altura dos detents da bottom-sheet.
+- **v2 · 1.3 · Keyboard map** — cada gesto tem atalho equivalente em desktop · `⌥A` (ack), `⌘E` (escalar).
+- **v2 · 1.5 · Reduced motion** — transições de detent/swipe respeitam preferência.
+- **v2 · 4.3 · Multi-select** — two-finger select alimenta o mesmo `SelectionBar`.
+- **β.3 · Embedding** — long-press abre Cris Sheet no contexto do item.
+- **γ.2 · Offline-first** — pull-to-refresh ganha estado especial offline · "fila local · X pendentes".

@@ -1,0 +1,141 @@
+---
+title: Mobile Offline-first
+description: Contrato offline-first · tabela de capacidades por estado de rede · queue lifecycle em 5 estados · 4 níveis de freshness · schema queued_action.
+---
+
+# Offline-first contract
+
+> **Fase γ · 02 · entregue na v3.0**
+
+Sinal cai · trabalho continua. γ.2 define **o que sobrevive sem conexão · o que enfileira para sincronizar · o que falha de forma graceful**. Indicador de freshness em toda superfície sensível ao tempo. **Nada de "ops, sem internet".**
+
+## Princípio · ler, reconhecer, rascunhar — sempre
+
+Operador em transit pode perder sinal a qualquer momento. O Crisis Monitor não pode virar inerte. **Três capacidades nunca dependem de rede:**
+
+1. Ler briefing
+2. Ack alerta crítico
+3. Rascunhar nota
+
+Tudo o mais pode enfileirar, falhar com aviso, ou cair em modo degradado · **explicitamente**.
+
+> **A regra é:** conexão é otimização, **não pré-requisito**.
+
+## Três estados de rede
+
+A mesma view de alertas, três conectividades. UI muda · capacidade muda · banner é explícito. Operador sempre sabe em qual estado está.
+
+| Estado | Indicador | Capacidade |
+|--------|-----------|------------|
+| **Online** | Pulse verde · "Ao vivo · atualizado agora" | Conexão estável · live updates · ações executam direto |
+| **Instável** | Âmbar · "Atraso · sincronizando" · idade explícita | Latência alta · ações executam local + enfileiram envio · ack já está reconhecido na UI |
+| **Offline** | Vermelho · banner persistente · "X ações em fila local" | UI permanece operacional · ack, leitura e drafts são locais · queue-bar sempre visível |
+
+## Tabela de capacidades
+
+Por classe de ação · o que funciona em cada estado. **Binding** · todo time que adiciona ação ao Crisis Monitor classifica a operação aqui antes de ship.
+
+| Ação | Online | Instável | Offline |
+|------|--------|----------|---------|
+| Ler briefing · cache | ✓ | ✓ | ✓ cache local |
+| Ack alerta crítico · reversível | ✓ imediato | ✓ local + sync | ⏳ fila local |
+| Rascunhar nota · persist local | ✓ imediato | ✓ imediato | ✓ salva localmente |
+| Comentar em caso · idempotente | ✓ imediato | ⏳ enfileira | ⏳ fila local |
+| Regenerar com Cris · chamada remota | ✓ | ⏳ retry com timeout | ✕ degraded · falha clara |
+| Escalar tier · não-idempotente | ✓ | ⚠ confirmação manual | ✕ bloqueado · banner |
+| Dispatch externo · comunicação externa | ✓ | ⚠ requer reconfirmação | ✕ bloqueado |
+| Abrir Cris Sheet · conversa nova | ✓ | ⏳ com aviso de latência | ✕ não disponível |
+| Audit log · drill-down indexado | ✓ | ⏳ cache + lazy load | ⏳ só eventos cacheados |
+
+**Legenda:** ✓ funciona inteiro · ⏳ enfileira para sync · ⚠ requer confirmação · ✕ bloqueado · UI desabilita.
+
+## Ciclo da fila local · 5 estados
+
+Uma ação que enfileira passa por cinco estados visíveis. Operador vê em qual está · **sem mistério, sem perda silenciosa**.
+
+| # | Estado | O que acontece |
+|---|--------|----------------|
+| **01** | `capture` · Ação local | Operador toca · UI confirma imediatamente · evento gravado em audit log local com `pending: true` |
+| **02** | `queue` · Aguarda rede | Sem conexão estável · entra em queue · queue-bar mostra contagem · pull-to-refresh força tentativa |
+| **03** | `sending` · Sync ativo | Rede volta · cliente tenta envio em ordem · retry exponencial · cada sucesso atualiza UI |
+| **04** | `confirmed` · Servidor aceita | Servidor responde 200 · evento perde flag `pending` · audit log local sela com timestamp do servidor |
+| **05** | `conflict` ou `accepted` · Resolução | Se servidor rejeita (conflito de estado), operador vê alerta · escolhe entre `forçar`, `recarregar` ou `descartar` |
+
+## Indicador de freshness · 4 níveis
+
+Toda superfície sensível ao tempo carrega indicador de freshness. **Operador nunca olha valor sem saber a idade.**
+
+| Nível | Idade | Tratamento |
+|-------|-------|------------|
+| **Fresh** | 0–30s | Verde · pulse leve · "Ao vivo · agora" |
+| **Stale** | 30s–5min | Cinza · idade explícita · "Atualizado há 3 min" · pull-to-refresh força |
+| **Warning** | 5–30 min | Âmbar · banner suave · "Sincronizando · 12 min" |
+| **Offline** | 30 min+ | Vermelho · banner persistente · valores na tela ficam levemente esmaecidos · audit log local cresce |
+
+Componente:
+
+```tsx
+<Freshness ts={lastSync} />
+```
+
+Quatro estados aplicados automaticamente.
+
+## Schema · `queued_action`
+
+Cada ação na fila carrega esse payload. Reaproveita o schema de `assisted_action` (β.5) · adiciona campos de sync.
+
+```json
+{
+  "local_id": "q_a8c4f1",
+  "captured_at": "2026-05-21T09:42:13Z",
+  "action": { /* mesmo payload de audit-event */ },
+  "sync": {
+    "state": "queued",
+    "attempts": 0,
+    "last_attempt": null,
+    "next_retry": "2026-05-21T09:42:43Z",
+    "idempotency_key": "op_42-case_248-ack-2026052109421",
+    "requires_confirm_on_reconnect": false
+  },
+  "network_at_capture": {
+    "state": "offline",
+    "signal": "none"
+  },
+  "audit_id_local": "local-248-q-a8c4f1",
+  "retention_class": "critical"
+}
+```
+
+## Regras
+
+### ✕ Não mostrar "Sem internet" como erro modal
+
+Modal bloqueante em offline é hostil. **Banner persistente + queue-bar** comunicam estado sem interromper. Operador precisa ler briefing mesmo offline. Modal só em ação bloqueada (ex: tentar escalar tier offline) · não em estado de rede.
+
+### ✓ Idempotency key em toda ação enfileirável
+
+Sync pode retentar · sem idempotency key, ack pode duplicar. Cliente gera UUID determinístico `operator-case-action-timestamp` · servidor recusa duplicatas silenciosamente. Compatível com retenção · cada `local_id` mapeia 1:1 a um `audit_id` servidor após confirm.
+
+### ✕ Não enfileirar ação não-idempotente sem confirmação
+
+Escalar tier offline e sincronizar 30 min depois pode causar incidente. Para essas ações, fila **pede reconfirmação ao reconectar** · operador valida estado atual antes de enviar. Campo `requires_confirm_on_reconnect: true` marca · UI gera prompt ao retomar rede.
+
+### ✓ Indicador de freshness em toda superfície sensível
+
+Score, contagem de menções, timeline de eventos · sem freshness, **valor congelado parece valor atual**. Indicador é **contrato obrigatório**. Componente `<Freshness ts={lastSync} />` com 4 estados automáticos.
+
+### ✕ Não esconder fila
+
+Queue-bar fica visível sempre que tem ação pendente. Operador pode tocar para ver lista, retentar, descartar. **Esconder fila = ações perdidas silenciosamente.** Em desktop, queue-bar vira indicador no topbar · mesma função, posição adaptada.
+
+### ✓ Audit log local pré-sincronização
+
+Evento entra no audit log local imediatamente · com `pending: true`. Quando sincroniza, recebe o `audit_id` servidor · trilha preserva os dois IDs para investigação. Combina com β.5 · **imutabilidade local antes de imutabilidade servidor**.
+
+## Dependências
+
+- **γ.1 · Gestures** — pull-to-refresh tem estado especial offline · "tentar sync agora · X em fila".
+- **γ.3 · Push handover** — ação iniciada offline no mobile pode confirmar no desktop ao reconectar.
+- **β.5 · Audit trail** — evento offline herda `audit_id_local` · migra para servidor preservando trilha.
+- **v2 · 4.2 · States matrix** — estado offline ganha tier próprio · não é network error genérico.
+- **β.3 · Embedding** — Cris Sheet fica indisponível offline · banner explica · não dispensa atalho `⌘K`.

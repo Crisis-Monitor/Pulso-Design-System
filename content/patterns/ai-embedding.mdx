@@ -1,0 +1,150 @@
+---
+title: AI Embedding
+description: 4 formatos canônicos da Cris in-product · sheet · inline · balão · ambient. Árvore de decisão, contrato de invocação, política de saída e contrato de espaço.
+---
+
+# Cris embedding pattern
+
+> **Fase β · 03 · entregue na v3.0**
+
+Onde a Cris aparece in-product hoje é caso a caso: sheet lateral, balão, inline. β.3 fixa **quatro formatos canônicos** — quando usar cada um, qual o contrato de espaço, atalho de invocação e política de saída — para que Cris nunca distraia no momento crítico.
+
+## Princípio
+
+A Cris não é um botão flutuante. Ela é um padrão de presença · **entra com convite, ocupa espaço proporcional ao trabalho, sai sem deixar resíduo**. O formato muda com a tarefa, não com a preferência de quem desenha a tela.
+
+Hoje cada feature inventou uma Cris própria. β.3 normaliza · 4 formatos · cada um com **tarefa, atalho, espaço e saída fixos**. Designer escolhe entre quatro · não inventa.
+
+## Os 4 formatos canônicos
+
+Ordenados por intensidade de presença · do menos invasivo ao mais.
+
+| # | Formato | Quando usar |
+|---|---------|-------------|
+| **01** | Sheet lateral | Trabalho exploratório longo (múltiplas perguntas), comparação entre casos, redação assistida com vai-e-volta |
+| **02** | Inline assist | Operador focado em campo único · sugestão pontual |
+| **03** | Balão modal | Próxima ação tem consequência externa ou irreversível · decisão crítica |
+| **04** | Ambient | Workshop, retrospectiva, console fora do fluxo de crise |
+
+### 01 · Sheet lateral
+
+Painel lateral persistente. Conversa contínua.
+
+| Slot | Spec |
+|------|------|
+| width | `380–440px` · 30–35% da tela |
+| persist | até dismiss explícito |
+| scroll | independente do conteúdo principal |
+| conteúdo | turnos · histórico · input |
+
+### 02 · Inline assist
+
+Aparece ao lado de ou abaixo de um campo, focada numa única tarefa. Não interrompe · sugere. Some quando o foco sai do campo.
+
+| Slot | Spec |
+|------|------|
+| width | igual ao campo · empilhado abaixo |
+| persist | até foco sair (auto-dismiss) |
+| height | máx 1/3 do campo de origem |
+| cta | aplicar · alternativas · dispensar |
+
+### 03 · Balão modal
+
+Overlay centrado com scrim. Toma a tela. Reservado para decisões sensíveis onde a Cris precisa ser **lida antes da ação**.
+
+| Slot | Spec |
+|------|------|
+| width | `360–480px` |
+| scrim | `0.18` + blur `2px` |
+| persist | até ação ou cancel |
+| esc | fecha · volta à tela anterior |
+
+### 04 · Ambient
+
+A tela inteira é mediada pela Cris. Indicador `Modo Cris` no topbar · marcas individuais de origem-IA desligam.
+
+| Slot | Spec |
+|------|------|
+| scope | rota inteira (`/cris-console`) |
+| topbar | badge "Modo Cris" |
+| marca | desliga marcas individuais β.1 |
+| conteúdo | turnos · sem header por bloco |
+
+## Árvore de decisão
+
+Três perguntas em sequência · do contexto à tarefa. **Resposta &gt; formato**. Designer não escolhe · responde.
+
+1. **A ação seguinte tem consequência externa ou é irreversível?**
+   - **Sim** → `03 · Balão` · Cris precisa ser lida antes da ação
+   - **Não** → próxima pergunta
+2. **O operador está focado em um campo único ou em trabalho amplo?**
+   - **Campo único** → `02 · Inline` · auto-dismiss no blur
+   - **Trabalho amplo** → próxima pergunta
+3. **A tarefa é exploração fora de crise ou análise mantendo contexto da tela?**
+   - **Mantém contexto** → `01 · Sheet`
+   - **Exploração fora de crise** → `04 · Ambient`
+
+## Contrato de invocação
+
+Cada formato tem um atalho dedicado. Consistente em todo o produto · documentado no Keyboard Map (v2 · 1.3).
+
+| Formato | Atalho global | Origem | Estado padrão |
+|---------|---------------|--------|----------------|
+| 01 · Sheet | `⌘K` | Comando global · botão "Pergunte à Cris" no topbar | Aberto na largura média · histórico do caso atual |
+| 02 · Inline | `⌥↵` com foco no campo | Botão Cris no toolbar do campo · trigger automático em campos marcados | Fechado · aparece sob demanda |
+| 03 · Balão | **Não-invocável** · só programático | Sistema dispara antes de ação sensível pré-listada | Sempre fechado · aparece bloqueante |
+| 04 · Ambient | `⌘⇧C` | Item de menu "Console Cris" · rota `/cris-console` | Workspace separado |
+
+## Política de saída
+
+Cada formato tem regra própria. Sem isso, a Cris vira ruído residual.
+
+| Formato | Política | Detalhe |
+|---------|----------|---------|
+| 01 · Sheet | **Dismiss explícito** | `×` no header fecha · `Esc` fecha · `⌘K` toggle · conversa persiste até trocar de caso |
+| 02 · Inline | **Auto-dismiss** | Blur do campo fecha · aplicar sugestão fecha · dispensar não reaparece nesta sessão para o mesmo trigger · `Esc` fecha |
+| 03 · Balão | **Bloqueante até ação** | Sem dismiss passivo · `Esc` volta sem confirmar · click no scrim **não** fecha · audit log registra aparição mesmo cancelada |
+| 04 · Ambient | **Saída por navegação** | Sair da rota dedicada · `⌘⇧C` toggle · bloqueado quando há crise ativa em outro caso |
+
+## Contrato de espaço
+
+| Formato | Limite | Por quê |
+|---------|--------|---------|
+| 01 · Sheet | máx **35%** da tela | Coluna principal mantém ≥65% · em telas &lt;1280px, sheet desliza sobre conteúdo com scrim leve |
+| 02 · Inline | máx **1/3** da altura do campo | Texto longo paginado · três turnos no máximo |
+| 03 · Balão | máx **480px** de largura | Centralizado · responsivo até 360px · texto cabe sem scroll · se não cabe, não é balão |
+| 04 · Ambient | **100%** | Workspace dedicado · não convive com sheet ou inline |
+
+## Regras
+
+### ✕ Não inventar quinto formato
+
+Floating action button, popover ancorado em ícone, tooltip "Cris", widget no canto inferior · **não**. β.3 é catálogo fechado. Caso de uso fora dos quatro vira RFC.
+
+### ✓ Combinar formatos quando faz sentido
+
+Sheet pode conter Inline (resposta em campo dentro da conversa). Balão pode delegar para Sheet · "ver conversa completa". O catálogo é composto. **Combinar &lt;&gt; inventar** — cada formato mantém seu contrato.
+
+### ✕ Não usar balão para informação
+
+Balão é **decisão**. "Sabia que…", "Atualizei…", "Cris terminou…" nunca abrem balão. Vão para Sheet, inline ou toast.
+
+### ✓ Manter atalho previsível
+
+`⌘K` em qualquer tela abre Sheet com contexto local. `⌘⇧C` em qualquer tela vai para Ambient. **Operador aprende uma vez** · não por feature.
+
+### ✕ Não permitir Ambient em crise ativa
+
+Console é workshop, não operação. Quando há caso tier `atenção+` aberto, `/cris-console` exibe banner e pede confirmação.
+
+### ✓ Persistir conversa do Sheet por caso
+
+Sheet aberto duas vezes no mesmo caso retoma a conversa. Ao trocar de caso, conversa nova começa · histórico anterior fica no audit log (β.5). **Contexto do caso é a unidade de memória da Cris** · não a sessão de browser.
+
+## Dependências
+
+- **β.1 · Origin tracking** — Sheet, Inline e Balão usam marcador prominent; Ambient usa densidade ambient.
+- **β.2 · Draft & regenerate** — DraftStack vive dentro do Sheet · Inline pode oferecer regenerate de campo.
+- **v2 · 1.3 · Keyboard map** — atalhos `⌘K` · `⌘⇧C` · `⌥↵` documentados como primeira classe.
+- **v2 · 4.4 · Responsive** — em mobile, Sheet vira full-screen, Inline ocupa largura total, Balão centraliza com margens 16px.
+- **β.5 · Audit log** — registra abertura e fechamento de Balão (mesmo sem ação) · e cada turno de Sheet em caso ativo.

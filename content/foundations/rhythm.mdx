@@ -1,0 +1,91 @@
+---
+title: Rhythm
+description: Hairlines como sinal de contexto · tokens de cadência (tight/beat/breath) · auditoria de border-use em 14 superfícies · 5 regras formalizadas.
+---
+
+# Hairlines, ritmo e densidade calibrada
+
+> **Fase α · 03 · entregue na v3.0**
+
+A α.1 mostrou que hairlines passam o teste sem cor, mas perdem força em demasia. A v3 separa **borda como sinal de contexto** de **borda como decoração** — e introduz tokens de cadência para que o ritmo vertical seja decisão, não acidente.
+
+## Princípio · regra de ouro
+
+> Hairline existe para separar contexto. Quando o espaço já o faz, a borda é decoração — e decoração compete com sinal.
+
+Crisis Monitor é cockpit. Cada elemento estrutural que não serve a um operador acelerado vira ruído. A v3 corta hairlines decorativas — não para minimalismo, mas para devolver atenção ao dado.
+
+## Auditoria de uso de borda
+
+14 superfícies categorizadas. **Manter** · **reduzir** (border-faint em vez de border) · **cortar** (espaço + tipografia fazem o trabalho).
+
+| Superfície | v3 | Por quê |
+|------------|-----|---------|
+| Card de caso (top-level) | **mantém** | Unidade primária de leitura. |
+| Border interna do card (sub-blocos) | **cortar** | "Box dentro de box" · espaço + kicker já separam. Usa `--rhythm-cadence-beat`. |
+| Divisor entre rows de tabela | **reduzir** | `--border` → `--border-faint`. |
+| Hairline de cabeçalho de seção | **mantém** | Age como "regra" gráfica. |
+| Tabs (border-bottom container) | **mantém** | Pareada com indicador não-colorido (α.4). |
+| Border-left de evidência (3px) | **mantém** | Signature shape · promove para α.4. |
+| Input field | **mantém** | Affordance de "campo editável". |
+| Botão ghost / secundário | **reduzir** | `border-strong` → `border` · hover ganha `border-strong`. |
+| Avatar | **cortar** | Decoração quando avatar está sobre fundo distinto. Mantém só em avatar-on-avatar (group). |
+| Tooltip / popover | **mantém** | Borda + sombra definem "isto não é da página". |
+| Chip / badge | **mantém** | Borda + fill carrega categoria · necessário em mono. |
+| Section dentro de página | **cortar** | Seção não é card · espaço + kicker resolvem. |
+| Sidebar item ativo | **mantém** | Border-left tonal · sinal estrutural de "você está aqui". |
+| Modal / sheet | **reduzir** | Sombra faz o trabalho. Borda mantém só em high-contrast. |
+
+## Cadência vertical · 3 tokens
+
+v3 nomeia o ritmo entre blocos. Cada token tem uma intenção.
+
+| Token | Valor default | Quando usar |
+|-------|---------------|-------------|
+| `--rhythm-cadence-tight` | `6px` (0.375rem) | Itens da mesma unidade · kicker → label → valor · rows compactos. |
+| `--rhythm-cadence-beat` | `14px` (0.875rem) | Sub-blocos do mesmo contexto · sub-secções de um card · pares title+body. |
+| `--rhythm-cadence-breath` | `26px` (1.625rem) | Mudança de contexto · entre seções da página · entre card-de-caso e tabela-de-cobertura. |
+
+## Cadência por densidade
+
+Os tokens escalam proporcionalmente — um modo é versão escalada do outro, não redefinição.
+
+| Token | Compact | **Comfortable** · default | Spacious |
+|-------|---------|--------------------------|----------|
+| `--rhythm-cadence-tight` | 4px | **6px** | 8px |
+| `--rhythm-cadence-beat` | 10px | **14px** | 20px |
+| `--rhythm-cadence-breath` | 18px | **26px** | 36px |
+| `--density-pad-card` | 10px 12px | **14px 16px** | 20px 22px |
+| `--density-pad-page` | 32px 40px | **56px 64px** | 80px 88px |
+
+## Anti-patterns que a v3 trava
+
+| ✕ Anti-pattern | ✓ Pulso v3 |
+|----------------|------------|
+| **Box dentro de box dentro de box** · 3 níveis de "isto é separado" · hierarquia ambígua | **1 container + cadência interna** · hairlines apenas onde mudança de contexto pede |
+| **Border-left colorida sem razão** · vira "Bootstrap alert" genérico | **Border-left = signature** · 3px reservada para evidência citada (α.4) |
+| **Divisores em toda lista** · ruído quando padding interno já é suficiente | **Divisor apenas quando row é compacto** · padding ≥ 16px sem divisor |
+| **Border + shadow + bg distinto** · sinalização redundante | **Pick one** · sombra em flutuantes · borda em cosídas |
+
+## Regras formalizadas · v3
+
+1. **Uma borda por nível de profundidade.** Nenhum elemento dentro de um card pode ter borda completa. Sub-blocos usam hairline-top apenas onde mudança de contexto pede.
+2. **Padding ≥ 16px? Sem divisor entre rows.** Compact (10px) precisa de divisor · comfortable (14px+) não.
+3. **Section ≠ Card.** Seção da página é semântica de leitura · não container visual. Sem borda, sem fundo distinto. Apenas kicker + título + cadência `breath`.
+4. **Border-left 3px = evidência.** Reservada. Não usar como decoração de card, alerta, sidebar item, kicker.
+5. **Sombra ou borda em superfícies flutuantes.** Modal, sheet, popover, tooltip · escolhe uma. Default · sombra. Borda volta só em high-contrast.
+
+## Entregas · α.3
+
+- Auditoria de border-use · 14 superfícies categorizadas
+- Tokens de cadência `--rhythm-cadence-{tight,beat,breath}`
+- Cadência calibrada por densidade · matriz 3×3
+- 5 regras formalizadas (sem box-dentro-de-box, sombra OU borda…)
+- Página **Foundations · Rhythm**
+
+## Dependências
+
+- **α.1 · Identity audit** — gap 04 é input direto desta decisão.
+- **α.4 · Signature shapes** — border-left 3px de evidência promovida a signature.
+- **v2 · 4.5 · Density** — cadência herda o sistema de densidade existente.
+- **γ.1 · Mobile gestures** — `--rhythm-cadence-*` informa altura dos detents da bottom-sheet.

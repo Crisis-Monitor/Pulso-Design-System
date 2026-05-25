@@ -1,0 +1,209 @@
+---
+title: Signature Shapes
+description: 7 formas que carregam o Pulso fora da cor · kicker, score ring, numeral display, evidence border, inline markers, risk glyphs, meta separator. Contrato visual rígido.
+---
+
+# Signature shapes
+
+> **Fase α · 04 · entregue na v3.0**
+>
+> Formas que carregam o Pulso fora da cor. Não são componentes — são **assinaturas estruturais**. Cada uma tem contrato visual rígido; alterar exige RFC com 3/3 do council.
+
+## O que é signature shape
+
+**Componente** é peça funcional · tem props, estados, contratos de uso.
+**Signature shape** é peça de identidade · tem só contrato visual.
+
+Quando você vê, sabe que é Pulso — mesmo sem ler a label, mesmo sem cor.
+
+A α.1 identificou 5 formas que sobrevivem ao teste sem-cor. A α.4 promove formalmente **7 signature shapes** · as 5 confirmadas e mais 2 que precisam ser estabelecidas (glifos de risco aplicados, separador meta).
+
+## As 7 signature shapes
+
+| # | Nome | Característica |
+|---|------|----------------|
+| **01** | Kicker | Mono · uppercase · tracking 0.12em |
+| **02** | Score Ring | Anel concêntrico + numeral mono + meta |
+| **03** | Numeral display | Mono · 56px · tabular · tracking −0.025em |
+| **04** | Evidence border-left | 3px tonal · marca conteúdo citado |
+| **05** | Inline markers | `[Fato]` · `[Inferência]` · `[Recomendação]` |
+| **06** | Risk glyphs | `● ○ ◐ ◆ ■` · 5 níveis de risco |
+| **07** | Meta separator dot | `·` entre itens em mono · respiração |
+
+## 01 · Kicker
+
+Abre seções, anuncia categoria, marca contexto. O cabeçote mais reconhecível do Pulso · presente em quase todas as 6 telas da auditoria.
+
+```
+font:     IBM Plex Mono
+size:     11–12px
+weight:   600–700
+tracking: 0.12em
+case:     UPPERCASE
+color:    var(--primary) ou tonal
+```
+
+| ✓ Usar para | ✕ Não usar para |
+|-------------|------------------|
+| Abrir seção da página | Texto de parágrafo |
+| Categoria de card / chip | Botão / CTA |
+| Etapa de processo | Status mutável (CRÍTICO, ATIVO) |
+| Status estrutural (`CASO ATIVO`) | Label de formulário |
+
+## 02 · Score Ring
+
+A forma mais reconhecível do Pulso. Anel concêntrico mostrando progresso/score, numeral mono centralizado, kicker e meta empilhados embaixo. "Logomark visual" da disciplina de score.
+
+```
+shape:    círculo concêntrico
+stroke:   6/100 · linecap round
+fg/bg:    primary sobre border
+numeral:  mono 22/100 · weight 700
+label:    mono 6/100 · tracking 1.2
+```
+
+| ✓ Usar para | ✕ Não usar para |
+|-------------|------------------|
+| Score de atenção (0–100) | Loading spinner |
+| Progresso de meta | Valor estático sem range |
+| Confidence em recomendação IA (β.4) | Donut chart de proporção |
+
+## 03 · Numeral display
+
+O número é o ponto da página. Mono garante alinhamento em listas; tabular preserva eixo vertical em update real-time.
+
+```
+font:     IBM Plex Mono
+size:     56px (display) / 28px (compact)
+weight:   700
+numeric:  tabular-nums
+tracking: -0.025em
+```
+
+| ✓ Usar para | ✕ Não usar para |
+|-------------|------------------|
+| Score, contagem, métrica primária | Number-in-text (use mono inline) |
+| Cabeça de card de KPI | Cell de tabela (use mono regular) |
+| Valor isolado de página de detalhe | Numero decorativo sem significado |
+
+## 04 · Evidence border-left
+
+Reserva visual para conteúdo de origem externa · menção, declaração, citação de imprensa. Marca "isto não foi escrito por nós".
+
+```
+border-left: 3px solid
+color:       tonal · risk-* OR primary
+radius:      --radius-md (mantém)
+conteúdo:    citação italic + meta header
+```
+
+| ✓ Usar para | ✕ Não usar para |
+|-------------|------------------|
+| Mention card | Decorar card sem significado de citação |
+| Citação de release / nota | Alert (use alert pattern) |
+| Comentário de operador no audit log | Sidebar item ativo (border-left tonal próprio) |
+
+## 05 · Inline markers
+
+A marca da voz Cris (v2 · 2.4) que diferencia status epistêmico de uma afirmação. Mono, com colchetes literais, tonal por categoria. **Sem colchete, vira "label de tag" — perde poder.**
+
+```
+font:    IBM Plex Mono
+size:    inherit -1px
+weight:  600
+case:    Title case com colchetes literais
+bg:      tonal 14% mix
+```
+
+Catálogo fixo · **3 marcadores apenas**:
+
+- `[Fato]` — afirmação verificável
+- `[Inferência]` — leitura plausível a partir de evidências
+- `[Recomendação]` — sugestão de ação
+
+| ✓ Usar para | ✕ Não usar para |
+|-------------|------------------|
+| Briefing IA · Cris | UI label (use sans label) |
+| Resumo executivo | Status chip de produto |
+| Email de dispatch | Categorias arbitrárias · 3 fixas apenas |
+| Relatório de incidente | |
+
+## 06 · Risk glyphs
+
+A v2 · 1.2 entregou os glifos de risco para redundância de cor. A α.1 mostrou que estavam sub-aplicados. v3 promove a signature shape · **todo lugar onde risco aparece com cor, aparece também com glifo**.
+
+| Glifo | Nível | Spec |
+|-------|-------|------|
+| `■` | Crítico | quadrado cheio |
+| `◆` | Alto | losango cheio |
+| `◐` | Atenção | círculo meio |
+| `○` | Monitor | círculo vazio |
+| `●` | Estável | círculo cheio pequeno |
+
+| ✓ Usar para | ✕ Não usar para |
+|-------------|------------------|
+| Toda referência a nível de risco | Categorias sem ordem de severidade |
+| Chip, badge, header, lista | Status mutável (use status badge) |
+| Filtros, legendas, tooltips | Ratings (estrelas, pontos) |
+
+## 07 · Meta separator
+
+Mid dot (U+00B7) entre itens de meta — handle · veículo · tempo · seguidores. Substitui pipe (`|`), bullet (`•`) e barra (`/`).
+
+```
+char:    · (mid dot, U+00B7)
+spacing: 8px (gap)
+color:   var(--fg-subtle) com opacity 0.7
+font:    mono (herda do contexto)
+```
+
+| ✓ Usar para | ✕ Não usar para |
+|-------------|------------------|
+| Meta de card · handle, veículo, tempo | Pipe (`|`) — **proibido em UI Pulso** |
+| Breadcrumb compacto | Bullet (`•`) — só em listas |
+| Lista de tags inline | Barra (`/`) — só em URLs e datas |
+
+## Política · signature shape exige RFC
+
+Alteração de signature shape exige **RFC com quórum reforçado**.
+
+Trocar uma sem processo erode identidade em silêncio. A v3 estabelece:
+
+- Toda alteração estrutural (proporção, ratio, glifo, format) exige RFC formal.
+- **Quórum reforçado · 3/3 do council** (não 2/3 como RFC normal). Inclui Design Lead, Eng Lead e Product Lead.
+- A11y reviewer **obrigatório** · não opcional.
+- Janela de comentário · **14 dias** (não 7).
+- Visual regression em todas as 6 telas da α.1 · obrigatório antes de merge.
+- Codemod assistido · qualquer rename, prop change ou alteração de assinatura precisa vir com migration script.
+
+Cosmético (tom da cor, ajuste sutil de tamanho dentro do contrato) segue RFC normal · 2/3, janela 7 dias.
+
+## Enforcement · via lint + Figma
+
+As 7 shapes estão protegidas por lint rule em `eslint-plugin-pulso` e por Figma constraint no plugin Tokens.studio.
+
+| Rule | Bloqueia | Nível |
+|------|----------|-------|
+| `pulso/kicker-spec` | Kicker fora do contrato (tracking, weight, case) | **error** |
+| `pulso/score-ring-only` | Anel concêntrico custom · usar componente `<ScoreRing />` | **error** |
+| `pulso/no-pipe-separator` | Uso de `|` ou `/` como separador de meta | warn |
+| `pulso/risk-glyph-required` | Token `--risk-*` usado sem glyph correspondente | **error** |
+| `pulso/marker-token-fixed` | Marcador inline fora da lista (`[Fato]/[Inferência]/[Recomendação]`) | warn |
+| `pulso/evidence-border-reserved` | Border-left 3px aplicado a componente que não é evidência citada | warn |
+
+## Entregas · α.4
+
+- 7 signature shapes formalizadas · contrato visual de cada
+- Versões monocromáticas testadas para todas as 7
+- Política · alteração exige RFC com quórum reforçado 3/3
+- 6 lint rules no `eslint-plugin-pulso`
+- Página **Foundations · Signature Shapes**
+
+## Dependências
+
+- **α.1 · Identity audit** — confirma os 5 originais.
+- **α.2 · Type confidence** — kicker e numeral display compartilham contrato tipográfico.
+- **α.3 · Rhythm** — border-left 3px reservada coordena com regra "uma borda por nível".
+- **v2 · 1.2 · Risk redundância** — glifos `● ○ ◐ ◆ ■` originados aqui · α.4 promove a signature.
+- **v2 · 2.4 · Pulso IA · Voz** — marcadores `[Fato]/[Inferência]/[Recomendação]` originados aqui.
+- **v2 · 5.3 · RFC process** — política de quórum reforçado herda processo formal.
