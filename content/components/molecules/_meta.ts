@@ -1,11 +1,11 @@
-export const metadata = {
-  accordion: "Accordion",
-  "avatar-group": "Avatar Group",
-  "button-group": "Button Group",
-  "delta-chip": "Delta Chip",
-  "empty-state": "Empty State",
-  "form-field": "Form Field",
-  "input-group": "Input Group",
-  "metric-card": "Metric Card",
-  "page-header": "Page Header",
-};
+export default {
+  accordion: { title: "Accordion" },
+  "avatar-group": { title: "Avatar Group" },
+  "button-group": { title: "Button Group" },
+  "delta-chip": { title: "Delta Chip" },
+  "empty-state": { title: "Empty State" },
+  "form-field": { title: "Form Field" },
+  "input-group": { title: "Input Group" },
+  "metric-card": { title: "Metric Card" },
+  "page-header": { title: "Page Header" },
+}

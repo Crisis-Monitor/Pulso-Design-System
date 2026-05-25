@@ -1,4 +1,4 @@
-export const metadata = {
-  "crisis-status": "Status de crise",
-  "risk-levels": "Níveis de risco",
+export default {
+  "crisis-status": { title: "Status de crise" },
+  "risk-levels": { title: "Níveis de risco" },
 }

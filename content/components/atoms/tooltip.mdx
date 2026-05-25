@@ -9,29 +9,29 @@ Revela informações adicionais quando o usuário passa o mouse ou foca em um el
 
 ## Import
 
-\`\`\`tsx
+```tsx
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-\`\`\`
+```
 
 ## Uso básico
 
-\`\`\`tsx
+```tsx
 <TooltipProvider>
   <Tooltip>
     <TooltipTrigger><button>Hover me</button></TooltipTrigger>
     <TooltipContent><p>Informação adicional aqui</p></TooltipContent>
   </Tooltip>
 </TooltipProvider>
-\`\`\`
+```
 
 ## Posições
 
-\`\`\`tsx
+```tsx
 <TooltipContent side="top">Top</TooltipContent>
 <TooltipContent side="right">Right</TooltipContent>
 <TooltipContent side="bottom">Bottom</TooltipContent>
 <TooltipContent side="left">Left</TooltipContent>
-\`\`\`
+```
 
 ## Acessibilidade
 

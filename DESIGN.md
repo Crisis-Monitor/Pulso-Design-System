@@ -3,6 +3,57 @@ name: Pulso Design System
 version: "1.0.0"
 description: Sistema de design para interfaces de gerenciamento de crises com monitoramento em tempo real
 
+# Changelog
+
+## v1.0 · Maio 2026
+
+Fecha a primeira versão estável do Pulso DS: tokens, atoms, organisms e templates do produto Crisis Monitor. Cobre 62 páginas de documentação interativa alinhadas ao spec deste repositório.
+
+### Mudanças de tokens em relação à pré-v1
+
+| Token | Antes | Agora |
+|---|---|---|
+| `--primary` (light) | `#5D52FF` | **`#6C46F5`** |
+| `--primary` (dark) | `#7B71FF` | **`#8A63FF`** |
+| `--background` (light) | `#FBFAF7` (warm-cream) | **`#F5F4FA`** (lavanda muito clara) |
+| `--background` (dark) | cinza-frio | **`#0F0C1A`** (indigo-deep) |
+| Foreground hierarchy | 5 níveis genéricos | **5 níveis recalibrados**: `#171629 / #4A4961 / #73718A / #A09CB4 / #C5C2D2` |
+| Borders | hairline neutro | **lavanda hairline** (`#DDD7EE` / `#302A50`) |
+| Risk taxonomy | `safe / monitor / medium / high / critical` | **`stable / monitor / attention / high / critical`** (`medium` e `safe` viram aliases backward-compat) |
+| Surface roles | n/a | **`--surface-page / panel / elevated / subtle / inverse`** |
+| Sidebar | variava por theme | **chrome fixo near-black** (`#0F0C1A`) em light + dark |
+| Sidebar muted text | `var(--fg-subtle)` | **`#7E78A0`** fixo (mesma cor em light + dark) |
+| Tipografia | Geist | **Manrope** (sans) + **IBM Plex Mono** (mono) |
+
+### Páginas novas (21)
+
+**Getting Started:** `installation`, `quick-start`
+**Foundations:** `icons`
+**Atoms:** `avatar`, `kicker`, `label`, `controls`
+**Molecules:** `accordion`, `avatar-group`, `button-group`, `empty-state`, `input-group`, `page-header`
+**Organisms:** `collapsible-card`, `responsive-sheet`, `form`
+**Patterns:** `risk-levels`, `crisis-status`
+**Templates:** `tpl-dashboard`, `tpl-crisis-detail`, `tpl-settings`
+
+Crisis Domain (`mention-card`, `score-ring`, `sentiment-bar`) migrado de "Molecules" para **Patterns**.
+
+### Faxina
+
+- Deletado `field-group` (substituído por `input-group`).
+- `filter-bar` marcado como "Extensão Pulso · não está no spec oficial".
+- Theme switcher movido para o topo da sidebar, com ícones sol/lua.
+- Padrão Do/Don't (`.rules-grid`) unificado em 10 páginas de componentes.
+
+### Decisão de produto
+
+- **Densidade default = `comfortable`**. `compact` e `spacious` disponíveis em Settings → Personal. Tabelas operacionais podem ter override local.
+
+### Próximos passos
+
+- Roadmap da v2 disponível em `content/roadmap/v2.mdx` (5 fases, 23 iniciativas).
+- Fase 1 (Acessibilidade) é bloqueante para releases em clientes regulados.
+- Sincronização com o Crisis Monitor via PR `chore/sync-pulso-ds-v1`.
+
 colors:
   surfaces:
     background:
