@@ -1,103 +1,111 @@
 ---
 title: Quick Start
-description: Comece a usar o Pulso Design System em 5 minutos.
+description: Comece a usar o Pulso Design System v3 com tokens, densidade, risco e origem de IA.
 ---
 
 # Quick Start
 
-Guia rápido para começar a usar os componentes do Pulso Design System.
+Este guia monta uma superfície mínima alinhada ao v3: identidade por estrutura, dados numéricos em mono, risco explícito e marcação de conteúdo assistido pela Cris.
 
-## 1. Importe um componente
-
-```tsx
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-```
-
-## 2. Monte sua primeira tela
+## 1. Use tokens, não valores soltos
 
 ```tsx
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-
-export default function DashboardPage() {
+export function CrisisHeader() {
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Dashboard</h1>
-        <Button variant="default">Nova Crise</Button>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Crises Ativas
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">12</div>
-            <Badge variant="error">+3 hoje</Badge>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Score Médio
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">72</div>
-            <Badge variant="warn">-5 vs ontem</Badge>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Menções
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">1.4k</div>
-            <Badge variant="success">+12% vs ontem</Badge>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+    <header className="border-b bg-background px-8 py-6 text-foreground">
+      <p className="font-mono text-[var(--text-micro)] uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+        Monitoramento · Crise ativa
+      </p>
+      <h1 className="mt-3 text-[var(--text-display-lg)] font-bold leading-tight tracking-tight">
+        Operação reputacional em atenção
+      </h1>
+    </header>
   );
 }
 ```
 
-## 3. Padrões de layout
-
-Use as classes utilitárias do Tailwind para compor layouts consistentes:
+## 2. Dê prioridade visual ao estado e à consequência
 
 ```tsx
-// Página com sidebar
-<div className="flex h-screen">
-  <Sidebar />
-  <main className="flex-1 overflow-y-auto">
-    {/* conteúdo */}
-  </main>
-</div>
+export function RiskSummary() {
+  return (
+    <section className="grid gap-4 md:grid-cols-3" data-density="comfortable">
+      <article className="rounded-md border bg-card p-6 text-card-foreground">
+        <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+          Score de risco
+        </p>
+        <strong className="mono mt-4 block text-5xl font-bold" data-numeric>
+          87
+        </strong>
+        <span className="mt-3 inline-flex rounded-sm border px-2 py-1 text-xs font-medium"
+          style={{
+            color: "var(--risk-high-text)",
+            borderColor: "var(--risk-high-border)",
+            background: "var(--risk-high-bg)",
+          }}
+        >
+          high · escalada provável
+        </span>
+      </article>
 
-// Grid responsivo
-<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-  {/* cards */}
-</div>
+      <article className="rounded-md border bg-card p-6">
+        <p className="text-sm text-muted-foreground">Menções qualificadas</p>
+        <strong className="mono mt-4 block text-3xl font-bold" data-numeric>
+          1.482
+        </strong>
+        <p className="mt-2 text-sm" style={{ color: "var(--delta-warn)" }}>
+          +18% nas últimas 2h
+        </p>
+      </article>
 
-// Stack vertical
-<div className="flex flex-col gap-4">
-  {/* elementos empilhados */}
+      <article className="rounded-md border bg-card p-6">
+        <p className="text-sm text-muted-foreground">SLA de resposta</p>
+        <strong className="mono mt-4 block text-3xl font-bold" data-numeric>
+          08m
+        </strong>
+        <p className="mt-2 text-sm text-muted-foreground">janela crítica restante</p>
+      </article>
+    </section>
+  );
+}
+```
+
+## 3. Marque conteúdo assistido pela Cris
+
+```tsx
+export function CrisBriefing() {
+  return (
+    <aside
+      className="rounded-md bg-card p-5"
+      style={{
+        borderLeft: "var(--ai-marker-border)",
+        background: "color-mix(in oklab, var(--primary) var(--ai-marker-bg-mix), var(--card))",
+      }}
+    >
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+        ◐ Escrito com Cris
+      </p>
+      <p className="mt-3 text-sm leading-relaxed">
+        [Inferência] A narrativa está migrando de reclamação pontual para crítica de governança.
+      </p>
+    </aside>
+  );
+}
+```
+
+## 4. Aplique densidade por superfície
+
+```tsx
+<div data-density="compact" className="grid gap-[var(--density-gap)] p-[var(--density-pad-page)]">
+  {/* tabelas, filas e operações densas */}
 </div>
 ```
 
+Use `compact` para listas operacionais, `comfortable` como default e `spacious` para leitura ou apresentação executiva.
+
 ## Próximos passos
 
-- Explore os [Foundations](/foundations/colors) para entender tokens
-- Veja os [Componentes](/components/atoms/button) disponíveis
-- Consulte os [Padrões](/patterns/crisis-status) para cenários reais
+- [Colors](/foundations/colors) — tokens canônicos de superfície, risco e delta
+- [Typography](/foundations/typography) — Manrope, IBM Plex Mono e signature shapes
+- [Spacing](/foundations/spacing) — 8pt grid, densidade e cadência v3
+- [Release v3](/release/v3) — narrativa completa de α + β + γ

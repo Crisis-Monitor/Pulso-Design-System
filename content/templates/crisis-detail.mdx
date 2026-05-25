@@ -46,15 +46,17 @@ Página de detalhe de uma crise específica. Concentra todas as informações, m
 
 ## Padrão de Score
 
-O score de crise usa uma escala de 0-100 com bandas visuais:
+O score de crise usa uma escala de 0–100 com bandas visuais de risco. Use tokens `--risk-*`, não tokens delta — delta descreve variação de métrica.
 
-| Range | Label | Cor |
-|-------|-------|-----|
-| 0-20 | Crítico | `delta-error` |
-| 21-40 | Alto | `delta-warn` |
-| 41-60 | Moderado | `delta-info` |
-| 61-80 | Baixo | `delta-success` |
-| 81-100 | Mínimo | `delta-neutral` |
+| Range | Label | Tokens |
+|-------|-------|--------|
+| 0–19 | Estável | `--risk-stable-*` |
+| 20–39 | Monitor | `--risk-monitor-*` |
+| 40–59 | Atenção | `--risk-attention-*` |
+| 60–79 | Alto | `--risk-high-*` |
+| 80–100 | Crítico | `--risk-critical-*` |
+
+Números de score usam `.mono` ou `[data-numeric]` para manter numerais tabulares.
 
 ## Estado Vazio
 

@@ -14,20 +14,20 @@ Todo status no sistema segue o mesmo contrato:
 | Propriedade | Valor |
 |-------------|-------|
 | Label | Texto curto e claro |
-| Cor | Token delta correspondente |
+| Cor | Token de status, risco ou delta conforme a semântica |
 | Ícone | Opcional, para reforço visual |
 | Tooltip | Explicação adicional no hover |
 
-Exemplo: uma crise pode estar "Ativa", "Monitorando", "Resolvida", "Arquivada" ou "Em análise".
+Exemplo: uma crise pode estar "Monitoramento", "Atenção", "Em Crise", "Em Execução", "Resolvida" ou "Encerrado".
 
 ## Padrão de Métrica
 
 Toda métrica segue a estrutura:
 
 ```
-[Label]          ← text-sm, muted-foreground
-[Valor]          ← text-3xl, font-mono, font-bold
-[Delta]          ← DeltaChip com trend e cor
+[Label]          ← text-support ou text-label, muted-foreground
+[Valor]          ← mono, data-numeric, font-bold
+[Delta]          ← DeltaChip com trend e token delta
 ```
 
 Isso se aplica a MetricCards, tabelas e inline stats.

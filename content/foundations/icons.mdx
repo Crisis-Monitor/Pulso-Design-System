@@ -1,73 +1,61 @@
 ---
 title: Icons
-description: Sistema de ícones do Pulso — biblioteca, tamanhos e diretrizes de uso.
+description: Sistema de ícones do Pulso v3 — Lucide, risk glyphs e uso semântico.
 ---
 
 # Icons
 
-O Pulso usa **Lucide React** como biblioteca de ícones. Todos os ícones são SVG inline, tree-shakeable e customizáveis.
+Pulso usa **Lucide React** para ícones funcionais e um pequeno vocabulário de glyphs para risco e origem de IA. Ícone complementa texto; nunca substitui estado, consequência ou rótulo.
 
-## Instalação
-
-```bash
-bun add lucide-react
-```
-
-## Uso Básico
+## Biblioteca
 
 ```tsx
-import { AlertTriangle, Check, X, ChevronDown } from "lucide-react";
+import { AlertTriangle, CheckCircle, Info, Shield } from "lucide-react";
 
-<AlertTriangle className="size-4 text-delta-warn" />
-<Check className="size-4 text-delta-success" />
-<X className="size-4 text-delta-error" />
+<AlertTriangle className="size-4" style={{ color: "var(--risk-attention-text)" }} />
+<CheckCircle className="size-4" style={{ color: "var(--risk-stable-text)" }} />
+<Info className="size-4 text-muted-foreground" />
+<Shield className="size-4 text-primary" />
 ```
 
 ## Tamanhos
 
 | Classe | Uso |
 |--------|-----|
-| `size-3` (12px) | Inline com texto xs |
-| `size-4` (16px) | Default — inline com body/sm |
-| `size-5` (20px) | Botões com ícone |
-| `size-6` (24px) | Empty states, illustrations |
-| `size-8` (32px) | Hero icons, placeholders |
-| `size-10` (40px) | Empty state large |
-| `size-12` (48px) | Hero illustration |
+| `size-3` / 12px | Inline com metadado |
+| `size-4` / 16px | Default em texto e controles |
+| `size-5` / 20px | Botões com ícone |
+| `size-6` / 24px | Empty states pequenos |
+| `size-8` / 32px | Destaque ou placeholder |
+| `size-10` / 40px | Empty state grande |
+| `size-12` / 48px | Ilustração simples |
 
-## Cores Semânticas
+## Risk glyphs v3
 
-| Status | Cor do ícone |
-|--------|-------------|
-| Success | `text-delta-success-foreground` |
-| Warning | `text-delta-warn-foreground` |
-| Error | `text-delta-error-foreground` |
-| Info | `text-delta-info-foreground` |
-| Neutral | `text-muted-foreground` |
+| Glyph | Nível | Uso |
+|-------|-------|-----|
+| `●` | `critical` | Ação imediata |
+| `◆` | `high` | Escalada provável |
+| `◐` | `attention` | Atenção necessária |
+| `○` | `monitor` | Monitoramento |
+| `■` | `stable` | Estado estável |
 
-## Ícones Mais Usados
+Os glyphs são uma signature shape. Combine com label textual: `◐ attention`, não apenas `◐`.
 
-| Ícone | Import | Uso |
-|-------|--------|-----|
-| `AlertTriangle` | `lucide-react` | Alertas, warnings |
-| `CheckCircle` | `lucide-react` | Sucesso, aprovado |
-| `XCircle` | `lucide-react` | Erro, rejeitado |
-| `Info` | `lucide-react` | Informações |
-| `ChevronDown` | `lucide-react` | Dropdowns, expansão |
-| `ChevronRight` | `lucide-react` | Navegação, drill-down |
-| `Search` | `lucide-react` | Busca |
-| `Plus` | `lucide-react` | Adicionar, criar |
-| `Trash2` | `lucide-react` | Deletar |
-| `Settings` | `lucide-react` | Configurações |
-| `Bell` | `lucide-react` | Notificações |
-| `Eye` / `EyeOff` | `lucide-react` | Visibilidade |
-| `Loader2` | `lucide-react` | Loading/spinner |
-| `Shield` | `lucide-react` | Segurança, crise |
+## Origem de IA
+
+Para conteúdo da Cris, use monograma/glyph + kicker + borda de origem:
+
+```tsx
+<p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)]">
+  ◐ Escrito com Cris
+</p>
+```
 
 ## Diretrizes
 
-1. **Sempre definir tamanho** via className (`size-4`)
-2. **Ícones decorativos** devem ter `aria-hidden="true"`
-3. **Ícones funcionais** devem ter `role="img"` e `aria-label`
-4. **Cor nunca como único indicador** — sempre combinar com texto
-5. **Consistência** — mesmo ícone para mesma ação em todo o app
+1. Ícones decorativos usam `aria-hidden="true"`.
+2. Ícones funcionais exigem nome acessível.
+3. Não use cor como único indicador.
+4. Mesmo ícone deve representar a mesma ação em todo o produto.
+5. Evite ícones ambíguos em decisões críticas; prefira texto direto.

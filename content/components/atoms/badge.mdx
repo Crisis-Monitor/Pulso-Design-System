@@ -1,16 +1,82 @@
-# uadge
+---
+title: Badge
+description: Rótulo curto para status, risco, origem e metadados sem assumir ação primária.
+---
 
-Documentação do componente uadge.
+# Badge
+
+Badge comunica uma classificação curta: status, risco, origem ou metadado. Ele não substitui texto explicativo nem deve ser usado como botão disfarçado.
 
 ## Import
 
 ```tsx
-import { uadge } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 ```
 
-## Uso
+## Uso básico
 
 ```tsx
-<uadge />
+<Badge>Monitoramento</Badge>
 ```
 
+## Semânticas v3
+
+Use a semântica correta antes de escolher a cor:
+
+| Uso | Tokens | Exemplo |
+|-----|--------|---------|
+| Status de fluxo | componente/padrão de status | `Em Execução` |
+| Risco operacional | `--risk-*` | `◆ high` |
+| Delta de métrica | `--delta-*` | `+18%` |
+| Origem de IA | `--ai-marker-*` + kicker | `Escrito com Cris` |
+| Metadado neutro | `--muted`, `--border` | `12 fontes` |
+
+## Risco
+
+```tsx
+<Badge
+  style={{
+    color: "var(--risk-high-text)",
+    borderColor: "var(--risk-high-border)",
+    background: "var(--risk-high-bg)",
+  }}
+>
+  ◆ high
+</Badge>
+```
+
+A taxonomia canônica é `stable / monitor / attention / high / critical`. `safe` e `medium` são aliases legados, não nomes para exemplos novos.
+
+## Origem de IA
+
+```tsx
+<Badge
+  className="font-mono uppercase tracking-[var(--tracking-kicker)]"
+  style={{
+    borderLeft: "var(--ai-marker-border)",
+    background: "color-mix(in oklab, var(--primary) var(--ai-marker-bg-mix), var(--card))",
+  }}
+>
+  ◐ Escrito com Cris
+</Badge>
+```
+
+Quando a origem for IA, o badge deve acompanhar metadados auditáveis no bloco ou popover: modelo, confiança, fontes e `audit_id`.
+
+## Delta de métrica
+
+```tsx
+<Badge style={{ color: "var(--delta-warn)", background: "var(--delta-warn-bg)" }}>
+  +18% em 2h
+</Badge>
+```
+
+Delta é movimento de métrica. Não use `delta-error` para dizer que uma crise é crítica; use `--risk-critical-*`.
+
+## Regras
+
+1. Badge sempre precisa de label textual legível.
+2. Cor nunca é o único indicador.
+3. Badges de risco usam token `--risk-*`.
+4. Badges de métrica usam token `--delta-*`.
+5. Conteúdo da Cris exige origem explícita e trilha auditável.

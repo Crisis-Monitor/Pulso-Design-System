@@ -1,111 +1,86 @@
 ---
 title: Instalação
-description: Como instalar e configurar o Pulso Design System no seu projeto.
+description: Como usar o Pulso Design System v3 a partir dos tokens publicados em globals.css.
 ---
 
 # Instalação
 
-O Pulso Design System é distribuído como parte do **Orchids Crisis Manager**. Os componentes vivem no projeto e são consumidos via imports diretos.
+Pulso v3 é a fundação visual do **Orchids Crisis Manager**. Nesta documentação pública, a fonte operacional é `src/app/globals.css`; `DESIGN.md` registra o contrato de release e a narrativa v3.
+
+> **Modelo de consumo:** os tokens CSS são o contrato estável. Componentes do produto continuam vivendo no Crisis Manager e devem consumir esses tokens por import direto ou por cópia controlada.
 
 ## Pré-requisitos
 
-- **Next.js 15** (App Router)
+- **Next.js 15** com App Router
 - **React 19**
-- **Tailwind CSS v4**
+- **Tailwind CSS v4** via `@theme inline`
 - **TypeScript 5+**
-- **bun** (package manager)
+- **bun** ou package manager compatível com o produto
 
-## Componentes UI
+## 1. Copie a fundação CSS
 
-Os componentes base são fornecidos em `src/components/ui/`. Cada componente é um arquivo auto-contido que pode ser copiado para outros projetos:
-
-```
-src/components/ui/
-├── button.tsx
-├── input.tsx
-├── badge.tsx
-├── card.tsx
-├── dialog.tsx
-├── table.tsx
-├── tabs.tsx
-├── form.tsx
-├── select.tsx
-├── switch.tsx
-├── skeleton.tsx
-├── spinner.tsx
-└── ...
-```
-
-## Tokens CSS
-
-Os tokens de design são definidos em `src/app/globals.css`:
+Use `src/app/globals.css` como ponto de verdade:
 
 ```css
-@theme {
-  /* Cores base */
-  --color-background: hsl(222 14% 8%);
-  --color-foreground: hsl(210 40% 98%);
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
 
-  /* Cores de superfície */
-  --color-card: hsl(222 14% 10%);
-  --color-card-foreground: hsl(210 40% 98%);
-
-  /* Cores delta (status) */
-  --color-delta-success: hsl(142 71% 45%);
-  --color-delta-warn: hsl(38 92% 50%);
-  --color-delta-error: hsl(0 72% 51%);
-  --color-delta-info: hsl(217 91% 60%);
-  --color-delta-neutral: hsl(215 14% 60%);
-
-  /* Tipografia */
-  --font-sans: var(--font-inter);
-  --font-mono: var(--font-jetbrains-mono);
-
-  /* Espaçamento */
-  --spacing-xs: 0.25rem;
-  --spacing-sm: 0.5rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 1.5rem;
-  --spacing-xl: 2rem;
-
-  /* Bordas */
-  --radius-sm: 0.25rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
+@theme inline {
+  --font-sans: var(--font-pulso-sans);
+  --font-mono: var(--font-pulso-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-border: var(--border);
+  --radius-md: var(--radius-md);
 }
 ```
 
-## Fonte
+Não recrie tokens em `tailwind.config.ts`: no v3, o bridge para utilitários vem do próprio CSS.
 
-O Pulso usa **Inter** como fonte principal e **JetBrains Mono** para código e dados numéricos:
+## 2. Confirme os tokens de identidade v3
 
-```tsx
-// layout.tsx
-import { Inter, JetBrains_Mono } from "next/font/google";
+Estes tokens diferenciam a v3 da v2 e devem estar presentes antes de publicar uma superfície nova:
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
+| Token | Valor | Uso |
+|-------|-------|-----|
+| `--text-display-lg` | `2.125rem` / 34px | Títulos hero e telas de maior consequência |
+| `--text-display-lg-v2` | `1.75rem` / 28px | Alias temporário para migração |
+| `--tracking-kicker` | `0.12em` | Kicker uppercase mono |
+| `--rhythm-cadence-tight` | 12px | Espaço intra-bloco compacto |
+| `--rhythm-cadence-beat` | 20px | Espaço entre blocos relacionados |
+| `--rhythm-cadence-breath` | 40px | Espaço entre seções |
+| `--ai-marker-border` | `2px solid var(--primary)` | Origem de conteúdo Cris/IA |
+| `--touch-target-critical` | 48px | Ações críticas em mobile |
+| `--motion-haptic-light` | 8ms | Feedback háptico leve |
+
+## 3. Fontes
+
+Pulso usa **Manrope** como família sans e **IBM Plex Mono** para dados, timestamps, código e assinatura numérica.
+
+```css
+:root {
+  --font-pulso-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-pulso-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
 ```
 
-## Configuração Tailwind
+Numerais tabulares são default em `.mono` e `[data-numeric]`. Reverta localmente apenas quando o conteúdo for texto comum em mono.
 
-Certifique-se de que o Tailwind está configurado para escanear todos os arquivos do projeto:
+## 4. Dependências úteis
 
-```ts
-// tailwind.config.ts
-import type { Config } from "tailwindcss";
+A documentação usa `lucide-react`, Nextra, Tailwind v4 e `tw-animate-css`. O produto pode consumir os mesmos pacotes, mas novas dependências devem ter justificativa clara.
 
-const config: Config = {
-  content: [
-    "./src/**/*.{ts,tsx,mdx}",
-    "./content/**/*.{mdx}",
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-};
-
-export default config;
+```bash
+bun install
+bun run dev
 ```
+
+## Checklist de publicação
+
+- Tokens copiados de `src/app/globals.css`, não de exemplos antigos.
+- Paleta light-first com dark editorial near-black.
+- `stable / monitor / attention / high / critical` usado para risco.
+- Conteúdo assistido pela Cris marcado com contrato visual e auditável.
+- Ações críticas mobile respeitam `48px` de hit target.

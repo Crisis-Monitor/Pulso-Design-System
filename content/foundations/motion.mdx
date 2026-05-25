@@ -1,88 +1,61 @@
 ---
 title: Motion
-description: Sistema de motion do Pulso — durações, easing, e diretrizes de animação.
+description: Sistema de motion do Pulso v3 — durações, easing, redução de movimento e feedback mobile.
 ---
 
 # Motion
 
-Animações no Pulso são **funcionais**, não decorativas. Cada transição existe para comunicar estado, não para entreter.
+Motion no Pulso é funcional: confirma estado, orienta transição e reduz incerteza. Não use animação decorativa em superfícies de crise.
 
 ## Durações
 
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--duration-fast` | 150ms | Hover states, micro-interações |
-| `--duration-normal` | 200ms | Transições de UI padrão |
-| `--duration-slow` | 300ms | Dialogs, sheets, transições grandes |
-| `--duration-slower` | 500ms | Page transitions, loading |
+| `--motion-duration-fast` | 120ms | Hover, pressed, micro feedback |
+| `--motion-duration-default` | 200ms | Transições padrão |
+| `--motion-duration-slow` | 320ms | Dialogs, sheets, mudanças amplas |
+| `--motion-haptic-light` | 8ms | Feedback háptico leve em mobile |
 
 ## Easing
 
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--ease-default` | `ease-out` | Entrada de elementos |
-| `--ease-in` | `ease-in` | Saída de elementos |
-| `--ease-out` | `ease-out` | Aparecimento |
-| `--ease-in-out` | `ease-in-out` | Transições suaves |
+| `--motion-easing` | `cubic-bezier(0.2, 0.9, 0.3, 1)` | UI geral |
+| `--motion-easing-emphasized` | `cubic-bezier(0.22, 1, 0.36, 1)` | Mudanças mais perceptíveis |
 
-## Padrões de Animação
-
-### Hover
+## Padrões
 
 ```tsx
-<Button className="transition-all duration-150 ease-out hover:scale-[1.02]">
-  Hover me
-</Button>
+<button className="transition-colors duration-[var(--motion-duration-fast)] ease-[var(--motion-easing)]">
+  Reconhecer alerta
+</button>
 ```
 
-### Fade In
-
 ```tsx
-<div className="animate-in fade-in duration-200">
-  Content appears
+<div className="animate-in fade-in duration-[var(--motion-duration-default)]">
+  Briefing atualizado
 </div>
 ```
 
-### Slide In
+## Mobile v3
 
-```tsx
-<Dialog className="animate-in slide-in-from-bottom-4 duration-300">
-  Dialog content
-</Dialog>
-```
+Gestos canônicos usam feedback previsível:
 
-### Pulse (Loading)
+| Gesto | Feedback |
+|-------|----------|
+| Swipe-to-ack | haptic light ao soltar |
+| Pull-to-refresh | haptic médio ao soltar |
+| Long-press | haptic light aos 300ms |
+| Drag bottom-sheet | haptic light ao trocar detent |
+| Two-finger select | haptic light por item |
 
-```tsx
-<Skeleton className="animate-pulse" />
-```
+## Redução de movimento
 
-### Spin (Loading)
-
-```tsx
-<Loader2 className="animate-spin size-4" />
-```
+`globals.css` já reduz animações para `0.01ms` quando `prefers-reduced-motion: reduce` está ativo. Não dependa de movimento como único sinal de estado.
 
 ## Regras
 
-1. **Respeite `prefers-reduced-motion`** — desabilite animações se o usuário preferir
-2. **Máximo 300ms** para transições de UI
-3. **Sem bounce** — animações são diretas, não elásticas
-4. **Feedback imediato** — hover em 150ms, clique em 100ms
-5. **Loading visível** — skeleton/spinner aparece em 200ms
-
-## Tailwind Config
-
-```ts
-// tailwind.config.ts
-theme: {
-  extend: {
-    transitionDuration: {
-      "150": "150ms",
-      "200": "200ms",
-      "300": "300ms",
-      "500": "500ms",
-    },
-  },
-}
-```
+1. Transições de UI devem ficar até 320ms.
+2. Sem bounce em fluxo crítico.
+3. Loading só quando comunica espera real.
+4. Estado precisa estar legível mesmo com movimento reduzido.
