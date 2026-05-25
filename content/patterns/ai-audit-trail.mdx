@@ -1,0 +1,161 @@
+---
+title: AI Audit Trail
+description: Audit log de ação assistida · evento assisted_action · diff slot-by-slot · drill-down completo · política de retenção em 3 classes (crítica 24mo · padrão 12mo · leve 3mo).
+---
+
+# Audit trail · ação assistida
+
+> **Fase β · 05 · entregue na v3.0**
+
+Cada decisão tomada com assistência da Cris precisa ficar rastreável · quem decidiu, qual versão da Cris assistiu, qual sugestão original foi aceita ou modificada. β.5 estende o **Audit Log template (v2 · 4.1)** com eventos `assisted_action` · diff slot-by-slot, drill-down completo, política de retenção 12+ meses para ação crítica.
+
+## Princípio · auditável por construção
+
+Compliance pede. Produto agradece. Operador fica protegido. β.5 fecha a tríade · cada ação tomada com a Cris carrega assinatura técnica completa, diff vs proposta original e link cruzado com o caso.
+
+> **Não é log paralelo · é extensão do mesmo audit log** que registra ação humana pura.
+
+A unidade canônica é o evento `assisted_action` · cinco campos obrigatórios (`actor`, `kind`, `cris_ref`, `outcome`, `audit_id`) · **imutável depois de gravado** · indexado por caso e por operador.
+
+## Audit Log · linha com tag assistida
+
+Linha do log assistida ganha · marcação com `+Cris`, diff inline e link para drill-down. Filtros do topo permitem isolar só ação assistida ou comparar por outcome.
+
+| Filtro | Estado |
+|--------|--------|
+| Tudo | 2.847 eventos |
+| Com Cris | 412 eventos |
+| Aceita / Modificada / Rejeitada | toggle |
+
+### Exemplo de linha
+
+| Timestamp | Ator | Ação | Caso | Outcome |
+|-----------|------|------|------|---------|
+| 21 mai 11:48:11 | `op_42` +Cris | Dispatch nível 2 enviado · recomendação aceita · 1 slot alterado · `email_inst → slack_t2` | CASO 248 | ↻ Modificada |
+| 21 mai 11:47:32 | `op_42` +Cris | Nota institucional v3 publicada · draft com Cris · 3 versões | CASO 248 | ✓ Aceita |
+| 21 mai 11:46:02 | `op_42` +Cris | Tier elevado para atenção · recomendação · confidence `decisive` (0.91) · 7 evidências | CASO 248 | ✓ Aceita |
+| 20 mai 22:14:50 | `op_19` +Cris | Recomendação rejeitada · contexto local · "fonte primária ainda não confirmada" | CASO 247 | × Rejeitada |
+
+## Drill-down · um evento por completo
+
+Clique em `drill →` abre o evento na íntegra · **metadados técnicos à esquerda, diff slot-by-slot à direita**. Tudo o que aparece foi gravado no momento da decisão · nada é re-derivado depois.
+
+### Metadados técnicos
+
+| Campo | Exemplo |
+|-------|---------|
+| `audit_id` | `248-r-9a4f` |
+| Operador | `op_42` · Diana M. |
+| Recomendação | `cris-9` · `decisive (0.91)` |
+| Prompt version | `recommend-tier/3.1.2` |
+| Outcome | Modificada · 1 slot alterado |
+| Tempo de decisão | 2 min 09s desde a apresentação |
+| Retenção | 24 meses · classe crítica |
+
+### Diff slot-by-slot
+
+```
+Slot · veículo · alterado
+  original:   email_inst (Email institucional)
+  executado:  slack_t2   (#crisis-tier2)
+
+Slots mantidos · 3
+  destinatário comms_team · 4 on-call
+  timing       imediato
+  tom          firm_no_legal
+```
+
+### Evidências consideradas · 7
+
+Cada evidência gravada com timestamp e descrição · foram lidas pela Cris **no momento** da recomendação.
+
+## Schema · `assisted_action`
+
+Novo tipo de evento no audit log. Compatível com schema existente · adiciona campo `cris_ref` apontando para a recomendação que o gerou. **Imutável após gravação.**
+
+```json
+{
+  "audit_id": "248-r-9a4f",
+  "kind": "assisted_action",
+  "executed_at": "2026-05-21T11:48:11Z",
+  "actor": {
+    "type": "operator",
+    "id": "op_42",
+    "name": "Diana M."
+  },
+  "case_id": "case_248",
+  "action": {
+    "name": "dispatch_tier2",
+    "slots": {
+      "vehicle":   "slack_t2",
+      "recipient": "comms_team",
+      "timing":    "now",
+      "tone":      "firm_no_legal"
+    }
+  },
+  "cris_ref": {
+    "recommendation_id": "rec_248_r9a4f",
+    "model": "cris-9",
+    "prompt_version": "recommend-tier/3.1.2",
+    "confidence": { "score": 0.91, "label": "decisive" },
+    "slots_suggested": {
+      "vehicle":   "email_inst",
+      "recipient": "comms_team",
+      "timing":    "now",
+      "tone":      "firm_no_legal"
+    },
+    "slots_changed": ["vehicle"],
+    "outcome": "modified",
+    "reject_reason": null,
+    "sources_count": 7,
+    "decision_latency_ms": 129000
+  },
+  "retention_class": "critical",
+  "immutable": true
+}
+```
+
+## Política de retenção
+
+Três classes · definidas pela **criticidade da ação**, não pelo outcome. Rejeitar `decisivo` retém 24 meses · dispensar `baixa` retém 3 meses.
+
+| Classe | Retenção | Cobre |
+|--------|----------|-------|
+| **Crítica** | 24 meses | Toda ação assistida sobre caso tier `atenção+` · toda rejeição de recomendação `decisiva` · toda comunicação externa originada com Cris |
+| **Padrão** | 12 meses | Demais ações assistidas · drafts, sugestões aceitas em casos não-críticos, modificações sem comunicação externa |
+| **Leve** | 3 meses | Dispensas de observação · turnos do Sheet em modo exploratório · ações no Ambient (β.3 formato 04) |
+| **Sem retenção** | 0 | Hover/preview de proveniência · não gera evento |
+
+## Regras
+
+### ✕ Não criar log paralelo
+
+"Audit log de Cris" separado do "audit log humano" fragmenta investigação. Eventos assistidos são **extensão · mesmo log, mesmo schema, campo `cris_ref` adicional**. Investigador deve filtrar com chip "Com Cris", não trocar de tela.
+
+### ✓ Diff por slot, não por texto livre
+
+"Operador mudou o texto" é inauditável. "Operador trocou slot `vehicle` de `email_inst` para `slack_t2`" é instantaneamente diff-ável. Combina com a aceitação parcial da β.4 · **slots são unidade de decisão e unidade de auditoria**.
+
+### ✕ Não armazenar prompt completo
+
+Prompt como texto livre é vetor de PII e de drift. Use **versão nomeada** (`recommend-tier/3.1.2`) · o texto vive no repositório de prompts versionado. Reprodução exige só recuperar o prompt por versão · prompts são gerenciados como código.
+
+### ✓ Justificativa textual em rejeição decisiva
+
+**Único caso em que texto livre é obrigatório** · proteção do operador. "Por que rejeitou recomendação decisiva?" exige resposta · sem texto, ação não confirma. Texto é livre · mas é monitorado por busca para identificar padrões de falha do modelo.
+
+### ✕ Não permitir edição de evento
+
+**Evento é imutável após gravação.** Erro só corrige com novo evento `correction` apontando para o original. Trilha de auditoria continua íntegra. Compliance regulatório exige imutabilidade · UI nem oferece "editar".
+
+### ✓ Indexar por caso e por operador
+
+Dois drill-downs canônicos · "todas as decisões da Cris no CASO 248" e "todas as ações do `op_42` nas últimas 90d". Ambos &lt; 500ms. Investigação interna e externa começa de um destes dois ângulos.
+
+## Dependências
+
+- **β.1 · Origin tracking** — `audit_id` emitido em β.1 é o mesmo do evento β.5. Popover linka direto pro drill-down.
+- **β.2 · Draft & regenerate** — `version_chain` + restrições aparecem como sub-eventos do `assisted_action` de publicação.
+- **β.3 · Embedding** — abertura de balão modal (formato 03) é evento auditável mesmo sem ação · expõe o que a Cris ofereceu sob pressão.
+- **β.4 · Recommendation** — `outcome` e `slots_changed` entram inteiros no `cris_ref` do evento.
+- **v2 · 4.1 · Audit Log template** — ganha filtros "Com Cris" e por outcome · **sem nova rota, sem nova tela**.

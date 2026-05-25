@@ -1,0 +1,119 @@
+---
+title: AI Draft & Regenerate
+description: DraftStack · 4 momentos (gerar · iterar · comparar · desfazer) · restrições como chips · diff visual v(n−1)→v(n) · undo timeline imutável.
+---
+
+# Draft & regenerate
+
+> **Fase β · 02 · entregue na v3.0**
+
+O operador escreve resposta com a Cris. Versiona, compara, regenera com restrição e desfaz. Hoje é caixa de texto · vira fluxo formal · com schema, atalhos e contrato. **β.1 marca a origem; β.2 lida com o que acontece depois que ela escreve.**
+
+## O fluxo · 4 momentos
+
+| # | Momento | O que acontece |
+|---|---------|----------------|
+| **01** | gerar | Cris produz v1 · modo + restrições do template + contexto do caso |
+| **02** | iterar | Regenerate com restrições · "mais curto", "sem jurídico", "mais firme" — chips compõem o pedido |
+| **03** | comparar | Diff v(n−1) → v(n) · o que mudou · contagem de palavras · tom estimado |
+| **04** | desfazer | Voltar para qualquer ponto · inclui versões geradas e edições humanas · timeline imutável |
+
+## Anatomia · DraftStack
+
+O componente que materializa o fluxo. Versão atual com borda tonal (β.1) · histórico colapsado abaixo · toolbar de ação no rodapé.
+
+1. **Header · identidade do draft.** Kicker Cris + título + meta. A pessoa sempre sabe o que está olhando e qual modo a Cris está usando.
+2. **Versão atual · borda β.1.** Draft vivo herda o marcador de origem-IA: `border-left: 2px solid var(--primary)` · fundo 4% mix.
+3. **Tag de versão + procedência.** `v3 · atual` em pill primária. Abaixo, em mono, as restrições que originaram esta versão.
+4. **Ações · primária + secundária + comparativa.** `Usar versão` aceita · `Editar manualmente` entra em modo humano (depois marca como Co-edição) · `Comparar` abre o diff.
+5. **Histórico colapsado.** Cada versão antiga em linha · tag (`gerada` · `regenerada` · `editada` · `desfeita`) · resumo do que mudou · timestamp · botão `Restaurar`. **Não-destrutivo** — restaurar uma versão antiga cria v(n+1).
+
+## Regenerate · restrições como chips
+
+A regeneração nunca é "tente de novo". É composta de **restrições escolhidas pelo operador**. Chips substituem o prompt livre — previsíveis, auditáveis, persistidas no schema.
+
+### Por que chips, não prompt livre
+
+| Propriedade | Prompt livre | Chips |
+|-------------|--------------|-------|
+| Auditabilidade | Texto livre, difícil de descrever no log | Uma linha · "regenerada com · mais firme + sem jurídico" |
+| Repetibilidade | Cada operador escreve diferente | Mesmo set replicável amanhã em outro caso |
+| Catálogo | Não há · operador inventa | Curado, nomeado, versionado por superfície |
+| Combinação | Imprevisível | Aditivamente · UI avisa contradição sem bloquear |
+
+### Catálogo · 4 categorias
+
+As 4 dimensões em que o operador pode pedir mudança. Cada uma é exaustiva — **não há "outras"**. Chips novos passam por RFC.
+
+| Categoria | Chips |
+|-----------|-------|
+| **01 · Tom** | Mais cauteloso · Mais firme · Mais formal · Mais conciso · Mais empático · Menos defensivo |
+| **02 · Conteúdo · restrições** | Sem jurídico · Sem números · Sem nomes próprios · Sem comparação · Sem promessa · Sem hipótese |
+| **03 · Formato** | Bullet list · Parágrafo único · Tweet (240) · Comunicado oficial · FAQ · Resposta a jornalista |
+| **04 · Tamanho** | Mais curto (−30%) · Mais longo (+30%) · Bem mais curto (−60%) · Manter tamanho |
+
+## Diff visual · v(n−1) → v(n)
+
+Quando o operador escolhe `Comparar`, abre painel lado-a-lado. Mudanças tonais usam paleta semântica (add · `--success` / rem · `--destructive`) em modo discreto.
+
+Métricas exibidas:
+
+| Métrica | Exemplo |
+|---------|---------|
+| Palavras | `142 de 128` |
+| Δ adição | `+38` |
+| Δ remoção | `−24` |
+| Tom estimado | `cauteloso → firme` |
+
+## Undo timeline · todas as ações
+
+Linha cronológica imutável. Retorno é **não-destrutivo** — restaurar v(n) cria v(n+1) idêntica a v(n).
+
+| Tag | O que registra |
+|-----|----------------|
+| `gerada` | Primeiro draft criado pela Cris |
+| `regen` | Regeneração com restrições · lista os chips ativos |
+| `humano` | Edição manual · marca trecho diff |
+| `undo` | Descarte explícito · preserva o que foi descartado |
+
+## Regras
+
+### ✓ Versionar sempre
+
+Cada ação cria v(n+1) — incluindo edição humana. Versão anterior nunca é sobrescrita. Sem isso, undo é mentira · audit log (β.5) não tem o que escrever.
+
+### ✕ Não regenerar sem restrição
+
+`Regenerar` sem chip selecionado fica desabilitado. Sem critério, vira loteria · audit log não consegue descrever o pedido.
+
+**Exceção:** primeira geração (v1) é livre · usa o template padrão da superfície.
+
+### ✓ Restrições persistem no schema
+
+Cada v(n) carrega `restrictions: ["firmer","no_legal"]`. Replicável amanhã, em outro caso, com o mesmo set. Compatível com schema da β.1 · estende com `version_chain`.
+
+### ✕ Não esconder edição humana
+
+Quando o operador edita manualmente, a borda fica · mas o kicker muda para **Co-edição**. Diff mostra qual trecho é humano, qual é Cris.
+
+### ✓ Atalho consistente
+
+| Atalho | Ação |
+|--------|------|
+| `⌘Z` | Desfaz uma versão atrás |
+| `⌘⇧Z` | Refaz |
+| `⌘R` | Abre painel de regenerate |
+
+Atalhos vivem em Foundations · Keyboard map (v2 · 1.3). DraftStack herda.
+
+### ✓ Não-destrutivo
+
+Restaurar uma versão antiga **não apaga as novas** · cria v(n+1) ≡ v(k). Timeline preserva tudo. Garantia para audit log e para o operador que mudou de ideia 3 vezes em 4 minutos.
+
+## Dependências
+
+- **β.1 · Origin tracking** — cada versão herda o schema; borda + kicker + monograma no draft atual.
+- **v2 · 2.4 · Pulso IA · Voz** — catálogo de restrições tom respeita anti-vocabulário institucional.
+- **v2 · 1.3 · Keyboard map** — `⌘Z`, `⌘⇧Z`, `⌘R` como atalhos de primeira classe.
+- **β.4 · Recommendation** — recommendation cards usam DraftStack ao expandir para edição.
+- **β.5 · Audit log** — consome `version_chain` + restrições — uma linha por versão por caso.

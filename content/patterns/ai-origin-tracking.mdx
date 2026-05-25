@@ -1,0 +1,141 @@
+---
+title: AI Origin Tracking
+description: Gramática visual da origem-IA · 4 marcadores tonais (borda · kicker · monograma · popover) · schema ai-content-block · contrato por superfície.
+---
+
+# AI-content origin tracking
+
+> **Fase β · 01 · entregue na v3.0**
+
+Toda palavra escrita pela Cris precisa ser reconhecível sem ser ruidosa. Quatro marcadores tonais — borda, kicker, monograma e popover — formam a **gramática visual da origem-IA**. Quando o operador olha, ele sabe. Quando precisa auditar, ele clica.
+
+## Por que existir
+
+Texto assistido por IA hoje vira parágrafo neutro. O operador pode reproduzir uma sugestão como se fosse análise própria — risco de credibilidade. Pode também duvidar de um trecho humano achando que é IA — atrito desnecessário. A gramática de origem fecha esse loop.
+
+A origem é **passiva mas auditável**. Nunca interrompe a leitura. Nunca alarma. Sempre permite drill-down quando o operador precisa de proveniência — fontes, modelo, prompt, timestamp.
+
+## Anatomia · 4 elementos
+
+Cada um pode aparecer isolado em densidades diferentes — todos juntos só na superfície prominente.
+
+| # | Elemento | Spec |
+|---|----------|------|
+| **01** | Borda tonal · 2px à esquerda | `border-left: 2px solid var(--primary)` · `background: color-mix(in oklab, var(--primary) 4%, transparent)` · radius `0 sm sm 0` |
+| **02** | Kicker · "Escrito com Cris" | mono uppercase tracking `0.12em` · inclui modo (Executivo / Porta-voz) · **nunca o nome do modelo** |
+| **03** | Monograma · 14px | Glifo Cris (arco + ponto + linha) · `stroke 1.6` · `--primary` · sempre antes do kicker |
+| **04** | Trigger de fontes | Botão **Fontes** no canto superior direito · hover-discreto · abre popover de proveniência |
+
+## Os 4 marcadores
+
+A escolha não é estilística — é definida pela superfície e pela densidade local.
+
+### 01 · Borda tonal
+
+Coluna inteira marcada por `border-left: 2px solid var(--primary)` + 4% mix de fundo. Reservada à **superfície prominente** (alerta, briefing, draft).
+
+### 02 · Kicker mono
+
+"Escrito com Cris · Executivo" em mono uppercase. Único sinal textual de origem. Nunca diz "powered by AI", "GPT", "modelo" — só o nome da Cris e o modo de voz.
+
+### 03 · Monograma Cris
+
+Glifo geométrico de 14px (kicker) / 18px (popover) — arco superior, ponto central, linha inferior. Representa **"Cris escuta · sintetiza · entrega"**. Sobrevive sem cor: ele é a forma, não o stroke. Registrado em α.4 como signature shape.
+
+### 04 · Underline pontilhado · inline
+
+Para uso inline — quando um trecho dentro de parágrafo humano foi gerado pela Cris.
+
+```css
+border-bottom: 1px dotted var(--primary);
+background: color-mix(in oklab, var(--primary) 5%, transparent);
+cursor: help;
+```
+
+## Densidade da marca
+
+A intensidade do marcador adapta-se à superfície.
+
+| Densidade | Quando | Como |
+|-----------|--------|------|
+| **Prominent** | Trecho é inteiramente da Cris e ocupa coluna própria. Briefing, sugestão, draft. | Bloco completo · borda + kicker + monograma. |
+| **Inline** | Humano e Cris co-escrevem · só o trecho assistido é marcado. | Underline pontilhado · hover revela popover. |
+| **Ambient** | Tela inteira é mediada pela Cris (chat, console). | Chip "Modo Cris" no header · sem marca por bloco. |
+
+## Popover de proveniência
+
+Drill-down de auditoria. Chamado pelo botão **Fontes** ou pelo hover do underline pontilhado. Resposta em **&lt; 120ms** · render local · sem chamada remota adicional.
+
+Estrutura · 5 blocos:
+
+1. **Identidade** — monograma + nome da Cris + modo
+2. **Contexto** — onde a síntese vive (caso + versão)
+3. **Origem técnica** — timestamp · modelo · prompt · confiança
+4. **Fontes** — 3–7 referências citáveis com timestamp
+5. **Audit ID** — link para registro completo no log (β.5)
+
+Regras do popover:
+
+- Render **local** — popover não dispara chamada remota.
+- **Sem score numérico bruto** — confiança é label (baixa · média · alta · decisivo).
+- Modelo aparece como apelido (`cris-9`), **nunca versão SHA**.
+- Link para audit log preserva contexto (caso + versão).
+
+## Schema · `ai-content-block`
+
+Os metadados que cada superfície precisa carregar para renderizar marcador + popover. Compatível com o schema do audit log (β.5).
+
+```json
+{
+  "author": "cris",
+  "mode": "executive",                         // executive | spokesperson | unset
+  "generated_at": "2026-05-21T11:42:18Z",
+  "model": "cris-9",                            // nome apelidado · nunca SHA
+  "prompt_version": "brief-synth/2.7.1",
+  "confidence": {
+    "score": 0.91,
+    "label": "high"                             // low | medium | high | decisive
+  },
+  "sources": [
+    { "id": "src_a4", "label": "Estadão · matéria base", "ts": "2026-05-21T11:42:00Z" },
+    { "id": "src_a5", "label": "14 perfis · cluster X",   "ts": "2026-05-21T11:43:00Z" }
+  ],
+  "audit_id": "248-b-7c2f",
+  "density": "prominent"                        // prominent | inline | ambient
+}
+```
+
+## Contrato por superfície
+
+Qual densidade aplicar em cada lugar do Crisis Monitor. **Binding** · alterações exigem RFC do council.
+
+| Superfície | Densidade | Marcadores | Popover |
+|------------|-----------|------------|---------|
+| Alerta | Prominent | Borda + kicker + monograma | Sim · canto direito |
+| Briefing | Prominent | Borda + kicker + monograma + meta (fontes, idade) | Sim · canto direito |
+| Sugestão (chip card) | Prominent | Borda + kicker + monograma | Sim · pelo kicker |
+| Draft com versões (β.2) | Prominent + ambient | Borda na versão atual · timeline implícita | Sim · por versão |
+| Resumo híbrido | Inline | Underline dotted nos trechos da Cris | Sim · hover |
+| Recomendação (β.4) | Prominent | Borda + kicker + monograma + confidence ring | **Obrigatório** |
+| Console Cris | Ambient | Indicador "Modo Cris" no header · sem marca por bloco | Disponível no header |
+| Audit log (β.5) | — | Linha com tag `assisted` · ícone Cris | Drill-down completo |
+
+## Regras
+
+### ✓ Fazer
+
+- **Manter o marcador mesmo quando o operador editou o texto.** Borda permanece · kicker muda para "Co-edição" · popover mostra diff entre original Cris e final humano.
+- **Tornar o popover render-local.** Operador clica em "Fontes" e o popover abre em &lt; 120ms — sem chamada remota. Metadados já vieram com o bloco.
+
+### ✕ Não fazer
+
+- **Esconder a origem porque "o operador já sabe"** — em 6 meses, turnover ou audit externo descobre conteúdo IA sem marcação. Vira incidente regulatório.
+- **Tratar IA como alerta** — borda vermelha, ícone de aviso, banner vira fadiga. A cor primária (roxo) já carrega "atenção sem alarme". Reservamos vermelho para risk crítico.
+
+## Dependências
+
+- **α.4 · Signature shapes** — monograma Cris registrado como signature · alteração exige RFC 3/3.
+- **v2 · 2.4 · Pulso IA · Voz** — tom da Cris (Executivo / Porta-voz) já documentado.
+- **β.2 · Draft & regenerate** — herda este schema · adiciona `version_chain`.
+- **β.3 · Embedding** — usa densidade `ambient` no formato console.
+- **β.5 · Audit log** — consome `audit_id` · retenção mínima 12 meses para ação crítica.

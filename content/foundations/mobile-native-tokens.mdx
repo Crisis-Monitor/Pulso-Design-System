@@ -1,0 +1,190 @@
+---
+title: Native Token Foundation
+description: Pipeline Style Dictionary · 1 JSON → CSS · Swift · XML · parity matrix 100% em 184 primitives · drift detector em CI · sample apps SwiftUI + Compose como prova de pipeline.
+---
+
+# Native token foundation
+
+> **Fase γ · 04 · entregue na v3.0**
+
+A v2 · 5.2 emite Swift e XML do Style Dictionary. γ.4 **valida esses outputs** em projetos-piloto · sem app ainda. Quando produto decidir construir nativo, a fundação está testada · audit de drift, sample apps em SwiftUI e Compose, onboarding documentado.
+
+## Princípio · ponte testada, não estrada construída
+
+A v2 deixou os outputs nativos prontos · γ.4 **não constrói app, prova que a ponte aguenta**. Dois sample apps minimalistas consomem os mesmos tokens · drift detectado em CI · documentação cobre como um time futuro entra sem reinventar.
+
+> Quando o produto decidir construir app nativo, a decisão é **&lt; 2 semanas de setup** · não 2 trimestres.
+
+γ.4 é apólice de seguro · custo baixo, opção valiosa.
+
+## Pipeline · um JSON, três outputs
+
+Style Dictionary lê o token source · emite CSS, Swift e XML. Mesma chave, valor traduzido para a unidade nativa de cada plataforma.
+
+```
+tokens.json                      Style Dictionary
+  184 primitive tokens            ─────────────►   CSS variables       (@pulso/tokens-web)
+  92 semantic tokens                                Swift constants    (@pulso/tokens-ios)
+  240+ component tokens                             XML + Kotlin       (@pulso/tokens-android)
+  /tokens/source/*.json
+```
+
+## Mesma chave · três sintaxes
+
+Um alerta crítico desenhado nas três plataformas. Mesmas referências de token · cada plataforma resolve para sua API idiomática · **resultado visual indistinguível**.
+
+### Web · CSS module
+
+```css
+.alert {
+  background:  var(--risk-critical-bg);
+  color:       var(--risk-critical-text);
+  border-left: var(--border-width-emphasis) solid var(--risk-critical-border);
+  padding:     var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+}
+```
+
+### iOS · SwiftUI
+
+```swift
+import SwiftUI
+import PulsoTokens
+
+struct AlertCritical: View {
+  let title: String
+  var body: some View {
+    HStack(spacing: PulsoTokens.space3) {
+      Text("●").foregroundStyle(PulsoTokens.riskCriticalText)
+      Text("CRÍTICO")
+        .font(PulsoTokens.kicker)
+        .foregroundStyle(PulsoTokens.riskCriticalText)
+      Text(title).font(PulsoTokens.bodyStrong)
+    }
+    .padding(.horizontal, PulsoTokens.space4)
+    .padding(.vertical, PulsoTokens.space3)
+    .background(PulsoTokens.riskCriticalBg)
+    .clipShape(.rect(cornerRadius: PulsoTokens.radiusMd))
+    .overlay(Rectangle().frame(width: 3), alignment: .leading)
+  }
+}
+```
+
+### Android · Compose
+
+```kotlin
+package com.pulso.components
+import com.pulso.tokens.PulsoTokens
+
+@Composable
+fun AlertCritical(title: String) {
+  Row(
+    modifier = Modifier
+      .background(PulsoTokens.riskCriticalBg)
+      .padding(horizontal = PulsoTokens.space4, vertical = PulsoTokens.space3)
+      .clip(RoundedCornerShape(PulsoTokens.radiusMd)),
+    horizontalArrangement = Arrangement.spacedBy(PulsoTokens.space3)
+  ) {
+    Text("●",       color = PulsoTokens.riskCriticalText)
+    Text("CRÍTICO", style = PulsoTokens.typeKicker, color = PulsoTokens.riskCriticalText)
+    Text(title,     style = PulsoTokens.typeBodyStrong)
+  }
+}
+```
+
+## Parity matrix · primitive tokens
+
+Cada token primitive resolve identicamente em três plataformas. CI roda diff em todo PR · **drift &gt; 0% bloqueia merge**.
+
+| Token | Web | iOS | Android |
+|-------|-----|-----|---------|
+| `--violet-500` · primary brand | `#6C46F5` | `UIColor(0x6C46F5)` | `#FF6C46F5` |
+| `--risk-critical` · crítico | `#E0344A` | `UIColor(0xE0344A)` | `#FFE0344A` |
+| `--space-3` · spacing step 3 | `12px` | `12.0` (CGFloat) | `12.dp` |
+| `--space-4` · spacing step 4 | `16px` | `16.0` (CGFloat) | `16.dp` |
+| `--radius-md` · medium corner | `10px` | `10.0` (CGFloat) | `10.dp` |
+| `--text-body` · body size | `14px / 1.5` | `14pt · lh 21` | `14.sp · lh 21` |
+| `--tracking-kicker` · letter spacing | `0.12em` | `1.32 · pt-em` | `0.12.em` |
+| `--motion-duration-base` | `200ms` | `0.2` (TimeInterval) | `200` (Long ms) |
+| `--shadow-md` · elevation medium | `0 4 12 rgba` | `CGShadow · y4 r12` | `elevation 4dp` |
+
+**Status v3.0:** 184 tokens primitive · **100% parity** em 3 plataformas · **0 drift detectado**.
+
+## Drift detector · CI guarda
+
+Script roda em todo PR que toca `/tokens/source`. Para cada token, calcula valor resolvido em cada plataforma · diff em hex/dp/pt. Resultado vai no comentário do PR · **drift &gt; 0 bloqueia merge**.
+
+Exemplo de drift hipotético:
+
+```
+⌗ run · 25 mai · 09:12 · PR #2418
+
+--risk-critical
+  Web      #E0344A
+  iOS      #E0344A
+  Android  #E0344A
+                       ✓ ok
+
+--radius-md
+  Web      10px
+  iOS      12.0    ← drift
+  Android  10.dp
+                       ⛔ 1 drift detectado · merge bloqueado.
+```
+
+iOS resolveu `--radius-md` para `12.0` quando web/android = `10`. Origem provável · override em `tokens.ios.json` não-coberto pelo source único · remover override ou justificar na RFC.
+
+## Sample apps · escopo do piloto
+
+Dois apps mínimos · uma tela cada · suficiente para validar consumo dos tokens em código real. **Não são produto · são fixtures que vivem no monorepo do DS.**
+
+| App | Stack | LoC | Plataforma | Caminho |
+|-----|-------|-----|------------|---------|
+| `PulsoSampleiOS` | SwiftUI · consome `@pulso/tokens-ios` via SwiftPM | 280 | iOS 16+ | `/samples/ios/` |
+| `PulsoSampleAndroid` | Jetpack Compose · consome `@pulso/tokens-android` via Maven local | 320 | API 28+ | `/samples/android/` |
+| `PulsoVisualDiff` | Script CI · roda sample apps em emulador · captura screenshot · compara com baseline web | — | — | `/tools/visual-diff/` |
+| Storybook cross-platform | Mesmo screenshot dos 3 sample apps lado-a-lado · publicado a cada commit | — | — | `/storybook/native-parity` |
+
+## Onboarding · time nativo futuro
+
+Cinco passos para um time iOS/Android começar a consumir tokens. Documentado, roteado, com PR de exemplo · **setup &lt; 1 hora**.
+
+1. **Instalar o pacote de tokens.** iOS: `.package(url: "github.com/pulso/tokens-ios", from: "3.0")` · Android: `implementation("com.pulso:tokens-android:3.0")`. Versão major casa com a versão major do DS web.
+2. **Importar e usar.** `import PulsoTokens` (Swift) · `import com.pulso.tokens` (Kotlin). Autocompletar mostra todos os primitives e semantics · IDE entrega documentação inline.
+3. **Seguir contratos do DS.** Aplicar tokens é mandatório · cor literal proibida via lint. Time consulta Foundations do DS · não inventa cor ou espaçamento.
+4. **Componente novo · RFC.** Qualquer componente nativo que não é tradução direta de um do web · vira RFC. Council aprova ou propõe alternativa. **Sem ramificação fantasma do DS nativo.**
+5. **Drift detector ativo.** CI roda em todo PR do time nativo · drift em token causa block. Drift visual (screenshot) acima de 2% causa warning · do council.
+
+## Regras
+
+### ✕ Não duplicar source
+
+iOS-only override · Android-only ajuste · cada um vira fork. **Source único em `tokens.json`** · plataforma só especifica format de saída, nunca valor. Excepcionalidade obrigatória (ex: UIBlur que web não tem) vira semantic separado · não override do mesmo token.
+
+### ✓ Aceitar idioma de cada plataforma
+
+iOS usa `spacingS`, web usa `--space-3`, Android usa `space3`. Nomes seguem convenção local · valor é idêntico. Style Dictionary cuida da tradução. **Forçar nomes idênticos seria contra-cultural** · friction sem benefício.
+
+### ✕ Não construir app antes de pedido do produto
+
+γ.4 é **fundação · não produto**. Tentar construir Crisis Monitor nativo sem decisão de produto produz código órfão · que apodrece em 6 meses. Sample apps são 280–320 linhas · suficientes para provar pipeline. Se cresce, vira responsabilidade do produto.
+
+### ✓ Storybook visual cross-platform
+
+Designer + dev abrem mesma URL · veem mesmo card renderizado em web, iOS, Android. Comparam · achatam discrepância antes de PR. Compartilhe a URL com stakeholders · **realismo da paridade convence sem reunião**.
+
+### ✕ Não pular drift detector em hotfix
+
+"Só essa cor, urgente" é como o drift começa. Drift de 1 token vira drift de 12 em 6 meses. **CI block é proteção · não burocracia.** Override pontual passa por RFC expressa · 1 dia · não merge silencioso.
+
+### ✓ Versionar tokens com semver
+
+Major · breaking (remoção de token) · minor · novo token · patch · valor ajustado mas API estável. iOS, Android e Web sobem versão **juntos · sempre**. Single source = single version. `v3.1.0` existe nos três · cliente nativo nunca trava em v2 enquanto web está em v3.
+
+## Dependências
+
+- **v2 · 5.1 · Token architecture** — 3 camadas (primitive · semantic · component) é o que torna a tradução cross-platform viável.
+- **v2 · 5.2 · Figma ↔ Code** — Style Dictionary é o pipeline · Tokens.studio entrega source · γ.4 valida outputs nativos.
+- **v2 · 5.3 · RFC process** — token novo segue mesma política · só publicado no nativo após aprovação no source.
+- **v2 · 5.4 · Adoption metrics** — quando app nativo existir, instrumentação reusa mesmo schema · só muda a fonte de medição.
+- **γ.1 · Gestures** — contratos de gesture têm equivalente nativo · haptic feedback usa `UIImpactFeedbackGenerator` / `HapticFeedbackConstants`.
