@@ -1,0 +1,56 @@
+---
+title: Sentiment Bar
+description: Família de visualizações para sentimento, distribuição e saldo de menções.
+---
+
+# Sentiment Bar
+
+> **Data visualization · 07**
+>
+> Sentimento precisa mostrar proporção, direção e incerteza sem depender só de cor.
+
+Sentiment Bar representa sentimento em distribuição percentual, score contínuo, saldo ou histograma. Use a variante que responde à pergunta da tela; não force uma barra empilhada para todo caso.
+
+## Variantes
+
+| Variante | Uso | Leitura |
+|---|---|---|
+| Stacked | Percentual positivo/neutro/negativo | “Como o volume se distribui?” |
+| Scale | Score contínuo de -1 a +1 | “Onde este item cai na régua?” |
+| Diverging | Saldo positivo vs negativo | “Qual lado domina?” |
+| Histogram | Distribuição por buckets | “Qual é a forma da distribuição?” |
+| Mini | Linha densa em tabela/card | “Qual é o resumo rápido?” |
+
+## Cores semânticas
+
+| Sentimento | Token |
+|---|---|
+| Positivo | `--chart-positive` |
+| Neutro | `--chart-neutral` |
+| Negativo | `--chart-negative` |
+
+## Regras por variante
+
+| Variante | Regra |
+|---|---|
+| Stacked | Mostrar percentuais ou valores absolutos próximos |
+| Scale | Marcar zero e valor atual |
+| Diverging | Centralizar em zero; neutros ficam fora do saldo |
+| Histogram | Usar buckets consistentes e eixo legível |
+| Mini | Sempre oferecer tooltip/label textual |
+
+## Acessibilidade
+
+- Percentuais devem estar em texto, tooltip ou tabela auxiliar.
+- Positivo/neutro/negativo não podem depender apenas do hue.
+- Em tabelas densas, mini bar precisa de label acessível por linha.
+- O summary textual deve citar dominante e variação quando relevante.
+
+## Anti-patterns
+
+| Evitar | Correção |
+|---|---|
+| Usar amarelo como negativo | Manter semântica fixa |
+| Esconder neutros sem explicar | Usar diverging apenas quando saldo é a pergunta |
+| Barra sem números | Exibir percentuais ou tooltip |
+| Mini bar como única evidência | Adicionar texto/aria-label |

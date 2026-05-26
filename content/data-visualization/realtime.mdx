@@ -1,0 +1,44 @@
+---
+title: Real-time motion
+description: Movimento para gráficos em tempo real sem roubar atenção do operador.
+---
+
+# Real-time motion
+
+> **Data visualization · 04**
+>
+> Animação em gráfico deve explicar mudança, não competir com a crise.
+
+Crisis Monitor é tempo real. Atualizações precisam indicar o que mudou, mas não podem criar ruído visual contínuo. Movimento deve respeitar `prefers-reduced-motion` e preservar informação quando desligado.
+
+## Padrões de atualização
+
+| Padrão | Quando usar | Reduced motion |
+|---|---|---|
+| Morph de valor | Valor existente muda em linha/barra/score | Atualização instantânea |
+| Append de ponto | Novo ponto entra em série temporal | Ponto aparece sem deslocamento |
+| Flash de evento | Threshold rompido ou célula crítica atualizada | Mantém destaque discreto se for informação |
+| Snap | Dados substituídos por novo filtro/período | Troca imediata com estado textual |
+
+## Duração recomendada
+
+| Movimento | Duração | Observação |
+|---|---:|---|
+| Morph | ~600–700ms | Suave, leitura de instrumento |
+| Pulse de novo ponto | ~900ms | Uma vez; sem loop infinito |
+| Fade de série via legenda | ~200ms | Ajuda a entender toggle |
+| Snap de filtro | 0ms | Mudança de contexto não deve parecer continuidade |
+
+## Thresholds e anúncios
+
+- Threshold rompido usa flash visual + label/anotação.
+- Se impacta operação, usa anúncio `polite` ou `assertive` conforme severidade.
+- Não anunciar cada tick em série de alta frequência.
+- Agregar atualizações frequentes em resumo: “12 novas menções críticas em 5 min”.
+
+## Regras
+
+- Chart não usa easing de modal ou entrada hero.
+- Movimento nunca é o único sinal de mudança.
+- Loops contínuos são proibidos em gráficos operacionais.
+- Em reduced motion, o dado atualiza e o feedback textual permanece.

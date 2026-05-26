@@ -1,0 +1,60 @@
+---
+title: Axes & tooltips
+description: Contrato para eixos, grids, legendas e tooltips de gráficos Pulso.
+---
+
+# Axes & tooltips
+
+> **Data visualization · 03**
+>
+> Auxiliares determinam a legibilidade do gráfico.
+
+Eixo, grid, legenda e tooltip não são detalhes da biblioteca. Eles formam o contrato de leitura entre operador e dado.
+
+## Eixos
+
+| Elemento | Regra |
+|---|---|
+| Tick numérico | Mono/tabular numerals |
+| Tick temporal | Formato curto, timezone explícito quando necessário |
+| Label longo | Preferir truncamento + tooltip textual, não rotação agressiva |
+| Eixo Y | Começar em zero para volume; exceção documentada para score/tendência |
+| Unidade | Sempre explícita no eixo, tooltip ou título |
+
+## Grid
+
+| Uso | Regra |
+|---|---|
+| Horizontal | Default para linha/barra; baixa opacidade |
+| Vertical | Usar com parcimônia em séries temporais densas |
+| Heatmap | Grid implícito nas células |
+| Threshold | Linha dashed + label, não grid comum |
+
+## Tooltip
+
+Tooltips devem responder a três perguntas: **o quê**, **quanto** e **em que contexto**.
+
+| Campo | Exemplo |
+|---|---|
+| Série | “Menções críticas” |
+| Valor | `142` |
+| Unidade | `menções` |
+| Tempo/categoria | `14:30 · Últimas 2h` |
+| Contexto opcional | `+18% vs período anterior` |
+
+## Legenda
+
+| Posição | Quando usar |
+|---|---|
+| Top | Até 4 séries, leitura rápida |
+| Right | 5+ séries com altura suficiente |
+| Bottom | Gráfico com título/descrição no topo |
+| None | Sparkline ou série única com label direto |
+
+## Anti-patterns
+
+- Rotacionar labels em 45°/90° por padrão.
+- Tooltip custom por página sem contrato comum.
+- Legend que some em responsivo sem alternativa textual.
+- Threshold crítico comunicado só por linha colorida.
+- Eixo sem unidade.

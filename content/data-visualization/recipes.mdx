@@ -1,0 +1,44 @@
+---
+title: Chart recipes
+description: Combinações canônicas de gráficos para telas de monitoramento Pulso.
+---
+
+# Chart recipes
+
+> **Data visualization · 05**
+>
+> Operador não consome chart solto; consome combinação com contexto.
+
+Recipes nomeiam combinações recorrentes para evitar reinvenção. Use uma receita quando o objetivo da tela corresponde ao padrão abaixo; crie nova receita apenas via RFC.
+
+## Recipes canônicas
+
+| Receita | Composição | Uso |
+|---|---|---|
+| Score overview | Score Ring + delta + sparkline | Hero de crise, cards executivos |
+| Mentions trend | Line chart + threshold + tooltip | Volume por tempo |
+| Source mix | Stacked bar + legend + summary | Distribuição por canal/origem |
+| Sentiment snapshot | Sentiment Bar + percentuais | Leitura rápida de sentimento |
+| Critical heatmap | Heatmap + annotation + summary | Concentração por tempo/categoria |
+| Top narratives | Bar chart + rank + delta | Principais narrativas/termos |
+| Compare cases | Small multiples alinhados | Comparar crises/marcas/períodos |
+| Audit timeline | Line/sparkline + event pins | Relacionar ações e impacto |
+
+## Summary textual
+
+Toda recipe com impacto de decisão deve incluir uma frase de leitura:
+
+| Recipe | Summary mínimo |
+|---|---|
+| Score overview | Score atual, direção e período |
+| Heatmap | Pico, categoria dominante e janela |
+| Top narratives | Líder, variação e risco associado |
+| Source mix | Principal fonte e concentração |
+
+## Regras
+
+- Não acumular mais de 3 charts primários na mesma viewport.
+- Não recombinar primitives ad hoc quando já existe recipe nomeada.
+- Heatmap e top-N sempre têm summary textual.
+- Anotações devem ser curtas e operacionais.
+- Comparação entre casos usa recipe própria, não cards desconectados.
