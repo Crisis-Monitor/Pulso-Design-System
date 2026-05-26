@@ -1,0 +1,54 @@
+---
+title: Chart primitives
+description: Conjunto mínimo de primitives para gráficos de monitoramento no Pulso.
+---
+
+# Chart primitives
+
+> **Data visualization · 02**
+>
+> Chart é leitura, não decoração.
+
+Primitives padronizam ergonomia, estados e tokens para evitar que cada tela de monitoramento renderize gráficos com gramática própria. Novas necessidades devem virar RFC, não forks locais.
+
+## Primitives canônicos
+
+| Primitive | Quando usar | Não usar para |
+|---|---|---|
+| Line chart | Série temporal, tendência, comparação ao longo do tempo | Rankings categóricos |
+| Bar chart | Categorias discretas, top-N, volume por origem | Séries temporais densas |
+| Stacked bar | Proporção entre categorias no mesmo total | Comparação precisa entre muitos grupos |
+| Donut | 3–5 fatias com leitura de composição simples | Mais de 5 categorias ou valores próximos |
+| Heatmap | Matriz temporal/categórica e concentração | Valor absoluto isolado |
+| Sparkline | Tendência auxiliar em card/tabela | Análise primária |
+
+## API esperada
+
+Todo primitive deve aceitar os mesmos contratos conceituais:
+
+| Prop | Obrigatório | Comportamento |
+|---|---|---|
+| `data` | Sim | Dataset normalizado pelo consumer |
+| `aria-label` | Sim | Descreve o que o gráfico comunica |
+| `loading` | Não | Renderiza estado interno de carregamento |
+| `error` | Não | Renderiza estado interno de falha |
+| `empty` | Não | Renderiza estado vazio legível |
+| `legend` | Não | `top`, `right`, `bottom` ou `false` |
+| `reducedMotion` | Herdado | Respeita preferência do sistema |
+
+## Estados internos
+
+| Estado | Regra |
+|---|---|
+| Loading | Skeleton ou estrutura estática com label acessível |
+| Empty | Explicar ausência: “sem menções no período”, não “sem dados” genérico |
+| Error | Informar falha e próxima ação segura |
+| Partial | Mostrar dado disponível + aviso de cobertura parcial |
+
+## Regras
+
+- Ticks numéricos usam tabular numerals.
+- Tooltip não cobre o ponto de leitura quando houver espaço.
+- Grid é pálido e auxiliar; nunca compete com dado.
+- Threshold importante usa linha/anotação, não só cor.
+- Todo chart precisa de resumo textual quando impacta decisão.

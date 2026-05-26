@@ -1,0 +1,60 @@
+---
+title: Data color
+description: Escala categórica e semântica para visualizações de dados no Pulso.
+---
+
+# Data color
+
+> **Data visualization · 01**
+>
+> Cor de dado é função, não estética.
+
+A paleta de dados do Pulso distingue séries, não substitui semântica. Use `--chart-1` a `--chart-8` para categorias equivalentes; use tokens semânticos quando o dado comunica direção, severidade ou consequência.
+
+## Paleta categórica
+
+| Token | Uso | Regra |
+|---|---|---|
+| `--chart-1` | Série primária | Primeira série em qualquer chart categórico |
+| `--chart-2` | Série secundária | Segunda série; nunca usar para “atenção” por semântica |
+| `--chart-3` | Terceira série | Boa separação para comparação com `chart-1` |
+| `--chart-4` | Quarta série | Limite recomendado para multi-line sem tabela auxiliar |
+| `--chart-5`–`--chart-8` | Séries adicionais | Usar quando há legenda forte e espaço suficiente |
+
+## Quantidade de séries
+
+| Séries | Recomendação |
+|---:|---|
+| 1–2 | Chart simples; label direto no dado se possível |
+| 3–4 | Ponto ideal para comparação visual |
+| 5–8 | Exigir legenda persistente e tabela/resumo textual |
+| 9+ | Agrupar “outros”, paginar ou trocar para tabela |
+
+## Paleta semântica
+
+| Intenção | Token |
+|---|---|
+| Melhora operacional | `--chart-positive` |
+| Piora operacional | `--chart-negative` |
+| Neutro/base | `--chart-neutral` |
+| Atenção | `--chart-attention` |
+| Crítico | `--chart-critical` |
+
+Em Crisis Monitor, direção depende do significado da métrica. Queda de score pode ser melhora; queda de cobertura pode ser piora. O componente consumidor deve escolher a semântica pela consequência, não pelo sinal matemático.
+
+## Acessibilidade
+
+- Nunca usar cor como único identificador de série.
+- Séries críticas precisam de label, marcador ou anotação estrutural.
+- Legenda deve ser legível em light/dark e em grayscale.
+- Tooltip deve repetir nome da série, valor e unidade.
+- Se duas séries ficam ambíguas em grayscale, reduza a quantidade de séries ou use marcador diferente.
+
+## Anti-patterns
+
+| Evitar | Correção |
+|---|---|
+| Usar `chart-1` como “positivo” | Usar `chart-positive` |
+| Oito séries em sparkline pequeno | Resumir top 3 + tabela |
+| Legenda apenas por hue | Adicionar label/marker |
+| Cor diferente por tela para mesma série | Fixar ordem de tokens |

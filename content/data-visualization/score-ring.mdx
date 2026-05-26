@@ -1,0 +1,50 @@
+---
+title: Score Ring
+description: Indicador circular para Pulso Score com bandas, tamanhos e regras de acessibilidade.
+---
+
+# Score Ring
+
+> **Data visualization · 06**
+>
+> Score Ring é uma signature shape: número, banda e consequência no mesmo objeto.
+
+Score Ring comunica o Pulso Score de 0 a 100 em superfícies de alta densidade e telas executivas. A cor do anel indica banda, mas a leitura nunca depende só dela.
+
+## Bandas
+
+| Banda | Faixa | Estado operacional |
+|---|---:|---|
+| Stable | 0–24 | Situação estabilizada |
+| Monitor | 25–49 | Observação ativa |
+| Attention | 50–69 | Atenção requerida |
+| High | 70–84 | Escalada provável |
+| Critical | 85–100 | Crise ativa ou consequência alta |
+
+## Tamanhos
+
+| Tamanho | Uso |
+|---|---|
+| `xs` | Tabela, chip denso, lista compacta |
+| `sm` | Linha de marca monitorada |
+| `md` | Card de métrica |
+| `lg` | Painel secundário |
+| `xl` | Hero de Crisis Room |
+
+## Conteúdo obrigatório
+
+| Elemento | Regra |
+|---|---|
+| Número | Sempre visível, tabular numerals |
+| Banda | Cor + label/aria-label |
+| Delta | Só quando compara período; delta não é risco |
+| Label “Pulso” | Omitir em `xs/sm`; mostrar em `md+` quando há espaço |
+| Texto acessível | “Pulso Score 87, critical, subiu 12 pontos em 2h” |
+
+## Regras
+
+- Clamp visual entre 0 e 100; valores fora da faixa precisam ser explicitados no dado textual.
+- Cor do anel segue banda atual em qualquer tamanho.
+- Mudança de score pode animar, mas precisa respeitar reduced motion.
+- Em contexto crítico, Score Ring deve coexistir com risk badge textual.
+- Não usar gradientes decorativos no anel.
