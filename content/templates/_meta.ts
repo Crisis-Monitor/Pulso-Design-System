@@ -1,10 +1,10 @@
 export default {
-  dashboard: 'Dashboard',
-  settings: 'Settings',
-  'crisis-detail': 'Crisis detail',
-  auth: 'Auth',
-  'audit-log': 'Audit log',
-  notifications: 'Notifications',
   onboarding: 'Onboarding',
+  auth: 'Auth',
+  dashboard: 'Dashboard',
   search: 'Search',
+  notifications: 'Notifications',
+  'crisis-detail': 'Crisis detail',
+  'audit-log': 'Audit log',
+  settings: 'Settings',
 }
