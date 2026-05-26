@@ -1,0 +1,56 @@
+---
+title: Contrast
+description: Contrato de contraste do Pulso para texto, estados críticos e combinações de foreground/background.
+---
+
+# Contrast
+
+> **Accessibility · 01**
+>
+> Contraste é contrato operacional: se uma combinação aparece como permitida aqui, ela pode carregar decisão; se falha, deve ser substituída.
+
+O Pulso adota **WCAG 2.1 AA** como mínimo para todo texto de produto e mira **AAA** em estados críticos, erros e decisões irreversíveis. Cor pode orientar, mas não pode ser o único recurso para leitura de risco, prioridade ou consequência.
+
+## Política
+
+| Nível | Critério | Uso no Pulso |
+|---|---:|---|
+| AAA | ≥ 7.0:1 texto normal · ≥ 4.5:1 texto grande | Alertas críticos, erros, confirmação destrutiva, consequência operacional |
+| AA | ≥ 4.5:1 texto normal · ≥ 3.0:1 texto grande | Mínimo obrigatório para texto de produto |
+| AA large | ≥ 3.0:1 apenas para display/kicker grande | Permitido em rótulos decorativos ou display não crítico |
+| Fail | < 3.0:1 | Proibido para texto, exceto disabled/decorativo |
+
+## Combinações permitidas
+
+| Combinação | Status | Observação |
+|---|---|---|
+| `--foreground` sobre `--background` | **AA obrigatório** | Corpo, tabelas e leitura contínua |
+| `--fg-secondary` sobre `--background` | **AA obrigatório** | Metadados e descrições de apoio |
+| `--fg-subtle` sobre `--background` | **AA large ou decorativo** | Kicker, label secundário, linhas auxiliares |
+| `--destructive` sobre `--destructive-bg` | **AAA alvo** | Erros e ações irreversíveis |
+| `--risk-critical-text` sobre `--risk-critical-bg` | **AAA alvo** | Risco crítico e anúncio assertivo |
+| `--primary-foreground` sobre `--primary` | **AA obrigatório** | CTA e seleção ativa |
+
+## Regras por intenção
+
+| Intenção | Regra | Anti-pattern |
+|---|---|---|
+| Texto de decisão | Usar par foreground/background com AA | Texto crítico em `fg-subtle` |
+| Estado de risco | Cor + label + glifo | Chip que muda só hue |
+| Estado disabled | Pode ficar abaixo de AA se não aciona decisão | Disabled usado para explicar regra |
+| Dado visual | Legenda textual acompanha cor | Gráfico que depende só da série colorida |
+| Focus | Ring visível em ambos os temas | Focus indicado apenas por mudança de cor |
+
+## Checklist de revisão
+
+- Todo texto de produto passa AA em light e dark.
+- Estados `high` e `critical` têm contraste superior ao texto comum.
+- Gráficos têm legenda, rótulo ou redundância textual.
+- `fg-subtle` não comunica decisão, erro ou consequência.
+- Qualquer exceção é registrada na página do componente ou template.
+
+## Dependências
+
+- **Risk redundancy** define glifo + label para risco.
+- **Focus & keyboard** define o ring canônico.
+- **Screen readers** define quando a mudança precisa ser anunciada.

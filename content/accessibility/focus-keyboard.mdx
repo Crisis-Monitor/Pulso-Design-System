@@ -1,0 +1,67 @@
+---
+title: Focus & keyboard
+description: Contrato de foco, navegação por teclado e hit targets para componentes Pulso.
+---
+
+# Focus & keyboard
+
+> **Accessibility · 03**
+>
+> Se um componente não é operável por teclado, ele não está pronto para produção.
+
+Todo controle interativo do Pulso precisa suportar navegação por teclado, foco visível e ordem previsível. O foco é um sinal de estado, não decoração.
+
+## Focus ring canônico
+
+| Propriedade | Valor |
+|---|---|
+| Cor | `--ring` |
+| Espessura | `2px` |
+| Offset | `2px` |
+| Pseudo-classe | `:focus-visible` |
+| Remoção | Nunca remover sem substituto estrutural equivalente |
+
+## Mapa mínimo de teclado
+
+| Componente | Teclas | Comportamento esperado |
+|---|---|---|
+| Button | `Tab`, `Enter`, `Space` | Foco, aciona, mantém feedback visível |
+| Link | `Tab`, `Enter` | Navega ou abre ação declarada |
+| Dialog | `Esc`, `Tab`, `Shift+Tab` | Fecha, prende foco, retorna foco ao gatilho |
+| Dropdown/menu | `Enter`, `Space`, `ArrowUp/Down`, `Esc` | Abre, navega itens, fecha sem perder contexto |
+| Tabs | `ArrowLeft/Right`, `Home`, `End` | Move seleção sem quebrar ordem visual |
+| Table row action | `Tab`, `Enter` | Expõe ação sem exigir hover |
+| Form field | `Tab`, `Shift+Tab` | Label, helper e erro ficam associados |
+
+## Hit target
+
+| Contexto | Mínimo | Uso |
+|---|---:|---|
+| Desktop denso | 32px | Tabelas, filtros, controles internos |
+| Touch padrão | 44px | Mobile, tablet, sheet responsivo |
+| Ação crítica | 48px | Confirmar, escalonar, silenciar alerta, handover |
+
+## Ordem de foco
+
+- Segue a ordem visual e semântica da página.
+- Nunca entra em conteúdo oculto ou tab inativa.
+- Ao abrir modal/sheet, foco inicial vai para título, primeiro campo ou ação principal segura.
+- Ao fechar modal/sheet, foco retorna ao elemento que abriu a superfície.
+- Skip links aparecem quando necessários para pular navegação longa.
+
+## Anti-patterns
+
+| Evitar | Correção |
+|---|---|
+| `outline: none` sem substituto | Usar `:focus-visible` com `--ring` |
+| Ação disponível apenas por hover | Expor ação no fluxo de teclado |
+| Modal que deixa foco escapar | Prender foco até fechar |
+| Ordem DOM diferente da ordem visual | Reordenar DOM ou layout |
+| Ícone clicável menor que 32px | Aumentar target, não só ícone |
+
+## Acceptance criteria
+
+- Fluxo principal é concluído apenas com teclado.
+- Foco é visível em light e dark.
+- Estados de erro e risco não dependem de hover.
+- Componentes com popover/modal retornam foco corretamente.

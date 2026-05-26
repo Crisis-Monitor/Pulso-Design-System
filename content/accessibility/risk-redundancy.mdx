@@ -1,0 +1,56 @@
+---
+title: Risk redundancy
+description: Contrato de redundância para comunicar risco sem depender apenas de cor.
+---
+
+# Risk redundancy
+
+> **Accessibility · 02**
+>
+> Em gestão de crise, cor sozinha é proibida para sinalizar risco.
+
+Todo estado operacional de risco no Pulso deve combinar **label textual + glifo + cor**. O objetivo é preservar leitura em daltonismo, grayscale, baixa atenção, tela ruim, impressão ou captura compartilhada.
+
+## Escala canônica
+
+| Nível | Glifo | Forma | Significado |
+|---|---:|---|---|
+| `stable` | ● | círculo cheio | Situação normal ou estabilizada |
+| `monitor` | ○ | círculo vazio | Observação ativa, sem escalada |
+| `attention` | ◐ | meio círculo | Atenção requerida, possível mudança |
+| `high` | ◆ | losango | Escalada relevante ou impacto provável |
+| `critical` | ■ | quadrado cheio | Crise ativa, consequência alta |
+
+## Contrato de superfície
+
+| Superfície | Obrigatório | Observação |
+|---|---|---|
+| Badge/chip | glifo + label + cor | Forma curta padrão em listas e cards |
+| Tabela | glifo + label | Não depender do background da linha |
+| Gráfico | legenda textual + glifo na série crítica | Nunca usar apenas cor de barra/linha |
+| Notificação | label + severidade verbal | Deve sobreviver em push ou email |
+| Log/audit trail | valor textual persistido | O glifo é UI; o dado persistido é o nível |
+
+## Regras
+
+- Não abreviar níveis em superfícies de decisão: usar `critical`, não apenas `CRIT`, se houver espaço.
+- `delta` continua sendo movimento de métrica, não risco operacional.
+- `attention` não é “médio”: é um pedido de atenção com possível escalada.
+- `critical` deve ser legível sem hue vermelho.
+- Se uma superfície não comporta glifo, deve exibir label explícito.
+
+## Anti-patterns
+
+| Evitar | Por quê | Correção |
+|---|---|---|
+| Cinco chips diferenciados apenas por cor | Falha em grayscale e daltonismo | Adicionar glifo canônico |
+| Usar seta de delta como risco | Mistura tendência de métrica com severidade | Separar delta e risk badge |
+| Ocultar label em telas compactas | Remove redundância principal | Preferir label curto + glifo |
+| Usar ícones sem legenda | Ambíguo para operação | Glifo canônico + texto |
+
+## Acceptance criteria
+
+- Os cinco níveis são distinguíveis em grayscale.
+- O DOM contém valor textual do risco.
+- Leitor de tela anuncia nível e contexto, não apenas “ícone”.
+- Screenshots operacionais preservam a severidade sem depender de cor.

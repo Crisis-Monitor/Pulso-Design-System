@@ -1,0 +1,65 @@
+---
+title: Screen readers
+description: Contrato ARIA e hierarquia de anúncios para leitores de tela no Pulso.
+---
+
+# Screen readers
+
+> **Accessibility · 04**
+>
+> Um alerta crítico que não é anunciado é operacionalmente invisível.
+
+O Pulso deve expor estado, risco, mudança e consequência para leitores de tela sem transformar cada atualização em ruído. O contrato abaixo define quando anunciar, como rotular e como testar.
+
+## Hierarquia de anúncios
+
+| Tier | ARIA | Quando usar | Exemplos |
+|---|---|---|---|
+| 0 | `aria-live="off"` | Conteúdo estático ou mudança não urgente | Cards em repouso, tabs inativas |
+| 1 | `aria-live="polite"` | Mudança útil, mas não interruptiva | Filtro aplicado, autosave, nova menção em feed |
+| 2 | `aria-live="assertive"` | Risco crítico ou consequência imediata | Alerta crítico, falha de envio, handover urgente |
+
+## Contrato por componente
+
+| Componente | Requisito ARIA | Observação |
+|---|---|---|
+| Alert | `role="status"` ou `role="alert"` conforme severidade | `critical` usa anúncio assertivo |
+| Dialog | `role="dialog"`, `aria-modal`, título associado | Foco preso e retorno ao gatilho |
+| Tabs | `tablist`, `tab`, `tabpanel`, seleção explícita | Conteúdo inativo não entra no foco |
+| Form field | `label`, helper e erro associados | `aria-invalid` quando há erro |
+| Badge de risco | Texto acessível com nível e contexto | Não anunciar apenas “ícone” |
+| Progress/status | `aria-valuenow` ou texto de estado | Atualizações frequentes devem ser agregadas |
+| Toast/snackbar | Live region por severidade | Sucesso é polite; falha crítica pode ser assertive |
+
+## Redação acessível
+
+| Ruim | Melhor |
+|---|---|
+| “Critical” | “Risco crítico em crise Petrobras” |
+| “Erro” | “Falha ao salvar handover. Tente novamente.” |
+| “Atualizado” | “Filtro aplicado. 142 menções encontradas.” |
+| “IA” | “Sugestão gerada por IA, confiança alta.” |
+
+## Regras
+
+- Não anunciar cada tick de gráfico ou contador em tempo real.
+- Agregar atualizações frequentes em resumo legível.
+- `assertive` é reservado para consequência operacional real.
+- Texto visual e texto acessível devem carregar o mesmo significado.
+- Ícones decorativos usam `aria-hidden="true"`; ícones sem texto precisam de label.
+
+## Test matrix
+
+| Leitor/navegador | Cobertura mínima |
+|---|---|
+| VoiceOver + Safari | Navegação principal, dialogs, forms, alerts |
+| VoiceOver + Chrome | Componentes interativos e live regions |
+| NVDA + Firefox | Tabelas, tabs, menus e formulários |
+| NVDA + Chrome | Fluxos críticos e estados de erro |
+
+## Acceptance criteria
+
+- Risco crítico é anunciado com contexto suficiente.
+- Live regions não geram spam durante monitoramento contínuo.
+- Labels, helpers e erros são associados ao campo correto.
+- O fluxo crítico pode ser entendido sem olhar para a tela.
