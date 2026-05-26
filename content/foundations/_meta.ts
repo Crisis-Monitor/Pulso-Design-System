@@ -10,6 +10,7 @@ export default {
   icons: { title: 'Icons' },
   motion: { title: 'Motion' },
   spacing: { title: 'Spacing' },
+  radii: { title: 'Radii' },
   typography: { title: 'Typography' },
 
   // v3 · γ.4 — Native token foundation

@@ -1,0 +1,78 @@
+---
+title: Radii
+description: Escala de cantos, teto de 14px e contrato de focus ring do Pulso v3.
+---
+
+# Radii
+
+> **Interaction foundation · piloto**
+>
+> Cantos firmes comunicam confiança. No Pulso, radius é contrato estrutural, não decoração.
+
+A referência visual do Open Design aponta a decisão correta para o Pulso v3: reduzir cantos excessivamente arredondados e manter um teto claro para superfícies. O contrato final, porém, vem de `src/app/globals.css`.
+
+## Princípio
+
+Radii devem reforçar hierarquia e affordance sem deixar a interface “macia” demais para um cockpit de crise.
+
+- controles pequenos usam cantos menores;
+- superfícies maiores podem suavizar, mas não passam de 14px;
+- pills reais usam `--radius-full`;
+- foco de teclado é sempre visível e não depende apenas de cor.
+
+## Escala canônica
+
+| Token | Valor | Uso |
+|---|---:|---|
+| `--radius-xs` | 4px | Chips, small toggles, detalhes compactos |
+| `--radius-sm` | 6px | Inputs, botões, controles padrão |
+| `--radius-md` | 8px | Cards, menus e containers recorrentes |
+| `--radius-lg` | 10px | Superfícies grandes e painéis destacados |
+| `--radius-xl` | 14px | Feature surfaces; teto do sistema |
+| `--radius-full` | 9999px | Pills, avatares circulares e indicadores redondos |
+| `--radius` | `--radius-md` | Alias padrão para componentes que esperam token genérico |
+
+## Teto de superfície
+
+`--radius-xl` é o limite visual do sistema: **14px**.
+
+Esse teto evita que cards, modais e painéis pareçam promocionais ou lúdicos demais. Em Pulso, a confiança vem de estrutura, densidade e previsibilidade — não de cantos arredondados grandes.
+
+| Superfície | Radius recomendado |
+|---|---|
+| Badge/chip | `--radius-xs` ou `--radius-full`, conforme semântica |
+| Input/button | `--radius-sm` |
+| Card de conteúdo | `--radius-md` |
+| Popover/menu | `--radius-md` |
+| Sheet/dialog | `--radius-lg` |
+| Feature panel | `--radius-xl` |
+
+## Focus ring
+
+Todo elemento interativo precisa preservar foco visível para teclado.
+
+| Token | Valor | Uso |
+|---|---:|---|
+| `--ring-width` | 2px | Espessura do anel de foco |
+| `--ring-offset` | 2px | Respiro entre controle e ring |
+| `--ring` | tema atual | Cor base do foco |
+
+O base layer aplica `outline-color` a partir de `--ring`. Componentes não devem remover `outline` sem substituir por affordance equivalente e acessível.
+
+## Do / Don’t
+
+| Faça | Evite |
+|---|---|
+| Use tokens de radius, não valores soltos | `rounded-[22px]` em superfícies operacionais |
+| Escolha radius por papel da superfície | Mesmo radius para tudo |
+| Preserve foco de teclado em todo controle | `outline: none` sem substituto |
+| Use `--radius-full` apenas quando a forma for semanticamente pill/círculo | Transformar todos os badges em pills por estética |
+
+## Regras
+
+1. Nenhuma superfície operacional passa de `--radius-xl`.
+2. Inputs e botões usam `--radius-sm` salvo composição específica.
+3. Cards e menus usam `--radius-md` como default.
+4. Pills usam `--radius-full`; não simule pill com valor arbitrário.
+5. Focus ring é obrigatório para teclado e usa `--ring-width`, `--ring-offset` e `--ring`.
+6. Se uma superfície parecer “amigável” demais, reduza o radius antes de adicionar borda/sombra.
