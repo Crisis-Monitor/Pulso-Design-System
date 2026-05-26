@@ -6,6 +6,7 @@ export default {
   density: { title: 'Density' },
   radii: { title: 'Radii' },
   responsive: { title: 'Responsive' },
+  elevation: { title: 'Elevation' },
   motion: { title: 'Motion' },
   icons: { title: 'Icons' },
 
