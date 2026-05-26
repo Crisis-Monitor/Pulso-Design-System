@@ -1,0 +1,72 @@
+---
+title: Reduced motion
+description: Contrato de movimento reduzido para preservar clareza operacional sem remover feedback essencial.
+---
+
+# Reduced motion
+
+> **Accessibility · 05**
+>
+> Movimento deve explicar estado. Quando reduzido, a informação continua existindo.
+
+Pulso usa motion para orientar causa, consequência e mudança de estado. Com `prefers-reduced-motion: reduce`, removemos deslocamento e loops, mas preservamos feedback por opacidade, borda, texto e estado persistente.
+
+## Política
+
+| Tipo de movimento | Default | Reduced motion |
+|---|---|---|
+| Transição de hover/focus | Curta e discreta | Mantém mudança instantânea de estado |
+| Entrada de modal/sheet | Fade + deslocamento curto | Fade ou render instantâneo |
+| Atualização de gráfico | Interpolação curta | Atualização discreta sem sweep contínuo |
+| Skeleton/loading | Pulse sutil | Estado estático com texto de carregamento |
+| Alerta crítico | Pode usar ênfase curta | Sem shake/loop; usar borda, label e live region |
+| Toast/snackbar | Slide/fade curto | Fade ou render instantâneo |
+
+## Regras
+
+- Nunca depender de motion para comunicar risco, sucesso ou erro.
+- Evitar loops infinitos em superfícies operacionais.
+- Preservar causalidade: se algo mudou, a UI deve indicar o que mudou por texto, borda, diff ou estado.
+- Spinners precisam de label acessível quando o carregamento afeta decisão.
+- Animações decorativas não entram em fluxos críticos.
+
+## Tokens e implementação
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```
+
+Use a regra global como rede de segurança, mas trate componentes críticos individualmente para manter semântica e feedback.
+
+## Estados críticos
+
+| Estado | Feedback sem motion |
+|---|---|
+| Handover enviado | Texto de confirmação + timestamp |
+| Risco subiu para `critical` | Glifo ■ + label + live region assertive |
+| Filtro aplicado | Contagem de resultados e chip persistente |
+| IA regenerou texto | Diff textual ou marcador de versão |
+| Offline queue mudou | Contador e estado `queued/syncing/synced/failed` |
+
+## Anti-patterns
+
+| Evitar | Correção |
+|---|---|
+| Shake para erro de formulário | Texto de erro + `aria-invalid` |
+| Pulse infinito em alerta | Badge persistente + live region adequada |
+| Gráfico animado sem valor textual | Tooltip/label/tabela auxiliar |
+| Skeleton sem label | “Carregando menções…” |
+
+## Acceptance criteria
+
+- A preferência do sistema é respeitada.
+- Nenhuma informação desaparece quando motion é reduzido.
+- Fluxos críticos mantêm feedback perceptível sem animação.
+- Teste manual cobre light/dark e pelo menos um fluxo com live update.
