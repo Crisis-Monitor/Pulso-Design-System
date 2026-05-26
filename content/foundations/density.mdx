@@ -1,0 +1,100 @@
+---
+title: Density
+description: Modos compact, comfortable e spacious para ajustar densidade sem mudar hierarquia tipográfica.
+---
+
+# Density
+
+> **Interaction foundation**
+>
+> Densidade é affordance do operador, não tweak estético do produto.
+
+Pulso usa densidade para ajustar quanto conteúdo cabe em superfícies operacionais sem transformar a interface em “zoom out”. A tipografia permanece estável; mudam padding, altura e gap.
+
+A referência visual do Open Design define a intenção: `comfortable` como default, `compact` para scan operacional e `spacious` para leitura mais respirada. Os valores abaixo vêm de `src/app/globals.css`.
+
+## Decisão
+
+| Modo | Papel | Quando usar |
+|---|---|---|
+| `compact` | Scan denso | Audit log, search results, mention feed, filas operacionais |
+| `comfortable` | Default do produto | Dashboards, formulários, settings e uso prolongado |
+| `spacious` | Leitura executiva | Resumos, painéis de apresentação e superfícies menos densas |
+
+`comfortable` é o default porque suporta uso prolongado sem assumir experiência, monitor ou preferência do operador.
+
+## Escala canônica
+
+| Token | `compact` | `comfortable` · default | `spacious` | Uso |
+|---|---:|---:|---:|---|
+| `--density-pad-card` | 14px 16px | 22px 24px | 32px 32px | Padding de card |
+| `--density-pad-row` | 8px 16px | 12px 22px | 18px 28px | Rows de tabela/lista |
+| `--density-pad-page` | 24px 24px | 40px 32px | 56px 48px | Padding de página/superfície |
+| `--density-h-control` | 28px | 32px | 36px | Altura default de controles |
+| `--density-h-topbar` | 52px | 60px | 72px | Altura de topbar |
+| `--density-gap` | 12px | 16px | 24px | Gap entre elementos relacionados |
+
+## Como aplicar
+
+A densidade é aplicada por atributo no contêiner de escopo:
+
+```tsx
+<section data-density="compact" className="gap-[var(--density-gap)] p-[var(--density-pad-page)]">
+  {/* lista de scan operacional */}
+</section>
+```
+
+Componentes não devem ler uma preferência global diretamente. Eles usam os tokens `--density-*`; o contêiner decide o modo.
+
+## Override local
+
+A preferência do usuário pode ser `spacious`, mas algumas superfícies continuam precisando de scan denso.
+
+| Superfície | Override recomendado | Por quê |
+|---|---|---|
+| Audit log | `data-density="compact"` | Leitura por filtro e comparação de rows |
+| Search results | `data-density="compact"` | Scan rápido de resultados |
+| Mention feed | `data-density="compact"` | Alto volume, leitura por headline/sinais |
+| Settings críticas | `comfortable` | Clareza antes de volume |
+
+Override local não deve mudar a preferência global do usuário.
+
+## Persistência
+
+| Fonte | Quando | Observação |
+|---|---|---|
+| Default de produto | Primeiro acesso | Sempre `comfortable` |
+| Preferência local | Imediata | Pode funcionar offline |
+| Perfil do usuário | Background sync | Sincroniza entre dispositivos quando houver suporte |
+| Workspace | Não força | Workspace pode sugerir, operador escolhe |
+
+Não detectamos densidade automaticamente por dispositivo ou resolução. Default sane é melhor que suposição invisível.
+
+## Acessibilidade e motion
+
+- Mudança de densidade não deve ser animada; o re-render instantâneo evita flicker.
+- Densidade não muda semântica para screen readers.
+- Font-size permanece igual entre modos.
+- Em mobile ou ações críticas, hit target deve respeitar o contrato de toque, mesmo se a superfície estiver compacta.
+- `--touch-target-critical` mantém 48px para ação crítica em mobile.
+
+## Alturas relacionadas
+
+| Token | Valor | Uso |
+|---|---:|---|
+| `--control-h-compact` | 28px | Controle denso em tabela/lista |
+| `--control-h-default` | 32px | Botões e inputs padrão |
+| `--control-h-prominent` | 36px | CTA de destaque |
+| `--control-h-hero` | 44px | Ação hero |
+| `--touch-target-critical` | 48px | Ação crítica em mobile |
+
+## Regras
+
+1. `comfortable` é o default em todo lugar.
+2. `compact` e `spacious` exigem escolha explícita ou override local justificado.
+3. Use tokens `--density-*`; não use padding/height hardcoded.
+4. Densidade altera spacing e alturas, não font-size.
+5. Não anime a troca de densidade.
+6. Não permita densidade forçada por workspace.
+7. Em listas operacionais, `compact` pode ser local sem mudar a preferência global.
+8. Ação crítica em mobile preserva alvo mínimo mesmo em `compact`.
