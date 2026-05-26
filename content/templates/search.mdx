@@ -1,0 +1,73 @@
+---
+title: Search
+description: Template de command palette, busca global e página de resultados filtráveis.
+---
+
+# Search template
+
+> **Template · Search**
+>
+> O operador deve chegar ao item certo em menos de 5 segundos.
+
+Search tem dois pontos de entrada: command palette para ações e saltos rápidos, e página dedicada para resultados filtráveis.
+
+## Command palette
+
+| Grupo | Exemplos |
+|---|---|
+| Ações | Criar caso, reconhecer alerta, abrir handover |
+| Navegação | Dashboard, audit log, settings, templates |
+| Casos | Casos recentes ou correspondentes ao termo |
+| Alertas | Alertas ativos e filtrados por contexto |
+| Ajuda | Atalhos e documentação operacional |
+
+A palette deve respeitar contexto, permissão e teclado. Ações indisponíveis podem aparecer com motivo curto, mas não devem executar.
+
+## Página de resultados
+
+| Região | Função |
+|---|---|
+| Search input | Termo, debounce, shortcut e clear |
+| Filters | Tipo, janela, status, risco, workspace |
+| Results | Lista paginada por relevância e tempo |
+| Preview | Snippet com destaque e metadata |
+| Empty | Sugestão de afrouxar filtro ou ampliar janela |
+
+## Estados
+
+| Estado | Tratamento |
+|---|---|
+| Termo curto | “Digite ao menos 2 caracteres.” sem request |
+| 0 resultados | Mostrar termo e sugestão de filtro/janela |
+| Muitos resultados | Paginar e sugerir refinamento |
+| Backend lento | Skeleton + mensagem de escopo após 3s |
+| Permissão parcial | Mostrar resultados permitidos e nota de escopo |
+
+## Resultado
+
+Cada item precisa declarar:
+
+- tipo: menção, caso, alerta, incidente, crise, audit log ou configuração;
+- título canônico;
+- trecho relevante;
+- timestamp/localidade;
+- risco quando aplicável com `stable / monitor / attention / high / critical`;
+- ação primária segura.
+
+## Composição
+
+| Região | Componentes |
+|---|---|
+| Trigger | ⌘ K, input global ou botão |
+| Palette | Dialog/command, grupos, keyboard map |
+| Results page | Filtros, tabs, lista, paginação |
+| Loading | Skeleton matching e slow tier |
+| Audit | Registrar ações sensíveis disparadas pela busca |
+
+## Regras
+
+- Não executar busca com menos de 2 caracteres.
+- Debounce default: 200ms, ajustável por backend.
+- Não exibir item sem permissão só para indicar que existe.
+- Preserve filtros ao navegar e voltar.
+- Ações críticas abertas pela palette ainda exigem confirmação ou revisão humana.

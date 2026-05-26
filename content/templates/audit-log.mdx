@@ -1,0 +1,80 @@
+---
+title: Audit log
+description: Template para grid de compliance, filtros e detalhe imutável de eventos sensíveis.
+---
+
+# Audit log template
+
+> **Template · Audit log**
+>
+> Toda ação sensível precisa ser rastreável, filtrável e imutável.
+
+Audit log responde “quem fez o quê, quando, de onde e com qual consequência”. A leitura é por filtro, não por scroll infinito.
+
+## Grid principal
+
+| Coluna | Conteúdo |
+|---|---|
+| Timestamp | Data/hora com timezone do operador |
+| Actor | Pessoa, sistema ou Pulso IA |
+| Role | Papel no momento da ação |
+| Ação | Verbo canônico: criou, aprovou, reconheceu, exportou |
+| Objeto | Caso, alerta, rascunho, configuração ou workspace |
+| Resultado | Sucesso, bloqueado, revertido ou falhou |
+| Ref | ID do evento para suporte/compliance |
+
+## Filtros
+
+| Filtro | Observação |
+|---|---|
+| Janela | Default curto; export para histórico longo |
+| Actor | Pessoa, sistema ou IA |
+| Objeto | Caso, alerta, template, configuração |
+| Ação | Verbo controlado por glossário |
+| Resultado | Sucesso, falha, bloqueado |
+| Workspace | Apenas para perfis com permissão cross-workspace |
+
+## Detalhe do evento
+
+Clicar em uma linha abre detalhe imutável.
+
+```txt
+Evento PLS-AUD-1298
+Actor: Ana Silva · Gestor
+Ação: aprovou rascunho público
+Objeto: Caso PLS-431
+Antes: status=draft
+Depois: status=approved
+Origem: web · IP · user agent
+Correlação: request id / job id
+```
+
+O detalhe pode mostrar diff antes/depois, mas não oferece edição.
+
+## Estados e permissões
+
+| Caso | Tratamento |
+|---|---|
+| Evento de sistema | Actor “Sistema” ou “Pulso IA”, origem API/job |
+| Operador consultando | Vê os próprios eventos e eventos dos casos permitidos |
+| Gestor/analista | Vê eventos do workspace conforme política |
+| Histórico arquivado | Export controlado por permissão |
+| Filtro muito amplo | Pedir refinamento ou export assíncrono |
+
+## Composição
+
+| Região | Componentes |
+|---|---|
+| Header | Título, janela, export, permissões |
+| Toolbar | Filtros, busca por ref, reset |
+| Grid | Tabela densa com `tabular-nums` |
+| Detail | Side sheet com diff e metadata |
+| Empty/error | Estados governados por microcopy |
+
+## Regras
+
+- Evento de audit log é imutável.
+- Export precisa ser registrado no próprio audit log.
+- Datas renderizam no timezone do operador, mas timestamps são persistidos em UTC.
+- Não misture delta de métrica com resultado de ação.
+- IA aparece como actor explícito quando gerar, sugerir ou transformar conteúdo.

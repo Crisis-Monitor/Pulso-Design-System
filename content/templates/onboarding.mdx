@@ -1,0 +1,73 @@
+---
+title: Onboarding
+description: Template para criação do primeiro workspace, convite de equipe e conexão de fonte.
+---
+
+# Onboarding template
+
+> **Template · Onboarding**
+>
+> Três etapas até monitorar: workspace, equipe e primeira fonte.
+
+Onboarding precisa ser sequencial sem fingir simplicidade. O produto deve dizer quanto falta, o que será configurado e quando o monitoramento real começa.
+
+## Etapas
+
+| Etapa | Objetivo | Pode pular? |
+|---|---|---|
+| 1. Workspace | Nome, ID curto e domínio corporativo | Não |
+| 2. Equipe | Convites com papel obrigatório | Sim, mas recomendado |
+| 3. Fonte | Conectar ao menos uma fonte de monitoramento | Pode continuar em demo |
+
+Tempo esperado: cerca de 4 minutos para configuração mínima.
+
+## Estrutura
+
+```txt
+┌────────────────────────────────────┐
+│ Stepper: 2 de 3                    │
+│ Convidar equipe                    │
+│ Email + papel                      │
+│ Lista de convites preparados       │
+│ Voltar          Continuar          │
+│ Ajuda contextual                   │
+└────────────────────────────────────┘
+```
+
+Convites só disparam após a etapa 3, quando o workspace já tem contexto mínimo.
+
+## Papéis no convite
+
+| Papel | Descrição curta |
+|---|---|
+| Operador | Monitora, reconhece alertas e executa tarefas |
+| Analista | Analisa casos e recomenda ações |
+| Gestor | Configura workspace, aprova e coordena |
+
+## Edge cases
+
+| Caso | Tratamento |
+|---|---|
+| Usuário convidado para workspace existente | Pular onboarding e abrir dashboard com tour inline |
+| Email de domínio público | Permitir com aviso de workspace corporativo recomendado |
+| Nenhuma fonte conectada | Modo demo explícito até a primeira fonte real |
+| Workspace ID em uso | Sugerir alternativas válidas automaticamente |
+| Fonte falha | Preservar progresso e oferecer retry/suporte |
+
+## Composição
+
+| Região | Componentes |
+|---|---|
+| Progress | Stepper, tempo estimado, etapa atual |
+| Form | Campos com validação inline |
+| Preview | ID curto, convites, fontes conectadas |
+| Guidance | Microcopy operacional, não marketing |
+| Actions | Voltar, continuar, salvar rascunho quando aplicável |
+
+## Regras
+
+- Não prometa monitoramento real sem fonte conectada.
+- Valide ID do workspace em tempo real.
+- Papel é obrigatório em todo convite.
+- Estado demo deve ser explícito e reversível.
+- Não use copy promocional; onboarding é configuração operacional.
