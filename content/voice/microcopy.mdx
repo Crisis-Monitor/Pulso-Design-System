@@ -1,0 +1,95 @@
+---
+title: Microcopy
+description: Padrões de copy para erros, avisos, vazios, confirmações e loading.
+---
+
+# Microcopy
+
+> **Voice · 02**
+>
+> A copy do Pulso deve explicar estado, consequência e próximo passo.
+
+“Algo deu errado” não ajuda. “Oops!” quebra o tom institucional. Microcopy em crise precisa reduzir ambiguidade em segundos.
+
+## Princípios de tom
+
+| Princípio | Como aplicar |
+|---|---|
+| Nomeie o estado | Diga se é rede, permissão, validação, vazio ou falha sistêmica |
+| Dê próximo passo | A mensagem deve apontar correção, retry, espera ou suporte |
+| Preserve contexto | Não apague filtros, rascunhos ou leitura do operador durante erro |
+| Evite performance emocional | Sem exclamação, emoji, pedido de desculpa vazio ou humor |
+
+## Comprimento canônico
+
+| Superfície | Teto recomendado |
+|---|---:|
+| Label | 1–3 palavras |
+| Helper text | 1 linha |
+| Toast | 90 caracteres |
+| Inline error | 120 caracteres |
+| Empty state | Título + 1 frase + ação opcional |
+| Modal destrutivo | Título, consequência, preservação e CTA |
+
+## Erros
+
+| Tipo | O que o operador precisa saber | Padrão |
+|---|---|---|
+| Validation | O que corrigir | “Use um intervalo menor que 30 dias.” |
+| Network | O que falhou e como tentar de novo | “Não foi possível atualizar menções. Tentar novamente.” |
+| Permission | Qual acesso falta | “Você não pode encerrar este caso neste workspace.” |
+| Fatal | Referência para suporte | “Falha ao carregar o painel. Ref: PLS-012.” |
+
+Erro fatal sempre inclui request id, incident ref ou identificador equivalente.
+
+## Warning, info e success
+
+| Estado | Função | Exemplo |
+|---|---|---|
+| Warning | Aponta risco ou atenção antes da ação | “Este handover ainda não tem responsável.” |
+| Info | Explica regra ou contexto | “Dados em tempo real atualizam a cada 30 segundos.” |
+| Success | Confirma persistência | “Alerta reconhecido e registrado no audit log.” |
+
+Success não deve celebrar; deve confirmar que a ação foi aplicada e rastreada.
+
+## Empty states
+
+| Tipo | Tom | Exemplo |
+|---|---|---|
+| First run | Orientação | “Comece adicionando fontes monitoradas.” |
+| Filtered | Ajuste | “Nenhuma menção corresponde a estes filtros.” |
+| End of feed | Encerramento | “Nada novo pede atenção agora.” |
+
+Vazio bom é estado válido, não falha.
+
+## Confirmações destrutivas
+
+Toda ação irreversível precisa declarar:
+
+- ação no título;
+- consequência do que será perdido;
+- o que será preservado;
+- CTA com o mesmo verbo da ação.
+
+| Evite | Prefira |
+|---|---|
+| “Tem certeza?” | “Encerrar caso” |
+| “OK” | “Encerrar” |
+| “Esta ação não pode ser desfeita.” | “O caso sai da fila ativa. O audit log permanece disponível.” |
+
+## Loading
+
+| Tier | Tratamento |
+|---|---|
+| Instant | Não mostrar loading para evitar flicker |
+| Fast | Skeleton que replica o layout final |
+| Slow | Mensagem com escopo: “Buscando menções…” |
+| Very slow | Etapas, retry/cancel e contexto preservado |
+
+## Regras
+
+- Nomeie o estado antes de sugerir ação.
+- Em CTA, repita o verbo do título.
+- Em destrutiva, diga o que se perde e o que permanece.
+- Em loading longo, nomeie o escopo carregado.
+- Não use “Algo deu errado”, “Erro inesperado”, “Tem certeza?”, emoji ou exclamação.

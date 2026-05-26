@@ -1,0 +1,111 @@
+---
+title: Localization
+description: Contratos de locale, número, data, plural, moeda, delta e direção de texto.
+---
+
+# Localization
+
+> **Voice · 04**
+>
+> Formatação é contrato de produto, não detalhe de renderização.
+
+Datas, números e plurais precisam atravessar o mesmo caminho em todo o Pulso. Improvisar string localmente cria bugs silenciosos, especialmente em crise global ou workspace multi-timezone.
+
+## Locale
+
+O locale deve vir de uma única fonte de verdade do produto e pode ser resolvido por workspace ou preferência do usuário.
+
+| Origem | Uso |
+|---|---|
+| Produto | Default global da instalação |
+| Workspace | Cliente global com convenção própria |
+| Usuário | Preferência individual de idioma/formato |
+
+Componentes não devem decidir locale por conta própria.
+
+## Helpers canônicos
+
+| Helper | Responsabilidade |
+|---|---|
+| `formatNumber` | Decimal, milhar, compacto e sinal |
+| `formatDelta` | Movimento de métrica com sinal explícito |
+| `formatDateTime` | Data/hora com timezone conhecido |
+| `formatRelativeTime` | “há 3 min”, “em 2 h”, “ontem” |
+| `formatPlural` | Regras por idioma via `Intl.PluralRules` |
+| `formatCurrency` | Moeda e billing quando aplicável |
+
+Todos são wrappers finos sobre `Intl`, com defaults do Pulso.
+
+## Números
+
+| Caso | Regra |
+|---|---|
+| Decimal | Usar separador do locale |
+| Milhar | Nunca concatenar manualmente |
+| Compacto | Preferir quando densidade pedir leitura rápida |
+| Colunas numéricas | Usar `tabular-nums` |
+| Zero | Mostrar quando semântica exigir ausência explícita |
+
+## Delta
+
+Delta é variação de métrica, não risco operacional.
+
+| Regra | Exemplo |
+|---|---|
+| Sinal antes do número | `+12`, `−5`, `+0` |
+| Sem espaço entre sinal e número | `+8%` |
+| U+2212 para negativo | `−5`, não `-5` |
+| Cor por semântica | Queda de score pode ser melhora, dependendo da métrica |
+
+Nunca derive risco apenas da direção matemática. Risco usa `stable / monitor / attention / high / critical`.
+
+## Datas e horários
+
+| Estilo | Uso |
+|---|---|
+| Date | Histórico e filtros |
+| Time | Eventos do dia atual |
+| Datetime | Audit log e handover |
+| Relative | Feed em tempo real e urgência operacional |
+
+Persista timestamps em UTC. Renderize no timezone do operador e indique timezone quando a interpretação puder mudar decisão.
+
+## Tempo relativo
+
+| Intervalo | Preferência |
+|---|---|
+| < 60s | segundos |
+| < 60min | minutos |
+| < 24h | horas |
+| ≥ 24h | datetime ou data relativa contextual |
+
+## Plural
+
+Pluralização inline é proibida. Português, inglês, francês e árabe não compartilham a mesma regra.
+
+| Evite | Prefira |
+|---|---|
+| ``${n} ${n === 1 ? 'menção' : 'menções'}`` | `formatPlural('mention', n)` |
+| “0 menções” fixo em componente | Mensagem com regra do locale |
+
+## Moeda
+
+O produto não deve misturar moeda operacional com score ou risco. Quando houver billing em settings, use helper de moeda e locale do workspace.
+
+## Direção de texto
+
+RTL não precisa ser ativado em todos os fluxos agora, mas a documentação e os componentes devem preferir propriedades lógicas.
+
+| Evite | Prefira |
+|---|---|
+| left / right sem necessidade | start / end |
+| ícone que assume direção fixa | ícone com variante lógica |
+| margem manual por idioma | token/layout responsivo |
+
+## Regras
+
+- Toda string de número, data, horário, plural e moeda passa por helper.
+- Não concatene partes de data manualmente.
+- Não use timezone implícito em evento operacional.
+- Use `tabular-nums` para listas e tabelas numéricas.
+- Preserve IDs, nomes próprios, workspace, timeline e audit log entre locales.
