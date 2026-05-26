@@ -1,1 +1,16 @@
-export default {}
+export default {
+  index: 'Overview',
+  release: 'Release',
+  roadmap: 'Roadmap',
+  'getting-started': 'Getting started',
+  conceitual: 'Conceptual',
+  foundations: 'Foundations',
+  brand: 'Brand',
+  accessibility: 'Accessibility',
+  'data-visualization': 'Data visualization',
+  governance: 'Governance',
+  patterns: 'Patterns',
+  templates: 'Templates',
+  voice: 'Voice & localization',
+  components: 'Components',
+}
