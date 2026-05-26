@@ -1,0 +1,113 @@
+---
+title: Responsive
+description: Contrato desktop-first, mobile como resgate operacional e regras de reflow do Pulso.
+---
+
+# Responsive
+
+> **Interaction foundation**
+>
+> Desktop é a ferramenta completa. Mobile é resgate operacional, não paridade reduzida.
+
+Pulso é desktop-first porque o trabalho de monitoramento, comparação e coordenação acontece em telas amplas. Mesmo assim, crise não espera o operador estar na mesa: no mobile, o produto precisa entregar o crítico em poucos toques.
+
+A referência do Open Design define a intenção de uso. O contrato abaixo documenta comportamento e prioridades; tokens globais continuam em `src/app/globals.css`.
+
+## Princípio
+
+Mobile não tenta reproduzir o desktop. Ele responde a uma jornada diferente:
+
+1. alerta chega;
+2. operador entende o essencial;
+3. operador reconhece, escala ou comenta;
+4. operador segue para o desktop quando puder.
+
+Tudo que exige comparação ampla, filtro pesado ou análise densa deve permanecer desktop-first.
+
+## Ranges de viewport
+
+| Range | Papel | Direção |
+|---|---|---|
+| Mobile | Resgate operacional | 1 coluna, sem sidebar persistente, bottom sheet, ação primária evidente |
+| Tablet | Transição responsiva | Sidebar reduzida, grids menores, dialogs full-height quando necessário |
+| Desktop | Operação completa | Sidebar expandida, grids 3–4 colunas, side panels e modais padrão |
+
+Os valores exatos de breakpoint devem seguir a configuração de Tailwind/app quando implementados. Esta página fixa o contrato de produto e reflow, não introduz novo token.
+
+## As três ações mobile
+
+Mobile existe para três ações críticas:
+
+| Ação | Objetivo | Regra |
+|---|---|---|
+| Ack | Parar ruído e registrar leitura | Single tap, reversível por janela curta quando seguro |
+| Escalar | Subir tier/responsável | Deve notificar o próximo papel; justificativa pode vir depois |
+| Comentar | Registrar contexto curto | Vai para timeline/log do caso; todos veem |
+
+Filtros avançados, analytics, comparativos e configurações profundas ficam em `⋯ mais`, sheet ou desktop.
+
+## Reflow por superfície
+
+| Superfície | Desktop | Tablet | Mobile |
+|---|---|---|---|
+| Dashboard | Sidebar + métricas + tabela + side panel | Sidebar reduzida, métricas em 2 colunas | Alerta/caso prioritário no topo, lista resumida, ação primária evidente |
+| Crisis detail | Tabs horizontais, header sticky, painel IA | Tabs podem virar dropdown, painel empilha | Três abas principais; IA como sheet acionável |
+| Mention feed | Filter bar + cards em grid | Filtros em drawer, cards reduzidos | Filtros em sheet, cards 1 coluna, ordem sticky |
+| Settings | Nav lateral + form 2 colunas | Nav reduzida, form 1 coluna | Lista 1 coluna com drilldown por seção |
+| Audit log | Grid denso com filtros inline | Grid reduzido + detalhe em drawer | Desktop-only com banner amigável |
+| Compare | Chart + tabela de deltas | Empilhado | Desktop-only; comparação exige espaço |
+| Pulso IA chat | Side panel | Bottom sheet parcial | Sheet/fullscreen conforme contexto |
+
+## Container queries antes de viewport queries
+
+Componentes devem preferir decisões pelo espaço disponível no container.
+
+| Use container query para | Use viewport query para |
+|---|---|
+| Card de métrica colapsar conteúdo | Sidebar, topbar, FAB e chrome global |
+| Grid interno de cards | Troca modal ↔ bottom sheet |
+| Densidade local de lista | Navegação primária mobile |
+| Truncamento e prioridade de metadata | Composição de página 1 coluna ↔ multi-coluna |
+
+Isso evita que um componente que cabe bem em um painel desktop se comporte como mobile apenas porque o viewport total mudou.
+
+## Padrões mobile exclusivos
+
+| Padrão | Quando aparece | Regra |
+|---|---|---|
+| FAB | Ação primária em mobile | Máximo 1 por viewport; não competir com bottom nav |
+| Bottom sheet | Substitui modal centralizado | Handle visível; dismiss claro; foco controlado |
+| Pull to refresh | Listas com dados em tempo real | Feedback curto; não aplicar em scroll horizontal |
+| Swipe actions | Rows de menção/alerta | Revela ação, não esconde contexto |
+| Bottom tabs | Crisis detail mobile | Poucas abas principais, ícone + label |
+| Long press | Alternativa a hover | Usar para menu contextual, sempre com caminho acessível alternativo |
+
+## Tokens e limites relacionados
+
+`src/app/globals.css` já expõe contratos que afetam responsividade:
+
+| Token | Valor | Uso |
+|---|---:|---|
+| `--touch-target-critical` | 48px | Ação crítica em mobile |
+| `--z-elev-1` | 10 | Sticky headers |
+| `--z-elev-2` | 20 | Dropdowns |
+| `--z-elev-3` | 30 | Sticky overlays |
+| `--z-overlay` | 40 | Modal backdrop |
+| `--z-modal` | 50 | Dialogs e sheets |
+| `--z-popover` | 60 | Tooltips e popovers |
+| `--z-toast` | 70 | Notifications |
+
+Em mobile, controles críticos preservam hit target mesmo quando a superfície usa `data-density="compact"`.
+
+## Regras
+
+1. Desktop primeiro; mobile é jornada paralela, não versão reduzida.
+2. Mobile entrega ack, escalar e comentar antes de qualquer análise avançada.
+3. Use container queries para comportamento interno de componente.
+4. Use viewport queries para chrome global e navegação.
+5. Em mobile, ação crítica preserva alvo mínimo de toque.
+6. Audit log e Compare podem ser desktop-only com banner claro.
+7. Não dependa de hover em mobile; use tap, long press ou ação visível.
+8. Modal centralizado vira bottom sheet em mobile quando a tarefa precisa foco.
+9. Não esconda navegação primária sem alternativa persistente.
+10. Evite scroll horizontal fora de tabelas com indicador explícito.
