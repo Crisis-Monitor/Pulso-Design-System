@@ -1,0 +1,77 @@
+---
+title: Auth
+description: Template de login, SSO, MFA e recuperação segura para workspaces Pulso.
+---
+
+# Auth template
+
+> **Template · Auth**
+>
+> SSO é o caminho default. Email e senha existem como fallback controlado.
+
+Auth é a primeira superfície de confiança do Pulso. Ela precisa ser institucional, explícita e resistente a vazamento de informação.
+
+Não há cadastro público. A entrada acontece por workspace, convite ou domínio corporativo habilitado.
+
+## Fluxo principal
+
+| Etapa | Regra |
+|---|---|
+| Identificação | Email corporativo ou SSO do provedor permitido |
+| SSO | Google/Microsoft primeiro quando disponível |
+| Fallback | Email + senha apenas quando política do workspace permitir |
+| MFA | Obrigatório para perfis que escalam ou aprovam casos |
+| Recuperação | Link mágico; nunca pergunta de segurança |
+
+## Estrutura
+
+```txt
+┌────────────────────────────────────┐
+│ Logo + nome do produto             │
+│ Entrar com Google                  │
+│ Entrar com Microsoft               │
+│ Separador: ou                      │
+│ Email corporativo                  │
+│ Senha                              │
+│ Entrar                             │
+│ Recuperar acesso                   │
+│ Ajuda / status do SSO              │
+└────────────────────────────────────┘
+```
+
+## Estados
+
+| Estado | Tratamento |
+|---|---|
+| SSO indisponível | Banner inline com provedor afetado e fallback permitido |
+| Email fora de workspace | “Esse email não está em nenhum workspace. Peça convite ao gestor.” |
+| Conta bloqueada | Bloqueio temporário, sem confirmar existência pública do email |
+| Link expirado | Reenviar link automaticamente com ação de retry |
+| MFA pendente | Campo de código, alternativa de recuperação e suporte do gestor |
+
+## Segurança semântica
+
+Nunca diga “usuário não existe”. A mensagem correta descreve relação com workspace, não existência de conta.
+
+| Evite | Prefira |
+|---|---|
+| “Usuário não existe” | “Esse email não está em nenhum workspace.” |
+| “Senha inválida para este email” | “Não foi possível confirmar estas credenciais.” |
+| “Pergunta secreta” | “Enviar link de recuperação.” |
+
+## Composição
+
+| Região | Componentes |
+|---|---|
+| Header | Marca, ambiente, idioma quando aplicável |
+| Card | Provider buttons, form fallback, helper text |
+| Security | MFA, recovery, lockout, rate limit |
+| Footer | Status page, suporte, política de acesso |
+
+## Regras
+
+- SSO vem antes de senha.
+- MFA é obrigatório para analista, gestor e qualquer perfil com aprovação pública.
+- Recuperação usa link mágico com expiração curta.
+- Mensagens não revelam existência de usuário fora do contexto de workspace.
+- Falhas críticas incluem request id ou referência de suporte.

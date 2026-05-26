@@ -1,0 +1,66 @@
+---
+title: Notifications
+description: Template de preferências por canal, histórico e proteção contra ruído operacional.
+---
+
+# Notifications template
+
+> **Template · Notifications**
+>
+> Preferência granular evita que o operador desligue tudo por excesso de ruído.
+
+Notificações precisam equilibrar controle individual e responsabilidade de plantão. O operador pode reduzir ruído, mas não pode silenciar eventos críticos incompatíveis com seu papel.
+
+## Preferências
+
+Matriz de canal × tipo.
+
+| Tipo | In-app | Email | Slack/Teams | Push |
+|---|---|---|---|---|
+| Critical | Forced on | On | On | On |
+| High | On | Optional | On | Optional |
+| Attention | On | Optional | Optional | Optional |
+| Monitor | Optional | Off | Optional | Off |
+| Daily summary | Off | On | Optional | Off |
+
+A escala de risco permanece `stable / monitor / attention / high / critical`.
+
+## Histórico
+
+| Campo | Uso |
+|---|---|
+| Enviado em | Data/hora com timezone |
+| Canal | In-app, email, Slack/Teams, push |
+| Tipo | Alerta, handover, aprovação, resumo |
+| Resultado | Entregue, falhou, silenciado, forced-on |
+| Ref | Link para caso, alerta ou audit log |
+
+Histórico recente ajuda o operador a entender o que recebeu e por quê. Histórico longo deve migrar para audit log/export.
+
+## Estados
+
+| Estado | Tratamento |
+|---|---|
+| Canal desconectado | Coluna disabled + CTA para reconectar |
+| Critical silenciado | Ação proibida com explicação inline |
+| Fora do turno | “Não perturbe” silencia tudo exceto critical |
+| Falha de entrega | Mostrar canal afetado e retry quando possível |
+| Histórico vazio | Explicar que nenhuma notificação foi enviada na janela |
+
+## Composição
+
+| Região | Componentes |
+|---|---|
+| Header | Título, escopo do workspace, última atualização |
+| Matrix | Switches por canal e tipo |
+| Policy notes | Forced-on, plantão, quiet hours |
+| History | Tabela de últimos eventos |
+| Audit trail | Links para eventos relevantes |
+
+## Regras
+
+- Critical não pode ser silenciado por perfil em plantão.
+- “Não perturbe” precisa ser auditável.
+- Preferências devem distinguir canal indisponível de canal desativado.
+- Success confirma persistência: “Preferências salvas e registradas.”
+- Falhas de canal preservam a configuração anterior.
