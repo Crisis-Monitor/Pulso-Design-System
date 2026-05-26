@@ -5,6 +5,7 @@ export default {
   spacing: { title: 'Spacing' },
   density: { title: 'Density' },
   radii: { title: 'Radii' },
+  responsive: { title: 'Responsive' },
   motion: { title: 'Motion' },
   icons: { title: 'Icons' },
 
