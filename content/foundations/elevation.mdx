@@ -1,0 +1,89 @@
+---
+title: Elevation
+description: Sombras quase invisíveis, bordas estruturais e escala de z-index do Pulso.
+---
+
+# Elevation
+
+> **Interaction foundation**
+>
+> Estrutura vem de borda e superfície. Sombra fica reservada para o que realmente flutua.
+
+Pulso evita sombras decorativas. Em uma interface de crise, profundidade precisa explicar contexto: o que pertence à página, o que está acima dela e o que interrompe a tarefa.
+
+A referência do Open Design define a intenção: hairlines e superfícies carregam a maior parte da estrutura; sombras aparecem em popovers, menus, modais, sheets e tooltips. Os tokens abaixo vêm de `src/app/globals.css`.
+
+## Princípio
+
+Elevação não é “embelezar card”. É sinalizar relação espacial.
+
+- Page e panel dependem de background e borda.
+- Cards usam sombra mínima, quando necessário.
+- Overlays usam sombra mais forte porque flutuam sobre a página.
+- Modal/sheet precisam separar foco e contexto.
+- Sidebar usa superfície inversa e borda própria, não sombra.
+
+## Escala de sombras
+
+| Token | Valor | Uso |
+|---|---|---|
+| `--shadow-xs` | `0 1px 2px rgb(8 10 18 / 0.04)` | Card discreto, superfície quase plana |
+| `--shadow-sm` | `0 1px 2px rgb(8 10 18 / 0.04)` | Alias leve para compatibilidade |
+| `--shadow` | `0 2px 6px -2px rgb(8 10 18 / 0.06), 0 1px 2px rgb(8 10 18 / 0.04)` | Elevação padrão quando a borda não basta |
+| `--shadow-md` | `0 4px 12px -4px rgb(8 10 18 / 0.08), 0 1px 2px rgb(8 10 18 / 0.04)` | Hover relevante, surface elevated |
+| `--shadow-lg` | `0 12px 24px -12px rgb(8 10 18 / 0.10), 0 1px 2px rgb(8 10 18 / 0.04)` | Dropdowns, menus, popovers |
+| `--shadow-xl` | `0 24px 48px -20px rgb(8 10 18 / 0.14), 0 1px 2px rgb(8 10 18 / 0.04)` | Dialogs, sheets, foco modal |
+
+## Papéis de superfície
+
+| Role | Background | Border | Shadow | Uso |
+|---|---|---|---|---|
+| Page | `--background` | — | — | Fundo da aplicação |
+| Panel | `--card` | `--border` | — | Seções, painéis laterais, containers estáveis |
+| Card | `--card` | `--border` | `--shadow-xs` opcional | Unidade de conteúdo |
+| Elevated | `--surface-elevated` | `--border` | `--shadow-md` | Hover relevante, card acima da lista |
+| Overlay | `--popover` | `--border-strong` | `--shadow-lg` | Dropdowns, menus, popovers |
+| Modal | `--popover` | `--border-strong` | `--shadow-xl` | Dialogs e sheets |
+| Inverse | `--sidebar` | `--sidebar-border` | — | Sidebar e chrome escuro |
+
+Não improvise combinações. Trocar background, borda e sombra ao mesmo tempo cria profundidade falsa e ruído.
+
+## Z-index
+
+| Token | Valor | Uso |
+|---|---:|---|
+| `--z-base` | 0 | Default |
+| `--z-elev-1` | 10 | Sticky headers |
+| `--z-elev-2` | 20 | Dropdowns inline |
+| `--z-elev-3` | 30 | Sticky overlays |
+| `--z-overlay` | 40 | Backdrop de modal |
+| `--z-modal` | 50 | Dialogs, sheets |
+| `--z-popover` | 60 | Tooltips, popovers |
+| `--z-toast` | 70 | Notifications |
+| `--z-max` | 999 | Escape hatch controlado |
+
+Use `--z-max` só quando houver decisão explícita. Se ele aparece em componente comum, a pilha está mal modelada.
+
+## Relação com bordas
+
+Bordas são o primeiro recurso de estrutura do Pulso.
+
+| Token | Uso |
+|---|---|
+| `--border` | Separação padrão de superfície |
+| `--border-strong` | Overlays, foco visual e contraste maior |
+| `--border-faint` | Separação sutil quando densidade já resolve parte da leitura |
+| `--sidebar-border` | Chrome inverso |
+
+Se uma superfície está dentro da página, comece por borda e spacing. Use sombra apenas quando ela precisa flutuar acima de outra camada.
+
+## Regras
+
+1. Sombra não substitui hierarquia de conteúdo.
+2. Page e panel não usam sombra.
+3. Card usa sombra mínima ou nenhuma; borda e spacing resolvem a maioria dos casos.
+4. Dropdown, popover, tooltip, dialog e sheet podem usar sombra porque flutuam.
+5. Modal e sheet usam `--z-modal`; backdrop usa `--z-overlay`.
+6. Tooltip/popover ficam acima de modal apenas quando a interação exigir e for segura.
+7. Não combine sombra forte, borda forte e background destacado sem necessidade.
+8. Não use `--z-max` para resolver conflito local sem revisar a pilha.
