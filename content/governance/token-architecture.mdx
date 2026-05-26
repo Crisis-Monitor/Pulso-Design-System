@@ -1,0 +1,71 @@
+---
+title: Token architecture
+description: Arquitetura de tokens Pulso em camadas para rebrand, tema e evolução sem refator manual.
+---
+
+# Token architecture
+
+> **Governance · 01**
+>
+> Token sem intenção vira dívida visual.
+
+A arquitetura do Pulso separa tokens por intenção para evitar que valor literal, semântica e componente se misturem. Rebrand, white-label e dark/light precisam trocar uma camada, não operar uma cirurgia em cada componente.
+
+## Camadas
+
+| Camada | Exemplo | Quem consome |
+|---|---|---|
+| Primitive | `--violet-500`, `--slate-900` | Apenas semantic tokens |
+| Semantic | `--primary`, `--background`, `--risk-critical` | Component tokens e estilos globais |
+| Component | `--sidebar-accent`, `--chart-grid` | Implementação de componente/superfície |
+
+## Cadeia de resolução
+
+```txt
+Button primary
+→ --button-primary-bg
+→ --primary
+→ --violet-500
+→ valor literal
+```
+
+Componente não pula camada. Se um componente referencia direto um primitive, ele acopla produto à marca e dificulta rebrand.
+
+## Convenção de nomes
+
+| Prefixo | Uso |
+|---|---|
+| `--color-*` | Alias público quando exposto ao Tailwind/theme |
+| `--risk-*` | Semântica operacional de risco |
+| `--chart-*` | Visualização de dados |
+| `--density-*` | Espaçamento/tamanho por densidade |
+| `--motion-*` | Duração/easing |
+| `--touch-*` | Contrato mobile/touch |
+
+## Guardrails
+
+- Não usar hex literal em MDX ou componentes, exceto documentação explícita de token.
+- Não criar token component-specific quando semantic resolve.
+- Não usar token de chart para estado operacional.
+- Não criar sinônimos sem depreciação planejada.
+- Mudança breaking de token público exige RFC.
+
+## Migração assistida
+
+Mudanças de token devem vir com:
+
+| Entrega | Objetivo |
+|---|---|
+| Alias temporário | Manter compat por janela de migração |
+| Changelog | Explicar o impacto |
+| Codemod ou grep guide | Ajudar consumidores a migrar |
+| Deprecation window | Pelo menos 2 minor releases para API pública |
+
+## Anti-patterns
+
+| Evitar | Correção |
+|---|---|
+| `background: #6C46F5` | `background: var(--primary)` |
+| `--button-purple` | `--button-primary-bg` |
+| `--chart-critical` para risco em card | `--risk-critical-*` |
+| Token novo sem dono | RFC + owner + lifecycle |

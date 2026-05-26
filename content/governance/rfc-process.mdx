@@ -1,0 +1,75 @@
+---
+title: RFC process
+description: Processo de RFC, depreciação e semver para mudanças públicas no Pulso DS.
+---
+
+# RFC process
+
+> **Governance · 03**
+>
+> Sem processo, o design system vira coleção de exceções.
+
+Nem toda mudança precisa de RFC. Mudanças que alteram contrato público, comportamento padrão ou gramática visual precisam ser discutidas antes do código.
+
+## Quando RFC é obrigatório
+
+| Mudança | RFC? |
+|---|---|
+| Novo componente, pattern ou template público | Sim |
+| Nova categoria de token | Sim |
+| Remoção ou rename de API pública | Sim |
+| Mudança de comportamento padrão | Sim |
+| Política nova de acessibilidade, voice ou motion | Sim |
+| Bug fix sem mudança de contrato | Não |
+| Prop opcional retrocompatível | Não |
+| Ajuste interno de CSS sem efeito visível | Não |
+| Documentação, exemplos e testes | Não |
+
+## Lifecycle
+
+| Estado | Critério |
+|---|---|
+| Draft | Problema e proposta inicial |
+| Review | Impacto, alternativas e riscos avaliados |
+| Accepted | Owner e plano de entrega definidos |
+| Implemented | PR mergeado e documentação publicada |
+| Deprecated | Substituto e prazo publicados |
+| Removed | Remoção em release compatível com semver |
+
+## Template mínimo
+
+```md
+# RFC: título
+
+## Problem
+## Proposal
+## Alternatives considered
+## Impacted surfaces
+## Accessibility and auditability
+## Migration plan
+## Rollout and validation
+```
+
+## Semver
+
+| Tipo | Exemplo |
+|---|---|
+| Patch | Correção visual sem mudança de contrato |
+| Minor | Novo componente ou token aditivo |
+| Major | Remoção, rename ou quebra de comportamento público |
+
+## Deprecation policy
+
+- API pública deprecated fica disponível por pelo menos **2 minor releases**.
+- Docs devem mostrar substituto e prazo.
+- Build pode alertar antes de bloquear.
+- Remoção exige changelog claro e PR de migração quando possível.
+
+## DS Council
+
+| Tema | Aprovação |
+|---|---|
+| Token público | Design + frontend |
+| Acessibilidade | Design + frontend + produto |
+| IA/assistência | Produto + design + tech |
+| Breaking change | Council completo |

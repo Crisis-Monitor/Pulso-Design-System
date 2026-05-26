@@ -1,0 +1,65 @@
+---
+title: Figma ↔ code parity
+description: Contrato de paridade entre tokens/design system no Figma e implementação em código.
+---
+
+# Figma ↔ code parity
+
+> **Governance · 02**
+>
+> Se Figma e código divergem, a especificação vira ficção.
+
+Pulso deve ter uma fonte de verdade rastreável para tokens e componentes. Designers usam estilos publicados; devs usam tokens versionados. Mudança visual relevante precisa aparecer em PR, revisão e release notes.
+
+## Fluxo desejado
+
+```txt
+source tokens JSON
+→ CSS variables
+→ Figma styles/variables
+→ iOS/Android outputs futuros
+→ parity check em CI
+```
+
+O JSON versionado é a fonte auditável. Figma e CSS são outputs, não cópias manuais concorrentes.
+
+## Schema mínimo
+
+| Campo | Uso |
+|---|---|
+| `$value` | Valor ou referência `{path.to.token}` |
+| `$type` | `color`, `dimension`, `fontWeight`, `duration`, etc. |
+| `$description` | Intenção e restrição de uso |
+| `$extensions.owner` | Responsável pela decisão |
+| `$extensions.status` | `stable`, `deprecated`, `experimental` |
+
+## Outputs
+
+| Destino | Saída |
+|---|---|
+| Web | CSS variables em `globals.css` |
+| Figma | Styles/variables publicados na library |
+| Docs | Tabelas e páginas de referência |
+| Native futuro | Swift/Kotlin/XML gerados do mesmo source |
+
+## Workflow do designer
+
+- Usar somente estilos/variables da library Pulso.
+- Não criar cor solta para produto sem RFC ou issue de token.
+- Quando uma exceção é necessária, registrar como proposta, não como valor local.
+- Validar tela em light/dark e sem cor quando a superfície comunica risco.
+
+## CI parity check
+
+| Check | Falha quando |
+|---|---|
+| Token existe no código e não no source | Drift de implementação |
+| Token existe no source e não no Figma export | Drift de design |
+| Valor literal diverge | Drift de publicação |
+| Token deprecated ainda usado | Migração incompleta |
+
+## Fora de escopo atual
+
+- Publicação NPM de tokens.
+- Automação completa Tokens Studio ↔ GitHub.
+- Apps nativos reais. A documentação de native tokens existe, mas a infra de publishing ainda não.

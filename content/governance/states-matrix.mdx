@@ -1,0 +1,65 @@
+---
+title: States matrix
+description: Matriz de loading, empty, error e optimistic UI para superfícies Pulso.
+---
+
+# States matrix
+
+> **Governance · 05**
+>
+> Toda tela tem quatro versões: default, loading, empty e error.
+
+Estados não são exceções de tela. Eles fazem parte do contrato de componente/template e devem ser derivados da mesma gramática visual.
+
+## Loading tiers
+
+| Tier | Tempo | Tratamento |
+|---|---:|---|
+| Instant | < 300ms | Não anunciar; evitar flicker |
+| Fast | 300ms–1s | Skeleton matching |
+| Slow | 1–5s | Nomear escopo: “Buscando 240 menções…” |
+| Very slow | > 5s | Mostrar etapas, retry/cancel quando aplicável |
+
+## Error tiers
+
+| Classe | Responsabilidade percebida | Tratamento |
+|---|---|---|
+| Validation | Usuário precisa corrigir entrada | Inline, campo associado, sem pânico |
+| Network | Sistema/rede instável | Retry, status persistente, sem apagar contexto |
+| Permission | Política/acesso | Explicar permissão e próximo passo |
+| Fatal | Falha inesperada | Request id, fallback seguro, suporte |
+
+## Empty states
+
+| Tipo | Tom | Exemplo |
+|---|---|---|
+| First run | Orientação | “Comece adicionando fontes monitoradas.” |
+| Filtered out | Ajuste | “Nenhuma menção para estes filtros.” |
+| End of feed | Encerramento | “Você viu todas as atualizações.” |
+
+## Skeleton matching
+
+- Skeleton imita layout final em bloco, não usa spinner genérico para listas previsíveis.
+- Reduz layout shift quando os dados chegam.
+- Em reduced motion, skeleton fica estático, sem shimmer.
+- Skeleton não substitui texto de loading em waits longos.
+
+## Optimistic UI
+
+Use para ações reversíveis e rápidas:
+
+| Ação | Pode ser otimista? | Observação |
+|---|---|---|
+| Ack de alerta | Sim | Reverter com mensagem inline se falhar |
+| Follow/unfollow | Sim | Manter audit trail |
+| Dismiss de sugestão | Sim | Desfazer deve ser possível |
+| Envio destrutivo | Não | Precisa confirmação real |
+| Handover crítico | Parcial | Pode preparar UI, mas confirmar persistência |
+
+## Regras
+
+- Toda tela pública declara seus quatro estados.
+- Erro fatal sempre inclui request id.
+- Empty state nunca culpa o operador.
+- Loading slow nomeia o escopo carregado.
+- Optimistic UI precisa de rollback claro e auditável.
