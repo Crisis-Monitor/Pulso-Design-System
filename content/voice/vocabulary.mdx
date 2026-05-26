@@ -1,0 +1,81 @@
+---
+title: Vocabulary
+description: Glossário operacional para termos de crise, papéis, risco e IA auditável.
+---
+
+# Vocabulary
+
+> **Voice · 03**
+>
+> Termo escolhido carrega política operacional.
+
+No Pulso, vocabulário não é cosmético. Chamar uma menção de alerta muda urgência percebida. Chamar incidente de crise muda governança, responsabilidade e expectativa de resposta.
+
+## Princípio
+
+Operacional vem antes de elegante. Se uma palavra soa melhor, mas confunde estágio, papel ou risco, ela não deve entrar na interface.
+
+## Cinco conceitos vizinhos
+
+| Termo | Definição | Não confundir com |
+|---|---|---|
+| Menção | Unidade observada em fonte monitorada | Post, notícia ou comentário como categoria única |
+| Caso | Agrupamento operacional de menções, sinais e tarefas | Crise declarada |
+| Alerta | Sinal disparado por regra, threshold ou avaliação | Qualquer notificação |
+| Incidente | Evento com impacto operacional confirmado | Narrativa emergente sem confirmação |
+| Crise | Estado declarado que exige coordenação e governança | Pico temporário de volume |
+
+## Papéis
+
+| Papel | Copy deve priorizar |
+|---|---|
+| Operador | Ação, triagem, ack, próximo passo |
+| Coordenador | Priorização, ownership, handover |
+| Executivo | Síntese, consequência, decisão |
+| Cliente | Clareza, status, segurança e aprovação |
+
+A mesma ação pode ter labels diferentes por papel. O operador pode ver “ack alerta”; o cliente deve ver “marcar como lido” quando a consequência for apenas leitura.
+
+## Glossário canônico
+
+| pt-BR | en-US | Uso |
+|---|---|---|
+| Menção | Mention | Item monitorado |
+| Caso | Case | Unidade de trabalho |
+| Alerta | Alert | Sinal acionável por regra |
+| Incidente | Incident | Evento confirmado |
+| Crise | Crisis | Estado declarado |
+| Narrativa | Narrative | Linha interpretativa em circulação |
+| Score | Score | Métrica numérica, não risco por si só |
+| Tier | Tier | Faixa operacional ou prioridade |
+| Audit log | Audit log | Registro rastreável; não traduzir |
+| Workspace | Workspace | Escopo de cliente/equipe; não traduzir |
+| Timeline | Timeline | Sequência temporal; não traduzir |
+
+## Risco
+
+Risco operacional usa apenas os cinco tokens canônicos:
+
+`stable / monitor / attention / high / critical`
+
+Não use “risco moderado”, “risco médio” ou variações livres. Delta continua sendo movimento de métrica; não é sinônimo de piora ou melhora operacional sem contexto.
+
+## Casing
+
+| Regra | Aplicação |
+|---|---|
+| Sentence case | Labels, títulos e mensagens de produto |
+| Siglas estáveis | IA, API, UTC, BRT |
+| IDs preservados | PLS-012 não muda por locale |
+| Termos adotados | workspace, timeline e audit log permanecem em inglês |
+
+Nunca use title case em UI institucional.
+
+## Regras
+
+- Use termo canônico antes de criar variação.
+- Não chame menção de “post” quando a fonte pode ser matéria, comentário ou vídeo.
+- Não use alerta como sinônimo de notificação.
+- Reserve crise para estado declarado.
+- Em strings novas, defina pt-BR e en-US no mesmo PR quando houver impacto de i18n.
+- Marque inferência e especulação em conteúdo gerado por IA que não deriva de fato bruto.
