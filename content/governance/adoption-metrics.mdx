@@ -1,0 +1,64 @@
+---
+title: Adoption metrics
+description: Métricas de adoção, cobertura e budget para evolução do Pulso Design System.
+---
+
+# Adoption metrics
+
+> **Governance · 04**
+>
+> Sem medir adoção, priorizamos por opinião.
+
+Pulso precisa acompanhar onde o design system é usado, onde há drift e quais superfícies estão fora de budget. Métricas não substituem julgamento, mas tornam a conversa objetiva.
+
+## Métricas principais
+
+| Métrica | Objetivo | Sinal de risco |
+|---|---|---|
+| Token coverage | % de DOM/estilos usando tokens Pulso | Hex literal, spacing hardcoded |
+| Component adoption | Uso de componentes por tela | Forks locais ou duplicação |
+| Bundle budget | Peso incremental do DS | Crescimento sem benefício claro |
+| Performance budget | LCP/CLS/INP por template | Template pesado ou layout shift |
+| Accessibility coverage | Checks de contraste/foco/ARIA | Falha em fluxo crítico |
+
+## Cobertura por tela
+
+| Status | Critério |
+|---|---|
+| Verde | ≥ 95% de cobertura de tokens/componentes esperados |
+| Amarelo | 80–95%, exige plano ou justificativa |
+| Vermelho | < 80%, bloqueia GA ou merge relevante |
+
+## Componentes raramente usados
+
+Uso baixo pode significar três coisas:
+
+| Causa | Ação |
+|---|---|
+| Componente mal documentado | Melhorar docs e exemplos |
+| Componente overkill | Simplificar ou deprecar |
+| Produto não precisa | Remover da superfície pública |
+
+## Budget
+
+| Budget | Regra |
+|---|---|
+| Bundle | Crescimento relevante precisa ser explicado no PR |
+| LCP | Template público fora do verde abre follow-up |
+| CLS | Skeleton/layout deve preservar geometria final |
+| INP | Controles críticos não podem degradar interação |
+
+## CI gates
+
+| Gate | Comportamento |
+|---|---|
+| Vermelho | Bloqueia merge |
+| Amarelo | Exige aprovação extra ou issue vinculada |
+| Verde | Passa sem ação |
+
+## Outputs esperados
+
+- `audit.json` com cobertura e budgets.
+- Comentário automático no PR com diffs relevantes.
+- Histórico por release para detectar regressão.
+- Lista de owners para telas fora do budget.
