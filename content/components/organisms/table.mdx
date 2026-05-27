@@ -1,16 +1,31 @@
 ---
 title: Table
-description: Tabela de dados com header, body, footer e scroll horizontal.
+description: Superfície tabular densa para listas operacionais, logs e auditoria.
 ---
 
 # Table
 
-Tabela estruturada para exibir listas de crises, métricas e informações tabulares.
+> **Organism**
+>
+> Table é a superfície mais densa do Pulso. Use quando comparação, ordenação e leitura linha-a-linha importam mais que narrativa visual.
+
+Tabela organiza registros operacionais: crises, menções, logs, fontes, auditorias, usuários, regras e exports. Ela deve privilegiar legibilidade, escopo e consequência.
+
+A referência do Open Design reforça o contrato: tipografia mono para números, hover sutil, hairlines no lugar de linhas pesadas, toolbar acima, paginação abaixo e densidade configurável.
 
 ## Import
 
 ```tsx
-import { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption } from "@/components/ui/table"
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 ```
 
 ## Uso básico
@@ -21,25 +36,14 @@ import { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableC
     <TableRow>
       <TableHead>Nome</TableHead>
       <TableHead>Status</TableHead>
-      <TableHead>Score</TableHead>
+      <TableHead>Risco</TableHead>
       <TableHead>Atualizado</TableHead>
     </TableRow>
   </TableHeader>
   <TableBody>
     <TableRow>
-      <TableCell>Incidente servidor</TableCell>
-      <TableCell>
-        <span
-          className="rounded-sm border px-2 py-1 text-xs font-medium"
-          style={{
-            color: "var(--risk-critical-text)",
-            borderColor: "var(--risk-critical-border)",
-            background: "var(--risk-critical-bg)",
-          }}
-        >
-          Em Crise
-        </span>
-      </TableCell>
+      <TableCell>Monitoramento reputacional</TableCell>
+      <TableCell>Em análise</TableCell>
       <TableCell className="mono font-bold" data-numeric>87</TableCell>
       <TableCell>há 2 min</TableCell>
     </TableRow>
@@ -49,6 +53,84 @@ import { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableC
 
 ## Quando usar
 
-- Listas de crises com múltiplas colunas
-- Dados tabulares comparativos
-- Relatórios e exports
+- Listas com múltiplas colunas comparáveis.
+- Logs e auditorias com timestamp, ator, ação e consequência.
+- Resultados que precisam de ordenação ou paginação.
+- Operações em massa com seleção por linha.
+- Exports e relatórios que precisam preservar estrutura tabular.
+
+Não use Table para cards editoriais, timelines narrativas ou grids visuais onde a comparação por coluna não é a tarefa principal.
+
+## Anatomia
+
+| Parte | Papel | Regra |
+|---|---|---|
+| Toolbar | Busca, filtros e ações de escopo | Use `Filter Bar` quando a consulta altera o conjunto de linhas |
+| Header | Nome das colunas e ordenação | Labels curtos; ordenação explícita quando disponível |
+| Row | Registro operacional | Hover sutil, sem sombra |
+| Cell | Valor atômico | Texto à esquerda; números tabulares à direita quando comparáveis |
+| Selection | Ação em massa | Use `Bulk actions & multi-select` para escopo explícito |
+| Pagination | Janela de dados | Sempre abaixo; não esconda total/escopo quando relevante |
+| Empty/error | Estado da consulta | Diferencie sem resultado, sem permissão e erro de carregamento |
+
+## Densidade
+
+| Densidade | Uso | Regra |
+|---|---|---|
+| Comfortable | Listas operacionais primárias | Melhor para revisão e triagem |
+| Compact | Logs, auditoria, histórico | Mais linhas sem reduzir contraste semântico |
+| Spacious | Tabelas curtas em páginas executivas | Use quando a leitura precisa de respiro |
+
+Densidade não deve mudar significado. Ela altera ritmo, altura de linha e espaçamento, não hierarquia semântica.
+
+## Default · casos ativos
+
+Use para listas de monitoramentos, crises, fontes ou filas ativas.
+
+- Toolbar acima com busca e filtros.
+- Risk/status visível na primeira metade da linha.
+- Métricas com `data-numeric` e fonte mono.
+- Ação primária contextual na linha ou em menu secundário.
+- Paginação abaixo com total ou recorte atual.
+
+## Compact · log de eventos
+
+Use para superfícies de auditoria, logs e despachos.
+
+- Altura de linha menor.
+- Timestamp e ator ficam próximos.
+- Delta continua sendo movimento de métrica, não risco operacional.
+- Ações destrutivas não devem ficar inline sem confirmação.
+- Expansão de detalhe deve preservar a linha original como contexto.
+
+## Estados
+
+| Estado | Comportamento |
+|---|---|
+| Loading | Skeleton preserva colunas e largura aproximada |
+| Empty | Explique se não há dados ou se filtros ocultaram dados |
+| Error | Informe falha e próxima ação segura |
+| Partial | Indique dados incompletos ou fonte indisponível |
+| Selected | Destaque seleção sem esconder conteúdo |
+| Disabled | Preserve leitura, bloqueie ação e explique motivo |
+
+## Relação com outros padrões
+
+- Use `Filter Bar` para query, período e facetas.
+- Use `Bulk actions & multi-select` para seleção em massa.
+- Use `Risk levels` apenas para risco operacional: `stable / monitor / attention / high / critical`.
+- Use `Delta Chip` ou delta tokens para movimento de métrica.
+- Use `AI Audit Trail` quando a linha representa ação assistida.
+
+## Regras
+
+1. Use hairlines e superfícies; não use sombras para separar linhas.
+2. Cabeçalho deve continuar legível em scroll horizontal.
+3. Números comparáveis usam mono/tabular nums.
+4. Não misture risco operacional com delta de métrica.
+5. A primeira coluna deve identificar o registro sem depender de tooltip.
+6. Filtros ativos precisam estar visíveis acima da tabela.
+7. Bulk actions sempre nomeiam o escopo: alguns, página ou filtro inteiro.
+8. Não use zebra striping forte; contraste deve vir de tipografia, borda e estado.
+9. Não esconda erros de origem em células vazias.
+10. Ação destrutiva ampla exige confirmação proporcional ao escopo.
