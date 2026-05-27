@@ -4,6 +4,7 @@ import { Head } from 'nextra/components';
 import { getPageMap } from 'nextra/page-map';
 import { Metadata } from 'next';
 import 'nextra-theme-docs/style.css';
+import { SidebarCollapseActive } from './sidebar-collapse-active';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     <html lang="pt-BR" dir="ltr" suppressHydrationWarning>
       <Head />
       <body className="min-h-screen bg-background font-sans antialiased">
+        <SidebarCollapseActive />
         <Layout
           navbar={
             <Navbar

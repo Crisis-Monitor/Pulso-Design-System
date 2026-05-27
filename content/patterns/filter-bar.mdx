@@ -1,0 +1,67 @@
+---
+title: Filter Bar
+description: Controle de busca, período, facetas e filtros ativos para listas operacionais.
+---
+
+# Filter Bar
+
+> **Operational list pattern**
+>
+> A barra de filtros torna o estado da consulta visível. O operador precisa saber o que está vendo antes de decidir.
+
+Filter Bar é o padrão para listas, feeds e resultados de busca do Pulso. Ela combina busca, período, facetas e filtros ativos sem esconder o contexto da consulta.
+
+Use este padrão em superfícies onde a lista muda por critérios operacionais: fonte, nível de risco, sentimento, período, owner, status, origem ou preset salvo.
+
+## Anatomia
+
+| Parte | Papel | Regra |
+|---|---|---|
+| Busca | Consulta textual | Debounce antes de aplicar; não limpe filtros existentes |
+| Período | Recorte temporal mais frequente | Deve ser visível, geralmente como segmented control |
+| Facetas | Critérios estruturados | Use botão/popover com contador quando houver seleção ativa |
+| Ações utilitárias | Exportar, salvar preset, limpar | Ficam à direita e não competem com filtros principais |
+| Filtros ativos | Estado aplicado | Aparecem como chips removíveis abaixo da barra |
+
+A barra não deve depender só do placeholder. Quando uma consulta está aplicada, o estado precisa sobreviver à rolagem mental do operador.
+
+## Variante padrão
+
+Use em páginas de lista completas.
+
+- Busca à esquerda.
+- Período visível como escolha rápida.
+- Facetas em botões com contador.
+- Strip de chips ativos abaixo.
+- `Limpar todos` quando houver mais de dois filtros ativos.
+- Preset salvo quando a combinação representa uma rotina recorrente.
+
+## Variante compacta
+
+Use em painéis laterais, drawers e áreas onde a lista é secundária.
+
+- Pode omitir a strip de chips.
+- O botão de faceta deve carregar contador.
+- O estado completo precisa estar disponível no popover.
+- Não esconda filtros críticos como risco ou período.
+
+## Filtros ativos
+
+| Estado | Comportamento |
+|---|---|
+| Nenhum filtro | Mostre busca/período padrão; não renderize strip vazia |
+| 1–2 filtros | Mostre chips individuais removíveis |
+| 3+ filtros | Mostre chips e ação `Limpar todos` |
+| Preset aplicado | Mostre nome do preset e filtros derivados |
+| Filtro inválido | Remova ou marque como indisponível; não aplique silenciosamente |
+
+## Regras
+
+1. Período é filtro primário; deixe visível quando ele altera a interpretação dos dados.
+2. Faceta ativa sempre mostra contador.
+3. Chips ativos precisam ser removíveis individualmente.
+4. Preserve filtros ao trocar página ou aba dentro da mesma tarefa.
+5. Busca textual deve usar debounce; não aplique a cada tecla sem controle.
+6. Não esconda filtros ativos dentro de um menu genérico.
+7. Mais de quatro facetas no header viram grupo `Mais filtros`.
+8. Não use tokens de risco para indicar filtro ativo; risco continua sendo dado operacional, não estado de UI.
