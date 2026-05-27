@@ -1,32 +1,68 @@
-# Drawer
-
-> Painel deslizante para telas mobile e acoes secundarias.
-
+---
+title: Drawer
+description: Painel mobile-first para ações secundárias, navegação temporária e bottom sheets.
 ---
 
-## Props
+# Drawer
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+> **Atom / mobile overlay primitive**
+>
+> Drawer é um painel deslizante mobile-first. Use quando o gesto e a posição inferior fazem parte da experiência.
 
-## Uso
+Drawer serve para ações secundárias, menus contextuais mobile, navegação temporária e bottom sheets simples. Ele não deve virar um substituto genérico para Dialog.
+
+Para fluxos que precisam ter paridade desktop/mobile, prefira [`Responsive Sheet`](/components/organisms/responsive-sheet).
+
+## Import
 
 ```tsx
 import { Drawer } from "@/components/ui/drawer"
-
-// Exemplo de uso basico
 ```
 
----
+## Quando usar
 
-<details>
-<summary>Exemplos</summary>
+- Ações secundárias em mobile.
+- Bottom sheet simples com opções contextuais.
+- Navegação temporária em telas pequenas.
+- Long-press menu quando a ação precisa de mais contexto.
+- Painel inferior com gesto de arrastar.
 
-### Basico
+Não use Drawer para decisões críticas sem confirmação. Não use em desktop quando Sheet comunica melhor a relação com a página.
 
-```tsx
-{/* TODO: adicionar exemplo de uso */}
-```
+## Drawer vs Sheet vs Responsive Sheet
 
-</details>
+| Componente | Uso | Regra |
+|---|---|---|
+| `Drawer` | Mobile-first, painel inferior, ação secundária | Gesto e thumb zone importam |
+| `Sheet` | Desktop side panel ou direção fixa | Preserva contexto lateral |
+| `Responsive Sheet` | Mesmo fluxo em desktop e mobile | Padrão para produto responsivo |
+| `Dialog` | Confirmação ou bloqueio | Interrompe a tarefa |
+
+## Mobile
+
+- Use grabber/handle quando o painel puder ser arrastado.
+- Respeite zona confortável do polegar.
+- Não coloque ação destrutiva isolada no canto inferior direito.
+- Mantenha alternativa acessível para gestos.
+- Respeite `prefers-reduced-motion`.
+- Fechar por gesto não pode executar ação destrutiva.
+
+## Estados
+
+| Estado | Comportamento |
+|---|---|
+| Peek | Mostra resumo ou primeira ação segura |
+| Half | Mostra opções principais e contexto curto |
+| Full | Leitura longa, formulário ou lista interna |
+| Dirty | Pede confirmação antes de fechar |
+| Offline | Expõe fila local ou indisponibilidade |
+
+## Regras
+
+1. Drawer é mobile-first; não use como overlay desktop por conveniência.
+2. Toda ação por gesto precisa de alternativa visível ou acessível.
+3. Scroll interno só deve competir com drag quando o detent estiver claro.
+4. Ações destrutivas exigem confirmação explícita.
+5. Não esconda contexto crítico abaixo da dobra inicial.
+6. Para filtros e drill-down responsivos, use `Responsive Sheet`.
+7. Para menus curtos, prefira ação simples antes de abrir Drawer complexo.
