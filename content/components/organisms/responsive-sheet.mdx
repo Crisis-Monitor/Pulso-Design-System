@@ -1,11 +1,17 @@
 ---
 title: Responsive Sheet
-description: Painel lateral responsivo que adapta Sheet (desktop) e Drawer (mobile).
+description: Overlay responsivo que adapta side sheet no desktop e bottom sheet no mobile.
 ---
 
 # Responsive Sheet
 
-Painel lateral que renderiza Sheet em desktop e Drawer em mobile automaticamente.
+> **Organism**
+>
+> Mesma intenção, superfície diferente: side sheet no desktop, bottom sheet no mobile.
+
+Responsive Sheet adapta dimensão e direção ao viewport. Em telas largas, preserva o contexto da página com um painel lateral. Em telas pequenas, vira bottom sheet para respeitar polegar, altura útil e gesto de arrastar.
+
+Use quando o conteúdo precisa continuar conectado ao item de origem: detalhe de menção, filtros avançados, edição contextual, Cris embedding, handover ou ação assistida.
 
 ## Import
 
@@ -18,10 +24,12 @@ import { ResponsiveSheet } from "@/components/ui/responsive-sheet"
 ```tsx
 <ResponsiveSheet
   trigger={<Button>Detalhes</Button>}
-  title="Detalhes da Crise"
-  description="Informações completas sobre a crise selecionada."
+  title="Detalhes da crise"
+  description="Contexto completo do item selecionado."
 >
-  <div className="space-y-4"><p>Conteúdo do sheet aqui.</p></div>
+  <div className="space-y-4">
+    <p>Conteúdo do sheet aqui.</p>
+  </div>
 </ResponsiveSheet>
 ```
 
@@ -30,7 +38,7 @@ import { ResponsiveSheet } from "@/components/ui/responsive-sheet"
 ```tsx
 <ResponsiveSheet
   trigger={<Button>Abrir</Button>}
-  title="Nova Crise"
+  title="Nova crise"
   controls={
     <div className="flex gap-2">
       <Button variant="outline">Cancelar</Button>
@@ -42,8 +50,79 @@ import { ResponsiveSheet } from "@/components/ui/responsive-sheet"
 </ResponsiveSheet>
 ```
 
-## Quando usar
+## Comportamento por viewport
 
-- Formulários de criação/edição
-- Painéis de detalhes
-- Configurações laterais
+| Viewport | Superfície | Direção | Uso |
+|---|---|---|---|
+| Desktop | Side sheet | Direita por padrão | Drill-down, filtros, edição contextual |
+| Tablet | Side sheet ou bottom sheet | Depende do espaço útil | Detalhe curto ou fluxo assistido |
+| Mobile | Bottom sheet | Baixo para cima | Ação contextual, filtros, Cris embedding |
+
+O conteúdo deve ser o mesmo. O que muda é a posição, altura/largura e gesto de fechamento.
+
+## Responsive Sheet vs Sheet vs Drawer
+
+| Componente | Quando usar | Regra |
+|---|---|---|
+| `ResponsiveSheet` | O mesmo fluxo precisa funcionar em desktop e mobile | Padrão preferido para produto responsivo |
+| `Sheet` | Desktop ou comportamento fixo de overlay lateral | Use quando a direção é parte do contrato |
+| `Drawer` | Mobile-first, ação secundária ou painel inferior | Use quando não há equivalente desktop direto |
+| `Dialog` | Decisão bloqueante ou confirmação | Não use para drill-down contextual |
+
+Se a superfície precisa preservar contexto visual da lista, prefira Sheet/Responsive Sheet. Se precisa interromper e exigir decisão, use Dialog.
+
+## Casos de uso
+
+- Detalhe de menção a partir de `Mention Card`.
+- Filtros avançados acionados por `Filter Bar`.
+- Fluxo de edição que não justifica página própria.
+- Recomendações ou explicações da Cris no contexto do item.
+- Handover mobile → desktop com deep-link para o mesmo registro.
+- Logs e auditoria com drill-down sem perder a lista de origem.
+
+## Anatomia
+
+| Parte | Papel | Regra |
+|---|---|---|
+| Trigger | Abre a superfície | Deve nomear a ação ou o destino |
+| Header | Título e descrição | Explique o escopo do conteúdo |
+| Body | Conteúdo contextual | Scroll interno; não mova a página por trás |
+| Controls | Ações persistentes | Ficam no rodapé ou header conforme densidade |
+| Close | Saída segura | Disponível por botão, `Esc` e gesto mobile |
+| Backdrop | Separação de camada | Não deve apagar totalmente o contexto |
+
+## Mobile
+
+Em mobile, o padrão vira bottom sheet.
+
+- Use grabber/handle quando o painel puder ser arrastado.
+- Ações primárias ficam na zona confortável do polegar.
+- Fechar por gesto não deve executar ação destrutiva.
+- Conteúdo longo deve ter scroll interno previsível.
+- Respeite `prefers-reduced-motion` para transições de abertura e detent.
+
+Quando houver detents, use alturas previsíveis: peek para resumo, half para revisão, full para formulário ou leitura longa.
+
+## Estados
+
+| Estado | Comportamento |
+|---|---|
+| Loading | Skeleton dentro do body, mantendo header e close disponíveis |
+| Empty | Explique por que não há conteúdo para o item atual |
+| Error | Preserve o sheet aberto e ofereça retry/voltar |
+| Dirty | Bloqueie fechamento acidental ou peça confirmação |
+| Offline | Indique fila local quando houver ação pendente |
+| Assisted by AI | Marque origem, confiança e base da sugestão |
+
+## Regras
+
+1. Não use Responsive Sheet para alerta bloqueante; use Dialog.
+2. Não duplique conteúdo entre desktop e mobile; adapte superfície, não contrato.
+3. Side sheet deve preservar o contexto da lista por trás.
+4. Bottom sheet deve respeitar polegar, gesto de fechamento e scroll interno.
+5. Ações destrutivas precisam de confirmação proporcional.
+6. `Esc`, botão de fechar e gesto mobile devem ter comportamento consistente.
+7. Conteúdo assistido por IA precisa manter rastreabilidade e base visível.
+8. Não esconda filtros ativos dentro do sheet sem contador no trigger.
+9. Não abra sheet sobre sheet sem decisão explícita de stack.
+10. Handover/deep-link deve abrir no mesmo registro e estado esperado.
