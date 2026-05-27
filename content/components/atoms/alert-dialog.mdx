@@ -1,32 +1,71 @@
-# Alert Dialog
-
-> Dialog modal de confirmacao para acoes destrutivas ou irreversiveis.
-
+---
+title: Alert Dialog
+description: Confirmação modal para ações destrutivas, irreversíveis ou de alto impacto.
 ---
 
-## Props
+# Alert Dialog
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+> **Atom / modal primitive**
+>
+> Alert Dialog é para consequência. Ele deve deixar explícito o que será afetado e por que a confirmação é necessária.
 
-## Uso
+Use Alert Dialog quando a ação pode destruir, encerrar, publicar, escalar, sobrescrever ou afetar muitos registros. Ele é mais rígido que Dialog porque a saída errada tem custo operacional.
+
+Para informação persistente não bloqueante, use `Alert`. Para foco curto sem risco alto, use [`Dialog`](/components/organisms/dialog).
+
+## Import
 
 ```tsx
 import { AlertDialog } from "@/components/ui/alert-dialog"
-
-// Exemplo de uso basico
 ```
 
----
+## Quando usar
 
-<details>
-<summary>Exemplos</summary>
+- Excluir, encerrar ou arquivar item crítico.
+- Aplicar ação em massa em página ou filtro inteiro.
+- Publicar, enviar push ou disparar comunicação externa.
+- Aceitar recomendação decisiva da Cris.
+- Descartar alterações não salvas.
 
-### Basico
+Não use Alert Dialog para confirmação trivial. Confirmação demais reduz confiança e cria fadiga.
 
-```tsx
-{/* TODO: adicionar exemplo de uso */}
-```
+## Confirmação proporcional
 
-</details>
+| Escopo | Confirmação |
+|---|---|
+| 1 item reversível | Preferir undo/toast quando seguro |
+| 1 item destrutivo | Confirmar consequência |
+| Página inteira | Nomear quantidade e escopo |
+| Filtro inteiro | Confirmação dupla ou digitar número |
+| Comunicação externa | Nomear canal, audiência e irreversibilidade |
+
+## Anatomia
+
+| Parte | Papel | Regra |
+|---|---|---|
+| Ícone semântico | Reforça severidade | Não depende só de cor |
+| Title | Nomeia ação | Use verbo específico |
+| Description | Nomeia consequência | Inclua quantidade, escopo e irreversibilidade |
+| Evidence | Mostra base quando houver | Especialmente para ação assistida por IA |
+| Cancel | Saída segura | Deve estar sempre disponível |
+| Confirm | Ação final | Variante destrutiva quando aplicável |
+
+## AI e auditoria
+
+Quando a ação vem de sugestão da Cris:
+
+- Mostre que a ação foi assistida por IA.
+- Exponha confiança, base e limites da recomendação.
+- Registre aceite/rejeição no audit trail.
+- Não permita confirmação automática para alto impacto.
+
+## Regras
+
+1. O título deve dizer o que vai acontecer.
+2. A descrição deve dizer quem/quantos/o quê será afetado.
+3. Botão destrutivo não pode ter label genérico.
+4. Cancelar deve ser visualmente claro e seguro.
+5. Ação em massa precisa nomear escopo real: alguns, página ou filtro inteiro.
+6. Para operação irreversível ampla, exija confirmação dupla.
+7. Não esconda incerteza de IA dentro de texto secundário.
+8. Não use Alert Dialog para aviso que pode viver como Alert inline.
