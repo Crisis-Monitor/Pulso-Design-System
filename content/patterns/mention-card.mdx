@@ -1,0 +1,85 @@
+---
+title: Mention Card
+description: Unidade atômica de menção para feeds, busca e triagem operacional.
+---
+
+# Mention Card
+
+> **Operational list pattern**
+>
+> A menção é a menor unidade de leitura operacional. Ela precisa expor risco, origem, evidência e ação sem virar dashboard.
+
+Mention Card representa uma menção individual: post, matéria, comentário, transcrição ou item importado. É usado em feeds, resultados de busca, triagem, clusters e listas laterais.
+
+O card responde três perguntas rapidamente:
+
+1. De onde veio?
+2. Qual é o risco ou sinal relevante?
+3. O que posso fazer agora?
+
+## Anatomia
+
+| Parte | Papel | Regra |
+|---|---|---|
+| Rail lateral | Nível de risco | Usa `stable / monitor / attention / high / critical` |
+| Meta | Fonte, tier, horário, origem | Deve ser legível antes do texto principal |
+| Headline | Resumo ou título | Peso forte; não substitui evidência |
+| Snippet | Trecho verificável | Pode destacar termos da query |
+| Sinais | Métricas compactas | Use números tabulares e delta apenas para movimento |
+| Anotações de IA | Interpretação assistida | Sempre com badge, confiança e base |
+| Ações | Triage e encaminhamento | Rótulos visíveis; menus só para ações secundárias |
+
+## Conteúdo mínimo
+
+Um Mention Card não deve ser publicado sem:
+
+- fonte ou origem;
+- timestamp;
+- texto verificável;
+- nível de risco quando a lista for operacional;
+- ação primária ou estado de triagem.
+
+Se a origem for incerta, declare a incerteza. Não preencha com inferência silenciosa.
+
+## Estados
+
+| Estado | Comportamento |
+|---|---|
+| Default | Card completo, pronto para leitura |
+| Selecionado | Mantém conteúdo e adiciona affordance de seleção |
+| Lido | Rebaixa hierarquia visual, mas não some da lista |
+| Com thread | Indica respostas internas ou encadeamento |
+| Com IA | Mostra anotação auditável com base e confiança |
+| Erro de origem | Expõe falha de coleta ou fonte indisponível |
+
+## Variante compacta
+
+Use em feeds densos, alerts laterais e resultados de busca rápidos.
+
+- Headline em uma linha.
+- Snippet opcional.
+- Menos sinais quantitativos.
+- Ações secundárias em menu.
+- Sem ocultar fonte, horário ou risco.
+
+## IA e rastreabilidade
+
+Anotações de IA são auxiliares, não substituem a evidência original.
+
+| Elemento | Regra |
+|---|---|
+| Badge `AI` | Sempre visível quando houver interpretação gerada |
+| Confiança | Mostre quando a anotação influencia decisão |
+| Base | Indique trecho, cluster, fonte ou regra que sustentou a leitura |
+| Ação sugerida | Deve ser revisável e reversível quando possível |
+
+## Regras
+
+1. Rail lateral é primeira leitura de risco; use os níveis canônicos.
+2. Headline não deve esconder a fonte nem o horário.
+3. Delta indica movimento de métrica, não risco operacional.
+4. Mais de quatro sinais quantitativos viram ruído; escolha os mais relevantes.
+5. Snippet longo deve abrir detalhe, não expandir indefinidamente o feed.
+6. Cards lidos continuam visíveis; apenas reduza hierarquia.
+7. Ícones de ação precisam de label acessível e, em ações principais, label visível.
+8. Sugestão de IA sem base ou confiança não entra no card operacional.

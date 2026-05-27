@@ -1,0 +1,79 @@
+---
+title: Bulk actions & multi-select
+description: Seleção em massa para listas operacionais com escopo explícito e confirmação proporcional.
+---
+
+# Bulk actions & multi-select
+
+> **Operational list pattern**
+>
+> Seleção em massa é uma ação de escopo. O padrão precisa deixar claro se o operador selecionou alguns itens, a página inteira ou todo o filtro.
+
+Use este padrão quando uma lista permite aplicar ações a várias menções, alertas, fontes, casos ou registros de auditoria.
+
+O objetivo é evitar a ambiguidade clássica: “todos” significa todos visíveis, todos da página ou todos do filtro?
+
+## Quatro fases
+
+| Fase | Escopo | UI esperada | Risco |
+|---|---|---|---|
+| 0 | Nada selecionado | Lista normal | Nenhum |
+| 1 | Alguns itens | SelectionBar aparece | Baixo |
+| 2 | Todos da página | Hint de página completa | Médio |
+| 3 | Todos do filtro | Escopo expandido nomeado | Alto |
+
+A SelectionBar aparece a partir do primeiro item selecionado. Quando há itens fora da página, mostre a passagem de `todos da página` para `todos do filtro` como uma escolha explícita.
+
+## SelectionBar
+
+| Elemento | Papel |
+|---|---|
+| Contador | Número de itens selecionados |
+| Escopo | Página ou filtro inteiro |
+| Ações primárias | Atribuir, marcar, arquivar, exportar |
+| Ações críticas | Encerrar, excluir, ocultar, aplicar regra |
+| Limpar seleção | Sempre disponível; `Esc` também limpa |
+
+A SelectionBar deve ser sticky no topo da lista. Se ela desaparece durante rolagem, o operador perde o escopo da ação.
+
+## Confirmação por escopo
+
+| Escopo | Ação reversível | Ação destrutiva |
+|---|---|---|
+| 1–10 itens | Toast com undo | Confirmação simples |
+| Página inteira | Confirmação simples | Confirmação com consequência |
+| Filtro inteiro | Confirmação explícita | Confirmação dupla nomeando o número |
+
+A confirmação precisa nomear consequência, não apenas perguntar “tem certeza?”.
+
+## Teclado
+
+| Atalho | Ação |
+|---|---|
+| `Esc` | Limpa seleção |
+| `Shift` + clique | Seleciona intervalo |
+| `Cmd/Ctrl` + clique | Alterna item individual |
+| `A` com foco na lista | Seleciona página quando suportado |
+
+Atalhos não devem executar ação destrutiva. Eles só controlam seleção.
+
+## Composição
+
+Use com:
+
+- `Mention Card` em feeds e resultados.
+- `Filter Bar` quando seleção pode atravessar páginas.
+- `Table` quando a seleção é tabular.
+- `Toast` para undo de ações reversíveis.
+- `Dialog` para confirmação proporcional.
+
+## Regras
+
+1. Não trate `selecionar todos da página` como `selecionar todos do filtro`.
+2. Mostre o número real quando o escopo passa para filtro inteiro.
+3. Use cor/ênfase maior quando a ação atravessa página.
+4. `Esc` limpa seleção sem confirmação.
+5. Ações destrutivas em filtro inteiro exigem confirmação dupla.
+6. Undo serve para ações pequenas e reversíveis; não para operação destrutiva ampla.
+7. Não use SelectionBar fora de listas.
+8. Não esconda a SelectionBar durante rolagem.
