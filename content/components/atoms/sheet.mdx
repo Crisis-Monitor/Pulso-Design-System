@@ -1,32 +1,69 @@
-# Sheet
-
-> Overlay deslizante (slide-over) para formularios e detalhes.
-
+---
+title: Sheet
+description: Overlay lateral para drill-down, filtros e edição contextual em desktop.
 ---
 
-## Props
+# Sheet
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+> **Atom / overlay primitive**
+>
+> Sheet é um painel deslizante a partir de uma borda. Ele preserva contexto; não interrompe como um Dialog.
 
-## Uso
+Use Sheet quando a tarefa precisa de uma camada lateral conectada à página: drill-down de menção, filtros avançados, configuração contextual ou edição curta.
+
+Para fluxos que precisam funcionar igualmente em desktop e mobile, prefira [`Responsive Sheet`](/components/organisms/responsive-sheet). Ele adapta Sheet no desktop e bottom sheet no mobile.
+
+## Import
 
 ```tsx
 import { Sheet } from "@/components/ui/sheet"
-
-// Exemplo de uso basico
 ```
 
----
+## Quando usar
 
-<details>
-<summary>Exemplos</summary>
+- Drill-down de item mantendo a lista visível.
+- Filtros avançados acionados por `Filter Bar`.
+- Configuração lateral que não exige página própria.
+- Formulários curtos que dependem do contexto de origem.
+- Navegação temporária em layouts específicos.
 
-### Basico
+Não use Sheet para confirmação crítica, alerta bloqueante ou decisão destrutiva. Nesses casos, use Dialog.
 
-```tsx
-{/* TODO: adicionar exemplo de uso */}
-```
+## Direções
 
-</details>
+| Direção | Uso | Regra |
+|---|---|---|
+| Right | Drill-down, detalhe, edição | Padrão desktop |
+| Left | Navegação ou chrome temporário | Use com cuidado para não competir com sidebar |
+| Bottom | Ação mobile ou painel inferior | Em produto responsivo, prefira `Responsive Sheet` |
+| Top | Casos raros de sistema | Evite para conteúdo operacional longo |
+
+## Sheet vs Dialog
+
+| Superfície | Relação com contexto | Uso correto |
+|---|---|---|
+| Sheet | Mantém a página por trás como contexto | Explorar, filtrar, editar sem sair da lista |
+| Dialog | Interrompe e exige decisão | Confirmar, bloquear, resolver consequência crítica |
+
+Se o usuário precisa comparar com a lista de origem, use Sheet. Se precisa parar e decidir, use Dialog.
+
+## Anatomia
+
+| Parte | Papel |
+|---|---|
+| Trigger | Nomeia a ação que abre o painel |
+| Header | Explica o escopo do painel |
+| Body | Conteúdo contextual com scroll interno |
+| Footer/controls | Ações persistentes quando necessário |
+| Close | Saída clara via botão e `Esc` |
+| Backdrop | Separa camada sem apagar o contexto |
+
+## Regras
+
+1. Não abra Sheet sobre Sheet sem decisão explícita de stack.
+2. Não use sombra forte para compensar hierarquia ruim; use superfície, borda e elevação correta.
+3. Filtros ativos dentro do Sheet precisam aparecer no trigger ou na `Filter Bar`.
+4. Conteúdo longo deve rolar dentro do Sheet, não a página por trás.
+5. Ações destrutivas dentro do Sheet exigem confirmação proporcional.
+6. Em mobile, prefira `Responsive Sheet` para adaptar a superfície.
+7. Conteúdo assistido por IA precisa mostrar origem, confiança e base.
