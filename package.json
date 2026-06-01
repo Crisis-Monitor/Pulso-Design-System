@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build && pagefind --site out --output-subdir _pagefind",
+    "build:pages": "GITHUB_PAGES=true next build && pagefind --site out --output-subdir _pagefind && touch out/.nojekyll",
     "search:index": "pagefind --site out --output-subdir _pagefind",
     "search:index:dev": "pagefind --site out --output-path public/_pagefind",
     "dev:search": "next build && pagefind --site out --output-path public/_pagefind && next dev --turbopack"
@@ -31,6 +32,9 @@
     "@types/react-dom": "^19.1.0",
     "tailwindcss": "^4.1.0",
     "typescript": "^5.8.3"
+  },
+  "patchedDependencies": {
+    "nextra-theme-docs@4.6.1": "patches/nextra-theme-docs@4.6.1.patch"
   },
   "pnpm": {
     "patchedDependencies": {

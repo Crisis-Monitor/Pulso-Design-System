@@ -1,47 +1,82 @@
 ---
 title: Pulso Design System
-description: Sistema de design para o Orchids Crisis Manager — identidade, IA auditável e paridade mobile para gestão de crise.
+description: Design system para operações de crise, IA auditável e decisão humana.
 ---
 
 # Pulso Design System
 
-Pulso é o sistema de design do **Orchids Crisis Manager** — plataforma de gestão de crise, monitoramento de reputação e decisão assistida.
+Design system para **operações de crise, IA auditável e decisão humana**.
 
-## v3 em uma frase
+Pulso é a linguagem visual do Orchids Crisis Manager: estrutura, tokens,
+componentes e padrões para transformar sinais de reputação em leitura operacional
+clara, rastreável e acionável.
 
-A v3 dá identidade própria ao sistema: **Pulso sem o roxo ainda é Pulso**. A interface passa a depender menos de cor e mais de tipografia, ritmo, signature shapes, marcação de IA e contratos mobile.
+<div className="mt-8 grid gap-4 md:grid-cols-3">
+  <a className="rounded-xl border bg-card p-6 no-underline transition hover:border-primary" href="showcase">
+    <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+      Showcase
+    </p>
+    <h2 className="mt-3 text-2xl font-bold">Ver o sistema em ação</h2>
+    <p className="mt-3 text-sm text-muted-foreground">
+      Demonstrações visuais curadas a partir dos protótipos do Open Design.
+    </p>
+  </a>
 
-## O que o sistema garante
+  <a className="rounded-xl border bg-card p-6 no-underline transition hover:border-primary" href="release/v3">
+    <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+      Release
+    </p>
+    <h2 className="mt-3 text-2xl font-bold">Pulso v3.0</h2>
+    <p className="mt-3 text-sm text-muted-foreground">
+      Identidade por estrutura, padrões de IA e paridade mobile.
+    </p>
+  </a>
 
-- **Clareza operacional** para estado, risco, prioridade e consequência.
-- **Consistência visual** entre produto, documentação e templates.
-- **IA auditável**: conteúdo da Cris tem origem, confiança, fontes e trilha.
-- **Paridade mobile**: gestos, offline e hit targets críticos documentados.
-- **Evolução incremental**: tokens v3 são majoritariamente aditivos.
+  <a className="rounded-xl border bg-card p-6 no-underline transition hover:border-primary" href="foundations/colors">
+    <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+      Contrato
+    </p>
+    <h2 className="mt-3 text-2xl font-bold">Tokens e fundamentos</h2>
+    <p className="mt-3 text-sm text-muted-foreground">
+      `globals.css`, DESIGN.md e páginas MDX seguem como fonte canônica.
+    </p>
+  </a>
+</div>
 
-## Estrutura
+## O que o Pulso garante
 
-| Nível | Descrição | Exemplos |
-|-------|-----------|----------|
-| **Foundations** | Tokens, tipografia, cores, espaçamento, ícones e motion | Base de todo o sistema |
-| **Componentes** | Átomos, moléculas e organismos | Button, Badge, MetricCard, Table |
-| **Padrões** | Composições para cenários reais | Risk Levels, Crisis Status |
-| **Templates** | Estruturas completas de página | Dashboard, Crisis Detail, Settings |
-| **Conceitual** | Filosofia, princípios e regras de IA | Conceito, padrões, AI Rules |
-| **Release** | Narrativa e migração | v3.0 |
+<div className="grid gap-3 md:grid-cols-2">
+  <div className="rounded-lg border bg-card p-5">
+    <strong>Clareza operacional</strong>
+    <p className="mt-2 text-sm text-muted-foreground">
+      Estado, risco, prioridade e consequência aparecem antes de ornamento visual.
+    </p>
+  </div>
+  <div className="rounded-lg border bg-card p-5">
+    <strong>IA auditável</strong>
+    <p className="mt-2 text-sm text-muted-foreground">
+      Conteúdo da Cris declara origem, confiança, fontes e trilha de decisão.
+    </p>
+  </div>
+  <div className="rounded-lg border bg-card p-5">
+    <strong>Identidade sem depender de cor</strong>
+    <p className="mt-2 text-sm text-muted-foreground">
+      Tipografia, ritmo, assinatura numérica e formas carregam reconhecimento.
+    </p>
+  </div>
+  <div className="rounded-lg border bg-card p-5">
+    <strong>Paridade mobile</strong>
+    <p className="mt-2 text-sm text-muted-foreground">
+      Gestos, offline, handover e alvos críticos são parte do contrato.
+    </p>
+  </div>
+</div>
 
-## Princípios rápidos
+## Caminhos principais
 
-1. **Clareza sobre ornamento** — cada elemento comunica algo verificável.
-2. **Estado antes de estética** — risco, origem e consequência vêm primeiro.
-3. **Dados primeiro** — números críticos usam mono e alinhamento tabular.
-4. **IA não é chrome** — Cris aparece como vocabulário, origem e trilha.
-5. **Mobile não é exceção** — ações críticas respeitam paridade e toque.
-
-## Navegação
-
-- [Getting Started](/getting-started/installation) — instalação e quick start v3
-- [Foundations](/foundations/colors) — tokens e fundamentos visuais
-- [Componentes](/components/atoms/alert) — biblioteca documentada
-- [Padrões](/patterns/crisis-status) — composições de cenário real
-- [Release v3](/release/v3) — identidade, IA patterns e mobile
+- [Showcase](/showcase) — camada visual para apresentar o Pulso DS.
+- [Foundations](/foundations/colors) — tokens, tipo, cor, ritmo e densidade.
+- [Components](/components/atoms/button) — componentes documentados.
+- [Patterns](/patterns/crisis-status) — composições para cenários reais.
+- [Accessibility](/accessibility/contrast) — contraste, foco, movimento e redundância.
+- [Governance](/governance/token-architecture) — arquitetura, RFC e adoção.

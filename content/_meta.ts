@@ -1,5 +1,6 @@
 export default {
   index: 'Overview',
+  showcase: 'Showcase',
   'getting-started': 'Getting started',
   release: 'Release',
   roadmap: 'Roadmap',
