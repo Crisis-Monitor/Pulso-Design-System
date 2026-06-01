@@ -1,32 +1,55 @@
-# Calendar
-
-> Seletor de data para filtros e agendamentos.
-
+---
+title: Calendar
+description: Seletor de data e range para filtros, relatórios e agendamentos.
 ---
 
-## Props
+# Calendar
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+> **Atom / date primitive**
+>
+> Calendar resolve data. DatePicker resolve a experiência de escolher data dentro de um popover/trigger.
 
-## Uso
+Use Calendar para seleção de data em filtros temporais, relatórios, agendamentos, data de incidente e deadlines. Para produto, ele normalmente aparece como DatePicker: trigger de 36px, ícone de calendário e popover com calendário.
+
+## Import
 
 ```tsx
 import { Calendar } from "@/components/ui/calendar"
-
-// Exemplo de uso basico
 ```
 
----
+## DatePicker contract
 
-<details>
-<summary>Exemplos</summary>
+| Parte | Regra |
+|---|---|
+| Trigger | Mesma altura de Input/Select; ícone à esquerda; valor formatado |
+| Single date | Um mês visível; hoje marcado sem competir com seleção |
+| Range | Dois meses lado a lado em desktop; presets para intervalos comuns |
+| Mobile | Popover vira superfície adequada ao viewport quando necessário |
+| Locale | pt-BR por padrão em produto Pulso |
 
-### Basico
+## Quando usar
 
-```tsx
-{/* TODO: adicionar exemplo de uso */}
-```
+- Filtros temporais em dashboards e relatórios.
+- Data de incidente, agendamento ou deadline.
+- Range com presets para queries comuns.
+- Revisão de períodos de auditoria.
 
-</details>
+Não use Calendar quando a escolha é uma das poucas opções fixas. Para `24h / 7d / 30d`, use segmented/radio. Para hora isolada, use input de horário específico.
+
+## Single date vs range
+
+| Modo | Uso | Regra |
+|---|---|---|
+| Single date | Incidente, deadline, agendamento | Valor único e claro |
+| Range | Dashboard, relatório, auditoria | Presets para últimos 7/30 dias, este mês, trimestre |
+| Relative period | Consulta rápida e frequente | Prefira segmented control |
+
+## Regras
+
+1. Não esconda o período ativo; ele muda a leitura dos dados.
+2. Range deve indicar início e fim com clareza.
+3. Hoje pode ser marcado, mas não deve competir com seleção.
+4. Presets precisam refletir as queries mais comuns.
+5. Datas em logs/auditoria devem preservar timezone quando relevante.
+6. Menos de quatro opções fixas viram Radio/Segmented, não calendário.
+7. Estado inválido precisa explicar limite, não apenas bloquear seleção.
