@@ -77,6 +77,26 @@ bun install
 bun run dev
 ```
 
+## Busca local
+
+A busca da documentação usa Pagefind. Como o Nextra 4 indexa os HTMLs exportados,
+o índice só existe depois de um build estático:
+
+```bash
+bun run build
+```
+
+Para testar a busca durante desenvolvimento, gere também a cópia servida pelo
+Next dev e reinicie a aplicação:
+
+```bash
+bun run search:index:dev
+bun run dev
+```
+
+Use `bun run dev:search` quando quiser executar o fluxo completo em uma única
+etapa: build, índice de desenvolvimento e servidor local.
+
 ## Checklist de publicação
 
 - Tokens copiados de `src/app/globals.css`, não de exemplos antigos.

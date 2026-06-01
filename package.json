@@ -3,7 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack"
+    "dev": "next dev --turbopack",
+    "build": "next build && pagefind --site out --output-subdir _pagefind",
+    "search:index": "pagefind --site out --output-subdir _pagefind",
+    "search:index:dev": "pagefind --site out --output-path public/_pagefind",
+    "dev:search": "next build && pagefind --site out --output-path public/_pagefind && next dev --turbopack"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.0",

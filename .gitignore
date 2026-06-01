@@ -2,5 +2,6 @@ node_modules
 .next
 out
 dist
+public/_pagefind
 .env
 .DS_Store
