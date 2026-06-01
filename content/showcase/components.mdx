@@ -1,0 +1,80 @@
+---
+title: Components
+description: Demonstrações visuais de componentes em contexto operacional.
+---
+
+# Components
+
+Componentes do Pulso são instrumentos de decisão. A demonstração visual prioriza
+hierarquia, estado, consequência e rastreabilidade.
+
+## Ações
+
+<div className="rounded-2xl border bg-card p-6">
+  <div className="grid gap-5">
+    <div className="grid gap-3 md:grid-cols-[160px_1fr] md:items-center">
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+        Primary
+      </p>
+      <div className="flex flex-wrap gap-3">
+        <button className="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground">Declarar crise</button>
+        <button className="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground">Continuar →</button>
+        <button className="rounded-md bg-primary/45 px-4 py-2 font-medium text-primary-foreground" disabled>Disabled</button>
+      </div>
+    </div>
+    <div className="grid gap-3 md:grid-cols-[160px_1fr] md:items-center">
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+        Secondary
+      </p>
+      <div className="flex flex-wrap gap-3">
+        <button className="rounded-md border bg-background px-4 py-2 font-medium">Exportar</button>
+        <button className="rounded-md border bg-background px-4 py-2 font-medium">+ Adicionar fonte</button>
+      </div>
+    </div>
+    <div className="grid gap-3 md:grid-cols-[160px_1fr] md:items-center">
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+        Destructive
+      </p>
+      <div className="flex flex-wrap gap-3">
+        <button className="rounded-md px-4 py-2 font-medium text-white" style={{ background: "var(--risk-critical-text)" }}>
+          Encerrar caso
+        </button>
+        <button className="rounded-md border px-4 py-2 font-medium" style={{ color: "var(--risk-critical-text)", borderColor: "var(--risk-critical-border)" }}>
+          Excluir fonte
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+## Estado operacional
+
+<div className="grid gap-4 md:grid-cols-3">
+  <div className="rounded-xl border bg-card p-5">
+    <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+      Alert
+    </p>
+    <h2 className="mt-3 text-xl font-bold">Narrativa em aceleração</h2>
+    <p className="mt-2 text-sm text-muted-foreground">
+      A variação de menções indica possível transição para atenção.
+    </p>
+  </div>
+  <div className="rounded-xl border bg-card p-5" style={{ borderLeft: "var(--ai-marker-border)" }}>
+    <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+      Cris
+    </p>
+    <h2 className="mt-3 text-xl font-bold">Resumo assistido</h2>
+    <p className="mt-2 text-sm text-muted-foreground">
+      [Inferência] O foco público migrou de atendimento para governança.
+    </p>
+  </div>
+  <div className="rounded-xl border bg-card p-5">
+    <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+      Metric
+    </p>
+    <strong className="mono mt-3 block text-4xl" data-numeric>+18%</strong>
+    <p className="mt-2 text-sm text-muted-foreground">movimento nas últimas 2h</p>
+  </div>
+</div>
+
+Ver também: [Button](/components/atoms/button), [Alert](/components/atoms/alert) e [Metric Card](/components/molecules/metric-card).

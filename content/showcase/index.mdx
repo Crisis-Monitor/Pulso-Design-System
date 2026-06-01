@@ -1,0 +1,54 @@
+---
+title: Showcase
+description: Camada visual curada para apresentar o Pulso DS.
+---
+
+# Showcase
+
+Esta seção mostra o Pulso como produto de design: não substitui a documentação,
+mas ajuda a explicar regras, diretrizes, componentes e comportamentos de forma
+mais visual.
+
+Os exemplos foram reconstruídos em MDX/React com tokens atuais. Os HTMLs do Open
+Design servem como referência editorial e visual, não como código importado.
+
+<div className="mt-8 grid gap-4 md:grid-cols-3">
+  <a className="rounded-xl border bg-card p-6 no-underline transition hover:border-primary" href="./release-v3">
+    <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+      Release
+    </p>
+    <h2 className="mt-3 text-2xl font-bold">v3 em narrativa</h2>
+    <p className="mt-3 text-sm text-muted-foreground">
+      Identidade, IA e mobile como três frentes de uma mesma evolução.
+    </p>
+  </a>
+
+  <a className="rounded-xl border bg-card p-6 no-underline transition hover:border-primary" href="./foundations">
+    <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+      Foundations
+    </p>
+    <h2 className="mt-3 text-2xl font-bold">Sistema visível</h2>
+    <p className="mt-3 text-sm text-muted-foreground">
+      Superfícies, risco, ritmo e assinatura numérica em demonstrações rápidas.
+    </p>
+  </a>
+
+  <a className="rounded-xl border bg-card p-6 no-underline transition hover:border-primary" href="./components">
+    <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+      Components
+    </p>
+    <h2 className="mt-3 text-2xl font-bold">Comportamento em contexto</h2>
+    <p className="mt-3 text-sm text-muted-foreground">
+      Componentes como instrumentos de decisão, não como inventário decorativo.
+    </p>
+  </a>
+</div>
+
+## Como ler esta camada
+
+| Regra | Implicação |
+|-------|------------|
+| Visual é demonstração | A fonte canônica continua nas páginas MDX e em `globals.css`. |
+| Sem HTML bruto | Exemplos são reconstruídos com tokens atuais. |
+| Sem novos tokens | Esta etapa não altera `src/app/globals.css`. |
+| Sem runtime de produto | O Pulso segue como contrato visual e documental. |
