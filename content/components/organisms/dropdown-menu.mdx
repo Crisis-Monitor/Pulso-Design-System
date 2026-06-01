@@ -1,38 +1,81 @@
 ---
 title: Dropdown Menu
-description: Menu contextual com ações agrupadas, atalhos e submenus.
+description: Menu contextual para ações secundárias, overflow e opções compactas.
 ---
 
 # Dropdown Menu
 
-Menu que aparece ao clicar em um trigger, com ações agrupadas e submenus.
+> **Organism**
+>
+> Dropdown Menu é para ações ou opções contextuais. Não é Select de formulário.
+
+Use Dropdown Menu quando um trigger precisa revelar ações secundárias, overflow, seções de menu, atalhos ou ações de linha. Ele deve ser rápido, previsível e fácil de fechar.
 
 ## Import
 
 ```tsx
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuGroup, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from "@/components/ui/dropdown-menu"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 ```
 
 ## Uso básico
 
 ```tsx
 <DropdownMenu>
-  <DropdownMenuTrigger asChild><Button variant="outline">Abrir</Button></DropdownMenuTrigger>
+  <DropdownMenuTrigger asChild>
+    <Button variant="outline">Ações</Button>
+  </DropdownMenuTrigger>
   <DropdownMenuContent>
-    <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+    <DropdownMenuLabel>Menção</DropdownMenuLabel>
     <DropdownMenuSeparator />
     <DropdownMenuGroup>
-      <DropdownMenuItem>Perfil</DropdownMenuItem>
-      <DropdownMenuItem>Configurações</DropdownMenuItem>
+      <DropdownMenuItem>Atribuir</DropdownMenuItem>
+      <DropdownMenuItem>Copiar link</DropdownMenuItem>
     </DropdownMenuGroup>
     <DropdownMenuSeparator />
-    <DropdownMenuItem variant="destructive">Sair</DropdownMenuItem>
+    <DropdownMenuItem variant="destructive">Arquivar</DropdownMenuItem>
   </DropdownMenuContent>
 </DropdownMenu>
 ```
 
 ## Quando usar
 
-- Ações contextuais em botões ou ícones
-- Menu de usuário (avatar no header)
-- Ações em linhas de tabela
+- Ações secundárias em botões ou ícones.
+- Menu de usuário no header.
+- Ações em linhas de tabela.
+- Overflow de ações quando a superfície ficaria poluída.
+- Picker compacto que não pertence a formulário.
+
+Não use Dropdown Menu para seleção de valor em formulário. Use Select. Não use para confirmação destrutiva; acione Alert Dialog.
+
+## Anatomia
+
+| Parte | Papel | Regra |
+|---|---|---|
+| Trigger | Origem do menu | Deve indicar que há opções |
+| Item | Ação ou opção | Label com verbo específico |
+| Leading icon | Reconhecimento rápido | Não substitui label |
+| Shortcut/trailing | Atalho ou estado | Use apenas quando real |
+| Separator | Agrupa categorias | Não exagere |
+| Label | Nomeia seção | Útil para menus longos |
+
+## Regras
+
+1. Ação principal não deve ficar escondida no menu.
+2. Itens destrutivos ficam separados e nomeados claramente.
+3. Menu longo precisa de seções ou outra superfície.
+4. Dropdown não substitui Select em formulário.
+5. Atalhos exibidos precisam existir.
+6. Ícones sem label não são suficientes.
+7. Em mobile, considere Drawer/Responsive Sheet se o menu ficar denso.
