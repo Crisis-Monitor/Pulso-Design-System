@@ -1,16 +1,95 @@
-# alert
+---
+title: Alert
+description: Mensagem persistente e não-bloqueante para estado, evidência e atenção operacional.
+---
 
-Documentação do componente alert.
+# Alert
+
+> **Atom / feedback primitive**
+>
+> Alert vive na página. Ele informa, orienta ou evidencia sem interromper o fluxo como um Dialog.
+
+Alert é uma mensagem persistente com peso semântico. Diferente de `Toast`, ele não desaparece sozinho. Diferente de [`Dialog`](/components/organisms/dialog) e [`Alert Dialog`](/components/atoms/alert-dialog), ele não bloqueia a tarefa.
+
+Use Alert quando a informação precisa permanecer visível até ser resolvida, dispensada ou substituída por um estado novo.
 
 ## Import
 
 ```tsx
-import { alert } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 ```
 
-## Uso
+## Uso básico
 
 ```tsx
-<alert />
+<Alert>
+  <AlertTitle>Fonte temporariamente indisponível</AlertTitle>
+  <AlertDescription>
+    Os dados desta fonte podem estar atrasados. Última sincronização há 18 min.
+  </AlertDescription>
+</Alert>
 ```
 
+## Alert vs Toast vs Dialog
+
+| Superfície | Persistência | Bloqueia? | Uso |
+|---|---:|---:|---|
+| `Alert` | Persistente | Não | Estado relevante dentro da página |
+| `Toast` | Efêmero | Não | Feedback curto após ação |
+| `Dialog` | Até decisão | Sim | Foco curto e bloqueante |
+| `Alert Dialog` | Até confirmação | Sim | Ação destrutiva ou irreversível |
+
+Se o usuário pode continuar trabalhando, use Alert. Se precisa parar e decidir, use Dialog ou Alert Dialog.
+
+## Variantes semânticas
+
+| Variante | Uso | Regra |
+|---|---|---|
+| Info | Contexto neutro ou instrução | Não deve parecer erro |
+| Success | Confirmação persistente de estado resolvido | Use com parcimônia; toast pode bastar |
+| Warning | Atenção antes de consequência | Nomeie o risco ou limitação |
+| Destructive | Erro persistente ou impacto alto | Não use só cor; inclua ícone/texto claro |
+| Evidence | Informação de base, fonte ou auditoria | Explique origem e limite da evidência |
+
+Cor sozinha não comunica. Ícone, título e texto precisam carregar o significado.
+
+## Densidade e posição
+
+| Formato | Quando usar | Regra |
+|---|---|---|
+| Banner sólido | Atenção alta no topo da superfície | No máximo um por página |
+| Inline | Contexto dentro de formulário ou seção | Pode omitir ícone se o texto for claro |
+| Card/local | Estado de um bloco específico | Não deve parecer status global |
+| Evidence | Base de decisão ou fonte | Mantenha rastreável e verificável |
+
+## Anatomia
+
+| Parte | Papel |
+|---|---|
+| Ícone | Reforça semântica sem depender só de cor |
+| Title | Resume o estado ou risco |
+| Description | Explica impacto, limite ou próxima ação |
+| Action opcional | Resolve ou leva ao detalhe |
+| Dismiss opcional | Remove apenas se a informação puder sair com segurança |
+
+## IA e evidência
+
+Quando Alert comunica conteúdo assistido pela Cris:
+
+- indique que é assistido por IA;
+- mostre base, fonte ou regra que sustentou a mensagem;
+- declare incerteza quando houver;
+- não transforme recomendação crítica em alert passivo se ela exige decisão.
+
+## Regras
+
+1. Alert não bloqueia fluxo.
+2. Use Dialog quando a tarefa precisa parar.
+3. Use Alert Dialog quando há ação destrutiva ou irreversível.
+4. Não use Alert para feedback efêmero; use Toast.
+5. Um banner sólido de alta atenção por página, no máximo.
+6. Título deve nomear o estado; descrição deve explicar consequência ou próxima ação.
+7. Não dependa só de cor para severidade.
+8. Alert de evidência precisa apontar origem ou base verificável.
+9. Alert dispensável não pode esconder problema ainda ativo.
+10. Alert persistente precisa ter condição clara de resolução.
