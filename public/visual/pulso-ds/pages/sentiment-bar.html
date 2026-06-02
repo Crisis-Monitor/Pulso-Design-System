@@ -13,6 +13,7 @@
   --sent-neutral-bg: #F1F2F5;
   --sent-negative: #D63D4E;
   --sent-negative-bg: #FBEEF0;
+  --sent-scale-tick-fg: rgba(255,255,255,0.92);
 }
 .dark {
   --sent-positive: #4ADE80;
@@ -21,6 +22,7 @@
   --sent-neutral-bg: rgba(156, 163, 175, 0.10);
   --sent-negative: #F47080;
   --sent-negative-bg: rgba(244, 112, 128, 0.10);
+  --sent-scale-tick-fg: rgba(255,255,255,0.92);
 }
 
 /* Stacked bar */
@@ -91,7 +93,7 @@
   flex: 1;
   font-family: var(--font-pulso-mono); font-size: 10px;
   text-align: center;
-  color: rgba(255,255,255, 0.92);
+  color: var(--sent-scale-tick-fg);
   text-transform: uppercase; letter-spacing: 0.06em;
   font-weight: 600;
 }
