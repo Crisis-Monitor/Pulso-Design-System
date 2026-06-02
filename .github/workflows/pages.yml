@@ -1,9 +1,9 @@
 name: Deploy GitHub Pages
 
 on:
-  # Enable the push trigger after GitHub Pages is available for this repository.
-  # Current private-repo plan blocks Pages creation, so manual dispatch avoids
-  # failing every main push while keeping the deployment workflow ready.
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
