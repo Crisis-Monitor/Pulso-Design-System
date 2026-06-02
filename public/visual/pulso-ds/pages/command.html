@@ -32,8 +32,7 @@ html.dark .cmd-overlay { background: rgba(0, 0, 0, 0.55); }
 .cmd-item .meta { font-size: 11.5px; color: var(--fg-muted); margin-top: 2px; }
 .cmd-item .right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .cmd-item .kbd { font-family: var(--font-pulso-mono); font-size: 10.5px; padding: 1px 5px; background: var(--muted); border: 1px solid var(--border-faint); border-radius: 3px; color: var(--fg-secondary); font-weight: 500; }
-.cmd-item.focus .kbd { background: rgba(255,255,255,0.6); }
-html.dark .cmd-item.focus .kbd { background: rgba(255,255,255,0.06); }
+.cmd-item.focus .kbd { background: color-mix(in oklab, var(--primary) 12%, var(--card)); border-color: var(--primary-border); color: var(--primary); }
 
 .cmd-tag { font-family: var(--font-pulso-mono); font-size: 10px; padding: 1px 6px; border-radius: 3px; font-weight: 600; letter-spacing: 0.04em; }
 .cmd-tag.crisis { background: var(--risk-critical-bg); color: var(--risk-critical); }
