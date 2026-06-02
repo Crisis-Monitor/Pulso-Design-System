@@ -51,15 +51,20 @@
 
 /* Solid (high attention) */
 .palert-solid {
+  --alert-solid-fg: #FFFFFF;
+  --alert-solid-fg-muted: rgba(255,255,255,0.92);
+  --alert-solid-border: rgba(255,255,255,0.4);
+  --alert-solid-hover-bg: rgba(255,255,255,0.15);
   background: var(--destructive);
   border-color: var(--destructive);
-  color: #fff;
+  color: var(--alert-solid-fg);
 }
-.palert-solid .palert-icon, .palert-solid .palert-title, .palert-solid .palert-desc { color: #fff; }
-.palert-solid .palert-act { background: transparent; color: #fff; border-color: rgba(255,255,255,0.4); }
-.palert-solid .palert-act-primary { background: #fff; color: var(--destructive); border-color: #fff; }
-.palert-solid .palert-close { color: rgba(255,255,255,0.7); }
-.palert-solid .palert-close:hover { color: #fff; background: rgba(255,255,255,0.15); }
+.palert-solid .palert-icon, .palert-solid .palert-title { color: var(--alert-solid-fg); }
+.palert-solid .palert-desc { color: var(--alert-solid-fg-muted); }
+.palert-solid .palert-act { background: transparent; color: var(--alert-solid-fg); border-color: var(--alert-solid-border); }
+.palert-solid .palert-act-primary { background: var(--alert-solid-fg); color: var(--destructive); border-color: var(--alert-solid-fg); }
+.palert-solid .palert-close { color: var(--alert-solid-fg-muted); }
+.palert-solid .palert-close:hover { color: var(--alert-solid-fg); background: var(--alert-solid-hover-bg); }
 
 /* Inline (no icon, slim) */
 .palert-inline { padding: 8px 12px; grid-template-columns: 1fr auto; }
@@ -140,7 +145,7 @@
         <svg class="palert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>
         <div class="palert-body">
           <div class="palert-title">Crise escalou para nível crítico — score 87</div>
-          <div class="palert-desc" style="opacity: 0.92;">Volume saltou 340% nas últimas 2h. 3 veículos Tier 1 publicaram. Cris recomenda acionar protocolo de resposta executiva.</div>
+          <div class="palert-desc">Volume saltou 340% nas últimas 2h. 3 veículos Tier 1 publicaram. Cris recomenda acionar protocolo de resposta executiva.</div>
           <div class="palert-actions">
             <button class="palert-act palert-act-primary">Ativar protocolo</button>
             <button class="palert-act">Ver evidências</button>
