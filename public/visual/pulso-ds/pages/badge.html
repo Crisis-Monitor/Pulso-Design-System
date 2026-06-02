@@ -26,8 +26,8 @@
 .pbg-stable .pbg-dot { background: var(--risk-stable); }
 .pbg-monitor  { background: var(--risk-monitor-bg);  color: var(--risk-monitor);  border-color: var(--risk-monitor-border); }
 .pbg-monitor .pbg-dot { background: var(--risk-monitor); }
-.pbg-medium   { background: var(--risk-medium-bg);   color: var(--risk-medium);   border-color: var(--risk-medium-border); }
-.pbg-medium .pbg-dot { background: var(--risk-medium); }
+.pbg-attention { background: var(--risk-attention-bg); color: var(--risk-attention-text); border-color: var(--risk-attention-border); }
+.pbg-attention .pbg-dot { background: var(--risk-attention); }
 .pbg-high     { background: var(--risk-high-bg);     color: var(--risk-high);     border-color: var(--risk-high-border); }
 .pbg-high .pbg-dot { background: var(--risk-high); }
 .pbg-critical { background: var(--risk-critical-bg); color: var(--risk-critical); border-color: var(--risk-critical-border); }
@@ -75,7 +75,7 @@
       <div class="preview-row">
         <span class="pbg pbg-stable"><span class="pbg-dot"></span>Estável</span>
         <span class="pbg pbg-monitor"><span class="pbg-dot"></span>Monitorar</span>
-        <span class="pbg pbg-medium"><span class="pbg-dot"></span>Médio</span>
+        <span class="pbg pbg-attention"><span class="pbg-dot"></span>Atenção</span>
         <span class="pbg pbg-high"><span class="pbg-dot"></span>Alto</span>
         <span class="pbg pbg-critical"><span class="pbg-dot"></span>Crítico · ao vivo</span>
       </div>
@@ -144,7 +144,7 @@
       <div class="preview-row">
         <span class="pbg pbg-critical pbg-mono">SCORE 87</span>
         <span class="pbg pbg-high pbg-mono">SCORE 64</span>
-        <span class="pbg pbg-medium pbg-mono">SCORE 42</span>
+        <span class="pbg pbg-attention pbg-mono">SCORE 42</span>
         <span class="pbg pbg-monitor pbg-mono">SCORE 18</span>
         <span class="pbg pbg-stable pbg-mono">SCORE 04</span>
         <span class="pbg pbg-neutral pbg-mono">#CM-2026-0412</span>
@@ -166,7 +166,7 @@
       <h2 class="section-h1">Tamanhos</h2>
       <div class="preview-row">
         <span class="pbg pbg-stable pbg-sm"><span class="pbg-dot"></span>SM</span>
-        <span class="pbg pbg-medium"><span class="pbg-dot"></span>Default</span>
+        <span class="pbg pbg-attention"><span class="pbg-dot"></span>Default</span>
         <span class="pbg pbg-high pbg-lg"><span class="pbg-dot"></span>LG</span>
       </div>
     </section>
