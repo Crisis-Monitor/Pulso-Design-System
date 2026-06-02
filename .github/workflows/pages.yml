@@ -29,7 +29,7 @@ jobs:
         uses: oven-sh/setup-bun@v2
 
       - name: Setup Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
         with:
           enablement: true
 
@@ -40,7 +40,7 @@ jobs:
         run: bun run build:pages
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: out
 
