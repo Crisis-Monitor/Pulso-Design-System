@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Multi-select</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* Demo table */
+.ms-table { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.ms-th { display: grid; grid-template-columns: 36px 70px 1fr 100px 80px 90px; gap: 12px; padding: 12px 18px; align-items: center; background: var(--surface-2); border-bottom: 1px solid var(--border); font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; }
+.ms-row { display: grid; grid-template-columns: 36px 70px 1fr 100px 80px 90px; gap: 12px; padding: 12px 18px; align-items: center; border-bottom: 1px solid var(--border-faint); font-size: 13px; cursor: pointer; }
+.ms-row:last-child { border-bottom: none; }
+.ms-row.selected { background: color-mix(in oklab, var(--primary) 6%, var(--card)); }
+.ms-row:hover { background: var(--muted); }
+.ms-row.selected:hover { background: color-mix(in oklab, var(--primary) 10%, var(--card)); }
+.ms-id { font-family: var(--font-pulso-mono); font-size: 11.5px; color: var(--fg-strong); font-weight: 600; }
+.ms-title { color: var(--fg); font-weight: 500; }
+.ms-time { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); }
+.ms-tier { font-family: var(--font-pulso-mono); font-size: 10.5px; padding: 2px 7px; border-radius: var(--radius-xs); border: 1px solid; font-weight: 600; text-transform: uppercase; text-align: center; }
+.t-attention { background: var(--risk-attention-bg); color: var(--risk-attention-text); border-color: var(--risk-attention-border); }
+.t-high { background: color-mix(in oklab, var(--risk-high) 14%, transparent); color: var(--risk-high); border-color: color-mix(in oklab, var(--risk-high) 28%, transparent); }
+.t-critical { background: var(--risk-critical-bg); color: var(--risk-critical-text); border-color: var(--risk-critical-border); }
+.t-monitor { background: var(--risk-monitor-bg); color: var(--risk-monitor-text); border-color: var(--risk-monitor-border); }
+
+/* Checkbox */
+.ms-cb { width: 16px; height: 16px; border-radius: 3px; border: 1.5px solid var(--border-strong); background: var(--background); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 100ms ease; }
+.ms-cb.on { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); }
+.ms-cb.partial { background: var(--primary); border-color: var(--primary); }
+.ms-cb.partial::after { content: ''; width: 8px; height: 2px; background: var(--primary-foreground); border-radius: 1px; }
+
+/* Selection bar */
+.sel-bar { background: var(--surface-inverse, #1A1530); color: #F5F4FA; padding: 12px 18px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; border-radius: var(--radius-md) var(--radius-md) 0 0; }
+.sel-count { font-family: var(--font-pulso-mono); font-size: 13px; font-weight: 600; }
+.sel-count span { color: rgba(255,255,255,0.6); font-weight: 400; margin-left: 6px; }
+.sel-divider { width: 1px; height: 22px; background: rgba(255,255,255,0.14); }
+.sel-action { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; background: transparent; color: rgba(255,255,255,0.92); border: 1px solid rgba(255,255,255,0.16); border-radius: var(--radius-sm); font-family: inherit; font-size: 12.5px; cursor: pointer; }
+.sel-action:hover { background: rgba(255,255,255,0.06); }
+.sel-action.destructive { color: #F47080; border-color: rgba(244,112,128,0.4); }
+.sel-clear { margin-left: auto; font-size: 12.5px; color: rgba(255,255,255,0.6); cursor: pointer; padding: 6px 8px; }
+
+/* Range hint */
+.range-hint { background: color-mix(in oklab, var(--primary) 8%, var(--card)); border: 1px solid var(--primary-border); padding: 10px 16px; display: flex; gap: 14px; align-items: center; font-size: 12.5px; color: var(--fg); border-radius: 0 0 var(--radius-md) var(--radius-md); }
+.range-hint .icon { color: var(--primary); }
+.range-hint .cta { margin-left: auto; color: var(--primary); cursor: pointer; font-weight: 600; }
+
+/* Selection state matrix */
+.ssm { width: 100%; border-collapse: collapse; font-size: 13px; }
+.ssm th, .ssm td { padding: 12px 14px; border-bottom: 1px solid var(--border-faint); text-align: left; vertical-align: top; }
+.ssm th { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.ssm td:first-child { font-weight: 500; color: var(--fg-strong); white-space: nowrap; }
+.ssm code { font-family: var(--font-pulso-mono); font-size: 11.5px; background: var(--muted); padding: 1px 6px; border-radius: 3px; }
+
+/* Keyboard table */
+.kb-tbl { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+.kb-tbl td { padding: 10px 14px; border-bottom: 1px solid var(--border-faint); }
+.kb-tbl td:first-child { white-space: nowrap; }
+kbd.k { display: inline-block; font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 500; padding: 2px 7px; background: var(--muted); border: 1px solid var(--border-strong); border-bottom-width: 2px; border-radius: 4px; color: var(--fg-strong); margin-right: 2px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Patterns · Multi-select</div>
+    <h1 class="page-title">Bulk actions &amp; multi-select</h1>
+    <p class="page-sub">Selecionar 30 menções e arquivar é cotidiano. Hoje cada lista resolve do seu jeito · falta pattern. Esta página fixa o <code style="font-family:var(--font-pulso-mono);font-size:18px;background:var(--muted);padding:2px 8px;border-radius:4px;">SelectionBar</code>, as 4 fases de seleção e o keyboard map.</p>
+
+    <!-- ── Demo · 4 fases ───────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Quatro fases · 0 → alguns → todos da página → todos do filtro</h2>
+      <p class="section-desc">A SelectionBar aparece a partir do primeiro item · "Selecionar todos da página" vira "Selecionar todos do filtro (142)" quando aplicável.</p>
+
+      <!-- Phase 0: empty -->
+      <h3 style="font-size:13px;font-weight:600;color:var(--fg-strong);margin-top:18px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em;">Fase 0 · nada selecionado</h3>
+      <div class="ms-table">
+        <div class="ms-th">
+          <div><div class="ms-cb"></div></div>
+          <div>ID</div>
+          <div>Caso</div>
+          <div>Risco</div>
+          <div>Plantão</div>
+          <div>Atualizado</div>
+        </div>
+        <div class="ms-row">
+          <div><div class="ms-cb"></div></div>
+          <div class="ms-id">PLS-012</div>
+          <div class="ms-title">Vazamento de dados — APP</div>
+          <div><span class="ms-tier t-critical">critical</span></div>
+          <div class="ms-time">Ana</div>
+          <div class="ms-time">há 4 min</div>
+        </div>
+        <div class="ms-row">
+          <div><div class="ms-cb"></div></div>
+          <div class="ms-id">PLS-014</div>
+          <div class="ms-title">Operação Água Nova</div>
+          <div><span class="ms-tier t-high">high</span></div>
+          <div class="ms-time">Rodrigo</div>
+          <div class="ms-time">há 22 min</div>
+        </div>
+        <div class="ms-row">
+          <div><div class="ms-cb"></div></div>
+          <div class="ms-id">PLS-018</div>
+          <div class="ms-title">Regulação setorial · CVM</div>
+          <div><span class="ms-tier t-monitor">monitor</span></div>
+          <div class="ms-time">Ana</div>
+          <div class="ms-time">há 1h</div>
+        </div>
+      </div>
+
+      <!-- Phase 1: some -->
+      <h3 style="font-size:13px;font-weight:600;color:var(--fg-strong);margin-top:24px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em;">Fase 1 · 2 selecionados · SelectionBar aparece</h3>
+      <div class="sel-bar">
+        <div><div class="ms-cb partial"></div></div>
+        <span class="sel-count">2 selecionados <span>de 8 na página</span></span>
+        <div class="sel-divider"></div>
+        <button class="sel-action">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>
+          Escalar
+        </button>
+        <button class="sel-action">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          Atribuir
+        </button>
+        <button class="sel-action">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Marcar
+        </button>
+        <button class="sel-action destructive">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          Encerrar
+        </button>
+        <span class="sel-clear">Limpar · <kbd style="font-family:var(--font-pulso-mono);font-size:10px;background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;color:rgba(255,255,255,0.7);">esc</kbd></span>
+      </div>
+      <div class="ms-table" style="border-radius:0 0 var(--radius-md) var(--radius-md);border-top:none;">
+        <div class="ms-row selected">
+          <div><div class="ms-cb on"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 10-10"/></svg></div></div>
+          <div class="ms-id">PLS-012</div>
+          <div class="ms-title">Vazamento de dados — APP</div>
+          <div><span class="ms-tier t-critical">critical</span></div>
+          <div class="ms-time">Ana</div>
+          <div class="ms-time">há 4 min</div>
+        </div>
+        <div class="ms-row selected">
+          <div><div class="ms-cb on"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 10-10"/></svg></div></div>
+          <div class="ms-id">PLS-014</div>
+          <div class="ms-title">Operação Água Nova</div>
+          <div><span class="ms-tier t-high">high</span></div>
+          <div class="ms-time">Rodrigo</div>
+          <div class="ms-time">há 22 min</div>
+        </div>
+        <div class="ms-row">
+          <div><div class="ms-cb"></div></div>
+          <div class="ms-id">PLS-018</div>
+          <div class="ms-title">Regulação setorial · CVM</div>
+          <div><span class="ms-tier t-monitor">monitor</span></div>
+          <div class="ms-time">Ana</div>
+          <div class="ms-time">há 1h</div>
+        </div>
+      </div>
+
+      <!-- Phase 2: all on page -->
+      <h3 style="font-size:13px;font-weight:600;color:var(--fg-strong);margin-top:24px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em;">Fase 2 · todos da página · range hint aparece</h3>
+      <div class="sel-bar">
+        <div><div class="ms-cb on"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 10-10"/></svg></div></div>
+        <span class="sel-count">8 selecionados <span>de 8 na página</span></span>
+        <div class="sel-divider"></div>
+        <button class="sel-action">Escalar</button>
+        <button class="sel-action">Atribuir</button>
+        <button class="sel-action">Marcar</button>
+        <button class="sel-action destructive">Encerrar</button>
+        <span class="sel-clear">Limpar · <kbd style="font-family:var(--font-pulso-mono);font-size:10px;background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;color:rgba(255,255,255,0.7);">esc</kbd></span>
+      </div>
+      <div class="range-hint">
+        <span class="icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16v.5"/></svg>
+        </span>
+        Esses 8 casos são apenas o que está nesta página. Há <strong>142 casos</strong> bate com o filtro atual.
+        <span class="cta">Selecionar todos os 142 →</span>
+      </div>
+
+      <!-- Phase 3: all on filter -->
+      <h3 style="font-size:13px;font-weight:600;color:var(--fg-strong);margin-top:24px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em;">Fase 3 · todos do filtro · escopo expandido</h3>
+      <div class="sel-bar" style="background:var(--primary);">
+        <div><div class="ms-cb on" style="background:white;color:var(--primary);"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 10-10"/></svg></div></div>
+        <span class="sel-count" style="color:white;">142 selecionados <span style="color:rgba(255,255,255,0.7);">· todos do filtro atual</span></span>
+        <div class="sel-divider" style="background:rgba(255,255,255,0.2);"></div>
+        <button class="sel-action" style="border-color:rgba(255,255,255,0.3);color:white;">Escalar</button>
+        <button class="sel-action" style="border-color:rgba(255,255,255,0.3);color:white;">Atribuir</button>
+        <button class="sel-action" style="border-color:rgba(255,255,255,0.3);color:white;">Marcar</button>
+        <button class="sel-action destructive" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.3);color:white;">Encerrar 142 casos</button>
+        <span class="sel-clear" style="color:rgba(255,255,255,0.8);">Limpar · <kbd style="font-family:var(--font-pulso-mono);font-size:10px;background:rgba(255,255,255,0.18);padding:1px 5px;border-radius:3px;color:white;">esc</kbd></span>
+      </div>
+      <p class="section-desc" style="margin-top:14px;"><strong>Cor muda para primary</strong> quando o escopo passa da página para o filtro · sinaliza que a ação tem peso maior. Encerrar 142 casos exige confirmação dupla (modal nomeando o número).</p>
+    </section>
+
+    <!-- ── Matriz de estados ───────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Matriz de estados da seleção</h2>
+      <table class="ssm">
+        <thead><tr><th>Estado</th><th>Header checkbox</th><th>SelectionBar</th><th>Range hint</th><th>Cor da SelectionBar</th></tr></thead>
+        <tbody>
+          <tr><td>0 selecionados</td><td>vazio</td><td>oculto</td><td>—</td><td>—</td></tr>
+          <tr><td>1–N selecionados (parcial)</td><td><code>partial</code></td><td>visível</td><td>—</td><td>surface-inverse</td></tr>
+          <tr><td>Todos da página (com mais no filtro)</td><td>on</td><td>visível</td><td>visível · "+134 fora desta página"</td><td>surface-inverse</td></tr>
+          <tr><td>Todos do filtro</td><td>on</td><td>visível · escopo expandido</td><td>oculto</td><td><strong>primary</strong> (chama atenção)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Keyboard map ──────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Atalhos · teclado</h2>
+      <table class="kb-tbl">
+        <tbody>
+          <tr><td><kbd class="k">↑</kbd> <kbd class="k">↓</kbd></td><td>Move foco para linha anterior · próxima (roving tabindex)</td></tr>
+          <tr><td><kbd class="k">Space</kbd></td><td>Toggle seleção da linha focada</td></tr>
+          <tr><td><kbd class="k">Shift</kbd>+<kbd class="k">↑/↓</kbd></td><td>Estende seleção em range desde a última âncora</td></tr>
+          <tr><td><kbd class="k">Shift</kbd>+<kbd class="k">click</kbd></td><td>Mesma extensão, com mouse</td></tr>
+          <tr><td><kbd class="k">⌘</kbd>+<kbd class="k">click</kbd></td><td>Toggle individual sem perder o resto da seleção</td></tr>
+          <tr><td><kbd class="k">⌘</kbd>+<kbd class="k">A</kbd></td><td>Seleciona <strong>todos da página atual</strong> · range hint aparece</td></tr>
+          <tr><td><kbd class="k">⌘</kbd>+<kbd class="k">Shift</kbd>+<kbd class="k">A</kbd></td><td>Seleciona <strong>todos do filtro</strong> · pula a fase intermediária</td></tr>
+          <tr><td><kbd class="k">Esc</kbd></td><td>Limpa toda seleção · foco volta ao header</td></tr>
+          <tr><td><kbd class="k">Enter</kbd></td><td>Abre detalhe da linha focada (sem mexer na seleção)</td></tr>
+          <tr><td><kbd class="k">E</kbd></td><td>Escalar selecionados (atalho contextual quando há seleção)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Confirmação ────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Confirmação · regras por escopo</h2>
+      <table class="ssm">
+        <thead><tr><th>Ação</th><th>1 item</th><th>2–10 itens</th><th>&gt; 10 itens · página</th><th>Filtro inteiro</th></tr></thead>
+        <tbody>
+          <tr><td>Marcar / Atribuir</td><td>imediato</td><td>imediato + undo 8s</td><td>imediato + undo 8s</td><td>toast inline pedindo "OK"</td></tr>
+          <tr><td>Escalar</td><td>imediato</td><td>imediato + undo 8s</td><td>confirmação simples</td><td>confirmação com contagem</td></tr>
+          <tr><td>Encerrar</td><td>confirmação simples</td><td>confirmação com lista</td><td>confirmação com contagem</td><td><strong>confirmação dupla</strong> · digite "142" para confirmar</td></tr>
+          <tr><td>Deletar</td><td>confirmação simples</td><td>confirmação com lista</td><td>confirmação com contagem</td><td><strong>confirmação dupla</strong> · sempre</td></tr>
+        </tbody>
+      </table>
+      <p class="section-desc" style="margin-top:14px;"><strong>Princípio:</strong> &nbsp;quanto maior o escopo, mais explícita a confirmação · ação reversível pode ser otimista · ação destrutiva sempre síncrona com texto que nomeia consequência (ver <a href="voice-microcopy.html" style="color:var(--primary);">2.2 · Confirmações</a>).</p>
+    </section>
+
+    <!-- ── Composição ───────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Composição</h2>
+      <table class="ssm">
+        <thead><tr><th>Elemento</th><th>Componente</th><th>Spec</th></tr></thead>
+        <tbody>
+          <tr><td>Checkbox de linha</td><td><code>Checkbox</code></td><td>16×16 · estados off · on · partial (indeterminate)</td></tr>
+          <tr><td>Header checkbox</td><td><code>Checkbox</code></td><td>Reflete o estado · click cicla off → all-page → off</td></tr>
+          <tr><td>SelectionBar</td><td><code>SelectionBar</code> novo</td><td>Sticky no topo da lista quando há seleção · cor escura padrão · primary quando escopo expande</td></tr>
+          <tr><td>Range hint</td><td>—</td><td>Banner inline entre SelectionBar e tabela · CTA leva à fase 3</td></tr>
+          <tr><td>Linhas selecionadas</td><td>—</td><td>Background <code>chart-1</code> 6% · hover 10%</td></tr>
+          <tr><td>Undo toast</td><td><code>Toast · success</code></td><td>8s no ar · single CTA "Desfazer"</td></tr>
+          <tr><td>Confirmação dupla</td><td><code>Dialog · destructive</code></td><td>Operador digita o número exato · só habilita CTA quando bate</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Regras ─────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Faça</div>
+          <ul>
+            <li>SelectionBar aparece a partir do primeiro item · não fixa um botão "Selecionar" no header.</li>
+            <li>Quando há mais itens fora da página, mostre o range hint. Operador entende o escopo real.</li>
+            <li>Cor primary na SelectionBar quando o escopo passa da página · sinaliza peso maior.</li>
+            <li>Confirmação dupla (digite o número) para ações destrutivas em filtro inteiro.</li>
+            <li>Esc limpa · sempre · sem confirmação. Limpar seleção é reversível.</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Evite</div>
+          <ul>
+            <li>Não trate "selecionar todos da página" como "selecionar tudo". Filtro pode ter milhares de itens fora.</li>
+            <li>Não esconda a SelectionBar quando rola a lista. Sticky no topo é necessário.</li>
+            <li>Não permita undo em ação destrutiva de escopo grande. Toast undo serve para 1–10 itens · não para 142.</li>
+            <li>Não exija confirmação para marcar/atribuir. Undo cobre.</li>
+            <li>Não use a SelectionBar fora de listas. Em cards-grid ou heatmap, padrão muda (ver RFC).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Status ─────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Status da iniciativa · 4.3</h2>
+      <table class="tokens">
+        <thead><tr><th>Deliverable</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Componente <code>SelectionBar</code> · sticky · cor por escopo</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Atalhos · Shift+click range · ⌘+click toggle · Esc clear · ⌘+A</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>4 estados · vazio · parcial · todos-página · todos-filtro</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Confirmação dupla para escopo &gt; página em ações destrutivas</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Página <strong>Patterns · Multi-select</strong></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Migração das listas do Crisis Monitor para SelectionBar</td><td><span style="color:var(--warning);font-family:var(--font-pulso-mono);font-size:11px;">⏳ PLS-CM-MULTI-081 (rolling)</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

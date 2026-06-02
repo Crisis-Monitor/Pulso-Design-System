@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Density</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* Density comparison */
+.d-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 1100px) { .d-grid { grid-template-columns: 1fr; } }
+.d-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.d-card.recommended { border-color: var(--primary-border); box-shadow: 0 0 0 1px var(--primary-border); }
+.d-head { padding: 14px 18px; border-bottom: 1px solid var(--border-faint); display: flex; align-items: center; justify-content: space-between; }
+.d-tag { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 600; }
+.d-name { font-size: 16px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; }
+.d-badge { font-family: var(--font-pulso-mono); font-size: 10px; padding: 2px 7px; border-radius: var(--radius-xs); background: var(--primary); color: var(--primary-foreground); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+.d-body { padding: 0; min-height: 320px; background: var(--surface-page); }
+.d-meta { padding: 12px 18px; border-top: 1px solid var(--border-faint); background: var(--surface-2); font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-secondary); line-height: 1.6; }
+.d-meta strong { color: var(--fg-strong); }
+
+/* Compact / comfortable / spacious dashboard mockups */
+.dm { padding: 0; }
+.dm-head { padding: 12px 14px; border-bottom: 1px solid var(--border-faint); background: var(--card); display: flex; justify-content: space-between; align-items: center; }
+.dm-h-title { font-size: 13px; font-weight: 600; color: var(--fg-strong); }
+.dm-h-sub { font-family: var(--font-pulso-mono); font-size: 9.5px; color: var(--fg-subtle); }
+.dm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--g); padding: var(--g); }
+.dm-card { background: var(--card); border: 1px solid var(--border-faint); border-radius: var(--radius-sm); padding: var(--p); }
+.dm-kicker { font-family: var(--font-pulso-mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); margin-bottom: var(--m); }
+.dm-val { font-family: var(--font-pulso-mono); font-size: var(--vs); font-weight: 700; color: var(--fg-strong); line-height: 1; letter-spacing: -0.02em; }
+.dm-row { padding: var(--rp) var(--p); border-bottom: 1px solid var(--border-faint); display: grid; grid-template-columns: 50px 1fr 60px 50px; gap: 10px; align-items: center; font-size: var(--fs); }
+.dm-row:last-child { border-bottom: none; }
+.dm-row .id { font-family: var(--font-pulso-mono); font-size: var(--fsm); color: var(--fg-strong); font-weight: 600; }
+.dm-row .ti { color: var(--fg); }
+.dm-row .ta { font-family: var(--font-pulso-mono); font-size: 9.5px; padding: 1px 5px; border-radius: var(--radius-xs); border: 1px solid; text-align: center; font-weight: 600; }
+.dm-row .tm { font-family: var(--font-pulso-mono); font-size: var(--fsm); color: var(--fg-muted); text-align: right; }
+.t-critical-mini { background: var(--risk-critical-bg); color: var(--risk-critical-text); border-color: var(--risk-critical-border); }
+.t-high-mini { background: color-mix(in oklab, var(--risk-high) 12%, transparent); color: var(--risk-high); border-color: color-mix(in oklab, var(--risk-high) 25%, transparent); }
+.t-attention-mini { background: var(--risk-attention-bg); color: var(--risk-attention-text); border-color: var(--risk-attention-border); }
+
+/* Each card sets vars */
+.dm.compact     { --g: 8px;  --p: 10px; --rp: 6px;  --m: 4px;  --vs: 18px; --fs: 11.5px; --fsm: 10.5px; }
+.dm.comfortable { --g: 10px; --p: 14px; --rp: 9px;  --m: 6px;  --vs: 22px; --fs: 12.5px; --fsm: 11px; }
+.dm.spacious    { --g: 14px; --p: 18px; --rp: 13px; --m: 8px;  --vs: 26px; --fs: 13.5px; --fsm: 11.5px; }
+
+/* Token table */
+.tk-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tk-tbl th, .tk-tbl td { padding: 12px 14px; border-bottom: 1px solid var(--border-faint); text-align: left; }
+.tk-tbl th { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.tk-tbl td:first-child { font-family: var(--font-pulso-mono); color: var(--fg-strong); font-weight: 500; }
+.tk-tbl td.mono { font-family: var(--font-pulso-mono); font-size: 11.5px; color: var(--fg); }
+.tk-tbl td.center { text-align: center; }
+
+/* Settings UI mockup */
+.set-screen { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 24px; max-width: 560px; }
+.set-row { padding: 12px 0; border-bottom: 1px solid var(--border-faint); display: flex; align-items: center; gap: 16px; justify-content: space-between; }
+.set-row:last-child { border-bottom: none; }
+.set-label { font-size: 14px; font-weight: 500; color: var(--fg-strong); margin-bottom: 2px; }
+.set-desc { font-size: 12.5px; color: var(--fg-muted); line-height: 1.5; }
+.set-toggle-group { display: inline-flex; background: var(--muted); border-radius: var(--radius-sm); padding: 2px; gap: 2px; }
+.set-toggle { padding: 6px 12px; font-size: 12.5px; color: var(--fg-muted); cursor: pointer; border-radius: calc(var(--radius-sm) - 2px); font-family: inherit; background: transparent; border: none; }
+.set-toggle.active { background: var(--card); color: var(--fg-strong); font-weight: 500; box-shadow: var(--shadow-sm); }
+
+/* Override callout */
+.override-card { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--risk-monitor); border-radius: var(--radius-md); padding: 18px 22px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Foundations · Density</div>
+    <h1 class="page-title">Densidade</h1>
+    <p class="page-sub">Default = <strong>comfortable</strong>. Compact e spacious ficam disponíveis como preferência do usuário em <code style="font-family:var(--font-pulso-mono);font-size:18px;background:var(--muted);padding:2px 8px;border-radius:4px;">Settings → Personal</code>. Não é tweak de produto · é affordance de operador.</p>
+
+    <!-- ── Decisão tomada ───────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Decisão</h2>
+      <div style="background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: var(--radius-md); padding: 22px 26px;">
+        <p style="font-size: 16px; color: var(--fg-strong); line-height: 1.6; font-weight: 500; max-width: 720px;">Densidade é preferência pessoal do operador, persistida por usuário · não configuração do workspace ou do produto.</p>
+        <p style="font-size: 13.5px; color: var(--fg-secondary); margin-top: 12px; line-height: 1.6; max-width: 720px;">Comfortable é o default porque é a aposta segura para uso prolongado · operador de plantão de 8h não aguenta compact, e novo membro precisa ler o produto sem zoom. Compact existe para quem tem monitor pequeno ou quer ver mais casos por viewport. Spacious para quem tem tela 4K ou usa o produto poucas vezes por dia.</p>
+      </div>
+    </section>
+
+    <!-- ── 3 densidades lado a lado ────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Comparativo · mesmo dashboard, 3 densidades</h2>
+      <p class="section-desc">Mesmo conteúdo · mesma estrutura · diferentes valores de spacing/typography. O delta de altura entre compact e spacious é ≈ 1.8×.</p>
+
+      <div class="d-grid">
+        <div class="d-card">
+          <div class="d-head">
+            <div>
+              <div class="d-tag">01 · compact</div>
+              <div class="d-name">Compact</div>
+            </div>
+          </div>
+          <div class="d-body">
+            <div class="dm compact">
+              <div class="dm-head">
+                <span class="dm-h-title">Casos abertos</span>
+                <span class="dm-h-sub">3 · ahora</span>
+              </div>
+              <div class="dm-grid">
+                <div class="dm-card">
+                  <div class="dm-kicker">MENÇÕES 24H</div>
+                  <div class="dm-val">1.247</div>
+                </div>
+                <div class="dm-card">
+                  <div class="dm-kicker">CRÍTICOS</div>
+                  <div class="dm-val">03</div>
+                </div>
+              </div>
+              <div style="background:var(--card);">
+                <div class="dm-row"><span class="id">PLS-012</span><span class="ti">Vazamento — APP</span><span class="ta t-critical-mini">critical</span><span class="tm">4m</span></div>
+                <div class="dm-row"><span class="id">PLS-014</span><span class="ti">Operação Água</span><span class="ta t-high-mini">high</span><span class="tm">22m</span></div>
+                <div class="dm-row"><span class="id">PLS-018</span><span class="ti">Regulação CVM</span><span class="ta t-attention-mini">attn</span><span class="tm">1h</span></div>
+                <div class="dm-row"><span class="id">PLS-019</span><span class="ti">Setor saúde</span><span class="ta t-attention-mini">attn</span><span class="tm">3h</span></div>
+                <div class="dm-row"><span class="id">PLS-020</span><span class="ti">Mercado financeiro</span><span class="ta t-high-mini">high</span><span class="tm">6h</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="d-meta">
+            <strong>Quando:</strong> monitor pequeno · operadores que querem 12+ casos por viewport · plantão técnico.
+          </div>
+        </div>
+
+        <div class="d-card recommended">
+          <div class="d-head">
+            <div>
+              <div class="d-tag">02 · comfortable</div>
+              <div class="d-name">Comfortable</div>
+            </div>
+            <span class="d-badge">Default</span>
+          </div>
+          <div class="d-body">
+            <div class="dm comfortable">
+              <div class="dm-head">
+                <span class="dm-h-title">Casos abertos</span>
+                <span class="dm-h-sub">3 · agora</span>
+              </div>
+              <div class="dm-grid">
+                <div class="dm-card">
+                  <div class="dm-kicker">MENÇÕES 24H</div>
+                  <div class="dm-val">1.247</div>
+                </div>
+                <div class="dm-card">
+                  <div class="dm-kicker">CRÍTICOS</div>
+                  <div class="dm-val">03</div>
+                </div>
+              </div>
+              <div style="background:var(--card);">
+                <div class="dm-row"><span class="id">PLS-012</span><span class="ti">Vazamento — APP</span><span class="ta t-critical-mini">critical</span><span class="tm">4m</span></div>
+                <div class="dm-row"><span class="id">PLS-014</span><span class="ti">Operação Água</span><span class="ta t-high-mini">high</span><span class="tm">22m</span></div>
+                <div class="dm-row"><span class="id">PLS-018</span><span class="ti">Regulação CVM</span><span class="ta t-attention-mini">attn</span><span class="tm">1h</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="d-meta">
+            <strong>Default sane.</strong> Aposta segura para uso prolongado · novo membro lê sem zoom · plantão de 8h não cansa.
+          </div>
+        </div>
+
+        <div class="d-card">
+          <div class="d-head">
+            <div>
+              <div class="d-tag">03 · spacious</div>
+              <div class="d-name">Spacious</div>
+            </div>
+          </div>
+          <div class="d-body">
+            <div class="dm spacious">
+              <div class="dm-head">
+                <span class="dm-h-title">Casos abertos</span>
+                <span class="dm-h-sub">3 · agora</span>
+              </div>
+              <div class="dm-grid">
+                <div class="dm-card">
+                  <div class="dm-kicker">MENÇÕES 24H</div>
+                  <div class="dm-val">1.247</div>
+                </div>
+                <div class="dm-card">
+                  <div class="dm-kicker">CRÍTICOS</div>
+                  <div class="dm-val">03</div>
+                </div>
+              </div>
+              <div style="background:var(--card);">
+                <div class="dm-row"><span class="id">PLS-012</span><span class="ti">Vazamento — APP</span><span class="ta t-critical-mini">critical</span><span class="tm">4m</span></div>
+                <div class="dm-row"><span class="id">PLS-014</span><span class="ti">Operação Água</span><span class="ta t-high-mini">high</span><span class="tm">22m</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="d-meta">
+            <strong>Quando:</strong> tela 4K · uso esporádico · gestor que entra "olhar dashboard" · acessibilidade (presbiopia, baixa visão).
+          </div>
+        </div>
+      </div>
+
+      <p class="section-desc" style="margin-top:14px;"><strong>Toggle no topo de qualquer página deste DS aplica densidade ao vivo</strong> — mesmo as preview tables. É o mesmo contrato CSS do produto.</p>
+    </section>
+
+    <!-- ── Tokens ─────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Tokens · valores por densidade</h2>
+      <p class="section-desc">Mesma variável CSS · valores diferentes por <code>[data-density]</code> no <code>&lt;html&gt;</code>. Componente nunca lê a densidade · usa o token.</p>
+
+      <table class="tk-tbl">
+        <thead><tr><th>Token</th><th>compact</th><th>comfortable <span style="color:var(--primary);">· default</span></th><th>spacious</th><th>Onde</th></tr></thead>
+        <tbody>
+          <tr><td>--density-pad-page</td><td class="mono">24px</td><td class="mono">36px</td><td class="mono">48px</td><td>Padding interno do <code>main</code></td></tr>
+          <tr><td>--density-pad-card</td><td class="mono">12px</td><td class="mono">18px</td><td class="mono">22px</td><td>Padding interno de Card</td></tr>
+          <tr><td>--density-pad-row</td><td class="mono">6px 10px</td><td class="mono">10px 14px</td><td class="mono">14px 18px</td><td>Padding em row de Table/List</td></tr>
+          <tr><td>--density-gap</td><td class="mono">8px</td><td class="mono">12px</td><td class="mono">16px</td><td>Gap em grid de cards</td></tr>
+          <tr><td>--density-h-control</td><td class="mono">28px</td><td class="mono">32px</td><td class="mono">36px</td><td>Altura default de Button/Input</td></tr>
+          <tr><td>--density-h-topbar</td><td class="mono">48px</td><td class="mono">56px</td><td class="mono">64px</td><td>Altura da topbar</td></tr>
+        </tbody>
+      </table>
+
+      <p class="section-desc" style="margin-top:14px;"><strong>Tipografia fica.</strong> Densidade altera spacing/heights, não font-size · evita "compact" virar zoom-out e perder hierarquia.</p>
+    </section>
+
+    <!-- ── Settings UI ────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Configuração · Settings → Personal</h2>
+      <div class="set-screen">
+        <div class="set-row">
+          <div>
+            <div class="set-label">Densidade da interface</div>
+            <div class="set-desc">Spacing e altura dos componentes. Não afeta tamanho do texto. Aplicado em todo o produto, sincronizado entre dispositivos.</div>
+          </div>
+          <div class="set-toggle-group">
+            <button class="set-toggle">Compact</button>
+            <button class="set-toggle active">Comfortable</button>
+            <button class="set-toggle">Spacious</button>
+          </div>
+        </div>
+        <div class="set-row">
+          <div>
+            <div class="set-label">Tabelas operacionais usam compact</div>
+            <div class="set-desc">Em listas longas (audit log, busca, mention feed), mantém compact mesmo se sua preferência global é comfortable ou spacious. Recomendado.</div>
+          </div>
+          <div class="set-toggle-group">
+            <button class="set-toggle">Off</button>
+            <button class="set-toggle active">On</button>
+          </div>
+        </div>
+        <div class="set-row">
+          <div>
+            <div class="set-label">Aplicar a todos os meus workspaces</div>
+            <div class="set-desc">Sua preferência sincroniza entre todos os workspaces que você participa. Off = manter individual por workspace.</div>
+          </div>
+          <div class="set-toggle-group">
+            <button class="set-toggle active">On</button>
+            <button class="set-toggle">Off</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Override local ────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Override local · tabelas operacionais</h2>
+      <p class="section-desc">Operador escolhe spacious globalmente · mas Audit Log e Search são tabelas de scan. Override local mantém densidade compact <em>dentro</em> dessas tabelas, sem mudar a preferência global.</p>
+
+      <div class="override-card">
+        <div style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--risk-monitor);margin-bottom:6px;font-weight:600;">Override local</div>
+        <h4 style="font-size:14px;font-weight:600;color:var(--fg-strong);margin-bottom:6px;">Tabelas operacionais ignoram a preferência global por padrão</h4>
+        <p style="font-size:13px;color:var(--fg-secondary);line-height:1.55;">Audit Log · Search results · Mention feed · qualquer lista de scan denso. Operador pode desligar override em Settings · mas em 95% dos casos, compact em listas é o caminho certo independente da preferência global. Densidade não é dogma.</p>
+
+        <h4 style="font-size:13px;font-weight:600;color:var(--fg-strong);margin-top:14px;margin-bottom:8px;">Como aplicar</h4>
+        <pre style="background:var(--muted);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;font-family:var(--font-pulso-mono);font-size:12px;color:var(--fg-strong);white-space:pre;overflow-x:auto;line-height:1.65;">&lt;div data-density="compact"&gt;
+  &lt;AuditLogTable /&gt;
+&lt;/div&gt;</pre>
+      </div>
+    </section>
+
+    <!-- ── Persistência ───────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Persistência</h2>
+      <table class="tk-tbl">
+        <thead><tr><th>Onde</th><th>Quando</th><th>Sync</th></tr></thead>
+        <tbody>
+          <tr><td>localStorage</td><td>Imediato · em qualquer ação no toggle</td><td>Não · só local · usado offline</td></tr>
+          <tr><td>Perfil do usuário (backend)</td><td>Em background · debounce 500ms</td><td>Sim · sincroniza entre dispositivos · entre workspaces se "Aplicar a todos" estiver on</td></tr>
+          <tr><td>Default para novo usuário</td><td>—</td><td>Sempre <code>comfortable</code> · sem detecção automática (não tentamos adivinhar)</td></tr>
+          <tr><td>Default para novo workspace</td><td>—</td><td>Herda do usuário se já tem preferência · senão <code>comfortable</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── A11y & motion ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">A11y e motion</h2>
+      <p class="section-desc">Mudança de densidade <strong>não é animada</strong> · evita flicker e mantém o foco do operador. Componentes leem o token; o re-render é instantâneo.</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px 18px;">
+          <div style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);margin-bottom:6px;font-weight:600;">Hit target</div>
+          <p style="font-size:13px;color:var(--fg);line-height:1.55;">Em compact, controle cai para 28×28px · ainda satisfaz contrato desktop denso. Para mobile ou hit targets primários, override força ≥ 44×44 mesmo em compact (ver <a href="accessibility-focus-keyboard.html" style="color:var(--primary);">1.3</a>).</p>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px 18px;">
+          <div style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);margin-bottom:6px;font-weight:600;">Screen readers</div>
+          <p style="font-size:13px;color:var(--fg);line-height:1.55;">Densidade é invisível para SR · não há semântica trocada. Operador com leitor de tela tem mesma experiência em qualquer modo.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Regras ────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Faça</div>
+          <ul>
+            <li>Default <code>comfortable</code> em todo lugar. Compact e spacious só por escolha explícita.</li>
+            <li>Use tokens <code>--density-*</code> para padding/altura. Nunca hardcoded.</li>
+            <li>Em tabelas operacionais (audit, search, feed), aplique <code>data-density="compact"</code> local.</li>
+            <li>Mantenha font-size constante entre densidades. Densidade altera spacing · não tipo.</li>
+            <li>Persiste por usuário · sincroniza entre dispositivos.</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Evite</div>
+          <ul>
+            <li>Não exponha densidade como Tweak do produto. É affordance pessoal, não opção de produto.</li>
+            <li>Não detecte automático (tipo de dispositivo, resolução). Default sane > suposição.</li>
+            <li>Não anime a transição entre densidades. Re-render instantâneo é preferível.</li>
+            <li>Não use compact em CTAs primárias (44×44 mantém). Hit target ganha.</li>
+            <li>Não permita densidade por workspace forçada. Workspace pode sugerir, usuário escolhe.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Status ──────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Status da iniciativa · 4.5</h2>
+      <table class="tk-tbl">
+        <thead><tr><th>Deliverable</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Default <code>comfortable</code> em todo o produto</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Toggle em Settings → Personal · 3 opções</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Persistência localStorage + sync com perfil</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Tabelas operacionais com <code>data-density="compact"</code> local</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Comparativo de Dashboard nas 3 densidades</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Página <strong>Foundations · Density</strong></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

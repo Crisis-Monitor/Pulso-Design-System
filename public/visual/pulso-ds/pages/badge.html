@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Badge</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.pbg {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-pulso-sans);
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: var(--radius-xs);
+  border: 1px solid transparent;
+  white-space: nowrap;
+  letter-spacing: 0.005em;
+}
+.pbg-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.pbg-mono { font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 500; }
+
+/* Risk variants */
+.pbg-stable   { background: var(--risk-stable-bg);   color: var(--risk-stable);   border-color: var(--risk-stable-border); }
+.pbg-stable .pbg-dot { background: var(--risk-stable); }
+.pbg-monitor  { background: var(--risk-monitor-bg);  color: var(--risk-monitor);  border-color: var(--risk-monitor-border); }
+.pbg-monitor .pbg-dot { background: var(--risk-monitor); }
+.pbg-medium   { background: var(--risk-medium-bg);   color: var(--risk-medium);   border-color: var(--risk-medium-border); }
+.pbg-medium .pbg-dot { background: var(--risk-medium); }
+.pbg-high     { background: var(--risk-high-bg);     color: var(--risk-high);     border-color: var(--risk-high-border); }
+.pbg-high .pbg-dot { background: var(--risk-high); }
+.pbg-critical { background: var(--risk-critical-bg); color: var(--risk-critical); border-color: var(--risk-critical-border); }
+.pbg-critical .pbg-dot { background: var(--risk-critical); animation: pulse-opacity 1.6s var(--motion-easing) infinite; }
+
+/* Semantic */
+.pbg-success     { background: var(--success-bg);     color: var(--success);     border-color: var(--success-border); }
+.pbg-warning     { background: var(--warning-bg);     color: var(--warning);     border-color: var(--warning-border); }
+.pbg-destructive { background: var(--destructive-bg); color: var(--destructive); border-color: var(--destructive-border); }
+.pbg-info        { background: var(--info-bg);        color: var(--info);        border-color: var(--info-border); }
+.pbg-neutral     { background: var(--muted);          color: var(--fg-secondary); border-color: var(--border); }
+.pbg-evidence    { background: var(--evidence-bg);    color: var(--evidence);    border-color: var(--evidence-border); }
+
+/* Brand */
+.pbg-brand { background: var(--primary-soft); color: var(--primary); border-color: var(--primary-border); }
+
+/* Sizes */
+.pbg-sm { font-size: 10.5px; padding: 2px 6px; }
+.pbg-lg { font-size: 12.5px; padding: 5px 10px; }
+
+/* Solid (filled) variants */
+.pbg-solid-critical { background: var(--risk-critical); color: #fff; border-color: var(--risk-critical); }
+.pbg-solid-high     { background: var(--risk-high);     color: #fff; border-color: var(--risk-high); }
+.pbg-solid-success  { background: var(--success);       color: #fff; border-color: var(--success); }
+.pbg-solid-info     { background: var(--info);          color: #fff; border-color: var(--info); }
+.pbg-solid-neutral  { background: var(--fg-strong);     color: var(--background); border-color: var(--fg-strong); }
+
+/* Counter */
+.pbg-counter { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; font-family: var(--font-pulso-mono); font-size: 10.5px; font-weight: 600; justify-content: center; }
+
+.svg-i { width: 12px; height: 12px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Atoms · Onda 1 · 03</div>
+    <h1 class="page-title">Badge</h1>
+    <p class="page-sub">Etiqueta inline curta. Comunica estado, categoria, contagem. Não confundir com Chip — Badge não é interativo, não tem ação de remover.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Risco · 5 níveis</h2>
+      <p class="section-desc">A escala canônica do produto. Sempre dot + label, nunca cor isolada.</p>
+      <div class="preview-row">
+        <span class="pbg pbg-stable"><span class="pbg-dot"></span>Estável</span>
+        <span class="pbg pbg-monitor"><span class="pbg-dot"></span>Monitorar</span>
+        <span class="pbg pbg-medium"><span class="pbg-dot"></span>Médio</span>
+        <span class="pbg pbg-high"><span class="pbg-dot"></span>Alto</span>
+        <span class="pbg pbg-critical"><span class="pbg-dot"></span>Crítico · ao vivo</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Semânticas</h2>
+      <p class="section-desc">Feedback de ação ou estado de processo.</p>
+      <div class="preview-row">
+        <span class="pbg pbg-success">
+          <svg class="svg-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Despachado
+        </span>
+        <span class="pbg pbg-warning">
+          <svg class="svg-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+          Próximo do limiar
+        </span>
+        <span class="pbg pbg-destructive">
+          <svg class="svg-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+          Falha de fonte
+        </span>
+        <span class="pbg pbg-info">
+          <svg class="svg-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+          Inferência
+        </span>
+        <span class="pbg pbg-neutral">Encerrado</span>
+        <span class="pbg pbg-evidence">
+          <svg class="svg-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg>
+          Evidência verificada
+        </span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Sólido (alta atenção)</h2>
+      <p class="section-desc">Use só quando o badge é o gatilho visual principal. Em listas e tabelas, prefira a versão soft.</p>
+      <div class="preview-row">
+        <span class="pbg pbg-solid-critical">
+          <svg class="svg-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 17h.01"/></svg>
+          Crise ativa
+        </span>
+        <span class="pbg pbg-solid-high">Alto · score 78</span>
+        <span class="pbg pbg-solid-success">Live</span>
+        <span class="pbg pbg-solid-info">Beta</span>
+        <span class="pbg pbg-solid-neutral">v2.4.1</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Marca · Tier · Categoria</h2>
+      <p class="section-desc">Para classificação editorial e de produto.</p>
+      <div class="preview-row">
+        <span class="pbg pbg-brand">Pulso DS</span>
+        <span class="pbg pbg-brand">Cris · Executivo</span>
+        <span class="pbg pbg-brand">Cris · Porta-voz</span>
+        <span class="pbg pbg-neutral pbg-mono">TIER 1</span>
+        <span class="pbg pbg-neutral pbg-mono">TIER 2</span>
+        <span class="pbg pbg-neutral pbg-mono">TIER 3</span>
+        <span class="pbg pbg-neutral pbg-mono">TIER 4</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Numéricos · Mono</h2>
+      <p class="section-desc">Quando o badge carrega um número (score, ID curto, contagem), use mono. Tabular figures alinham coluna.</p>
+      <div class="preview-row">
+        <span class="pbg pbg-critical pbg-mono">SCORE 87</span>
+        <span class="pbg pbg-high pbg-mono">SCORE 64</span>
+        <span class="pbg pbg-medium pbg-mono">SCORE 42</span>
+        <span class="pbg pbg-monitor pbg-mono">SCORE 18</span>
+        <span class="pbg pbg-stable pbg-mono">SCORE 04</span>
+        <span class="pbg pbg-neutral pbg-mono">#CM-2026-0412</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Counter</h2>
+      <p class="section-desc">Pill numérica para contagens em nav e tabs.</p>
+      <div class="preview-row" style="gap: 16px;">
+        <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg);">Casos ativos <span class="pbg pbg-counter pbg-solid-neutral">12</span></span>
+        <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg);">Crítico <span class="pbg pbg-counter pbg-solid-critical">3</span></span>
+        <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg);">Pendentes <span class="pbg pbg-counter pbg-brand">7</span></span>
+        <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg);">Inbox <span class="pbg pbg-counter pbg-neutral">99+</span></span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Tamanhos</h2>
+      <div class="preview-row">
+        <span class="pbg pbg-stable pbg-sm"><span class="pbg-dot"></span>SM</span>
+        <span class="pbg pbg-medium"><span class="pbg-dot"></span>Default</span>
+        <span class="pbg pbg-high pbg-lg"><span class="pbg-dot"></span>LG</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Anatomia</h2>
+      <table class="tokens">
+        <thead><tr><th>Token</th><th>SM</th><th>Default</th><th>LG</th></tr></thead>
+        <tbody>
+          <tr><td>Padding</td><td class="mono">2 6</td><td class="mono">4 8</td><td class="mono">5 10</td></tr>
+          <tr><td>Font-size</td><td class="mono">10.5px</td><td class="mono">11.5px</td><td class="mono">12.5px</td></tr>
+          <tr><td>Border-radius</td><td class="mono">--radius-xs · 4px</td><td class="mono">--radius-xs · 4px</td><td class="mono">--radius-xs · 4px</td></tr>
+          <tr><td>Dot size</td><td class="mono">5px</td><td class="mono">6px</td><td class="mono">7px</td></tr>
+          <tr><td>Border</td><td class="mono">1px solid *-border</td><td class="mono">1px solid *-border</td><td class="mono">1px solid *-border</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><div class="rule-tag">DO</div><div>Use a variant <strong>soft</strong> (com border) por padrão. Reserve solid para o badge mais importante de uma tela.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Sempre acompanhe a cor com texto + ícone (ou dot). Cor sozinha não é informação acessível.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Critical com dot piscante <em>somente</em> quando há crise ao vivo. Senão, dot estático.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use mais que 3 badges seguidos numa mesma linha — vira ruído visual.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use Critical para "novo", "urgente" ou marketing. Critical = crise real, score ≥ 80.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Badge não é clicável. Se precisa de ação (remover, filtrar), use Chip.</div></div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

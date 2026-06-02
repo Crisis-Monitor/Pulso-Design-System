@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Risk Levels</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Patterns</div>
+    <h1 class="page-title">Risk Levels</h1>
+    <p class="page-sub">Os 5 níveis de risco do Pulso. Aplicados consistentemente em todo o produto: chip, ring, dot, border-left de card. <strong>Nunca</strong> usados em outro lugar (ex: status de tarefa, severidade técnica).</p>
+    <section class="section">
+      <h2 class="section-h1">Os 5 níveis</h2>
+      <table class="tokens">
+        <thead><tr><th>Nível</th><th>Token</th><th>Quando aplicar</th><th>Preview</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Stable</strong></td><td class="mono">--risk-stable</td><td>Sentimento positivo ou neutro, sem alertas ativos</td><td><span style="display:inline-flex;align-items:center;gap:6px;padding:2px 10px;background:var(--risk-stable-bg);color:var(--risk-stable-text);border:1px solid var(--risk-stable-border);border-radius:999px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;"><span style="width:6px;height:6px;border-radius:50%;background:var(--risk-stable);"></span>Stable</span></td></tr>
+          <tr><td><strong>Monitor</strong></td><td class="mono">--risk-monitor</td><td>Volume crescente; ainda dentro da baseline</td><td><span style="display:inline-flex;align-items:center;gap:6px;padding:2px 10px;background:var(--risk-monitor-bg);color:var(--risk-monitor-text);border:1px solid var(--risk-monitor-border);border-radius:999px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;"><span style="width:6px;height:6px;border-radius:50%;background:var(--risk-monitor);"></span>Monitor</span></td></tr>
+          <tr><td><strong>Attention</strong></td><td class="mono">--risk-attention</td><td>Picos isolados, sentimento começa a virar negativo</td><td><span style="display:inline-flex;align-items:center;gap:6px;padding:2px 10px;background:var(--risk-attention-bg);color:var(--risk-attention-text);border:1px solid var(--risk-attention-border);border-radius:999px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;"><span style="width:6px;height:6px;border-radius:50%;background:var(--risk-attention);"></span>Attention</span></td></tr>
+          <tr><td><strong>High</strong></td><td class="mono">--risk-high</td><td>Cluster claro, narrativa antagônica, mídia regional</td><td><span style="display:inline-flex;align-items:center;gap:6px;padding:2px 10px;background:var(--risk-high-bg);color:var(--risk-high-text);border:1px solid var(--risk-high-border);border-radius:999px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;"><span style="width:6px;height:6px;border-radius:50%;background:var(--risk-high);"></span>High</span></td></tr>
+          <tr><td><strong>Critical</strong></td><td class="mono">--risk-critical</td><td>Replicado por Tier-1, escalada manual, escalada legal</td><td><span style="display:inline-flex;align-items:center;gap:6px;padding:2px 10px;background:var(--risk-critical-bg);color:var(--risk-critical-text);border:1px solid var(--risk-critical-border);border-radius:999px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;"><span style="width:6px;height:6px;border-radius:50%;background:var(--risk-critical);"></span>Critical</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">Aplicações</h2>
+      <div class="preview-row" style="gap:24px;align-items:stretch;flex-wrap:wrap;">
+        <div style="background:var(--card);border:1px solid var(--border);border-left:3px solid var(--risk-critical);border-radius:var(--radius);padding:14px 16px;min-width:260px;">
+          <div style="font-family:var(--font-pulso-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--risk-critical-text);margin-bottom:4px;">Crítico · #PLS-014</div>
+          <div style="font-size:14px;font-weight:600;color:var(--fg-strong);">Operação Água Nova</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:12px;">
+          <div style="position:relative;width:48px;height:48px;">
+            <svg width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="20" fill="none" stroke="var(--border)" stroke-width="3"/><circle cx="24" cy="24" r="20" fill="none" stroke="var(--risk-attention)" stroke-width="3" stroke-dasharray="125.6" stroke-dashoffset="62" transform="rotate(-90 24 24)" stroke-linecap="round"/></svg>
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-pulso-mono);font-size:11px;font-weight:600;color:var(--fg-strong);">62</div>
+          </div>
+          <div><div style="font-size:11px;color:var(--fg-muted);">Score</div><div style="font-size:13px;font-weight:600;color:var(--risk-attention-text);">Atenção</div></div>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><span class="rule-tag">Do</span><div>Mesma cor + mesmo label em todo o produto. Critical é sempre Critical, com a mesma palavra e mesmo tom.</div></div>
+        <div class="rule dont"><span class="rule-tag">Don't</span><div>Não use os tons de risk para representar status de tarefa, severidade de bug ou progresso. Risk é exclusivo de <em>casos de crise</em>.</div></div>
+        <div class="rule dont"><span class="rule-tag">Don't</span><div>Não invente um sexto nível. Se um caso é "pior que crítico", ele continua crítico — a diferença vem em metadado (escalada, owner sênior), não em cor.</div></div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

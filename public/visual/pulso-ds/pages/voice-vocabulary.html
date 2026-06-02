@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Vocabulário</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* ── Tier cards ─────────────────────────────────────── */
+.disting-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+@media (max-width: 1100px) { .disting-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 720px)  { .disting-grid { grid-template-columns: 1fr; } }
+.disting { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 20px; display: flex; flex-direction: column; gap: 10px; min-height: 240px; position: relative; }
+.disting-num { font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); }
+.disting h3 { font-size: 18px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; }
+.disting-def { font-size: 13px; color: var(--fg); line-height: 1.55; }
+.disting-eg { font-size: 12px; color: var(--fg-muted); padding-top: 10px; border-top: 1px solid var(--border-faint); margin-top: auto; line-height: 1.5; }
+.disting-eg strong { color: var(--fg-secondary); font-weight: 500; }
+.disting::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; border-top-left-radius: var(--radius-md); border-top-right-radius: var(--radius-md); }
+.disting-1::before { background: var(--risk-stable); }
+.disting-2::before { background: var(--risk-monitor); }
+.disting-3::before { background: var(--risk-attention); }
+.disting-4::before { background: var(--risk-high); }
+.disting-5::before { background: var(--risk-critical); }
+
+/* ── Actor hierarchy ─────────────────────────────────── */
+.actors { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 900px) { .actors { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .actors { grid-template-columns: 1fr; } }
+.actor { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px; display: flex; flex-direction: column; gap: 10px; }
+.actor-kicker { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); font-weight: 600; }
+.actor h4 { font-size: 16px; font-weight: 600; color: var(--fg-strong); }
+.actor-role { font-size: 13px; color: var(--fg); line-height: 1.5; }
+.actor-perms { font-size: 12px; color: var(--fg-muted); padding-top: 10px; border-top: 1px solid var(--border-faint); margin-top: 6px; line-height: 1.55; }
+.actor-perms strong { color: var(--fg-secondary); font-weight: 500; }
+
+/* ── Glossary table ──────────────────────────────────── */
+.gloss-group { margin-top: 24px; }
+.gloss-group-h { font-family: var(--font-pulso-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 0; }
+.gloss-row { display: grid; grid-template-columns: 200px 1fr 220px; gap: 24px; padding: 14px 4px; border-bottom: 1px solid var(--border-faint); align-items: baseline; }
+@media (max-width: 900px) { .gloss-row { grid-template-columns: 160px 1fr; } .gloss-en { grid-column: 2; padding-top: 4px; } }
+.gloss-term { font-size: 14px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; }
+.gloss-def { font-size: 13px; color: var(--fg); line-height: 1.55; }
+.gloss-def code { font-family: var(--font-pulso-mono); font-size: 11.5px; background: var(--muted); padding: 1px 6px; border-radius: 3px; }
+.gloss-en { font-family: var(--font-pulso-mono); font-size: 11.5px; color: var(--fg-muted); }
+
+/* ── Anti-vocabulary ─────────────────────────────────── */
+.av-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.av-item { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--destructive); border-radius: var(--radius-md); padding: 16px 18px; }
+.av-bad { font-family: var(--font-pulso-mono); font-size: 13px; color: var(--destructive); text-decoration: line-through; font-weight: 500; }
+.av-arrow { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); margin: 6px 0 4px; }
+.av-good { font-size: 13.5px; color: var(--fg-strong); font-weight: 500; }
+.av-note { font-size: 12px; color: var(--fg-muted); margin-top: 8px; line-height: 1.5; }
+
+/* ── Casing examples ─────────────────────────────────── */
+.casing-row { display: grid; grid-template-columns: 1fr 1fr 200px; gap: 20px; padding: 14px 0; border-bottom: 1px solid var(--border-faint); align-items: center; }
+.casing-row:last-child { border-bottom: none; }
+.casing-pill { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: var(--radius-sm); font-size: 12.5px; }
+.casing-good { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+.casing-bad  { background: var(--destructive-bg); color: var(--destructive); border: 1px solid var(--destructive-border); text-decoration: line-through; }
+.casing-where { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.06em; text-align: right; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+
+    <div class="page-kicker">Foundations · Voice · 01</div>
+    <h1 class="page-title">Vocabulário do domínio</h1>
+    <p class="page-sub">Sem dicionário canônico, cada PM escolhe entre <em>Crise</em>, <em>Incidente</em>, <em>Alerta</em>, <em>Menção</em>, <em>Caso</em> — e a UI vira Babel. Esta página fixa os termos do Crisis Monitor, distingue os 5 conceitos vizinhos e estabelece a hierarquia de papéis. Toda copy do produto compra essa terminologia.</p>
+
+    <!-- ── Princípio editorial ─────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Princípio</h2>
+      <div style="background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: var(--radius-md); padding: 22px 26px;">
+        <p style="font-size: 16px; color: var(--fg-strong); line-height: 1.6; font-weight: 500; max-width: 720px;">Termo escolhido carrega política. <em>Crise</em> diz que o operador precisa agir; <em>menção</em> diz que precisa observar. Trocar um pelo outro muda a urgência percebida — e o produto inteiro.</p>
+        <p style="font-size: 13.5px; color: var(--fg-secondary); margin-top: 12px; line-height: 1.6; max-width: 720px;">Operacional &gt; estético. Se uma palavra "soa melhor" mas confunde a hierarquia (ex: chamar tudo de "alerta"), perdemos. Precisão acima de elegância.</p>
+      </div>
+    </section>
+
+    <!-- ── As 5 distinções centrais ────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Os cinco conceitos vizinhos</h2>
+      <p class="section-desc">Da observação à ação. Cada palavra é um estágio distinto — operadores se confundem quando o produto trata como sinônimos.</p>
+
+      <div class="disting-grid">
+        <div class="disting disting-1">
+          <div class="disting-num">01 · sinal</div>
+          <h3>Menção</h3>
+          <div class="disting-def">Cada ocorrência individual da entidade na cobertura. Unidade atômica de monitoramento.</div>
+          <div class="disting-eg"><strong>Exemplo:</strong> um post no X, uma matéria na Folha, um comentário no Reddit. Conta como 1 menção.</div>
+        </div>
+        <div class="disting disting-2">
+          <div class="disting-num">02 · contexto</div>
+          <h3>Caso</h3>
+          <div class="disting-def">Agrupamento operacional de menções relacionadas. Tem dono, escopo, dashboard e ciclo de vida.</div>
+          <div class="disting-eg"><strong>Exemplo:</strong> #PLS-012 "Vazamento de dados — APP" agrupa 240 menções de cobertura sobre o mesmo incidente.</div>
+        </div>
+        <div class="disting disting-3">
+          <div class="disting-num">03 · sinalização</div>
+          <h3>Alerta</h3>
+          <div class="disting-def">Notificação automática que dispara quando um threshold do caso é rompido. <strong>Mecanismo</strong>, não nível.</div>
+          <div class="disting-eg"><strong>Exemplo:</strong> "Score subiu de 42 para 67 em 12min" → dispara alerta para o operador de plantão.</div>
+        </div>
+        <div class="disting disting-4">
+          <div class="disting-num">04 · fato</div>
+          <h3>Incidente</h3>
+          <div class="disting-def">Evento real fora do produto. O acontecimento concreto que gera cobertura — vazamento, declaração, acidente, anúncio.</div>
+          <div class="disting-eg"><strong>Exemplo:</strong> O vazamento de dados <em>é</em> o incidente. As 240 menções são <em>cobertura</em>.</div>
+        </div>
+        <div class="disting disting-5">
+          <div class="disting-num">05 · estado</div>
+          <h3>Crise</h3>
+          <div class="disting-def">Estado declarado e ativo de um caso. Tem início, escalonamento, encerramento e relatório. <strong>Não usar até ser declarado.</strong></div>
+          <div class="disting-eg"><strong>Exemplo:</strong> Caso vira crise quando atinge nível <em>high</em> + cliente confirma resposta institucional necessária.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;padding:14px 18px;background:var(--surface-2);border:1px solid var(--border-faint);border-radius:var(--radius-md);font-size:13px;color:var(--fg-secondary);line-height:1.6;">
+        <strong style="color:var(--fg);">Regra de cascata:</strong> &nbsp;Incidente acontece → gera menções → menções se agrupam em caso → caso pode subir para crise. Em qualquer ponto, o sistema pode disparar alertas. Cada palavra fica em um andar.
+      </div>
+    </section>
+
+    <!-- ── Hierarquia de papéis ─────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Hierarquia de papéis</h2>
+      <p class="section-desc">Quatro perfis. Toda UI conhece qual está logado — copy, permissões e densidade de informação ajustam de acordo.</p>
+
+      <div class="actors">
+        <div class="actor">
+          <div class="actor-kicker">Tier 1</div>
+          <h4>Operador</h4>
+          <div class="actor-role">Plantão. Acompanha menções em tempo real, ack/encaminha alertas, registra observações. Tem 100+ casos passando por dia.</div>
+          <div class="actor-perms"><strong>Pode:</strong> ack alerta, marcar menção, mover entre tabs, escalar caso. <br><strong>Não pode:</strong> declarar crise, fechar caso, mudar threshold.</div>
+        </div>
+        <div class="actor">
+          <div class="actor-kicker">Tier 2</div>
+          <h4>Analista</h4>
+          <div class="actor-role">Investiga padrão, decide escalonamento, propõe resposta. Cuida de 10–20 casos em profundidade.</div>
+          <div class="actor-perms"><strong>Pode:</strong> tudo do operador + declarar crise, fechar caso, editar threshold, gerar relatório.<br><strong>Não pode:</strong> aprovar resposta institucional pública.</div>
+        </div>
+        <div class="actor">
+          <div class="actor-kicker">Tier 3</div>
+          <h4>Cliente</h4>
+          <div class="actor-role">Conta-cliente do Crisis Monitor. Vê apenas seus próprios casos, aprova respostas, consome relatórios.</div>
+          <div class="actor-perms"><strong>Pode:</strong> ler casos próprios, aprovar/rejeitar resposta sugerida, comentar.<br><strong>Não pode:</strong> ver dados internos do produto, ver outros clientes.</div>
+        </div>
+        <div class="actor">
+          <div class="actor-kicker">Tier 4</div>
+          <h4>Gestor</h4>
+          <div class="actor-role">Liderança da operação ou do produto. Lê tendência cross-cliente, ajusta política, audita decisões.</div>
+          <div class="actor-perms"><strong>Pode:</strong> tudo. Dashboard cross-conta, audit log completo, settings globais.<br><strong>Não pode:</strong> editar resposta sem analista aprovar.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Glossário ────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Glossário canônico</h2>
+      <p class="section-desc">35 termos do produto. Tradução en-US fixada para preparar i18n da fase 5.</p>
+
+      <div class="gloss-group">
+        <div class="gloss-group-h">Casos &amp; estado</div>
+        <div class="gloss-row"><div class="gloss-term">Caso</div><div class="gloss-def">Agrupamento operacional de menções relacionadas. ID no formato <code>PLS-NNN</code>.</div><div class="gloss-en">case</div></div>
+        <div class="gloss-row"><div class="gloss-term">Crise</div><div class="gloss-def">Estado declarado de um caso. Não usar como sinônimo de "caso difícil" — palavra reservada.</div><div class="gloss-en">crisis</div></div>
+        <div class="gloss-row"><div class="gloss-term">Incidente</div><div class="gloss-def">Evento real, externo ao produto, que origina cobertura. Não é uma entidade dentro do CM.</div><div class="gloss-en">incident</div></div>
+        <div class="gloss-row"><div class="gloss-term">Cobertura</div><div class="gloss-def">Conjunto agregado de menções sobre um incidente ou entidade. "Cobertura cresceu 40%".</div><div class="gloss-en">coverage</div></div>
+        <div class="gloss-row"><div class="gloss-term">Resposta</div><div class="gloss-def">Pronunciamento institucional sugerido/aprovado dentro do caso. Sempre exige aprovação do cliente.</div><div class="gloss-en">statement</div></div>
+        <div class="gloss-row"><div class="gloss-term">Briefing</div><div class="gloss-def">Síntese estruturada inicial do caso (contexto, atores, evidências, recomendação). Gerada por Pulso IA, revisada por analista.</div><div class="gloss-en">briefing</div></div>
+        <div class="gloss-row"><div class="gloss-term">Relatório</div><div class="gloss-def">Documento de fechamento (ou parcial) do caso. Bilíngue, com clips curados, timeline e decisões.</div><div class="gloss-en">report</div></div>
+      </div>
+
+      <div class="gloss-group">
+        <div class="gloss-group-h">Menções &amp; cobertura</div>
+        <div class="gloss-row"><div class="gloss-term">Menção</div><div class="gloss-def">Ocorrência individual. Toda menção pertence a um caso e a um <em>veículo</em>.</div><div class="gloss-en">mention</div></div>
+        <div class="gloss-row"><div class="gloss-term">Veículo</div><div class="gloss-def">Fonte original da menção: jornal, perfil, podcast, fórum. Cada veículo tem <em>tier</em>.</div><div class="gloss-en">source</div></div>
+        <div class="gloss-row"><div class="gloss-term">Tier</div><div class="gloss-def">Classificação editorial do veículo · T1 (referência), T2 (relevante), T3 (eco/social).</div><div class="gloss-en">tier</div></div>
+        <div class="gloss-row"><div class="gloss-term">Sentimento</div><div class="gloss-def">Polaridade da menção. Três valores: <em>negativo</em>, <em>neutro</em>, <em>positivo</em>. Nunca "ruim/bom".</div><div class="gloss-en">sentiment</div></div>
+        <div class="gloss-row"><div class="gloss-term">Narrativa</div><div class="gloss-def">Eixo temático agregando menções: "responsabilidade da empresa", "vítimas", "comparação com 2023". Não é tag livre.</div><div class="gloss-en">narrative</div></div>
+        <div class="gloss-row"><div class="gloss-term">Clipping</div><div class="gloss-def">Seleção curada de menções para o relatório. Subconjunto editorial do total.</div><div class="gloss-en">clipping</div></div>
+      </div>
+
+      <div class="gloss-group">
+        <div class="gloss-group-h">Risco &amp; mensuração</div>
+        <div class="gloss-row"><div class="gloss-term">Score</div><div class="gloss-def">Pontuação de atenção do caso, 0–100. Composição de volume + sentimento + tier + velocidade. <strong>Não é</strong> "risco" nem "rating".</div><div class="gloss-en">score</div></div>
+        <div class="gloss-row"><div class="gloss-term">Risco</div><div class="gloss-def">Nível qualitativo: <em>stable / monitor / attention / high / critical</em>. Deriva do score + julgamento do analista.</div><div class="gloss-en">risk level</div></div>
+        <div class="gloss-row"><div class="gloss-term">Threshold</div><div class="gloss-def">Valor que dispara um alerta automático. Editável por analista, default por tipo de caso.</div><div class="gloss-en">threshold</div></div>
+        <div class="gloss-row"><div class="gloss-term">Delta</div><div class="gloss-def">Variação do score/volume em janela. Sempre numérica, com sinal explícito (<code>+12</code>, <code>−5</code>).</div><div class="gloss-en">delta</div></div>
+        <div class="gloss-row"><div class="gloss-term">Velocidade</div><div class="gloss-def">Taxa de crescimento da cobertura. "Está acelerando" tem definição: derivada positiva e crescente.</div><div class="gloss-en">velocity</div></div>
+      </div>
+
+      <div class="gloss-group">
+        <div class="gloss-group-h">Operação &amp; jornada</div>
+        <div class="gloss-row"><div class="gloss-term">Alerta</div><div class="gloss-def">Notificação que dispara quando threshold é rompido. Sempre destinada a um operador específico.</div><div class="gloss-en">alert</div></div>
+        <div class="gloss-row"><div class="gloss-term">Dispatch</div><div class="gloss-def">Despacho automático de alerta para canal externo (Slack, e-mail, SMS). Registrado em audit log.</div><div class="gloss-en">dispatch</div></div>
+        <div class="gloss-row"><div class="gloss-term">Ack</div><div class="gloss-def">"Reconhecimento". Operador clica para sinalizar que viu o alerta. Reduz noise sem fechar o caso.</div><div class="gloss-en">acknowledge</div></div>
+        <div class="gloss-row"><div class="gloss-term">Escalar</div><div class="gloss-def">Subir o caso para o próximo tier (operador → analista; analista → cliente). Ação rastreada.</div><div class="gloss-en">escalate</div></div>
+        <div class="gloss-row"><div class="gloss-term">Plantão</div><div class="gloss-def">Janela de turno em que o operador é responsável pelos casos atribuídos. Marcado em audit log.</div><div class="gloss-en">on-call</div></div>
+        <div class="gloss-row"><div class="gloss-term">Encerrar</div><div class="gloss-def">Fechar o caso. Exige relatório anexado. Não usar "arquivar" — caso encerrado fica visível.</div><div class="gloss-en">close</div></div>
+      </div>
+
+      <div class="gloss-group">
+        <div class="gloss-group-h">Produto &amp; sistema</div>
+        <div class="gloss-row"><div class="gloss-term">Pulso IA · Cris</div><div class="gloss-def">Assistente de IA do produto. <em>Cris</em> é o nome amigável; <em>Pulso IA</em> é a referência técnica. Modos: Executivo e Porta-voz.</div><div class="gloss-en">Pulso AI · Cris</div></div>
+        <div class="gloss-row"><div class="gloss-term">Workspace</div><div class="gloss-def">Espaço de trabalho de um cliente. Contém casos, membros, configuração. Inglês mantido — termo conhecido.</div><div class="gloss-en">workspace</div></div>
+        <div class="gloss-row"><div class="gloss-term">Audit log</div><div class="gloss-def">Registro imutável de ações sensíveis. Mantido em inglês — referência técnica universal.</div><div class="gloss-en">audit log</div></div>
+        <div class="gloss-row"><div class="gloss-term">Radar</div><div class="gloss-def">Visão sintética de casos por nível de risco. Não "dashboard" — radar destaca movimento, não estado.</div><div class="gloss-en">radar</div></div>
+        <div class="gloss-row"><div class="gloss-term">Timeline</div><div class="gloss-def">Visão cronológica do caso (menções, ações, decisões). Inglês mantido — neologismo já adotado no jornalismo.</div><div class="gloss-en">timeline</div></div>
+        <div class="gloss-row"><div class="gloss-term">Inferência</div><div class="gloss-def">Conclusão derivada por Pulso IA. Sempre marcada com badge <code>[Inferência]</code>. Distinguir de fato bruto.</div><div class="gloss-en">inference</div></div>
+        <div class="gloss-row"><div class="gloss-term">Especulação</div><div class="gloss-def">Extrapolação sem evidência direta. Marcada com <code>[Especulação]</code>. Pulso IA usa com parcimônia.</div><div class="gloss-en">speculation</div></div>
+      </div>
+    </section>
+
+    <!-- ── Anti-vocabulário ─────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Anti-vocabulário</h2>
+      <p class="section-desc">Palavras que <strong>não</strong> usamos. Cada uma traz problema específico — alarme, ambiguidade ou tom errado.</p>
+
+      <div class="av-grid">
+        <div class="av-item">
+          <div class="av-bad">Risco crítico</div>
+          <div class="av-arrow">→</div>
+          <div class="av-good">Nível critical</div>
+          <div class="av-note">"Risco crítico" é tautologia — todo nível já fala de risco. Use o token <code>critical</code> direto.</div>
+        </div>
+        <div class="av-item">
+          <div class="av-bad">Bombou · explodiu · viralizou</div>
+          <div class="av-arrow">→</div>
+          <div class="av-good">Volume cresceu · velocidade aumentou</div>
+          <div class="av-note">Linguagem jornalística amadora. Em UI institucional vira ruído.</div>
+        </div>
+        <div class="av-item">
+          <div class="av-bad">Hater · troll</div>
+          <div class="av-arrow">→</div>
+          <div class="av-good">Menção negativa · perfil hostil</div>
+          <div class="av-note">Termo de internet aberta. Sem precisão, sem operacionalização.</div>
+        </div>
+        <div class="av-item">
+          <div class="av-bad">Algo deu errado</div>
+          <div class="av-arrow">→</div>
+          <div class="av-good">Não foi possível salvar · Conexão perdida</div>
+          <div class="av-note">Hostil e inútil. Microcopy de erro precisa nomear o erro.</div>
+        </div>
+        <div class="av-item">
+          <div class="av-bad">Risco alto</div>
+          <div class="av-arrow">→</div>
+          <div class="av-good">Nível high</div>
+          <div class="av-note">"Alto" e "high" coexistem mal. Padronizar evita confusão entre risk-attention e risk-high.</div>
+        </div>
+        <div class="av-item">
+          <div class="av-bad">Tag</div>
+          <div class="av-arrow">→</div>
+          <div class="av-good">Narrativa · etiqueta · veículo</div>
+          <div class="av-note">"Tag" não diz qual taxonomia. Sempre especificar.</div>
+        </div>
+        <div class="av-item">
+          <div class="av-bad">Arquivar caso</div>
+          <div class="av-arrow">→</div>
+          <div class="av-good">Encerrar caso</div>
+          <div class="av-note">"Arquivar" sugere esconder. Caso encerrado fica visível e auditável.</div>
+        </div>
+        <div class="av-item">
+          <div class="av-bad">Painel · Tela</div>
+          <div class="av-arrow">→</div>
+          <div class="av-good">Aba · seção · página</div>
+          <div class="av-note">"Painel" no Crisis Monitor é só o lateral da IA. "Tela" é coloquial demais.</div>
+        </div>
+        <div class="av-item">
+          <div class="av-bad">Usuário</div>
+          <div class="av-arrow">→</div>
+          <div class="av-good">Operador · analista · cliente</div>
+          <div class="av-note">"Usuário" não diz qual tier. UI deve adaptar copy ao papel.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Casing ─────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Casing · padrão</h2>
+      <p class="section-desc">Quatro regras simples. Toda copy do produto compra.</p>
+
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 8px 22px;">
+        <div class="casing-row">
+          <div><span class="casing-pill casing-good">Casos ativos</span> &nbsp; <span class="casing-pill casing-bad">Casos Ativos</span></div>
+          <div style="font-size:13px;color:var(--fg-secondary);">Sentence case</div>
+          <div class="casing-where">Labels, nav, tabs, títulos</div>
+        </div>
+        <div class="casing-row">
+          <div><span class="casing-pill casing-good" style="font-family:var(--font-pulso-mono);font-size:11px;letter-spacing:0.08em;">CASOS ATIVOS</span> &nbsp; <span class="casing-pill casing-bad">CASOS ATIVOS</span></div>
+          <div style="font-size:13px;color:var(--fg-secondary);">UPPERCASE + tracking <code style="font-family:var(--font-pulso-mono);background:var(--muted);padding:1px 5px;border-radius:3px;font-size:11.5px;">0.08em</code></div>
+          <div class="casing-where">Kickers de seção apenas</div>
+        </div>
+        <div class="casing-row">
+          <div><span class="casing-pill casing-good">Solicitar acesso</span> &nbsp; <span class="casing-pill casing-bad">Solicitar Acesso</span></div>
+          <div style="font-size:13px;color:var(--fg-secondary);">Sentence case · verbo imperativo</div>
+          <div class="casing-where">Botões CTA</div>
+        </div>
+        <div class="casing-row">
+          <div><span class="casing-pill casing-good">PLS-012</span> &nbsp; <span class="casing-pill casing-bad">pls-012</span></div>
+          <div style="font-size:13px;color:var(--fg-secondary);">UPPERCASE + mono</div>
+          <div class="casing-where">IDs de caso, tokens técnicos</div>
+        </div>
+      </div>
+
+      <p class="section-desc" style="margin-top:16px;"><strong>Nunca title case.</strong> "The Quick Brown Fox" não cabe em UI institucional — soa como blog. Sentence case é a default em PT e EN.</p>
+    </section>
+
+    <!-- ── Regras ─────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Faça</div>
+          <ul>
+            <li>Use o termo canônico. Em dúvida, abra esta página.</li>
+            <li>Em copy nova, fixe o termo do glossário antes de inventar variação.</li>
+            <li>Marque <strong>Inferência</strong> e <strong>Especulação</strong> em todo conteúdo gerado por Pulso IA que não tem fato bruto por trás.</li>
+            <li>Adapte copy ao papel do usuário logado: operador vê "ack alerta"; cliente vê "marcar como lido".</li>
+            <li>Em strings de produto, declare a versão pt-BR e en-US do termo no mesmo PR.</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Evite</div>
+          <ul>
+            <li>Não chame menção de "post". Pode ser post, matéria, comentário — usar a categoria certa.</li>
+            <li>Não use "alerta" para qualquer notificação. Alerta tem definição: dispara por threshold.</li>
+            <li>Não use "crise" coloquialmente ("isso é uma crise"). Reservada para estado declarado.</li>
+            <li>Não traduza "workspace", "timeline", "audit log" — termos já adotados.</li>
+            <li>Não escreva risco em texto livre ("risco moderado"). Use sempre os 5 tokens canônicos.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Status ─────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Status da iniciativa · 2.1</h2>
+      <table class="tokens" style="margin-top:8px;">
+        <thead><tr><th>Deliverable</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Glossário canônico · 35 termos</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Distinção formal · 5 conceitos vizinhos</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Hierarquia de papéis · 4 tiers</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Anti-vocabulário · 9 substituições</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Página <strong>Foundations · Voice · Vocabulário</strong></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Sincronização com strings do Crisis Monitor</td><td><span style="color:var(--warning);font-family:var(--font-pulso-mono);font-size:11px;">⏳ em código (PLS-CM-COPY-022)</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

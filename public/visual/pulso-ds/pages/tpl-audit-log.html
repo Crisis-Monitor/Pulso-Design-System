@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Template · Audit Log</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.al-screen { background: var(--surface-page); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.al-head { padding: 20px 28px; background: var(--card); border-bottom: 1px solid var(--border-faint); display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.al-head h2 { font-size: 18px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; }
+.al-head-sub { font-size: 13px; color: var(--fg-muted); margin-top: 2px; }
+.al-actions { display: flex; gap: 8px; }
+.al-btn { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: var(--radius-sm); font-size: 12.5px; font-weight: 500; font-family: inherit; border: 1px solid var(--border-strong); background: var(--card); color: var(--fg); cursor: pointer; }
+
+.al-toolbar { padding: 14px 28px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: var(--background); border-bottom: 1px solid var(--border-faint); }
+.al-search-wrap { flex: 1; min-width: 240px; position: relative; display: flex; }
+.al-search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--fg-subtle); }
+.al-search { width: 100%; height: 32px; padding: 0 12px 0 32px; background: var(--card); border: 1px solid var(--input); border-radius: var(--radius-sm); font-size: 13px; color: var(--fg); }
+.al-pill { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; background: var(--card); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font-size: 12.5px; color: var(--fg); cursor: pointer; }
+.al-pill.active { background: color-mix(in oklab, var(--primary) 8%, var(--card)); border-color: var(--primary-border); color: var(--primary); }
+.al-pill svg { color: var(--fg-subtle); }
+
+/* Table */
+.al-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.al-table th { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; padding: 12px 14px; text-align: left; background: var(--card); border-bottom: 1px solid var(--border); }
+.al-table th:first-child, .al-table td:first-child { padding-left: 28px; }
+.al-table th:last-child, .al-table td:last-child { padding-right: 28px; }
+.al-table td { padding: 12px 14px; border-bottom: 1px solid var(--border-faint); vertical-align: top; }
+.al-table tr:hover td { background: var(--muted); }
+.al-time { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); white-space: nowrap; line-height: 1.4; }
+.al-time strong { color: var(--fg-strong); font-weight: 600; display: block; }
+.al-actor { display: flex; align-items: center; gap: 8px; }
+.al-avatar { width: 22px; height: 22px; border-radius: 50%; background: var(--muted); display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-pulso-mono); font-size: 9.5px; font-weight: 600; color: var(--fg-strong); flex-shrink: 0; }
+.al-actor-name { font-size: 13px; color: var(--fg-strong); font-weight: 500; }
+.al-actor-role { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); margin-top: 1px; }
+.al-action { font-family: var(--font-pulso-mono); font-size: 11.5px; padding: 3px 8px; border-radius: var(--radius-xs); border: 1px solid; font-weight: 600; white-space: nowrap; }
+.a-create { background: color-mix(in oklab, var(--chart-3) 14%, transparent); color: var(--chart-3); border-color: color-mix(in oklab, var(--chart-3) 30%, transparent); }
+.a-update { background: var(--risk-monitor-bg); color: var(--risk-monitor-text); border-color: var(--risk-monitor-border); }
+.a-escalate { background: var(--risk-attention-bg); color: var(--risk-attention-text); border-color: var(--risk-attention-border); }
+.a-close { background: var(--success-bg); color: var(--success); border-color: var(--success-border); }
+.a-destroy { background: var(--destructive-bg); color: var(--destructive); border-color: var(--destructive-border); }
+.a-perm { background: color-mix(in oklab, var(--chart-1) 14%, transparent); color: var(--chart-1); border-color: color-mix(in oklab, var(--chart-1) 30%, transparent); }
+.al-target { font-family: var(--font-pulso-mono); font-size: 12px; color: var(--fg-strong); }
+.al-target-sub { font-size: 11.5px; color: var(--fg-muted); margin-top: 2px; line-height: 1.45; max-width: 320px; }
+.al-meta { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); white-space: nowrap; }
+
+.al-foot { padding: 14px 28px; border-top: 1px solid var(--border-faint); background: var(--card); display: flex; justify-content: space-between; align-items: center; font-family: var(--font-pulso-mono); font-size: 11.5px; color: var(--fg-muted); }
+.al-page { display: inline-flex; align-items: center; gap: 6px; }
+.al-page-btn { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--card); color: var(--fg); cursor: pointer; }
+
+/* Detail drawer (snapshot) */
+.al-drawer { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px 24px; margin-top: 14px; display: flex; flex-direction: column; gap: 14px; }
+.al-drawer-h { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); margin-bottom: 6px; }
+.al-diff { font-family: var(--font-pulso-mono); font-size: 12px; background: var(--surface-2); border: 1px solid var(--border-faint); border-radius: var(--radius-sm); padding: 12px 14px; line-height: 1.7; }
+.al-diff .removed { background: var(--destructive-bg); color: var(--destructive); padding: 1px 4px; border-radius: 2px; text-decoration: line-through; }
+.al-diff .added { background: var(--success-bg); color: var(--success); padding: 1px 4px; border-radius: 2px; }
+.al-detail-grid { display: grid; grid-template-columns: 140px 1fr; gap: 8px 16px; font-size: 12.5px; }
+.al-detail-grid .k { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.06em; }
+.al-detail-grid .v { color: var(--fg); font-family: var(--font-pulso-mono); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Templates · Audit Log · 08</div>
+    <h1 class="page-title">Audit Log · compliance grid</h1>
+    <p class="page-sub">Registro imutável de toda ação sensível. Compliance e gestor consultam · operador consulta para entender "quem fez o quê com isto, e quando". Densidade alta, leitura por filtro · não por scroll.</p>
+
+    <!-- ── Grid principal ─────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Grid principal</h2>
+      <div class="al-screen">
+        <div class="al-head">
+          <div>
+            <h2>Audit Log</h2>
+            <div class="al-head-sub">Workspace · APP — Tecnologia em Saúde · 1.842 eventos · últimos 90 dias</div>
+          </div>
+          <div class="al-actions">
+            <button class="al-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+              Exportar CSV
+            </button>
+            <button class="al-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+              Saved filters
+            </button>
+          </div>
+        </div>
+
+        <div class="al-toolbar">
+          <div class="al-search-wrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input class="al-search" placeholder="Buscar por usuário, ação, ID...">
+          </div>
+          <button class="al-pill active">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h18l-7 9v6l-4 2v-8z"/></svg>
+            7 dias
+          </button>
+          <button class="al-pill">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="3"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
+            Todos os usuários
+          </button>
+          <button class="al-pill">
+            Tipo · todos
+          </button>
+        </div>
+
+        <table class="al-table">
+          <thead>
+            <tr>
+              <th>Quando</th>
+              <th>Quem</th>
+              <th>Ação</th>
+              <th>Alvo</th>
+              <th>Origem</th>
+              <th>ID</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="al-time"><strong>17/05 · 14:34</strong>UTC−3 · há 4 min</span></td>
+              <td><div class="al-actor"><span class="al-avatar">AL</span><div><div class="al-actor-name">Ana Lima</div><div class="al-actor-role">analista</div></div></div></td>
+              <td><span class="al-action a-escalate">escalate</span></td>
+              <td><div class="al-target">PLS-012</div><div class="al-target-sub">Vazamento de dados — APP · escalado para crisis-team · justificativa anexada</div></td>
+              <td><span class="al-meta">web · IP 200.142.×.×</span></td>
+              <td><span class="al-meta">evt-9C4F2A</span></td>
+            </tr>
+            <tr>
+              <td><span class="al-time"><strong>17/05 · 14:30</strong>UTC−3 · há 8 min</span></td>
+              <td><div class="al-actor"><span class="al-avatar">RC</span><div><div class="al-actor-name">Rafael Castro</div><div class="al-actor-role">cliente</div></div></div></td>
+              <td><span class="al-action a-update">approve</span></td>
+              <td><div class="al-target">PLS-012 · response-3</div><div class="al-target-sub">Pronunciamento institucional aprovado · agendado para 16:30</div></td>
+              <td><span class="al-meta">web · IP 187.91.×.×</span></td>
+              <td><span class="al-meta">evt-9C4ED1</span></td>
+            </tr>
+            <tr>
+              <td><span class="al-time"><strong>17/05 · 14:18</strong>UTC−3 · há 20 min</span></td>
+              <td><div class="al-actor"><span class="al-avatar">AL</span><div><div class="al-actor-name">Ana Lima</div><div class="al-actor-role">analista</div></div></div></td>
+              <td><span class="al-action a-update">update</span></td>
+              <td><div class="al-target">PLS-012 · threshold</div><div class="al-target-sub">Threshold 75 → 65 · justificativa "Velocity acelerando"</div></td>
+              <td><span class="al-meta">web · IP 200.142.×.×</span></td>
+              <td><span class="al-meta">evt-9C4DC8</span></td>
+            </tr>
+            <tr>
+              <td><span class="al-time"><strong>17/05 · 13:42</strong>UTC−3 · há 56 min</span></td>
+              <td><div class="al-actor"><span class="al-avatar">RM</span><div><div class="al-actor-name">Rodrigo Melo</div><div class="al-actor-role">operador</div></div></div></td>
+              <td><span class="al-action a-create">create</span></td>
+              <td><div class="al-target">PLS-019</div><div class="al-target-sub">Caso criado manualmente · monitoramento setorial · regulação CVM</div></td>
+              <td><span class="al-meta">web · IP 187.91.×.×</span></td>
+              <td><span class="al-meta">evt-9C4A12</span></td>
+            </tr>
+            <tr>
+              <td><span class="al-time"><strong>17/05 · 12:15</strong>UTC−3 · há 2 h</span></td>
+              <td><div class="al-actor"><span class="al-avatar">NS</span><div><div class="al-actor-name">Neviton Santana</div><div class="al-actor-role">gestor</div></div></div></td>
+              <td><span class="al-action a-perm">permission</span></td>
+              <td><div class="al-target">Carla Vitória</div><div class="al-target-sub">Promovido de operador → analista · justificativa "Rotação de plantão"</div></td>
+              <td><span class="al-meta">web · IP 200.142.×.×</span></td>
+              <td><span class="al-meta">evt-9C4628</span></td>
+            </tr>
+            <tr>
+              <td><span class="al-time"><strong>17/05 · 11:02</strong>UTC−3 · há 3 h</span></td>
+              <td><div class="al-actor"><span class="al-avatar" style="background:color-mix(in oklab, var(--primary) 18%, transparent);color:var(--primary);">CR</span><div><div class="al-actor-name">Cris · Pulso IA</div><div class="al-actor-role">sistema</div></div></div></td>
+              <td><span class="al-action a-create">suggest</span></td>
+              <td><div class="al-target">PLS-012 · response-3</div><div class="al-target-sub">Pronunciamento sugerido · 4 versões · 1 aprovada por Rafael Castro</div></td>
+              <td><span class="al-meta">api · pulso-ai-v3</span></td>
+              <td><span class="al-meta">evt-9C3F44</span></td>
+            </tr>
+            <tr>
+              <td><span class="al-time"><strong>17/05 · 09:48</strong>UTC−3 · há 5 h</span></td>
+              <td><div class="al-actor"><span class="al-avatar">AL</span><div><div class="al-actor-name">Ana Lima</div><div class="al-actor-role">analista</div></div></div></td>
+              <td><span class="al-action a-close">close</span></td>
+              <td><div class="al-target">PLS-018</div><div class="al-target-sub">Caso encerrado · relatório anexado · resumo "Cobertura desacelerou em 48h"</div></td>
+              <td><span class="al-meta">web · IP 200.142.×.×</span></td>
+              <td><span class="al-meta">evt-9C3744</span></td>
+            </tr>
+            <tr>
+              <td><span class="al-time"><strong>16/05 · 18:32</strong>UTC−3 · ontem</span></td>
+              <td><div class="al-actor"><span class="al-avatar">NS</span><div><div class="al-actor-name">Neviton Santana</div><div class="al-actor-role">gestor</div></div></div></td>
+              <td><span class="al-action a-destroy">delete</span></td>
+              <td><div class="al-target">api-key-pulso-prod</div><div class="al-target-sub">Token revogado · razão "rotação trimestral"</div></td>
+              <td><span class="al-meta">web · IP 200.142.×.×</span></td>
+              <td><span class="al-meta">evt-9C2E81</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="al-foot">
+          <span>Mostrando 1–8 de 1.842 eventos</span>
+          <div class="al-page">
+            <button class="al-page-btn">‹</button>
+            <span>Página 1 de 231</span>
+            <button class="al-page-btn">›</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Detail drawer (event expanded) ──── -->
+    <section class="section">
+      <h2 class="section-h1">Detalhe · snapshot do evento</h2>
+      <p class="section-desc">Clicar em uma linha abre o detalhe — diff antes/depois + metadata completo. Imutável: nenhum botão de edit.</p>
+      <div class="al-drawer">
+        <div class="al-drawer-h">Evento · evt-9C4DC8 · 17/05 · 14:18:42 UTC−3</div>
+        <div class="al-detail-grid">
+          <span class="k">Quem</span><span class="v">Ana Lima · analista · user-3829</span>
+          <span class="k">Ação</span><span class="v">update · threshold</span>
+          <span class="k">Alvo</span><span class="v">PLS-012 · case-9182</span>
+          <span class="k">Origem</span><span class="v">web · Chrome 124 · IP 200.142.18.42 · BR-SP</span>
+          <span class="k">Justificativa</span><span class="v" style="font-family:var(--font-pulso-sans);">"Velocity acelerando — operador de plantão precisa ser acionado mais cedo"</span>
+          <span class="k">Sessão</span><span class="v">sess-7C29A · iniciada às 08:12 (SSO Google)</span>
+        </div>
+
+        <div>
+          <div class="al-drawer-h">Diff</div>
+          <div class="al-diff">
+{
+  "case_id": "PLS-012",
+  "threshold": {
+    <span class="removed">"value": 75,</span>
+    <span class="added">"value": 65,</span>
+    "auto_escalate": true,
+    "channels": ["slack:#crisis-team", "email:plantao@empresa.com"]
+  },
+  "updated_by": "user-3829",
+  "updated_at": "2026-05-17T14:18:42-03:00"
+}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Composição ─────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Composição</h2>
+      <table class="tokens">
+        <thead><tr><th>Elemento</th><th>Componente</th><th>Spec</th></tr></thead>
+        <tbody>
+          <tr><td>Densidade</td><td>—</td><td><strong>compact</strong> · override local independente do user preference · compliance precisa de scan rápido</td></tr>
+          <tr><td>Coluna "Quando"</td><td class="mono">RelativeTime</td><td>Timestamp absoluto + relativo · timezone explícito · mono tabular-nums</td></tr>
+          <tr><td>Coluna "Quem"</td><td class="mono">Avatar + Role</td><td>Iniciais em mono · role em micro · IA com cor distintiva</td></tr>
+          <tr><td>Ação</td><td class="mono">Badge</td><td>6 tipos canônicos: create · update · escalate · close · destroy · permission</td></tr>
+          <tr><td>Alvo</td><td>—</td><td>ID em mono · descrição em sans · max 320px com ellipsis</td></tr>
+          <tr><td>Drawer</td><td class="mono">Sheet · lateral</td><td>Snapshot completo + diff JSON · imutável · botão "copiar ID" único</td></tr>
+          <tr><td>Export</td><td>—</td><td>CSV nativo + filtros atuais · trigger audit-log próprio ("Neviton exportou X eventos em Y")</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Edge cases ─────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Edge cases</h2>
+      <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:10px;">
+        <li style="font-size:13px;color:var(--fg);line-height:1.55;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);"><strong style="color:var(--fg-strong);">Evento de sistema (sem actor humano)</strong> · avatar do Pulso IA · role "sistema" · IP/UA = API origin.</li>
+        <li style="font-size:13px;color:var(--fg);line-height:1.55;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);"><strong style="color:var(--fg-strong);">Filtro &gt; 50k eventos</strong> · banner "Refine o filtro · ou exporte para CSV" · paginação suspende após 10k carregados.</li>
+        <li style="font-size:13px;color:var(--fg);line-height:1.55;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);"><strong style="color:var(--fg-strong);">Evento &gt; 90 dias</strong> · não aparece no grid online · disponível via export "histórico arquivado" (acionável por gestor apenas).</li>
+        <li style="font-size:13px;color:var(--fg);line-height:1.55;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);"><strong style="color:var(--fg-strong);">Operador olhando audit</strong> · vê só os próprios eventos · gestor + analista veem tudo do workspace · acesso cross-workspace só com SSO de auditoria.</li>
+      </ul>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

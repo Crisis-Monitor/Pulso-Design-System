@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Instalação</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Getting Started · 01</div>
+    <h1 class="page-title">Instalação</h1>
+    <p class="page-sub">Como instalar e configurar o Pulso DS num projeto Next.js + Tailwind 4. Pré-requisito: Node 20+, pnpm/bun.</p>
+    <section class="section">
+      <h2 class="section-h1">1. Dependências</h2>
+      <pre class="code">pnpm add @pulso-ds/core @pulso-ds/icons
+pnpm add tailwindcss@^4 tw-animate-css
+pnpm add @radix-ui/react-* class-variance-authority clsx</pre>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">2. Tokens</h2>
+      <p class="section-desc">Importe <code>globals.css</code> no <code>app/layout.tsx</code>. Os tokens entram via <code>@theme inline</code> e ficam disponíveis como utilities do Tailwind 4.</p>
+      <pre class="code">/* app/globals.css */
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@pulso-ds/core/globals.css";
+
+@custom-variant dark (&:is(.dark *));</pre>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">3. Fontes</h2>
+      <pre class="code">// app/layout.tsx
+import { Manrope, IBM_Plex_Mono } from 'next/font/google';
+
+const manrope = Manrope({ subsets: ['latin'], variable: '--font-manrope' });
+const mono = IBM_Plex_Mono({ subsets: ['latin'], weight: ['400','500','600'], variable: '--font-ibm-plex-mono' });
+
+export default function RootLayout({ children }) {
+  return (
+    &lt;html lang="pt-BR" className={`${manrope.variable} ${mono.variable}`}&gt;
+      &lt;body&gt;{children}&lt;/body&gt;
+    &lt;/html&gt;
+  );
+}</pre>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">4. Theme provider</h2>
+      <p class="section-desc">O Pulso usa <code>next-themes</code> para light/dark. A classe <code>.dark</code> aplicada no <code>html</code> ativa o tema escuro.</p>
+      <pre class="code">// app/providers.tsx
+'use client';
+import { ThemeProvider } from 'next-themes';
+export function Providers({ children }) {
+  return &lt;ThemeProvider attribute="class" defaultTheme="light"&gt;{children}&lt;/ThemeProvider&gt;;
+}</pre>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Button Group</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Molecules</div>
+    <h1 class="page-title">Button Group</h1>
+    <p class="page-sub">Botões correlatos colados. Usado para alternar visualizações, exportar em formatos, navegar entre páginas. Sempre <strong>secondary</strong> ou <strong>ghost</strong> — nunca primary em grupo.</p>
+    <section class="section">
+      <h2 class="section-h1">Toggle (single select)</h2>
+      <div class="preview-row" style="gap:12px;align-items:center;">
+        <div style="display:inline-flex;background:var(--muted);border:1px solid var(--border);border-radius:var(--radius-sm);padding:2px;">
+          <button style="padding:0 14px;height:28px;font-size:12px;font-weight:500;background:var(--card);color:var(--fg-strong);border:none;border-radius:calc(var(--radius-sm) - 2px);box-shadow:var(--shadow-soft);">Lista</button>
+          <button style="padding:0 14px;height:28px;font-size:12px;font-weight:500;background:transparent;color:var(--fg-muted);border:none;">Board</button>
+          <button style="padding:0 14px;height:28px;font-size:12px;font-weight:500;background:transparent;color:var(--fg-muted);border:none;">Timeline</button>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">Attached (ações relacionadas)</h2>
+      <div class="preview-row" style="gap:12px;align-items:center;">
+        <div style="display:inline-flex;">
+          <button class="btn btn-secondary" style="border-top-right-radius:0;border-bottom-right-radius:0;border-right:none;">Exportar CSV</button>
+          <button class="btn btn-secondary" style="border-radius:0;border-right:none;padding:0 10px;">PDF</button>
+          <button class="btn btn-secondary" style="border-top-left-radius:0;border-bottom-left-radius:0;padding:0 10px;">JSON</button>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">Split button</h2>
+      <div class="preview-row" style="gap:12px;align-items:center;">
+        <div style="display:inline-flex;">
+          <button class="btn btn-primary" style="border-top-right-radius:0;border-bottom-right-radius:0;">Aprovar resposta</button>
+          <button class="btn btn-primary" style="border-top-left-radius:0;border-bottom-left-radius:0;padding:0 8px;border-left:1px solid color-mix(in oklab, var(--primary) 80%, white);">▾</button>
+        </div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

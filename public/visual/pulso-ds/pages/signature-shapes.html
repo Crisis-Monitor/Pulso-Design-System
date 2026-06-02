@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Signature Shapes</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* ── Shape card ─────────────────── */
+.shape { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; margin-top: 14px; }
+.shape-head { padding: 18px 22px 16px; border-bottom: 1px solid var(--border-faint); display: flex; align-items: flex-start; gap: 18px; flex-wrap: wrap; }
+.shape-num { font-family: var(--font-pulso-mono); font-size: 26px; font-weight: 700; color: var(--primary); line-height: 1; letter-spacing: -0.02em; flex-shrink: 0; }
+.shape-id { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 600; }
+.shape-name { font-size: 19px; font-weight: 700; color: var(--fg-strong); letter-spacing: -0.01em; margin-top: 2px; }
+.shape-desc { font-size: 13.5px; color: var(--fg-secondary); line-height: 1.55; margin-top: 6px; max-width: 720px; }
+.shape-tag { font-family: var(--font-pulso-mono); font-size: 10px; padding: 3px 8px; border-radius: var(--radius-xs); background: color-mix(in oklab, var(--success) 14%, transparent); color: var(--success); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; align-self: flex-start; margin-left: auto; }
+
+.shape-mocks { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-bottom: 1px solid var(--border-faint); background: var(--surface-page); }
+@media (max-width: 800px) { .shape-mocks { grid-template-columns: 1fr; } }
+.shape-mock { padding: 28px 28px; display: flex; align-items: center; justify-content: center; min-height: 200px; position: relative; }
+.shape-mock.mono { filter: grayscale(1); border-left: 1px solid var(--border-faint); }
+@media (max-width: 800px) { .shape-mock.mono { border-left: none; border-top: 1px solid var(--border-faint); } }
+.shape-mock .label { position: absolute; top: 12px; left: 16px; font-family: var(--font-pulso-mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 600; padding: 2px 7px; background: var(--card); border: 1px solid var(--border-faint); border-radius: var(--radius-xs); }
+
+.shape-contract { padding: 20px 22px; background: var(--surface-2); }
+.contract-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+@media (max-width: 900px) { .contract-grid { grid-template-columns: 1fr; } }
+.contract-cell { background: var(--card); border: 1px solid var(--border-faint); border-radius: var(--radius-sm); padding: 12px 14px; }
+.contract-cell .h { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 600; margin-bottom: 6px; }
+.contract-cell.do .h { color: var(--success); }
+.contract-cell.dont .h { color: var(--destructive); }
+.contract-cell.spec .h { color: var(--primary); }
+.contract-cell .b { font-size: 12.5px; color: var(--fg); line-height: 1.55; }
+.contract-cell .b code { font-family: var(--font-pulso-mono); font-size: 11px; background: var(--surface-2); padding: 1px 5px; border-radius: 3px; }
+.contract-cell .b ul { margin: 4px 0; padding-left: 18px; }
+.contract-cell .b ul li { margin: 2px 0; }
+
+/* ── Shape demos ─────────────────── */
+/* 01 · Kicker */
+.demo-kicker { font-family: var(--font-pulso-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--primary); font-weight: 700; }
+.demo-kicker-stack { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.demo-kicker-stack .label { font-family: var(--font-pulso-mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; }
+
+/* 02 · Score Ring */
+.demo-ring { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.demo-ring svg { width: 140px; height: 140px; }
+.demo-ring .meta { text-align: center; }
+.demo-ring .meta .k { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--primary); font-weight: 700; }
+.demo-ring .meta .n { font-size: 13px; font-weight: 600; color: var(--fg-strong); margin-top: 4px; }
+
+/* 03 · Numeral display */
+.demo-num { display: flex; flex-direction: column; align-items: center; }
+.demo-num .k { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--primary); font-weight: 700; }
+.demo-num .big { font-family: var(--font-pulso-mono); font-variant-numeric: tabular-nums; font-size: 56px; font-weight: 700; color: var(--fg-strong); letter-spacing: -0.025em; line-height: 1; margin-top: 8px; }
+.demo-num .meta { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-faint); width: 120px; text-align: center; }
+
+/* 04 · Evidence border-left */
+.demo-ev { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: var(--radius-md); padding: 14px 18px; max-width: 320px; }
+.demo-ev .h { display: flex; align-items: center; gap: 8px; font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); }
+.demo-ev .h .who { color: var(--fg-strong); font-weight: 600; }
+.demo-ev .q { font-size: 13px; color: var(--fg); line-height: 1.5; margin-top: 8px; font-style: italic; }
+
+/* 05 · Inline markers */
+.demo-mk { font-size: 13px; color: var(--fg); line-height: 1.7; max-width: 360px; }
+.demo-mk .mk { font-family: var(--font-pulso-mono); font-weight: 600; padding: 1px 5px; border-radius: 3px; font-size: 11.5px; }
+.demo-mk .mk.fact { background: color-mix(in oklab, var(--success) 14%, transparent); color: var(--success); }
+.demo-mk .mk.inf  { background: color-mix(in oklab, var(--info) 14%, transparent); color: var(--info-foreground, var(--info)); }
+.demo-mk .mk.rec  { background: color-mix(in oklab, var(--primary) 14%, transparent); color: var(--primary); }
+.demo-mk p + p { margin-top: 10px; }
+
+/* 06 · Risk glyphs */
+.demo-rg { display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+.demo-rg .row { display: flex; align-items: center; gap: 10px; }
+.demo-rg .gl { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; font-family: var(--font-pulso-mono); font-size: 14px; font-weight: 700; flex-shrink: 0; }
+.demo-rg .label { font-family: var(--font-pulso-mono); font-size: 11.5px; font-weight: 600; }
+.demo-rg .pct { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); margin-left: auto; }
+.demo-rg .row.crit .gl, .demo-rg .row.crit .label { color: var(--risk-critical-text); }
+.demo-rg .row.high .gl, .demo-rg .row.high .label { color: var(--risk-high); }
+.demo-rg .row.att .gl,  .demo-rg .row.att .label  { color: var(--risk-attention-text); }
+.demo-rg .row.mon .gl,  .demo-rg .row.mon .label  { color: var(--risk-monitor-text); }
+.demo-rg .row.safe .gl, .demo-rg .row.safe .label { color: var(--success); }
+
+/* 07 · Meta separator dot */
+.demo-sep { font-family: var(--font-pulso-mono); font-size: 12px; color: var(--fg-muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.demo-sep .dot { color: var(--fg-subtle); opacity: 0.7; }
+.demo-sep .v { color: var(--fg-strong); font-weight: 600; }
+
+/* ── RFC policy block ─────────────────── */
+.policy { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--destructive); border-radius: var(--radius-md); padding: 22px 28px; }
+.policy h3 { font-size: 17px; font-weight: 700; color: var(--fg-strong); letter-spacing: -0.005em; margin-bottom: 8px; }
+.policy p { font-size: 13.5px; color: var(--fg-secondary); line-height: 1.6; max-width: 760px; }
+.policy ul { margin: 10px 0 0; padding-left: 18px; }
+.policy ul li { font-size: 13px; color: var(--fg-secondary); line-height: 1.55; padding: 3px 0; }
+.policy ul li strong { color: var(--fg-strong); }
+
+/* ── List summary ─────────────────── */
+.sum-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.sum-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; }
+.sum-card .n { font-family: var(--font-pulso-mono); font-size: 16px; font-weight: 700; color: var(--primary); line-height: 1; flex-shrink: 0; padding-top: 1px; }
+.sum-card .info .h { font-size: 13.5px; font-weight: 600; color: var(--fg-strong); margin-bottom: 2px; }
+.sum-card .info .p { font-size: 11.5px; color: var(--fg-muted); line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Foundations · Signature Shapes · v3 · α.4</div>
+    <h1 class="page-title">Signature shapes</h1>
+    <p class="page-sub">Formas que carregam o Pulso fora da cor. Não são componentes — são <em>assinaturas estruturais</em>. Cada uma tem contrato visual rígido; alterar exige RFC com 2/3 de quórum do council.</p>
+
+    <!-- ── Definição ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">O que é signature shape</h2>
+      <p class="section-desc">Componente é peça funcional · tem props, estados, contratos de uso. Signature shape é peça de identidade · tem só contrato visual. Quando você vê, sabe que é Pulso — mesmo sem ler a label, mesmo sem cor.</p>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:22px 26px;margin-top:8px;">
+        <p style="font-size:15px;color:var(--fg-strong);line-height:1.6;font-weight:500;max-width:760px;">A α.1 identificou 5 formas que sobrevivem ao teste sem-cor. A α.4 promove formalmente <strong>7 signature shapes</strong> · as 5 confirmadas e mais 2 que precisam ser estabelecidas (glifos de risco aplicados, separador meta).</p>
+      </div>
+    </section>
+
+    <!-- ── Resumo ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">As 7 signature shapes</h2>
+      <p class="section-desc">Cada uma testada em mono e formalizada com contrato. Detalhe completo abaixo.</p>
+      <div class="sum-grid">
+        <div class="sum-card"><div class="n">01</div><div class="info"><div class="h">Kicker</div><div class="p">Mono · uppercase · tracking 0.12em</div></div></div>
+        <div class="sum-card"><div class="n">02</div><div class="info"><div class="h">Score Ring</div><div class="p">Anel concêntrico + numeral mono + meta</div></div></div>
+        <div class="sum-card"><div class="n">03</div><div class="info"><div class="h">Numeral display</div><div class="p">Mono · 56px · tabular · tracking -0.025em</div></div></div>
+        <div class="sum-card"><div class="n">04</div><div class="info"><div class="h">Evidence border-left</div><div class="p">3px tonal · marca conteúdo citado</div></div></div>
+        <div class="sum-card"><div class="n">05</div><div class="info"><div class="h">Inline markers</div><div class="p">[Fato] · [Inferência] · [Recomendação]</div></div></div>
+        <div class="sum-card"><div class="n">06</div><div class="info"><div class="h">Risk glyphs</div><div class="p">● ○ ◐ ◆ ■ · 5 níveis de risco</div></div></div>
+        <div class="sum-card"><div class="n">07</div><div class="info"><div class="h">Meta separator dot</div><div class="p">·  entre itens em mono · respiração</div></div></div>
+      </div>
+    </section>
+
+    <!-- ── 01 · Kicker ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Detalhe de cada signature shape</h2>
+      <p class="section-desc">7 shapes · render colorido + mono, contrato e exemplo de uso correto/incorreto.</p>
+
+      <div class="shape">
+        <div class="shape-head">
+          <div class="shape-num">01</div>
+          <div style="flex:1;">
+            <div class="shape-id">SIGNATURE · KICKER</div>
+            <div class="shape-name">Kicker — uppercase mono com tracking</div>
+            <div class="shape-desc">Abre seções, anuncia categoria, marca contexto. É o cabeçote mais reconhecível do Pulso · presente em quase todas as 6 telas da auditoria. Tracking 0.12em dá o respiro confiante.</div>
+          </div>
+          <span class="shape-tag">forte · 6/6</span>
+        </div>
+        <div class="shape-mocks">
+          <div class="shape-mock">
+            <div class="label">cor</div>
+            <div class="demo-kicker-stack">
+              <div class="demo-kicker">CASO ATIVO · TIER 1</div>
+              <div class="demo-kicker">COBERTURA · 4 HORAS</div>
+              <div class="demo-kicker">SCORE · ATENÇÃO</div>
+              <div class="label">três contextos diferentes · mesma assinatura</div>
+            </div>
+          </div>
+          <div class="shape-mock mono">
+            <div class="label">mono</div>
+            <div class="demo-kicker-stack">
+              <div class="demo-kicker">CASO ATIVO · TIER 1</div>
+              <div class="demo-kicker">COBERTURA · 4 HORAS</div>
+              <div class="demo-kicker">SCORE · ATENÇÃO</div>
+              <div class="label">identidade preservada sem cor</div>
+            </div>
+          </div>
+        </div>
+        <div class="shape-contract">
+          <div class="contract-grid">
+            <div class="contract-cell spec">
+              <div class="h">Spec</div>
+              <div class="b">
+                <code>font</code>: IBM Plex Mono<br>
+                <code>size</code>: 11–12px<br>
+                <code>weight</code>: 600–700<br>
+                <code>tracking</code>: <code>0.12em</code><br>
+                <code>case</code>: UPPERCASE<br>
+                <code>color</code>: var(--primary) ou tonal
+              </div>
+            </div>
+            <div class="contract-cell do">
+              <div class="h">✓ Usar para</div>
+              <div class="b">
+                <ul>
+                  <li>Abrir seção da página</li>
+                  <li>Categoria de card / chip</li>
+                  <li>Etapa de processo</li>
+                  <li>Status estrutural (CASO ATIVO)</li>
+                </ul>
+              </div>
+            </div>
+            <div class="contract-cell dont">
+              <div class="h">✕ Não usar para</div>
+              <div class="b">
+                <ul>
+                  <li>Texto de parágrafo</li>
+                  <li>Botão / CTA</li>
+                  <li>Status mutável (CRÍTICO, ATIVO)</li>
+                  <li>Label de formulário</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 02 · Score Ring -->
+      <div class="shape">
+        <div class="shape-head">
+          <div class="shape-num">02</div>
+          <div style="flex:1;">
+            <div class="shape-id">SIGNATURE · SCORE RING</div>
+            <div class="shape-name">Score Ring — anel + numeral + meta</div>
+            <div class="shape-desc">A forma mais reconhecível do Pulso. Anel concêntrico mostrando progresso/score, numeral mono centralizado, kicker e meta empilhados embaixo. É a "logomark visual" da disciplina de score.</div>
+          </div>
+          <span class="shape-tag">forte · isolada</span>
+        </div>
+        <div class="shape-mocks">
+          <div class="shape-mock">
+            <div class="label">cor</div>
+            <div class="demo-ring">
+              <svg viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="42" stroke="var(--border)" stroke-width="6" fill="none"></circle>
+                <circle cx="50" cy="50" r="42" stroke="var(--primary)" stroke-width="6" fill="none" stroke-dasharray="263.9" stroke-dashoffset="84" stroke-linecap="round" transform="rotate(-90 50 50)"></circle>
+                <text x="50" y="48" text-anchor="middle" font-family="var(--font-pulso-mono)" font-size="22" font-weight="700" fill="var(--fg-strong)" style="font-variant-numeric:tabular-nums;letter-spacing:-0.025em;">68</text>
+                <text x="50" y="62" text-anchor="middle" font-family="var(--font-pulso-mono)" font-size="6" font-weight="700" fill="var(--fg-subtle)" letter-spacing="1.2">SCORE</text>
+              </svg>
+              <div class="meta">
+                <div class="k">ATENÇÃO · +12 4H</div>
+                <div class="n">limite alerta · 75</div>
+              </div>
+            </div>
+          </div>
+          <div class="shape-mock mono">
+            <div class="label">mono</div>
+            <div class="demo-ring">
+              <svg viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="42" stroke="var(--border)" stroke-width="6" fill="none"></circle>
+                <circle cx="50" cy="50" r="42" stroke="var(--primary)" stroke-width="6" fill="none" stroke-dasharray="263.9" stroke-dashoffset="84" stroke-linecap="round" transform="rotate(-90 50 50)"></circle>
+                <text x="50" y="48" text-anchor="middle" font-family="var(--font-pulso-mono)" font-size="22" font-weight="700" fill="var(--fg-strong)" style="font-variant-numeric:tabular-nums;letter-spacing:-0.025em;">68</text>
+                <text x="50" y="62" text-anchor="middle" font-family="var(--font-pulso-mono)" font-size="6" font-weight="700" fill="var(--fg-subtle)" letter-spacing="1.2">SCORE</text>
+              </svg>
+              <div class="meta">
+                <div class="k">ATENÇÃO · +12 4H</div>
+                <div class="n">limite alerta · 75</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="shape-contract">
+          <div class="contract-grid">
+            <div class="contract-cell spec">
+              <div class="h">Spec</div>
+              <div class="b">
+                <code>shape</code>: círculo concêntrico<br>
+                <code>stroke</code>: 6/100 · linecap round<br>
+                <code>fg/bg</code>: primary sobre border<br>
+                <code>numeral</code>: mono 22/100 · weight 700<br>
+                <code>label</code>: mono 6/100 · tracking 1.2
+              </div>
+            </div>
+            <div class="contract-cell do">
+              <div class="h">✓ Usar para</div>
+              <div class="b">
+                <ul>
+                  <li>Score de atenção (0–100)</li>
+                  <li>Progresso de meta</li>
+                  <li>Confidence em recomendação IA (β.4)</li>
+                </ul>
+              </div>
+            </div>
+            <div class="contract-cell dont">
+              <div class="h">✕ Não usar para</div>
+              <div class="b">
+                <ul>
+                  <li>Loading spinner (use spinner)</li>
+                  <li>Valor estático sem range</li>
+                  <li>Donut chart de proporção (use donut)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 03 · Numeral display -->
+      <div class="shape">
+        <div class="shape-head">
+          <div class="shape-num">03</div>
+          <div style="flex:1;">
+            <div class="shape-id">SIGNATURE · NUMERAL DISPLAY</div>
+            <div class="shape-name">Numeral display — mono grande, tabular, com aviso de unidade</div>
+            <div class="shape-desc">O número é o ponto da página. Mono garante alinhamento em listas, tabular preserva eixo vertical em update real-time. Kicker em cima, unidade discreta embaixo.</div>
+          </div>
+          <span class="shape-tag">forte · 4/6</span>
+        </div>
+        <div class="shape-mocks">
+          <div class="shape-mock">
+            <div class="label">cor</div>
+            <div class="demo-num">
+              <div class="k">MENÇÕES · 4 HORAS</div>
+              <div class="big">2,478</div>
+              <div class="meta">+340 vs 4h atrás</div>
+            </div>
+          </div>
+          <div class="shape-mock mono">
+            <div class="label">mono</div>
+            <div class="demo-num">
+              <div class="k">MENÇÕES · 4 HORAS</div>
+              <div class="big">2,478</div>
+              <div class="meta">+340 vs 4h atrás</div>
+            </div>
+          </div>
+        </div>
+        <div class="shape-contract">
+          <div class="contract-grid">
+            <div class="contract-cell spec">
+              <div class="h">Spec</div>
+              <div class="b">
+                <code>font</code>: IBM Plex Mono<br>
+                <code>size</code>: 56px (display) / 28px (compact)<br>
+                <code>weight</code>: 700<br>
+                <code>numeric</code>: <code>tabular-nums</code><br>
+                <code>tracking</code>: <code>-0.025em</code>
+              </div>
+            </div>
+            <div class="contract-cell do">
+              <div class="h">✓ Usar para</div>
+              <div class="b">
+                <ul>
+                  <li>Score, contagem, métrica primária</li>
+                  <li>Cabeça de card de KPI</li>
+                  <li>Valor isolado de página de detalhe</li>
+                </ul>
+              </div>
+            </div>
+            <div class="contract-cell dont">
+              <div class="h">✕ Não usar para</div>
+              <div class="b">
+                <ul>
+                  <li>Number-in-text (use mono inline)</li>
+                  <li>Cell de tabela (use mono regular)</li>
+                  <li>Numero decorativo sem significado</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 04 · Evidence border-left -->
+      <div class="shape">
+        <div class="shape-head">
+          <div class="shape-num">04</div>
+          <div style="flex:1;">
+            <div class="shape-id">SIGNATURE · EVIDENCE BORDER</div>
+            <div class="shape-name">Border-left 3px — marca evidência citada</div>
+            <div class="shape-desc">Reserva visual para conteúdo de origem externa · menção, declaração, citação de imprensa. Marca "isto não foi escrito por nós". Border tonal (não estridente), 3px (não 2 ou 4).</div>
+          </div>
+          <span class="shape-tag">forte · 1/6</span>
+        </div>
+        <div class="shape-mocks">
+          <div class="shape-mock">
+            <div class="label">cor</div>
+            <div class="demo-ev">
+              <div class="h">@g1noticias <span class="who" style="color:var(--fg-strong);font-weight:600;">G1</span> · 12min</div>
+              <div class="q">Operadora Beta confirma vazamento que pode ter exposto dados de 2 milhões de clientes desde fevereiro.</div>
+            </div>
+          </div>
+          <div class="shape-mock mono">
+            <div class="label">mono</div>
+            <div class="demo-ev">
+              <div class="h">@g1noticias <span class="who" style="color:var(--fg-strong);font-weight:600;">G1</span> · 12min</div>
+              <div class="q">Operadora Beta confirma vazamento que pode ter exposto dados de 2 milhões de clientes desde fevereiro.</div>
+            </div>
+          </div>
+        </div>
+        <div class="shape-contract">
+          <div class="contract-grid">
+            <div class="contract-cell spec">
+              <div class="h">Spec</div>
+              <div class="b">
+                <code>border-left</code>: 3px solid<br>
+                <code>color</code>: tonal · risk-* OR primary<br>
+                <code>radius</code>: --radius-md (mantém)<br>
+                <code>conteúdo</code>: citação italic + meta header
+              </div>
+            </div>
+            <div class="contract-cell do">
+              <div class="h">✓ Usar para</div>
+              <div class="b">
+                <ul>
+                  <li>Mention card</li>
+                  <li>Citação de release / nota</li>
+                  <li>Comentário de operador no audit log</li>
+                </ul>
+              </div>
+            </div>
+            <div class="contract-cell dont">
+              <div class="h">✕ Não usar para</div>
+              <div class="b">
+                <ul>
+                  <li>Decorar card sem significado de citação</li>
+                  <li>Alert (use alert pattern)</li>
+                  <li>Sidebar item ativo (border-left tonal próprio)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 05 · Inline markers -->
+      <div class="shape">
+        <div class="shape-head">
+          <div class="shape-num">05</div>
+          <div style="flex:1;">
+            <div class="shape-id">SIGNATURE · INLINE MARKERS</div>
+            <div class="shape-name">[Fato] · [Inferência] · [Recomendação]</div>
+            <div class="shape-desc">A marca da voz Cris (v2 · 2.4) que diferencia status epistêmico de uma afirmação. Mono, com colchetes literais, tonal por categoria. Sem colchete, vira "label de tag" — perde poder.</div>
+          </div>
+          <span class="shape-tag">forte · 2/6</span>
+        </div>
+        <div class="shape-mocks">
+          <div class="shape-mock">
+            <div class="label">cor</div>
+            <div class="demo-mk">
+              <p><span class="mk fact">[Fato]</span> Operadora confirmou vazamento em comunicado oficial às 14:30.</p>
+              <p><span class="mk inf">[Inferência]</span> Origem provável · credenciais comprometidas via parceiro.</p>
+              <p><span class="mk rec">[Recomendação]</span> Acionar protocolo dispatch tier-1 nas próximas 30 min.</p>
+            </div>
+          </div>
+          <div class="shape-mock mono">
+            <div class="label">mono</div>
+            <div class="demo-mk">
+              <p><span class="mk fact">[Fato]</span> Operadora confirmou vazamento em comunicado oficial às 14:30.</p>
+              <p><span class="mk inf">[Inferência]</span> Origem provável · credenciais comprometidas via parceiro.</p>
+              <p><span class="mk rec">[Recomendação]</span> Acionar protocolo dispatch tier-1 nas próximas 30 min.</p>
+            </div>
+          </div>
+        </div>
+        <div class="shape-contract">
+          <div class="contract-grid">
+            <div class="contract-cell spec">
+              <div class="h">Spec</div>
+              <div class="b">
+                <code>font</code>: IBM Plex Mono<br>
+                <code>size</code>: inherit -1px<br>
+                <code>weight</code>: 600<br>
+                <code>case</code>: Title case <em>com</em> colchetes literais<br>
+                <code>bg</code>: tonal 14% mix
+              </div>
+            </div>
+            <div class="contract-cell do">
+              <div class="h">✓ Usar para</div>
+              <div class="b">
+                <ul>
+                  <li>Briefing IA · Cris</li>
+                  <li>Resumo executivo</li>
+                  <li>Email de dispatch</li>
+                  <li>Relatório de incidente</li>
+                </ul>
+              </div>
+            </div>
+            <div class="contract-cell dont">
+              <div class="h">✕ Não usar para</div>
+              <div class="b">
+                <ul>
+                  <li>UI label (use sans label)</li>
+                  <li>Status chip de produto</li>
+                  <li>Categorias arbitrárias · 3 fixas apenas</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 06 · Risk glyphs -->
+      <div class="shape">
+        <div class="shape-head">
+          <div class="shape-num">06</div>
+          <div style="flex:1;">
+            <div class="shape-id">SIGNATURE · RISK GLYPHS</div>
+            <div class="shape-name">Risk glyphs — ● ○ ◐ ◆ ■</div>
+            <div class="shape-desc">A v2 · 1.2 entregou os glifos de risco para redundância de cor. A α.1 mostrou que estavam sub-aplicados. v3 promove a signature shape · todo lugar onde risco aparece com cor, aparece também com glifo.</div>
+          </div>
+          <span class="shape-tag">forte · resolve gap 01</span>
+        </div>
+        <div class="shape-mocks">
+          <div class="shape-mock">
+            <div class="label">cor</div>
+            <div class="demo-rg">
+              <div class="row crit"><span class="gl">■</span><span class="label">CRÍTICO</span><span class="pct">12%</span></div>
+              <div class="row high"><span class="gl">◆</span><span class="label">ALTO</span><span class="pct">21%</span></div>
+              <div class="row att"><span class="gl">◐</span><span class="label">ATENÇÃO</span><span class="pct">34%</span></div>
+              <div class="row mon"><span class="gl">○</span><span class="label">MONITOR</span><span class="pct">27%</span></div>
+              <div class="row safe"><span class="gl">●</span><span class="label">ESTÁVEL</span><span class="pct">6%</span></div>
+            </div>
+          </div>
+          <div class="shape-mock mono">
+            <div class="label">mono</div>
+            <div class="demo-rg">
+              <div class="row crit"><span class="gl">■</span><span class="label">CRÍTICO</span><span class="pct">12%</span></div>
+              <div class="row high"><span class="gl">◆</span><span class="label">ALTO</span><span class="pct">21%</span></div>
+              <div class="row att"><span class="gl">◐</span><span class="label">ATENÇÃO</span><span class="pct">34%</span></div>
+              <div class="row mon"><span class="gl">○</span><span class="label">MONITOR</span><span class="pct">27%</span></div>
+              <div class="row safe"><span class="gl">●</span><span class="label">ESTÁVEL</span><span class="pct">6%</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="shape-contract">
+          <div class="contract-grid">
+            <div class="contract-cell spec">
+              <div class="h">Spec</div>
+              <div class="b">
+                <code>crítico</code>: ■ quadrado cheio<br>
+                <code>alto</code>: ◆ losango cheio<br>
+                <code>atenção</code>: ◐ círculo meio<br>
+                <code>monitor</code>: ○ círculo vazio<br>
+                <code>estável</code>: ● círculo cheio pequeno
+              </div>
+            </div>
+            <div class="contract-cell do">
+              <div class="h">✓ Usar para</div>
+              <div class="b">
+                <ul>
+                  <li>Toda referência a nível de risco</li>
+                  <li>Chip, badge, header, lista</li>
+                  <li>Filtros, legendas, tooltips</li>
+                </ul>
+              </div>
+            </div>
+            <div class="contract-cell dont">
+              <div class="h">✕ Não usar para</div>
+              <div class="b">
+                <ul>
+                  <li>Categorias sem ordem de severidade</li>
+                  <li>Status mutável (use status badge)</li>
+                  <li>Ratings (estrelas, pontos)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 07 · Meta separator -->
+      <div class="shape">
+        <div class="shape-head">
+          <div class="shape-num">07</div>
+          <div style="flex:1;">
+            <div class="shape-id">SIGNATURE · META SEPARATOR</div>
+            <div class="shape-name">Separador "·" entre meta-itens</div>
+            <div class="shape-desc">Mid dot (U+00B7) entre itens de meta — handle · veículo · tempo · seguidores. Substitui pipe (|), bullet (•) e barra (/). Lê limpo, mono, com respiração calibrada.</div>
+          </div>
+          <span class="shape-tag">forte · em uso</span>
+        </div>
+        <div class="shape-mocks">
+          <div class="shape-mock">
+            <div class="label">cor</div>
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              <div class="demo-sep"><span class="v">@g1noticias</span><span class="dot">·</span><span>G1</span><span class="dot">·</span><span class="v">12min</span><span class="dot">·</span><span>142k seguidores</span></div>
+              <div class="demo-sep"><span class="v">aberto há 4h</span><span class="dot">·</span><span>14 fontes</span><span class="dot">·</span><span class="v">score 68</span></div>
+              <div class="demo-sep"><span class="v">TIER 1</span><span class="dot">·</span><span>tier crítico</span><span class="dot">·</span><span class="v">+12 4h</span></div>
+            </div>
+          </div>
+          <div class="shape-mock mono">
+            <div class="label">mono</div>
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              <div class="demo-sep"><span class="v">@g1noticias</span><span class="dot">·</span><span>G1</span><span class="dot">·</span><span class="v">12min</span><span class="dot">·</span><span>142k seguidores</span></div>
+              <div class="demo-sep"><span class="v">aberto há 4h</span><span class="dot">·</span><span>14 fontes</span><span class="dot">·</span><span class="v">score 68</span></div>
+              <div class="demo-sep"><span class="v">TIER 1</span><span class="dot">·</span><span>tier crítico</span><span class="dot">·</span><span class="v">+12 4h</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="shape-contract">
+          <div class="contract-grid">
+            <div class="contract-cell spec">
+              <div class="h">Spec</div>
+              <div class="b">
+                <code>char</code>: · (mid dot, U+00B7)<br>
+                <code>spacing</code>: 8px (gap)<br>
+                <code>color</code>: var(--fg-subtle) com opacity 0.7<br>
+                <code>font</code>: mono (herda do contexto)
+              </div>
+            </div>
+            <div class="contract-cell do">
+              <div class="h">✓ Usar para</div>
+              <div class="b">
+                <ul>
+                  <li>Meta de card · handle, veículo, tempo</li>
+                  <li>Breadcrumb compacto</li>
+                  <li>Lista de tags inline</li>
+                </ul>
+              </div>
+            </div>
+            <div class="contract-cell dont">
+              <div class="h">✕ Não usar para</div>
+              <div class="b">
+                <ul>
+                  <li>Pipe ( | ) — proibido em UI Pulso</li>
+                  <li>Bullet ( • ) — só em listas</li>
+                  <li>Barra ( / ) — só em URLs e datas</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── RFC policy ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Política · signature shape exige RFC</h2>
+      <div class="policy">
+        <h3>Alteração de signature shape exige RFC com quórum reforçado</h3>
+        <p>Signature shapes são o que diferencia o Pulso de um shadcn-default. Trocar uma sem processo erode identidade em silêncio. A v3 estabelece:</p>
+        <ul>
+          <li><strong>Toda alteração estrutural</strong> (proporção, ratio, glifo, format) exige RFC formal.</li>
+          <li><strong>Quórum reforçado</strong> · 3/3 do council (não 2/3 como RFC normal). Inclui Design Lead, Eng Lead e Product Lead.</li>
+          <li><strong>A11y reviewer obrigatório</strong> · não opcional como em RFCs comuns.</li>
+          <li><strong>Janela de comentário</strong> · 14 dias (não 7). Mudança aqui afeta toda a percepção de marca.</li>
+          <li><strong>Visual regression em todas as 6 telas da α.1</strong> · obrigatório antes de merge.</li>
+          <li><strong>Codemod assistido</strong> · qualquer rename, prop change ou alteração de assinatura precisa vir com migration script.</li>
+        </ul>
+        <p style="margin-top:14px;">Cosmético (tom da cor, ajuste sutil de tamanho dentro do contrato) segue RFC normal · 2/3, janela 7 dias.</p>
+      </div>
+    </section>
+
+    <!-- ── Lint enforcement ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Enforcement · via lint + Figma</h2>
+      <p class="section-desc">Documentação não basta. As 7 shapes estão protegidas por lint rule no <code>eslint-plugin-pulso</code> e por Figma constraint no token.studio plugin.</p>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;">
+        <thead>
+          <tr>
+            <th style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--fg-subtle);font-weight:500;background:var(--surface-2);padding:11px 14px;text-align:left;width:30%;">Rule</th>
+            <th style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--fg-subtle);font-weight:500;background:var(--surface-2);padding:11px 14px;text-align:left;">Bloqueia</th>
+            <th style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--fg-subtle);font-weight:500;background:var(--surface-2);padding:11px 14px;text-align:left;width:14%;">Nível</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);font-family:var(--font-pulso-mono);font-size:11.5px;color:var(--primary);">pulso/kicker-spec</td><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);">Kicker fora do contrato (tracking, weight, case).</td><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);"><strong style="color:var(--destructive);">error</strong></td></tr>
+          <tr><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);font-family:var(--font-pulso-mono);font-size:11.5px;color:var(--primary);">pulso/score-ring-only</td><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);">Anel concêntrico custom · usar componente <code>&lt;ScoreRing /&gt;</code>.</td><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);"><strong style="color:var(--destructive);">error</strong></td></tr>
+          <tr><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);font-family:var(--font-pulso-mono);font-size:11.5px;color:var(--primary);">pulso/no-pipe-separator</td><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);">Uso de <code>|</code> ou <code>/</code> como separador de meta · usar <code>·</code>.</td><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);"><strong style="color:var(--risk-attention-text);">warn</strong></td></tr>
+          <tr><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);font-family:var(--font-pulso-mono);font-size:11.5px;color:var(--primary);">pulso/risk-glyph-required</td><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);">Token <code>--risk-*</code> usado sem glyph correspondente.</td><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);"><strong style="color:var(--destructive);">error</strong></td></tr>
+          <tr><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);font-family:var(--font-pulso-mono);font-size:11.5px;color:var(--primary);">pulso/marker-token-fixed</td><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);">Marcador inline fora da lista (<code>[Fato]/[Inferência]/[Recomendação]</code>).</td><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);"><strong style="color:var(--risk-attention-text);">warn</strong></td></tr>
+          <tr><td style="padding:11px 14px;font-family:var(--font-pulso-mono);font-size:11.5px;color:var(--primary);">pulso/evidence-border-reserved</td><td style="padding:11px 14px;">Border-left 3px aplicado a componente que não é evidência citada.</td><td style="padding:11px 14px;"><strong style="color:var(--risk-attention-text);">warn</strong></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Entregas ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Entregas · α.4</h2>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;">
+        <tbody>
+          <tr><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);">7 signature shapes formalizadas · contrato visual de cada</td><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);text-align:right;"><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);">Versões monocromáticas testadas para todas as 7</td><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);text-align:right;"><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);">Política · alteração exige RFC com quórum reforçado 3/3</td><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);text-align:right;"><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);">6 lint rules no <code>eslint-plugin-pulso</code></td><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);text-align:right;"><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td style="padding:11px 14px;">Página <strong>Foundations · Signature Shapes</strong></td><td style="padding:11px 14px;text-align:right;"><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

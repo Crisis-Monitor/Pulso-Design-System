@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Redundância de Risco</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* ── Risk glyph system (canonical) ──────────────────────────── */
+.rg { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; flex-shrink: 0; }
+.rg svg { width: 100%; height: 100%; }
+
+.risk-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; border: 1px solid; font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; line-height: 1; }
+.risk-chip-stable    { background: var(--risk-stable-bg);    color: var(--risk-stable-text);    border-color: var(--risk-stable-border); }
+.risk-chip-monitor   { background: var(--risk-monitor-bg);   color: var(--risk-monitor-text);   border-color: var(--risk-monitor-border); }
+.risk-chip-attention { background: var(--risk-attention-bg); color: var(--risk-attention-text); border-color: var(--risk-attention-border); }
+.risk-chip-high      { background: var(--risk-high-bg);      color: var(--risk-high-text);      border-color: var(--risk-high-border); }
+.risk-chip-critical  { background: var(--risk-critical-bg);  color: var(--risk-critical-text);  border-color: var(--risk-critical-border); }
+
+.glyph-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+@media (max-width: 720px) { .glyph-grid { grid-template-columns: repeat(2, 1fr); } }
+.glyph-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 24px 16px 18px; text-align: center; }
+.glyph-card .rg { width: 48px; height: 48px; margin: 0 auto 14px; }
+.glyph-name { font-family: var(--font-pulso-mono); font-size: 12px; color: var(--fg-strong); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+.glyph-meaning { font-size: 12px; color: var(--fg-secondary); margin-top: 6px; line-height: 1.45; }
+
+.compare-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 720px) { .compare-row { grid-template-columns: 1fr; } }
+.compare-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 20px; }
+.compare-label { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border-faint); }
+.compare-bad .compare-label { color: var(--destructive); }
+.compare-good .compare-label { color: var(--success); }
+.compare-stack { display: flex; flex-direction: column; gap: 8px; }
+.compare-bad { border-color: color-mix(in oklab, var(--destructive) 28%, var(--border)); background: color-mix(in oklab, var(--destructive-bg) 55%, var(--card)); }
+.compare-good { border-color: color-mix(in oklab, var(--success) 28%, var(--border)); background: color-mix(in oklab, var(--success-bg) 55%, var(--card)); }
+.compare-note { font-size: 12px; color: var(--fg-secondary); margin-top: 10px; line-height: 1.5; }
+
+/* CB simulator */
+.cb-bar { display: flex; gap: 4px; }
+.cb-bar > div { flex: 1; height: 22px; border-radius: 3px; display: flex; align-items: center; justify-content: center; }
+
+.code-block { background: var(--muted); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; font-family: var(--font-pulso-mono); font-size: 12px; color: var(--fg-strong); white-space: pre; overflow-x: auto; line-height: 1.65; margin-top: 12px; }
+.code-block .c-key { color: var(--primary); }
+.code-block .c-str { color: var(--success); }
+.code-block .c-com { color: var(--fg-muted); font-style: italic; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+
+    <div class="page-kicker">Foundations · Accessibility · 02</div>
+    <h1 class="page-title">Redundância de Risco</h1>
+    <p class="page-sub">Em produto de gestão de crise, cor sozinha é proibida para sinalizar risco. Operador daltônico (1 em 12 homens, 1 em 200 mulheres) precisa distinguir <code>attention</code> de <code>high</code> sem ler hue — mesmo em pico de adrenalina, lendo de canto-de-olho. Este sistema impõe glifo + label + cor, sempre.</p>
+
+    <!-- ── O problema ─────────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Por que isso importa</h2>
+      <div class="compare-row">
+        <div class="compare-card compare-bad">
+          <div class="compare-label">Só cor — proibido</div>
+          <div class="cb-bar">
+            <div style="background: var(--risk-stable);"></div>
+            <div style="background: var(--risk-monitor);"></div>
+            <div style="background: var(--risk-attention);"></div>
+            <div style="background: var(--risk-high);"></div>
+            <div style="background: var(--risk-critical);"></div>
+          </div>
+          <div class="cb-bar" style="margin-top:6px;">
+            <div style="background: #8a8a8a;"></div>
+            <div style="background: #757575;"></div>
+            <div style="background: #8a7a5a;"></div>
+            <div style="background: #8a6a72;"></div>
+            <div style="background: #785260;"></div>
+          </div>
+          <div class="compare-note">Acima · paleta normal · Abaixo · simulação grayscale (≈ deuteranopia severa). Os tons ficam quase iguais.</div>
+        </div>
+        <div class="compare-card compare-good">
+          <div class="compare-label">Glifo + cor + label — obrigatório</div>
+          <div class="compare-stack">
+            <span class="risk-chip risk-chip-stable"><span class="rg"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="currentColor"/></svg></span>Stable</span>
+            <span class="risk-chip risk-chip-monitor"><span class="rg"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.25" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span>Monitor</span>
+            <span class="risk-chip risk-chip-attention"><span class="rg"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2.75 A5.25 5.25 0 0 1 8 13.25 Z" fill="currentColor"/></svg></span>Attention</span>
+            <span class="risk-chip risk-chip-high"><span class="rg"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5 L14.5 8 L8 14.5 L1.5 8 Z" fill="currentColor"/></svg></span>High</span>
+            <span class="risk-chip risk-chip-critical"><span class="rg"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" fill="currentColor"/></svg></span>Critical</span>
+          </div>
+          <div class="compare-note">Mesmo sem cor, o operador distingue os 5 níveis pela forma e pelo texto. Lê-se em qualquer condição.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Glifos canônicos ─────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Sistema de glifos</h2>
+      <p class="section-desc">Cinco formas distintas, escolhidas para máxima diferenciação geométrica. Densidade de fill cresce com o nível — quanto pior a crise, mais "pesado" o glifo.</p>
+      <div class="glyph-grid">
+        <div class="glyph-card">
+          <span class="rg" style="color: var(--risk-stable);"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="currentColor"/></svg></span>
+          <div class="glyph-name">stable</div>
+          <div class="glyph-meaning">Círculo cheio · base calma</div>
+        </div>
+        <div class="glyph-card">
+          <span class="rg" style="color: var(--risk-monitor);"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.25" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span>
+          <div class="glyph-name">monitor</div>
+          <div class="glyph-meaning">Círculo vazio · observando</div>
+        </div>
+        <div class="glyph-card">
+          <span class="rg" style="color: var(--risk-attention);"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2.75 A5.25 5.25 0 0 1 8 13.25 Z" fill="currentColor"/></svg></span>
+          <div class="glyph-name">attention</div>
+          <div class="glyph-meaning">Meio cheio · meia-elevação</div>
+        </div>
+        <div class="glyph-card">
+          <span class="rg" style="color: var(--risk-high);"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5 L14.5 8 L8 14.5 L1.5 8 Z" fill="currentColor"/></svg></span>
+          <div class="glyph-name">high</div>
+          <div class="glyph-meaning">Losango · escalado</div>
+        </div>
+        <div class="glyph-card">
+          <span class="rg" style="color: var(--risk-critical);"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" fill="currentColor"/></svg></span>
+          <div class="glyph-name">critical</div>
+          <div class="glyph-meaning">Quadrado cheio · travado</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Tamanhos ──────────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Tamanhos canônicos</h2>
+      <p class="section-desc">12px em chips inline · 14px em metadata · 20px em score rings · 32px em hero. Stroke 1.5 para outline shapes, fill sólido nos demais.</p>
+      <div class="preview-row" style="gap:32px;align-items:center;">
+        <div style="text-align:center;">
+          <span class="rg" style="color: var(--risk-attention); width: 12px; height: 12px;"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2.75 A5.25 5.25 0 0 1 8 13.25 Z" fill="currentColor"/></svg></span>
+          <div style="font-family: var(--font-pulso-mono); font-size: 10px; color: var(--fg-muted); margin-top:6px;">12 · chip</div>
+        </div>
+        <div style="text-align:center;">
+          <span class="rg" style="color: var(--risk-attention); width: 14px; height: 14px;"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2.75 A5.25 5.25 0 0 1 8 13.25 Z" fill="currentColor"/></svg></span>
+          <div style="font-family: var(--font-pulso-mono); font-size: 10px; color: var(--fg-muted); margin-top:6px;">14 · inline</div>
+        </div>
+        <div style="text-align:center;">
+          <span class="rg" style="color: var(--risk-attention); width: 20px; height: 20px;"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2.75 A5.25 5.25 0 0 1 8 13.25 Z" fill="currentColor"/></svg></span>
+          <div style="font-family: var(--font-pulso-mono); font-size: 10px; color: var(--fg-muted); margin-top:6px;">20 · feature</div>
+        </div>
+        <div style="text-align:center;">
+          <span class="rg" style="color: var(--risk-attention); width: 32px; height: 32px;"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2.75 A5.25 5.25 0 0 1 8 13.25 Z" fill="currentColor"/></svg></span>
+          <div style="font-family: var(--font-pulso-mono); font-size: 10px; color: var(--fg-muted); margin-top:6px;">32 · hero</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Aplicação em componentes ──────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Aplicação em componentes</h2>
+      <p class="section-desc">Todo componente que carrega nível de risco deve compor glifo + label. <strong>Não existe</strong> componente Pulso que mostra só cor.</p>
+
+      <h3 style="font-size:13px;font-weight:600;color:var(--fg-strong);margin-top:24px;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em;">Risk Chip</h3>
+      <div class="preview-row" style="gap:8px;">
+        <span class="risk-chip risk-chip-stable"><span class="rg"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="currentColor"/></svg></span>Stable</span>
+        <span class="risk-chip risk-chip-monitor"><span class="rg"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.25" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span>Monitor</span>
+        <span class="risk-chip risk-chip-attention"><span class="rg"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2.75 A5.25 5.25 0 0 1 8 13.25 Z" fill="currentColor"/></svg></span>Attention</span>
+        <span class="risk-chip risk-chip-high"><span class="rg"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5 L14.5 8 L8 14.5 L1.5 8 Z" fill="currentColor"/></svg></span>High</span>
+        <span class="risk-chip risk-chip-critical"><span class="rg"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" fill="currentColor"/></svg></span>Critical</span>
+      </div>
+
+      <h3 style="font-size:13px;font-weight:600;color:var(--fg-strong);margin-top:24px;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em;">Card com rail lateral</h3>
+      <div class="preview-row" style="gap:12px;align-items:stretch;flex-wrap:wrap;">
+        <div style="background:var(--card);border:1px solid var(--border);border-left:3px solid var(--risk-attention);border-radius:var(--radius-md);padding:14px 16px;min-width:240px;display:flex;gap:10px;align-items:flex-start;">
+          <span class="rg" style="color: var(--risk-attention); width: 14px; height: 14px; margin-top:2px;"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2.75 A5.25 5.25 0 0 1 8 13.25 Z" fill="currentColor"/></svg></span>
+          <div>
+            <div style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--risk-attention-text);">Attention · #PLS-014</div>
+            <div style="font-size:14px;font-weight:600;color:var(--fg-strong);margin-top:2px;">Operação Água Nova</div>
+          </div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-left:3px solid var(--risk-critical);border-radius:var(--radius-md);padding:14px 16px;min-width:240px;display:flex;gap:10px;align-items:flex-start;">
+          <span class="rg" style="color: var(--risk-critical); width: 14px; height: 14px; margin-top:2px;"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" fill="currentColor"/></svg></span>
+          <div>
+            <div style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--risk-critical-text);">Critical · #PLS-012</div>
+            <div style="font-size:14px;font-weight:600;color:var(--fg-strong);margin-top:2px;">Vazamento de dados — APP</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="font-size:13px;font-weight:600;color:var(--fg-strong);margin-top:24px;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em;">Score Ring</h3>
+      <div class="preview-row" style="gap:24px;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="position:relative;width:64px;height:64px;">
+            <svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="var(--border)" stroke-width="4"/><circle cx="32" cy="32" r="26" fill="none" stroke="var(--risk-attention)" stroke-width="4" stroke-dasharray="163.4" stroke-dashoffset="65" transform="rotate(-90 32 32)" stroke-linecap="round"/></svg>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
+              <span class="rg" style="color: var(--risk-attention); width: 12px; height: 12px;"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2.75 A5.25 5.25 0 0 1 8 13.25 Z" fill="currentColor"/></svg></span>
+              <div style="font-family:var(--font-pulso-mono);font-size:14px;font-weight:600;color:var(--fg-strong);line-height:1;">62</div>
+            </div>
+          </div>
+          <div><div style="font-size:11px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:0.06em;">Score · Attention</div><div style="font-size:13px;color:var(--fg-secondary);margin-top:2px;">62 de 100 · acima de 60</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── API e ARIA ────────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">API e ARIA</h2>
+      <p class="section-desc">O componente <code>&lt;RiskGlyph&gt;</code> recebe <code>level</code> e renderiza glifo decorativo (aria-hidden). A semântica vai no componente pai (RiskChip, RiskRail).</p>
+      <pre class="code-block"><span class="c-com">// React API canônica</span>
+&lt;<span class="c-key">RiskChip</span> level=<span class="c-str">"attention"</span> label=<span class="c-str">"Attention"</span> /&gt;
+&lt;<span class="c-key">RiskRail</span> level=<span class="c-str">"critical"</span> id=<span class="c-str">"PLS-012"</span> title=<span class="c-str">"Vazamento de dados — APP"</span> /&gt;
+&lt;<span class="c-key">RiskRing</span> level=<span class="c-str">"attention"</span> score={<span class="c-str">62</span>} /&gt;
+
+<span class="c-com">// Renderização (RiskChip)</span>
+&lt;span role=<span class="c-str">"status"</span> aria-label=<span class="c-str">"Risco attention"</span>&gt;
+  &lt;<span class="c-key">RiskGlyph</span> level=<span class="c-str">"attention"</span> aria-hidden=<span class="c-str">"true"</span> /&gt;
+  &lt;span&gt;Attention&lt;/span&gt;
+&lt;/span&gt;</pre>
+    </section>
+
+    <!-- ── Lint rule proposta ──────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Guardrail · ESLint rule (proposta)</h2>
+      <p class="section-desc">Para tornar o anti-pattern <strong>bloqueante</strong>, não só documentado, vamos publicar uma regra ESLint que detecta uso de <code>--risk-*</code> sem componente Pulso correspondente.</p>
+      <pre class="code-block"><span class="c-com">// .eslintrc.js — proposta v2</span>
+{
+  rules: {
+    <span class="c-str">'pulso/risk-redundancy'</span>: [<span class="c-str">'error'</span>, {
+      <span class="c-com">// CSS classes com --risk-* exigem ícone irmão</span>
+      checkClasses: [<span class="c-str">'risk-*'</span>, <span class="c-str">'bg-risk-*'</span>, <span class="c-str">'text-risk-*'</span>],
+      requireSiblings: [<span class="c-str">'RiskGlyph'</span>, <span class="c-str">'aria-label'</span>]
+    }]
+  }
+}</pre>
+      <p class="section-desc" style="margin-top:12px;">Plugin <code>eslint-plugin-pulso</code> a publicar junto com a v2.0.0. Owner técnico definido durante a fase 5 (Governança).</p>
+    </section>
+
+    <!-- ── Regras finais ─────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Faça</div>
+          <ul>
+            <li>Sempre componha <strong>glifo + label + cor</strong> em qualquer indicador de risco.</li>
+            <li>Use os componentes Pulso (<code>RiskChip</code>, <code>RiskRing</code>, <code>RiskRail</code>) — eles já trazem o glifo correto.</li>
+            <li>Em UI sem texto (chip muito pequeno), use <code>aria-label="Risco attention"</code>.</li>
+            <li>Mantenha a forma do glifo idêntica em qualquer tamanho (12 a 32px). Não invente um glifo "menor".</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Evite</div>
+          <ul>
+            <li>Não use <code>bg-risk-critical</code> sozinho num <code>&lt;div&gt;</code> custom — adicione o glifo ou volte para o componente Pulso.</li>
+            <li>Não substitua um glifo por emoji ou ícone Lucide. O sistema é fechado: 5 formas, sem extensão.</li>
+            <li>Não use os mesmos glifos para significar outras coisas (severidade técnica, prioridade de tarefa). São reservados para risk.</li>
+            <li>Não dependa de animação para diferenciar níveis (piscar mais rápido em critical etc). Animação reforça, nunca substitui.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Próximos passos ────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Status da iniciativa</h2>
+      <table class="cm-tbl" style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr><th style="text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--fg-subtle);font-weight:500;background:var(--surface-2);">Deliverable</th><th style="text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--fg-subtle);font-weight:500;background:var(--surface-2);">Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding:10px 12px;border-bottom:1px solid var(--border-faint);">Sistema de 5 glifos canônicos</td><td style="padding:10px 12px;border-bottom:1px solid var(--border-faint);"><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td style="padding:10px 12px;border-bottom:1px solid var(--border-faint);">Refator de RiskChip / RiskRail / RiskRing</td><td style="padding:10px 12px;border-bottom:1px solid var(--border-faint);"><span style="color:var(--warning);font-family:var(--font-pulso-mono);font-size:11px;">⏳ código no Crisis Monitor</span></td></tr>
+          <tr><td style="padding:10px 12px;border-bottom:1px solid var(--border-faint);">Documentação Patterns · Risk · Redundância</td><td style="padding:10px 12px;border-bottom:1px solid var(--border-faint);"><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td style="padding:10px 12px;border-bottom:1px solid var(--border-faint);">ESLint plugin <code>pulso/risk-redundancy</code></td><td style="padding:10px 12px;border-bottom:1px solid var(--border-faint);"><span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">○ fase 5</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

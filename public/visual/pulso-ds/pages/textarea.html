@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Textarea</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.pta-wrap { position: relative; display: flex; flex-direction: column; gap: 6px; min-width: 360px; }
+.pta-label { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); }
+.pta-shell { position: relative; }
+
+.pta {
+  width: 100%;
+  min-height: 84px;
+  padding: 10px 12px;
+  background: var(--card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  font-family: var(--font-pulso-sans);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--fg-strong);
+  resize: vertical;
+  outline: none;
+  transition: border-color 140ms var(--motion-easing), background 140ms var(--motion-easing);
+}
+.pta::placeholder { color: var(--fg-subtle); }
+.pta:hover { border-color: var(--fg-muted); }
+.pta:focus { border-color: var(--primary); outline: var(--ring-width) solid var(--ring); outline-offset: 0; }
+.pta:disabled { background: var(--muted); color: var(--fg-disabled); cursor: not-allowed; resize: none; }
+.pta.is-error { border-color: var(--destructive); }
+.pta.is-error:focus { outline-color: color-mix(in oklab, var(--destructive) 30%, transparent); }
+
+.pta-meta {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 11.5px; color: var(--fg-muted);
+  font-family: var(--font-pulso-mono);
+}
+.pta-counter {
+  font-variant-numeric: tabular-nums;
+  color: var(--fg-subtle);
+}
+.pta-counter.is-near { color: var(--warning); }
+.pta-counter.is-over { color: var(--destructive); }
+.pta-helper { color: var(--fg-muted); font-family: var(--font-pulso-sans); font-size: 12px; }
+.pta-error { color: var(--destructive); font-family: var(--font-pulso-sans); font-size: 12px; }
+
+/* Auto-resize variant — JS sets height */
+.pta.auto { resize: none; overflow: hidden; }
+
+/* Inline toolbar for richer text input */
+.pta-toolbar {
+  display: flex; align-items: center; gap: 4px;
+  padding: 6px 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-bottom: 0;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+.pta-toolbar + .pta { border-radius: 0 0 var(--radius-md) var(--radius-md); border-top: 1px solid var(--border); }
+.pta-tb-btn {
+  width: 26px; height: 26px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-xs);
+  border: 0; background: transparent;
+  color: var(--fg-muted);
+  cursor: pointer;
+  transition: background 140ms var(--motion-easing), color 140ms var(--motion-easing);
+}
+.pta-tb-btn:hover { background: var(--muted); color: var(--fg); }
+.pta-tb-btn.is-active { background: var(--card); color: var(--fg-strong); box-shadow: var(--shadow-xs); }
+.pta-tb-btn svg { width: 13px; height: 13px; }
+.pta-tb-sep { width: 1px; height: 16px; background: var(--border); margin: 0 4px; }
+
+/* Sizes */
+.pta-sm { min-height: 60px; padding: 8px 10px; font-size: 12.5px; }
+.pta-lg { min-height: 140px; padding: 12px 14px; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Atoms · Onda 3 · Form 05</div>
+    <h1 class="page-title">Textarea</h1>
+    <p class="page-sub">Entrada de texto multi-linha. Mesma calibragem do Input para coerência. Counter monoespaçado obrigatório quando há limite. Auto-resize disponível para campos que crescem com o conteúdo (rascunho, comentário).</p>
+
+    <section class="section">
+      <h2 class="section-h1">Padrão</h2>
+      <p class="section-desc">Min-height 84px (~3 linhas). Resize vertical permitido por padrão. Borda da marca em foco.</p>
+      <div class="preview-row" style="display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap;">
+        <div class="pta-wrap">
+          <div class="pta-label">Comentário interno</div>
+          <textarea class="pta" placeholder="Adicione contexto para a equipe…"></textarea>
+        </div>
+        <div class="pta-wrap">
+          <div class="pta-label">Com valor</div>
+          <textarea class="pta">A menção da Folha tem alcance estimado em 480k. Time de Comunicação já está montando draft de resposta — aguardando aprovação do Jurídico.</textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Com counter</h2>
+      <p class="section-desc">Aparece quando há limite. Cor muda em 80% (warning) e 100%+ (destructive). Use para campos com restrição operacional — resumo executivo, descrição de incidente.</p>
+      <div class="preview-row" style="display: flex; flex-direction: column; gap: 18px; align-items: stretch;">
+        <div class="pta-wrap" style="min-width: 480px;" data-counter="280">
+          <div class="pta-label">Resumo executivo</div>
+          <textarea class="pta" maxlength="280" placeholder="Em uma frase, o que está acontecendo…">Aumento de 240% em menções negativas no Twitter após declaração do CEO. Tier 1 ainda não cobriu — janela estimada de 4h para resposta.</textarea>
+          <div class="pta-meta">
+            <span class="pta-helper">Visível para todos os stakeholders no resumo diário.</span>
+            <span class="pta-counter">156 / 280</span>
+          </div>
+        </div>
+        <div class="pta-wrap" style="min-width: 480px;" data-counter="280">
+          <div class="pta-label">Próximo do limite</div>
+          <textarea class="pta" maxlength="280">A reportagem da Folha publicada às 09h citou três fontes anônimas e contém imprecisões factuais sobre o período de auditoria. Time Jurídico recomendou nota de esclarecimento até as 14h, antes do horário nobre. CEO já está ciente.</textarea>
+          <div class="pta-meta">
+            <span class="pta-helper">Visível no resumo diário.</span>
+            <span class="pta-counter is-near">258 / 280</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Auto-resize</h2>
+      <p class="section-desc">Cresce com o conteúdo, sem barra de rolagem. Use em campos onde a quantidade de texto é imprevisível e a leitura sequencial importa — comentários em thread, posts, drafts.</p>
+      <div class="preview-row">
+        <div class="pta-wrap" style="min-width: 520px;">
+          <div class="pta-label">Resposta pública (draft)</div>
+          <textarea class="pta auto" id="pta-auto" placeholder="Comece a escrever — o campo cresce conforme você digita…"></textarea>
+          <div class="pta-meta">
+            <span class="pta-helper">Salva automaticamente. Última edição agora.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Com toolbar</h2>
+      <p class="section-desc">Para campos com formatação leve — relatórios, drafts de resposta. Toolbar minimalista: bold, italic, link, lista, citação. Não use para campos curtos ou comentários rápidos.</p>
+      <div class="preview-row">
+        <div class="pta-wrap" style="min-width: 560px;">
+          <div class="pta-label">Relatório de turno</div>
+          <div class="pta-toolbar">
+            <button class="pta-tb-btn is-active" title="Bold"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M5 3v10h4a3 3 0 1 0 0-6 2.5 2.5 0 0 0 0-4H5zm2 1.5h2a1 1 0 1 1 0 2H7v-2zm0 4h2.2a1.5 1.5 0 1 1 0 3H7v-3z"/></svg></button>
+            <button class="pta-tb-btn" title="Italic"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M6 3v1.5h1.6L6 11.5H4.5V13h5v-1.5H7.9L9.5 4.5H11V3z"/></svg></button>
+            <button class="pta-tb-btn" title="Underline"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 3v5a3 3 0 0 0 6 0V3M3.5 13h9"/></svg></button>
+            <span class="pta-tb-sep"></span>
+            <button class="pta-tb-btn" title="Link"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 9l2-2M6.5 9.5l-2 2a2 2 0 1 1-3-3l2-2M9.5 6.5l2-2a2 2 0 1 1 3 3l-2 2"/></svg></button>
+            <button class="pta-tb-btn" title="Lista"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 4h7M6 8h7M6 12h7"/><circle cx="3" cy="4" r="0.7" fill="currentColor"/><circle cx="3" cy="8" r="0.7" fill="currentColor"/><circle cx="3" cy="12" r="0.7" fill="currentColor"/></svg></button>
+            <button class="pta-tb-btn" title="Citação"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 5h3v3a3 3 0 0 1-3 3V9.5a1.5 1.5 0 0 0 1.5-1.5H3V5zm6 0h3v3a3 3 0 0 1-3 3V9.5a1.5 1.5 0 0 0 1.5-1.5H9V5z"/></svg></button>
+            <span class="pta-tb-sep"></span>
+            <button class="pta-tb-btn" title="Mencionar pessoa"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="7" r="3"/><path d="M11 7v1.5a2 2 0 0 0 4 0V8a7 7 0 1 0-2.5 5.4"/></svg></button>
+          </div>
+          <textarea class="pta">Turno 14:00–18:00 — Pico de menções no @CarlosMonteiro às 16:23 após print circular no WhatsApp. Equipe respondeu em 12 min com nota oficial. Sentimento estabilizou às 17:50.
+
+Próximas ações:
+• Monitorar veículos regionais até as 22:00
+• Preparar Q&amp;A para entrevista de amanhã</textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Estados</h2>
+      <div class="preview-row" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+        <div class="pta-wrap">
+          <div class="pta-label">Padrão</div>
+          <textarea class="pta" placeholder="Texto de apoio…"></textarea>
+        </div>
+        <div class="pta-wrap">
+          <div class="pta-label">Disabled</div>
+          <textarea class="pta" disabled>Não editável durante backup automático.</textarea>
+        </div>
+        <div class="pta-wrap">
+          <div class="pta-label">Erro</div>
+          <textarea class="pta is-error" placeholder="Resumo executivo…">Texto curto demais.</textarea>
+          <div class="pta-error">Mínimo 40 caracteres para resumo executivo.</div>
+        </div>
+        <div class="pta-wrap">
+          <div class="pta-label">Sucesso (validado)</div>
+          <textarea class="pta" style="border-color: var(--success);">Resposta pública aprovada por Jurídico em 14:32. Pronta para publicação.</textarea>
+          <div class="pta-helper" style="color: var(--success);">Validado · pronto para envio</div>
+        </div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+
+<script>
+// Counter live update
+document.querySelectorAll('[data-counter]').forEach(wrap => {
+  const max = parseInt(wrap.dataset.counter, 10);
+  const ta = wrap.querySelector('.pta');
+  const counter = wrap.querySelector('.pta-counter');
+  if (!ta || !counter) return;
+  const update = () => {
+    const len = ta.value.length;
+    counter.textContent = len + ' / ' + max;
+    counter.classList.toggle('is-near', len >= max * 0.8 && len < max);
+    counter.classList.toggle('is-over', len >= max);
+  };
+  ta.addEventListener('input', update);
+  update();
+});
+// Auto-resize
+document.querySelectorAll('.pta.auto').forEach(ta => {
+  const resize = () => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; };
+  ta.addEventListener('input', resize);
+  resize();
+});
+</script>
+<script src="../_nav.js"></script>
+</body>
+</html>

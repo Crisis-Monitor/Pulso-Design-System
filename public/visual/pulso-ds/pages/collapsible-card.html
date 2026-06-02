@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Collapsible Card</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Organisms</div>
+    <h1 class="page-title">Collapsible Card</h1>
+    <p class="page-sub">Card com header sempre visível e body expansível. Para painéis de configuração, propriedades técnicas e detalhes opcionais que não precisam estar abertos por padrão.</p>
+    <section class="section">
+      <h2 class="section-h1">Colapsado</h2>
+      <div class="preview-row" style="display:block;padding:0;">
+        <details style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;max-width:640px;">
+          <summary style="list-style:none;padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:14px;font-weight:600;color:var(--fg-strong);">Configurações avançadas de roteamento</div>
+              <div style="font-size:12px;color:var(--fg-muted);margin-top:2px;">Webhook, retry policy, fallback de canal</div>
+            </div>
+            <span style="font-family:var(--font-pulso-mono);font-size:11px;color:var(--fg-muted);">Expandir ▾</span>
+          </summary>
+        </details>
+      </div>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">Expandido</h2>
+      <div class="preview-row" style="display:block;padding:0;">
+        <details open style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;max-width:640px;">
+          <summary style="list-style:none;padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-faint);">
+            <div>
+              <div style="font-size:14px;font-weight:600;color:var(--fg-strong);">Resposta sugerida pela IA</div>
+              <div style="font-size:12px;color:var(--fg-muted);margin-top:2px;">Gerada às 09:38 · v2 · confiança 87%</div>
+            </div>
+            <span style="font-family:var(--font-pulso-mono);font-size:11px;color:var(--fg-muted);">Colapsar ▴</span>
+          </summary>
+          <div style="padding:20px;">
+            <p style="font-size:14px;color:var(--fg-secondary);line-height:1.6;margin:0 0 14px;">Reconhecemos o ocorrido com a unidade de Água Nova. Nossa equipe já está em campo e divulgaremos um comunicado oficial até as 11h. Pedimos desculpa pelo transtorno e reforçamos que a segurança da comunidade é prioridade absoluta.</p>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-secondary">Regenerar</button>
+              <button class="btn btn-primary">Aprovar e enviar</button>
+            </div>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

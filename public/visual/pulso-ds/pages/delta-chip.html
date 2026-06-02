@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Delta Chip</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.dlc { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-pulso-mono); font-size: 11.5px; font-weight: 500; padding: 2px 6px; border-radius: var(--radius-xs); border: 1px solid transparent; line-height: 1; }
+.dlc-i { width: 11px; height: 11px; flex-shrink: 0; }
+.dlc-up   { background: var(--success-bg);     color: var(--success);     border-color: var(--success-border); }
+.dlc-down { background: var(--destructive-bg); color: var(--destructive); border-color: var(--destructive-border); }
+.dlc-flat { background: var(--muted);          color: var(--fg-secondary); border-color: var(--border); }
+.dlc-bad  { background: var(--destructive-bg); color: var(--destructive); border-color: var(--destructive-border); }
+.dlc-good { background: var(--success-bg);     color: var(--success);     border-color: var(--success-border); }
+
+/* Sizes */
+.dlc-sm { font-size: 10.5px; padding: 1px 5px; }
+.dlc-sm .dlc-i { width: 9px; height: 9px; }
+.dlc-lg { font-size: 13px; padding: 4px 8px; }
+.dlc-lg .dlc-i { width: 13px; height: 13px; }
+
+/* Subtle (text-only) */
+.dlc-subtle { background: transparent; border-color: transparent; padding: 0; }
+
+/* Demo table */
+.demo-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.demo-tbl th { text-align: left; font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.demo-tbl td { padding: 10px 12px; border-bottom: 1px solid var(--border-faint); color: var(--fg); }
+.demo-tbl td.num { font-family: var(--font-pulso-mono); text-align: right; font-feature-settings: 'tnum' 1; }
+.demo-tbl td.delta-cell { text-align: right; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Molecules · Onda 1 · 02</div>
+    <h1 class="page-title">Delta Chip</h1>
+    <p class="page-sub">Indicador de variação. Aparece sempre próximo de um número — em cards, tabelas, métricas inline. Cor segue o <em>significado</em> da variação, não o sinal aritmético.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Direções básicas</h2>
+      <p class="section-desc">Up = success, down = destructive, flat = neutro. Use quando subir é bom (alcance, audiência, NPS).</p>
+      <div class="preview-row">
+        <span class="dlc dlc-up"><svg class="dlc-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 17l5-5 5 5M7 7h10v10"/></svg>+12,4%</span>
+        <span class="dlc dlc-down"><svg class="dlc-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M17 7l-5 5-5-5M17 17H7V7"/></svg>-3,1%</span>
+        <span class="dlc dlc-flat"><svg class="dlc-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14"/></svg>0,0</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Direção semântica</h2>
+      <p class="section-desc">Quando subir é <strong>ruim</strong> (volume de menções negativas, score de risco, tempo de resposta), inverte. Cor sempre reflete o que <em>significa</em>, não o sinal.</p>
+      <div class="preview-row">
+        <span class="dlc dlc-bad"><svg class="dlc-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 17l5-5 5 5M7 7h10v10"/></svg>+24% menções</span>
+        <span class="dlc dlc-good"><svg class="dlc-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M17 7l-5 5-5-5M17 17H7V7"/></svg>-18 score</span>
+        <span class="dlc dlc-bad"><svg class="dlc-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 17l5-5 5 5M7 7h10v10"/></svg>+4min · resposta</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Tamanhos</h2>
+      <div class="preview-row">
+        <span class="dlc dlc-up dlc-sm">+1,2%</span>
+        <span class="dlc dlc-up">+12,4%</span>
+        <span class="dlc dlc-up dlc-lg">+124,4%</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Subtle · texto puro</h2>
+      <p class="section-desc">Sem fundo, ainda colorido. Em listas longas onde muitos chips com fundo viram ruído.</p>
+      <div class="preview-row">
+        <span class="dlc dlc-up dlc-subtle"><svg class="dlc-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 17l5-5 5 5M7 7h10v10"/></svg>+12,4%</span>
+        <span class="dlc dlc-down dlc-subtle"><svg class="dlc-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M17 7l-5 5-5-5M17 17H7V7"/></svg>-3,1%</span>
+        <span class="dlc dlc-bad dlc-subtle"><svg class="dlc-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 17l5-5 5 5M7 7h10v10"/></svg>+128 menções</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Em contexto · tabela</h2>
+      <p class="section-desc">Coluna delta sempre alinhada à direita. Formato <code style="font-family: var(--font-pulso-mono); font-size: 11px; background: var(--muted); padding: 1px 6px;">+/- valor</code> · breve.</p>
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden;">
+        <table class="demo-tbl">
+          <thead>
+            <tr><th>Caso</th><th style="text-align: right;">Score</th><th style="text-align: right;">vs. 24h</th><th style="text-align: right;">Menções</th><th style="text-align: right;">vs. 6h</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Operação Água Nova</td><td class="num">87</td><td class="delta-cell"><span class="dlc dlc-bad"><svg class="dlc-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 17l5-5 5 5M7 7h10v10"/></svg>+12</span></td><td class="num">2.847</td><td class="delta-cell"><span class="dlc dlc-bad"><svg class="dlc-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 17l5-5 5 5M7 7h10v10"/></svg>+24%</span></td></tr>
+            <tr><td>Reforma tributária · Norte</td><td class="num">64</td><td class="delta-cell"><span class="dlc dlc-bad"><svg class="dlc-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 17l5-5 5 5M7 7h10v10"/></svg>+04</span></td><td class="num">1.204</td><td class="delta-cell"><span class="dlc dlc-flat">=</span></td></tr>
+            <tr><td>Concessão Aero RJ</td><td class="num">42</td><td class="delta-cell"><span class="dlc dlc-good"><svg class="dlc-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M17 7l-5 5-5-5M17 17H7V7"/></svg>-08</span></td><td class="num">487</td><td class="delta-cell"><span class="dlc dlc-good"><svg class="dlc-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M17 7l-5 5-5-5M17 17H7V7"/></svg>-12%</span></td></tr>
+            <tr><td>Lei do Combustível</td><td class="num">22</td><td class="delta-cell"><span class="dlc dlc-flat">0</span></td><td class="num">128</td><td class="delta-cell"><span class="dlc dlc-good"><svg class="dlc-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M17 7l-5 5-5-5M17 17H7V7"/></svg>-04%</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Anatomia</h2>
+      <table class="tokens">
+        <thead><tr><th>Elemento</th><th>Valor</th></tr></thead>
+        <tbody>
+          <tr><td>Font-family</td><td class="mono">--font-pulso-mono · 500</td></tr>
+          <tr><td>Padding</td><td class="mono">2 6 · default</td></tr>
+          <tr><td>Border-radius</td><td class="mono">--radius-xs · 4px</td></tr>
+          <tr><td>Gap</td><td class="mono">4px</td></tr>
+          <tr><td>Ícone</td><td class="mono">11 × 11 · stroke 2.4</td></tr>
+          <tr><td>Border</td><td class="mono">1px solid *-border</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><div class="rule-tag">DO</div><div>Cor segue o <strong>significado</strong>. Subir menções negativas é vermelho, mesmo sendo "+". O usuário não calcula significado de sinal — você calcula.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Sempre inclua o sinal (+/-) no rótulo. "<code style="font-family: var(--font-pulso-mono); font-size: 11px;">+12%</code>" escaneia melhor que "12%".</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Em tabelas, alinhe a coluna de delta à direita junto da coluna de valor.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use delta sem janela de comparação. "vs. ontem", "vs. baseline" — sempre explícito.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use cores fora da paleta semântica. Delta é success / destructive / neutro — nunca brand.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não exiba delta para variações &lt; 0,5%. Mostra ruído como sinal.</div></div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

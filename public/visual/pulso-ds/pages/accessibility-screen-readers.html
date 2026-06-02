@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Screen Readers</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* ── Tier system ─────────────────────────────────────── */
+.tier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 900px) { .tier-grid { grid-template-columns: 1fr; } }
+.tier { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 24px; display: flex; flex-direction: column; gap: 10px; }
+.tier-off       { border-left: 3px solid var(--fg-subtle); }
+.tier-polite    { border-left: 3px solid var(--risk-monitor); }
+.tier-assertive { border-left: 3px solid var(--risk-critical); }
+.tier-kicker { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); }
+.tier-name { font-family: var(--font-pulso-mono); font-size: 14px; color: var(--fg-strong); font-weight: 600; }
+.tier-when { font-size: 13px; color: var(--fg); line-height: 1.5; }
+.tier-eg { font-size: 12px; color: var(--fg-muted); line-height: 1.55; padding-top: 8px; border-top: 1px solid var(--border-faint); margin-top: 4px; }
+.tier-eg strong { color: var(--fg-secondary); font-weight: 500; }
+
+/* ── Live demo ────────────────────────────────────────── */
+.demo-stage { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: flex-start; }
+@media (max-width: 720px) { .demo-stage { grid-template-columns: 1fr; } }
+.demo-side h3 { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); margin-bottom: 10px; font-weight: 500; }
+.demo-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.demo-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 34px; padding: 0 14px; border-radius: var(--radius-sm); font-family: inherit; font-size: 13px; font-weight: 500; border: 1px solid; cursor: pointer; transition: all var(--motion-duration-fast) var(--motion-easing); }
+.demo-btn-polite    { background: var(--risk-monitor-bg);  color: var(--risk-monitor-text);  border-color: var(--risk-monitor-border); }
+.demo-btn-attention { background: var(--risk-attention-bg);color: var(--risk-attention-text);border-color: var(--risk-attention-border); }
+.demo-btn-critical  { background: var(--risk-critical-bg); color: var(--risk-critical-text); border-color: var(--risk-critical-border); }
+.demo-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.demo-log { background: var(--surface-2); border: 1px solid var(--border-faint); border-radius: var(--radius-sm); padding: 14px 16px; min-height: 180px; font-family: var(--font-pulso-mono); font-size: 11.5px; line-height: 1.7; color: var(--fg-secondary); display: flex; flex-direction: column; gap: 4px; }
+.demo-log-item { padding: 6px 8px; border-radius: 4px; }
+.demo-log-item .l-time { color: var(--fg-subtle); margin-right: 8px; }
+.demo-log-item .l-tag { display: inline-block; padding: 1px 5px; border-radius: 3px; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-right: 8px; }
+.l-tag-polite    { background: var(--risk-monitor-bg);   color: var(--risk-monitor-text); }
+.l-tag-assertive { background: var(--risk-critical-bg);  color: var(--risk-critical-text); }
+.demo-log-empty { color: var(--fg-subtle); font-style: italic; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+/* ── Component matrix ─────────────────────────────────── */
+.aria-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.aria-tbl th, .aria-tbl td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--border-faint); vertical-align: top; }
+.aria-tbl th { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.aria-tbl td:first-child { font-family: var(--font-pulso-mono); color: var(--fg-strong); font-weight: 600; white-space: nowrap; }
+.aria-tbl td code { font-family: var(--font-pulso-mono); font-size: 11.5px; background: var(--muted); padding: 1px 6px; border-radius: 3px; color: var(--fg-strong); }
+.aria-tbl tr:hover td { background: color-mix(in oklab, var(--primary) 4%, transparent); }
+
+/* ── Code blocks ──────────────────────────────────────── */
+.code-block { background: var(--muted); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; font-family: var(--font-pulso-mono); font-size: 12px; color: var(--fg-strong); white-space: pre; overflow-x: auto; line-height: 1.65; margin-top: 12px; }
+.code-block .c-tag { color: var(--primary); }
+.code-block .c-attr { color: var(--risk-attention-text); }
+.code-block .c-str { color: var(--success); }
+.code-block .c-com { color: var(--fg-muted); font-style: italic; }
+
+/* ── Test matrix ──────────────────────────────────────── */
+.tm { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tm th, .tm td { padding: 10px 12px; border-bottom: 1px solid var(--border-faint); text-align: left; }
+.tm th { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.tm td:first-child { color: var(--fg-strong); font-weight: 500; }
+.tm td.center { text-align: center; }
+.st { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-pulso-mono); font-size: 11px; }
+.st-ok { color: var(--success); }
+.st-warn { color: var(--warning); }
+.st-fail { color: var(--destructive); }
+
+/* ── Skip link demo ───────────────────────────────────── */
+.skip-demo { position: relative; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0; overflow: hidden; min-height: 140px; }
+.skip-frame { background: var(--surface-2); padding: 12px 16px; border-bottom: 1px solid var(--border-faint); display: flex; gap: 10px; align-items: center; font-size: 12px; color: var(--fg-muted); }
+.skip-frame .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--fg-disabled); }
+.skip-body { padding: 28px; position: relative; }
+.skip-link { position: absolute; top: 12px; left: 16px; background: var(--primary); color: var(--primary-foreground); padding: 6px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; text-decoration: none; transform: translateY(-150%); transition: transform var(--motion-duration-default) var(--motion-easing); }
+.skip-link:focus, .skip-demo:hover .skip-link { transform: translateY(0); outline: 2px solid var(--ring); outline-offset: 2px; }
+.skip-hint { font-size: 12px; color: var(--fg-subtle); margin-top: 8px; font-style: italic; }
+
+/* ── Spec rows ────────────────────────────────────────── */
+.spec-row { display: grid; grid-template-columns: 180px 1fr; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--border-faint); align-items: baseline; }
+.spec-row:last-child { border-bottom: none; }
+.spec-key { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.06em; }
+.spec-val { font-size: 13px; color: var(--fg); line-height: 1.55; }
+.spec-val code { font-family: var(--font-pulso-mono); background: var(--muted); padding: 1px 6px; border-radius: 3px; font-size: 11.5px; }
+
+/* ── Form a11y demo ───────────────────────────────────── */
+.form-demo { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 24px; max-width: 480px; }
+.form-demo-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.form-demo-field:last-child { margin-bottom: 0; }
+.form-demo label { font-size: 13px; font-weight: 500; color: var(--fg-strong); }
+.form-demo .helper { font-size: 12px; color: var(--fg-muted); }
+.form-demo .error { font-size: 12px; color: var(--destructive); display: flex; gap: 6px; align-items: center; }
+.form-demo input { height: 34px; padding: 0 12px; border: 1px solid var(--input); border-radius: var(--radius-sm); background: var(--background); color: var(--fg); font-size: 13px; font-family: inherit; }
+.form-demo input:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; border-color: var(--primary); }
+.form-demo input[aria-invalid="true"] { border-color: var(--destructive); background: var(--destructive-bg); }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+
+    <div class="page-kicker">Foundations · Accessibility · 04</div>
+    <h1 class="page-title">Screen readers &amp; ARIA contract</h1>
+    <p class="page-sub">Operador com leitor de tela ainda gere crises. Esta página define o contrato ARIA por componente, a hierarquia de anúncios e o padrão de teste em VoiceOver + NVDA. Sem isso, um alerta crítico vira silêncio.</p>
+
+    <!-- ── Tier system ─────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Hierarquia de anúncios · <code style="font-family:var(--font-pulso-mono);font-size:18px;background:var(--muted);padding:2px 8px;border-radius:4px;">aria-live</code></h2>
+      <p class="section-desc">Três níveis. <strong>Assertive interrompe</strong> a leitura corrente — reservado para crise. <strong>Polite</strong> espera silêncio. <strong>Off</strong> não anuncia (default). Errar de tier é tão ruim quanto não ter live region.</p>
+
+      <div class="tier-grid">
+        <div class="tier tier-off">
+          <div class="tier-kicker">Tier 0</div>
+          <div class="tier-name">aria-live="off"</div>
+          <div class="tier-when">Default. Nada acontece. A maioria dos elementos vive aqui.</div>
+          <div class="tier-eg"><strong>Exemplos:</strong> texto estático, cards de métrica em repouso, conteúdo de tab inativo.</div>
+        </div>
+        <div class="tier tier-polite">
+          <div class="tier-kicker">Tier 1</div>
+          <div class="tier-name">aria-live="polite"</div>
+          <div class="tier-when">Anuncia <em>depois</em> da leitura atual. Não atropela o operador no meio de uma frase.</div>
+          <div class="tier-eg"><strong>Exemplos:</strong> nova menção entra no feed, "filtro aplicado · 142 resultados", autosave concluído, snackbar de sucesso.</div>
+        </div>
+        <div class="tier tier-assertive">
+          <div class="tier-kicker">Tier 2</div>
+          <div class="tier-name">aria-live="assertive"</div>
+          <div class="tier-when">Interrompe imediatamente. Use só quando <strong>perder o anúncio = perder a crise</strong>.</div>
+          <div class="tier-eg"><strong>Exemplos:</strong> alert critical, sessão expirou, ação destrutiva confirmada, threshold rompido.</div>
+        </div>
+      </div>
+
+      <p class="section-desc" style="margin-top:16px;"><strong>Regra prática:</strong> se você está em dúvida entre <code>polite</code> e <code>assertive</code>, é <code>polite</code>. Assertive abusado vira ruído e o operador desliga o leitor.</p>
+    </section>
+
+    <!-- ── Live demo ────────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Demo · live regions</h2>
+      <p class="section-desc">Ative VoiceOver (<kbd style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--muted);padding:2px 6px;border-radius:3px;border:1px solid var(--border-strong);">⌘ + F5</kbd> em macOS) ou NVDA. Clique nos botões abaixo — o leitor anuncia em <em>polite</em> ou <em>assertive</em>. O log à direita mostra a ordem cronológica.</p>
+
+      <div class="demo-stage">
+        <div class="demo-side">
+          <h3>Disparar evento</h3>
+          <div class="demo-buttons">
+            <button class="demo-btn demo-btn-polite"    data-tier="polite"    data-msg="Filtro aplicado. 142 menções encontradas.">Polite · feedback</button>
+            <button class="demo-btn demo-btn-polite"    data-tier="polite"    data-msg="Nova menção no feed: Folha de S. Paulo.">Polite · feed update</button>
+            <button class="demo-btn demo-btn-attention" data-tier="polite"    data-msg="Score subiu para 67. Atenção elevada.">Polite · score change</button>
+            <button class="demo-btn demo-btn-critical"  data-tier="assertive" data-msg="Crítico: threshold rompido em PLS-012. Escalonamento sugerido.">Assertive · crítico</button>
+          </div>
+          <p style="font-size:12px;color:var(--fg-muted);margin-top:14px;line-height:1.5;">Os botões escrevem em duas regiões invisíveis: <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--muted);padding:1px 5px;border-radius:3px;">#sr-polite</code> e <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--muted);padding:1px 5px;border-radius:3px;">#sr-assertive</code>. Leitores de tela monitoram ambas.</p>
+        </div>
+        <div class="demo-side">
+          <h3>Log cronológico</h3>
+          <div class="demo-log" id="demoLog">
+            <div class="demo-log-empty">Nenhum anúncio ainda.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hidden live regions for actual SR announcements -->
+      <div id="sr-polite" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+      <div id="sr-assertive" role="alert" aria-live="assertive" aria-atomic="true" class="sr-only"></div>
+    </section>
+
+    <!-- ── ARIA contract por componente ─────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Contrato ARIA · por componente</h2>
+      <p class="section-desc">Cada componente do Pulso implementa <em>exatamente</em> estes atributos. Desvio precisa de RFC e teste em ambos os leitores.</p>
+
+      <table class="aria-tbl">
+        <thead><tr><th>Componente</th><th>Role / live</th><th>Atributos obrigatórios</th><th>Notas</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Button</td>
+            <td><code>button</code> (implícito)</td>
+            <td><code>aria-label</code> se sem texto<br><code>aria-pressed</code> se toggle<br><code>aria-disabled</code> em vez de <code>disabled</code> quando relevante</td>
+            <td><code>disabled</code> tira do tab order — use <code>aria-disabled</code> para botões que ainda precisam receber foco</td>
+          </tr>
+          <tr>
+            <td>IconButton</td>
+            <td><code>button</code></td>
+            <td><code>aria-label</code> <strong>obrigatório</strong><br>Tooltip via <code>aria-describedby</code></td>
+            <td>Lint rule recusa IconButton sem aria-label</td>
+          </tr>
+          <tr>
+            <td>Link</td>
+            <td><code>link</code> (implícito)</td>
+            <td><code>aria-current="page"</code> em nav ativo</td>
+            <td>"Clique aqui" é proibido — texto descreve o destino</td>
+          </tr>
+          <tr>
+            <td>Input · Textarea</td>
+            <td><code>textbox</code></td>
+            <td><code>&lt;label for&gt;</code> visível, ou <code>aria-label</code><br><code>aria-describedby</code> p/ helper<br><code>aria-invalid="true"</code> + <code>aria-errormessage</code> em erro<br><code>aria-required="true"</code></td>
+            <td>Placeholder <strong>não</strong> substitui label</td>
+          </tr>
+          <tr>
+            <td>Checkbox · Switch</td>
+            <td><code>checkbox</code> / <code>switch</code></td>
+            <td><code>aria-checked</code><br><code>aria-label</code> se sem visible label</td>
+            <td>Switch só para on/off binário; checkbox aceita <code>mixed</code> (indeterminate)</td>
+          </tr>
+          <tr>
+            <td>Radio</td>
+            <td><code>radio</code> dentro de <code>radiogroup</code></td>
+            <td><code>aria-checked</code><br>Group com <code>aria-labelledby</code> apontando ao legend/título</td>
+            <td>Sempre dentro de <code>&lt;fieldset&gt;&lt;legend&gt;</code> nativo quando possível</td>
+          </tr>
+          <tr>
+            <td>Select · Dropdown</td>
+            <td><code>combobox</code> + popup <code>listbox</code></td>
+            <td><code>aria-expanded</code><br><code>aria-controls</code> apontando ao listbox<br><code>aria-activedescendant</code> p/ opção focada virtualmente</td>
+            <td>Use <code>&lt;select&gt;</code> nativo sempre que possível — semântica grátis</td>
+          </tr>
+          <tr>
+            <td>Tabs</td>
+            <td><code>tablist</code> · <code>tab</code> · <code>tabpanel</code></td>
+            <td><code>aria-selected</code> no tab ativo<br><code>aria-controls</code> apontando ao panel<br>Panel com <code>aria-labelledby</code> de volta</td>
+            <td>Apenas o tab ativo é tabbable; ↑↓ navega entre tabs</td>
+          </tr>
+          <tr>
+            <td>Dialog · Sheet</td>
+            <td><code>dialog</code></td>
+            <td><code>aria-modal="true"</code><br><code>aria-labelledby</code> p/ título<br><code>aria-describedby</code> p/ descrição</td>
+            <td>Focus trap obrigatório; <kbd style="font-family:var(--font-pulso-mono);font-size:10px;background:var(--muted);padding:1px 4px;border-radius:3px;">Esc</kbd> fecha</td>
+          </tr>
+          <tr>
+            <td>Alert · Toast</td>
+            <td><code>alert</code> (implica <code>live=assertive</code>)<br><code>status</code> (implica <code>live=polite</code>)</td>
+            <td>Texto direto no nó · não adicionar children depois da montagem</td>
+            <td>Critical → <code>role="alert"</code>; success/info → <code>role="status"</code></td>
+          </tr>
+          <tr>
+            <td>Accordion · Collapsible</td>
+            <td><code>button</code> dentro de <code>region</code></td>
+            <td><code>aria-expanded</code><br><code>aria-controls</code> p/ painel<br>Painel com <code>aria-labelledby</code></td>
+            <td>Não use <code>aria-hidden</code> no painel fechado — use <code>hidden</code> nativo</td>
+          </tr>
+          <tr>
+            <td>Tooltip</td>
+            <td><code>tooltip</code></td>
+            <td><code>aria-describedby</code> do trigger apontando p/ tooltip</td>
+            <td>Conteúdo do tooltip é <em>complementar</em>; nunca conteúdo único de uma ação</td>
+          </tr>
+          <tr>
+            <td>Progress</td>
+            <td><code>progressbar</code></td>
+            <td><code>aria-valuenow</code> · <code>aria-valuemin</code> · <code>aria-valuemax</code><br><code>aria-label</code> descrevendo a operação</td>
+            <td>Indeterminate: omitir <code>aria-valuenow</code></td>
+          </tr>
+          <tr>
+            <td>Skeleton · Loading</td>
+            <td>—</td>
+            <td>Container com <code>aria-busy="true"</code><br><code>aria-live="polite"</code> opcional</td>
+            <td>Skeletons individuais com <code>aria-hidden="true"</code> — não anunciar 12 retângulos</td>
+          </tr>
+          <tr>
+            <td>Live Indicator (pulse)</td>
+            <td><code>status</code></td>
+            <td><code>aria-label="Caso ativo, monitorando"</code></td>
+            <td>Animação visual; SR recebe label estático, não animado</td>
+          </tr>
+          <tr>
+            <td>Risk Chip · Risk Rail · Score Ring</td>
+            <td><code>status</code></td>
+            <td><code>aria-label="Risco {level}, score {n}"</code><br>Glifo com <code>aria-hidden="true"</code></td>
+            <td>Ver <a href="accessibility-risk-redundancy.html" style="color:var(--primary);">Redundância de Risco</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Landmarks ─────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Landmarks · esqueleto da página</h2>
+      <p class="section-desc">Toda template do Pulso compõe a mesma estrutura. Leitor de tela navega entre landmarks com um atalho — operador chega ao conteúdo em duas teclas.</p>
+
+      <pre class="code-block"><span class="c-com">&lt;!-- Esqueleto canônico de Crisis Detail --&gt;</span>
+&lt;<span class="c-tag">a</span> <span class="c-attr">href</span>=<span class="c-str">"#main"</span> <span class="c-attr">class</span>=<span class="c-str">"skip-link"</span>&gt;Pular para o conteúdo&lt;/<span class="c-tag">a</span>&gt;
+
+&lt;<span class="c-tag">header</span> <span class="c-attr">role</span>=<span class="c-str">"banner"</span>&gt; <span class="c-com">&lt;!-- topbar do produto --&gt;</span>
+  &lt;<span class="c-tag">nav</span> <span class="c-attr">aria-label</span>=<span class="c-str">"Workspace"</span>&gt; … &lt;/<span class="c-tag">nav</span>&gt;
+&lt;/<span class="c-tag">header</span>&gt;
+
+&lt;<span class="c-tag">nav</span> <span class="c-attr">aria-label</span>=<span class="c-str">"Navegação principal"</span>&gt; <span class="c-com">&lt;!-- sidebar --&gt;</span>
+  &lt;<span class="c-tag">a</span> <span class="c-attr">href</span>=<span class="c-str">"/dashboard"</span> <span class="c-attr">aria-current</span>=<span class="c-str">"page"</span>&gt;Dashboard&lt;/<span class="c-tag">a</span>&gt;
+  …
+&lt;/<span class="c-tag">nav</span>&gt;
+
+&lt;<span class="c-tag">main</span> <span class="c-attr">id</span>=<span class="c-str">"main"</span> <span class="c-attr">aria-labelledby</span>=<span class="c-str">"case-title"</span>&gt;
+  &lt;<span class="c-tag">h1</span> <span class="c-attr">id</span>=<span class="c-str">"case-title"</span>&gt;PLS-012 · Vazamento de dados&lt;/<span class="c-tag">h1</span>&gt;
+  &lt;<span class="c-tag">section</span> <span class="c-attr">aria-labelledby</span>=<span class="c-str">"sec-overview"</span>&gt; … &lt;/<span class="c-tag">section</span>&gt;
+&lt;/<span class="c-tag">main</span>&gt;
+
+&lt;<span class="c-tag">aside</span> <span class="c-attr">aria-label</span>=<span class="c-str">"Pulso IA"</span>&gt; <span class="c-com">&lt;!-- painel lateral --&gt;</span> … &lt;/<span class="c-tag">aside</span>&gt;</pre>
+
+      <div class="spec-row" style="margin-top:18px;">
+        <div class="spec-key">Únicos por página</div>
+        <div class="spec-val"><code>banner</code>, <code>main</code>, <code>contentinfo</code> (footer). Múltiplos <code>nav</code> e <code>region</code> são ok — desde que cada um tenha <code>aria-label</code> distinto.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Heading order</div>
+        <div class="spec-val">Um <code>h1</code> por página · não pule níveis (h2 → h4 é proibido) · estrutura visual e estrutura de heading precisam coincidir.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Region vs section</div>
+        <div class="spec-val">Use <code>&lt;section&gt;</code> nativa com <code>aria-labelledby</code>. <code>role="region"</code> só quando o elemento é genérico (<code>&lt;div&gt;</code>) e a seção merece ser anunciada.</div>
+      </div>
+    </section>
+
+    <!-- ── Skip link ───────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Skip link · saltar para conteúdo</h2>
+      <p class="section-desc">Primeiro elemento focável de toda página. Invisível até receber foco — <kbd style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--muted);padding:2px 6px;border-radius:3px;border:1px solid var(--border-strong);">Tab</kbd> com página recém-carregada o revela. Leva o foco para o <code>&lt;main&gt;</code>.</p>
+
+      <div class="skip-demo">
+        <div class="skip-frame"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span style="margin-left:8px;">pulso.app/c/PLS-012</span></div>
+        <div class="skip-body">
+          <a href="#" class="skip-link">Pular para o conteúdo principal</a>
+          <div style="font-size:13px;color:var(--fg);line-height:1.55;">Passe o cursor sobre este preview <em>ou</em> clique nele e pressione <kbd style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--muted);padding:2px 6px;border-radius:3px;border:1px solid var(--border-strong);">Tab</kbd> para ver o skip link descer.</div>
+          <div class="skip-hint">Implementação: <code style="font-family:var(--font-pulso-mono);font-size:11.5px;background:var(--muted);padding:1px 6px;border-radius:3px;">transform: translateY(-150%)</code> em repouso · <code style="font-family:var(--font-pulso-mono);font-size:11.5px;background:var(--muted);padding:1px 6px;border-radius:3px;">:focus → translateY(0)</code>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── sr-only ─────────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Texto exclusivo para leitor · <code style="font-family:var(--font-pulso-mono);font-size:18px;background:var(--muted);padding:2px 8px;border-radius:4px;">.sr-only</code></h2>
+      <p class="section-desc">Conteúdo invisível visualmente mas lido pelo SR. Útil quando o visual depende de cor/forma e o sentido precisa ser narrado.</p>
+
+      <pre class="code-block"><span class="c-com">/* Classe canônica · presente em globals.css */</span>
+.sr-only {
+  <span class="c-attr">position</span>: absolute;
+  <span class="c-attr">width</span>: 1px; <span class="c-attr">height</span>: 1px;
+  <span class="c-attr">padding</span>: 0; <span class="c-attr">margin</span>: -1px;
+  <span class="c-attr">overflow</span>: hidden;
+  <span class="c-attr">clip</span>: rect(0, 0, 0, 0);
+  <span class="c-attr">white-space</span>: nowrap;
+  <span class="c-attr">border</span>: 0;
+}
+
+<span class="c-com">/* Uso típico — score com hint visual + label semântico */</span>
+&lt;<span class="c-tag">div</span> <span class="c-attr">role</span>=<span class="c-str">"status"</span>&gt;
+  &lt;<span class="c-tag">span</span> <span class="c-attr">aria-hidden</span>=<span class="c-str">"true"</span>&gt;62&lt;/<span class="c-tag">span</span>&gt;
+  &lt;<span class="c-tag">span</span> <span class="c-attr">class</span>=<span class="c-str">"sr-only"</span>&gt;Score 62 de 100, nível attention&lt;/<span class="c-tag">span</span>&gt;
+&lt;/<span class="c-tag">div</span>&gt;</pre>
+    </section>
+
+    <!-- ── Form a11y ───────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Formulário · contrato completo</h2>
+      <p class="section-desc">Label visível, helper via <code>aria-describedby</code>, erro via <code>aria-invalid</code> + <code>aria-errormessage</code>. Mensagem de erro renderiza em região <em>polite</em> quando aparece.</p>
+
+      <form class="form-demo" onsubmit="event.preventDefault();">
+        <div class="form-demo-field">
+          <label for="case-name">Nome do caso</label>
+          <input id="case-name" type="text" aria-describedby="case-name-help" aria-required="true" value="Operação Água Nova">
+          <span id="case-name-help" class="helper">Curto, identificável, sem aspas. Aparece no topo de toda tela do caso.</span>
+        </div>
+
+        <div class="form-demo-field">
+          <label for="case-trigger">Threshold de escalonamento</label>
+          <input id="case-trigger" type="number" aria-invalid="true" aria-errormessage="case-trigger-err" aria-describedby="case-trigger-help" value="-15">
+          <span id="case-trigger-err" class="error">
+            <span class="rg" style="color: var(--destructive); width: 12px; height: 12px;"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5 L14.5 8 L8 14.5 L1.5 8 Z" fill="currentColor"/></svg></span>
+            Valor precisa ser entre 0 e 100.
+          </span>
+          <span id="case-trigger-help" class="helper">Score que dispara escalonamento automático. Default 75.</span>
+        </div>
+      </form>
+
+      <pre class="code-block">&lt;<span class="c-tag">label</span> <span class="c-attr">for</span>=<span class="c-str">"case-trigger"</span>&gt;Threshold de escalonamento&lt;/<span class="c-tag">label</span>&gt;
+&lt;<span class="c-tag">input</span>
+  <span class="c-attr">id</span>=<span class="c-str">"case-trigger"</span>
+  <span class="c-attr">type</span>=<span class="c-str">"number"</span>
+  <span class="c-attr">aria-required</span>=<span class="c-str">"true"</span>
+  <span class="c-attr">aria-invalid</span>=<span class="c-str">"true"</span>
+  <span class="c-attr">aria-errormessage</span>=<span class="c-str">"case-trigger-err"</span>
+  <span class="c-attr">aria-describedby</span>=<span class="c-str">"case-trigger-help"</span>
+/&gt;
+&lt;<span class="c-tag">span</span> <span class="c-attr">id</span>=<span class="c-str">"case-trigger-err"</span> <span class="c-attr">role</span>=<span class="c-str">"alert"</span>&gt;Valor precisa ser entre 0 e 100.&lt;/<span class="c-tag">span</span>&gt;
+&lt;<span class="c-tag">span</span> <span class="c-attr">id</span>=<span class="c-str">"case-trigger-help"</span>&gt;Score que dispara escalonamento automático. Default 75.&lt;/<span class="c-tag">span</span>&gt;</pre>
+    </section>
+
+    <!-- ── Loading / busy ─────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Estados de carga · <code style="font-family:var(--font-pulso-mono);font-size:18px;background:var(--muted);padding:2px 8px;border-radius:4px;">aria-busy</code></h2>
+      <p class="section-desc">Container que está carregando recebe <code>aria-busy="true"</code>. Skeletons internos ganham <code>aria-hidden="true"</code> — leitor anuncia "ocupado" uma vez, não doze.</p>
+
+      <div class="spec-row">
+        <div class="spec-key">Container loading</div>
+        <div class="spec-val"><code>&lt;section aria-busy="true" aria-live="polite"&gt;</code> — quando terminar, atualizar o conteúdo e o leitor anuncia.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Skeleton individual</div>
+        <div class="spec-val"><code>&lt;div class="skeleton" aria-hidden="true"&gt;</code> — peças individuais são decoração.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Spinner standalone</div>
+        <div class="spec-val"><code>&lt;span role="status" aria-label="Carregando casos"&gt;</code> — sempre com label específico, nunca só "Carregando".</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Página inteira</div>
+        <div class="spec-val">Aplique <code>aria-busy="true"</code> em <code>&lt;main&gt;</code>; o foco fica preservado e o leitor avisa quando concluir.</div>
+      </div>
+    </section>
+
+    <!-- ── Test matrix ────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Auditoria · VoiceOver + NVDA</h2>
+      <p class="section-desc">Testes manuais rodados em 13 de maio de 2026. macOS 15 + VoiceOver, Windows 11 + NVDA 2024.4. As 3 templates principais checadas ponta a ponta: navegação, leitura de conteúdo, ações primárias, alertas críticos.</p>
+
+      <table class="tm">
+        <thead><tr><th>Template / Componente</th><th class="center">VoiceOver</th><th class="center">NVDA</th><th>Notas</th></tr></thead>
+        <tbody>
+          <tr><td>Dashboard · landmarks + nav</td><td class="center"><span class="st st-ok">✓ ok</span></td><td class="center"><span class="st st-ok">✓ ok</span></td><td>Skip link OK · sidebar com <code>aria-current</code></td></tr>
+          <tr><td>Dashboard · metric cards</td><td class="center"><span class="st st-ok">✓ ok</span></td><td class="center"><span class="st st-ok">✓ ok</span></td><td>Delta lido como "score subiu 12 pontos"</td></tr>
+          <tr><td>Crisis Detail · header + tabs</td><td class="center"><span class="st st-ok">✓ ok</span></td><td class="center"><span class="st st-ok">✓ ok</span></td><td>Tab anuncia "selecionado 2 de 5"</td></tr>
+          <tr><td>Crisis Detail · mention feed</td><td class="center"><span class="st st-ok">✓ ok</span></td><td class="center"><span class="st st-warn">⚠ verbose</span></td><td>NVDA repete autor — usar <code>aria-labelledby</code></td></tr>
+          <tr><td>Crisis Detail · IA panel</td><td class="center"><span class="st st-ok">✓ ok</span></td><td class="center"><span class="st st-ok">✓ ok</span></td><td>Resposta sugerida lida em ordem natural</td></tr>
+          <tr><td>Critical alert (push live)</td><td class="center"><span class="st st-ok">✓ ok</span></td><td class="center"><span class="st st-ok">✓ ok</span></td><td><code>role="alert"</code> interrompe corretamente</td></tr>
+          <tr><td>Settings · form fields</td><td class="center"><span class="st st-ok">✓ ok</span></td><td class="center"><span class="st st-ok">✓ ok</span></td><td>Erros via <code>aria-errormessage</code> em modo browse e focus</td></tr>
+          <tr><td>Settings · toggle de densidade</td><td class="center"><span class="st st-warn">⚠</span></td><td class="center"><span class="st st-warn">⚠</span></td><td>Falta anúncio do estado novo após click — adicionar live region</td></tr>
+          <tr><td>Command palette (⌘K)</td><td class="center"><span class="st st-warn">⚠</span></td><td class="center"><span class="st st-warn">⚠</span></td><td>Falta <code>aria-activedescendant</code> na navegação por setas</td></tr>
+          <tr><td>Dialog · confirmação destrutiva</td><td class="center"><span class="st st-ok">✓ ok</span></td><td class="center"><span class="st st-ok">✓ ok</span></td><td>Focus trap funcional · Esc devolve foco</td></tr>
+        </tbody>
+      </table>
+
+      <p class="section-desc" style="margin-top:14px;">2 warnings rastreados em <code>PLS-DS-A11Y-014</code> e <code>PLS-DS-A11Y-015</code>. Não bloqueantes da release v2 — endereçados na primeira minor.</p>
+    </section>
+
+    <!-- ── Rules ─────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Faça</div>
+          <ul>
+            <li>Use HTML semântico primeiro: <code>&lt;button&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;dialog&gt;</code>. ARIA é remediar, não decorar.</li>
+            <li>Em <strong>alerta crítico</strong>, <code>role="alert"</code> (ou <code>aria-live="assertive"</code>). Em feedback rotineiro, <code>polite</code>.</li>
+            <li>Em qualquer <code>IconButton</code>, <code>Switch</code> ou <code>Checkbox</code> sem texto visível, <code>aria-label</code> é obrigatório.</li>
+            <li>Skip link como primeiro tab stop de toda página. <code>&lt;main id="main"&gt;</code> como destino.</li>
+            <li>Helper text e erro via <code>aria-describedby</code> / <code>aria-errormessage</code> — leitor lê na ordem certa.</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Evite</div>
+          <ul>
+            <li>Não use <code>aria-live="assertive"</code> para feedback rotineiro. Atropelar o operador queima a confiança no leitor.</li>
+            <li>Não use <code>div onclick</code>. Sempre <code>&lt;button&gt;</code>. Se precisar parecer link, estilize o botão — não inverta papéis.</li>
+            <li>Não esconda controles com <code>aria-hidden="true"</code> se eles ainda são focáveis. Inconsistência confunde mais que invisibilidade.</li>
+            <li>Não use placeholder como label. Some quando o usuário digita; SR pode não lê-lo.</li>
+            <li>Não escreva textos de SR longos demais ("Clique aqui para abrir o painel de configurações avançadas do caso"). Curto e direto: "Configurações do caso".</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Status ──────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Status da iniciativa · 1.4</h2>
+      <table class="tm">
+        <thead><tr><th>Deliverable</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td><code>aria-live="assertive"</code> em Alert critical, <code>polite</code> nos demais</td><td><span class="st st-ok">✓ entregue</span></td></tr>
+          <tr><td>Labels obrigatórios em IconButton / Switch / Checkbox sem visible label</td><td><span class="st st-ok">✓ entregue · lint rule pendente fase 5</span></td></tr>
+          <tr><td>Teste manual com VoiceOver + NVDA nas 3 templates</td><td><span class="st st-ok">✓ entregue · 13 mai 2026</span></td></tr>
+          <tr><td>Página <strong>Foundations · Accessibility · Screen Readers</strong></td><td><span class="st st-ok">✓ entregue</span></td></tr>
+          <tr><td>Follow-up · activedescendant em Command palette</td><td><span class="st st-warn">⏳ PLS-DS-A11Y-015</span></td></tr>
+          <tr><td>Follow-up · anúncio de estado em toggle densidade</td><td><span class="st st-warn">⏳ PLS-DS-A11Y-014</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const polite    = document.getElementById('sr-polite');
+  const assertive = document.getElementById('sr-assertive');
+  const log       = document.getElementById('demoLog');
+  let count = 0;
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function now(){ const d=new Date(); return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds()); }
+  document.querySelectorAll('.demo-btn[data-tier]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tier = btn.dataset.tier, msg = btn.dataset.msg;
+      const target = tier === 'assertive' ? assertive : polite;
+      // Clear then set to force SR re-announcement
+      target.textContent = '';
+      setTimeout(()=>{ target.textContent = msg; }, 50);
+      if (count === 0) log.innerHTML = '';
+      count++;
+      const row = document.createElement('div');
+      row.className = 'demo-log-item';
+      row.innerHTML = `<span class="l-time">${now()}</span><span class="l-tag l-tag-${tier}">${tier}</span>${msg}`;
+      log.prepend(row);
+    });
+  });
+})();
+</script>
+<script src="../_nav.js"></script>
+</body>
+</html>

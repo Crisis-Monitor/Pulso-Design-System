@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — AI Interface Rules</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Conceitual · 03</div>
+    <h1 class="page-title">Regras para Geração Assistida de Interface</h1>
+    <p class="page-sub">Artefato normativo para agentes de IA. Define como agentes devem raciocinar ao propor, compor, revisar ou refatorar interfaces no ecossistema Pulso.</p>
+
+    <div class="prose">
+      <p class="lead">Pulso não é uma biblioteca visual genérica. É uma <strong>linguagem de interface para uma plataforma orientada por evidência, risco, narrativa e decisão humana</strong>. Este documento existe para reduzir deriva estética, abstrações genéricas e decisões de interface desalinhadas com o contexto operacional do Crisis Monitor.</p>
+    </div>
+
+    <section class="section">
+      <h2 class="section-h1">1. O que entender antes de desenhar</h2>
+      <p class="section-desc">A interface deve ajudar usuários a responder estas perguntas, <strong>nesta ordem</strong>.</p>
+      <div class="qa-block">
+        <div class="qa-label">SE A INTERFACE NÃO RESPONDE A ESSAS PERGUNTAS COM CLAREZA, ELA ESTÁ INCOMPLETA</div>
+        <div class="qa-list" style="margin-top: 12px;">
+          <div class="qa-item"><div class="qa-item-q">O que está acontecendo?</div></div>
+          <div class="qa-item"><div class="qa-item-q">Quão grave é?</div></div>
+          <div class="qa-item"><div class="qa-item-q">O que mudou recentemente?</div></div>
+          <div class="qa-item"><div class="qa-item-q">Quais evidências sustentam essa leitura?</div></div>
+          <div class="qa-item"><div class="qa-item-q">O que precisa de atenção ou ação?</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">2. Tipos de tela</h2>
+      <p class="section-desc">Antes de compor, identificar qual é a função principal da tela. Se a natureza for ambígua, <strong>nomear a ambiguidade antes de propor</strong>.</p>
+      <table class="anti-pat">
+        <thead><tr><th>Tipo</th><th>Objetivo</th><th>Priorizar</th><th>Exemplo</th></tr></thead>
+        <tbody>
+          <tr><td>Leitura operacional</td><td>Entendimento rápido do estado atual</td><td>Resumo, status, risco, mudanças recentes, evidências principais</td><td style="font-style: italic; color: var(--fg-muted);">Aba Resumo da crise, overview do monitoramento</td></tr>
+          <tr><td>Investigação</td><td>Explorar causa, contexto e sinais</td><td>Filtros, agrupamentos, timelines, drill-down, evidências relacionadas</td><td style="font-style: italic; color: var(--fg-muted);">Aba Menções, comparação de veículos</td></tr>
+          <tr><td>Comparação</td><td>Contraste entre períodos, entidades, narrativas</td><td>Métricas comparáveis, deltas, eixos consistentes, contexto</td><td style="font-style: italic; color: var(--fg-muted);">Aba Analytics, comparativo de crises</td></tr>
+          <tr><td>Decisão</td><td>Apoiar julgamento e registrar próximos passos</td><td>Contexto resumido, fatores críticos, evidências-chave, registro rastreável</td><td style="font-style: italic; color: var(--fg-muted);">Aba Decisões, modal de COA</td></tr>
+          <tr><td>Configuração</td><td>Parametrização, regras, critérios</td><td>Clareza, prevenção de erro, agrupamento lógico, explicabilidade</td><td style="font-style: italic; color: var(--fg-muted);">Settings, configurações de monitoramento</td></tr>
+          <tr><td>Relatório / Exportação</td><td>Consolidar leitura para compartilhamento externo</td><td>Síntese editorial, clips curados, estrutura bilíngue</td><td style="font-style: italic; color: var(--fg-muted);">Aba Relatório, clipping curado</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">3. Ordem de prioridade da informação</h2>
+      <p class="section-desc">Quando não houver instrução específica, estruturar telas nesta ordem. Pode variar com critério — não pode ser invertida sem motivo explícito.</p>
+      <div class="ord-list">
+        <div class="ord-item"><div class="ord-item-text"><strong>Contexto da situação</strong> — o que é, quem é</div></div>
+        <div class="ord-item"><div class="ord-item-text"><strong>Status atual</strong></div></div>
+        <div class="ord-item"><div class="ord-item-text"><strong>Nível de risco ou atenção</strong></div></div>
+        <div class="ord-item"><div class="ord-item-text"><strong>O que mudou recentemente</strong></div></div>
+        <div class="ord-item"><div class="ord-item-text"><strong>Evidências ou cobertura</strong></div></div>
+        <div class="ord-item"><div class="ord-item-text"><strong>Interpretações auxiliares</strong></div></div>
+        <div class="ord-item"><div class="ord-item-text"><strong>Ações ou próximos passos</strong></div></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">4. Hierarquia de risco</h2>
+      <p class="section-desc">Risco deve ser <strong>semântico, não apenas cromático</strong>. Nunca usar cor como único portador de significado.</p>
+      <table class="risk-tbl">
+        <thead><tr><th>Nível</th><th>Score</th><th>Token</th><th>Uso</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="swatch" style="background: var(--risk-stable); border: 1px solid var(--risk-stable-border);"></span><span class="level-name">Seguro / Neutro</span></td>
+            <td class="score-range">0–25</td>
+            <td class="token-cell">--risk-stable-*</td>
+            <td>Estado estável, sem sinal relevante</td>
+          </tr>
+          <tr>
+            <td><span class="swatch" style="background: var(--risk-monitor); border: 1px solid var(--risk-monitor-border);"></span><span class="level-name">Monitorando</span></td>
+            <td class="score-range">26–45</td>
+            <td class="token-cell">--risk-monitor-*</td>
+            <td>Há sinal, sem deterioração clara</td>
+          </tr>
+          <tr>
+            <td><span class="swatch" style="background: var(--risk-medium); border: 1px solid var(--risk-medium-border);"></span><span class="level-name">Atenção</span></td>
+            <td class="score-range">46–65</td>
+            <td class="token-cell">--risk-medium-*</td>
+            <td>Fator relevante, requer acompanhamento</td>
+          </tr>
+          <tr>
+            <td><span class="swatch" style="background: var(--risk-high); border: 1px solid var(--risk-high-border);"></span><span class="level-name">Alto risco</span></td>
+            <td class="score-range">66–80</td>
+            <td class="token-cell">--risk-high-*</td>
+            <td>Evidências de deterioração ou escalada</td>
+          </tr>
+          <tr>
+            <td><span class="swatch" style="background: var(--risk-critical); border: 1px solid var(--risk-critical-border);"></span><span class="level-name">Crítico</span></td>
+            <td class="score-range">81–100</td>
+            <td class="token-cell">--risk-critical-*</td>
+            <td>Impacto significativo, leitura prioritária</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="principle-avoid" style="margin-top: 18px;">
+        <div class="principle-avoid-label">O agente deve evitar</div>
+        <div class="principle-avoid-list">
+          <div class="principle-avoid-list-item">Transformar qualquer variação em "crítico"</div>
+          <div class="principle-avoid-list-item">Usar vermelho como cor dominante da tela</div>
+          <div class="principle-avoid-list-item">Espalhar chips de risco por todos os blocos sem hierarquia</div>
+          <div class="principle-avoid-list-item">Usar --risk-critical-* em textos longos ou blocos de fundo grandes</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">5. Anti-padrões — o que nunca fazer</h2>
+      <table class="anti-pat">
+        <thead><tr><th>Anti-padrão</th><th>Por que é um problema</th></tr></thead>
+        <tbody>
+          <tr><td>Interface genérica de SaaS</td><td>Não comunica o contexto de crise</td></tr>
+          <tr><td>Estética de fintech/growth importada</td><td>Destrói coerência de produto</td></tr>
+          <tr><td>Cardização excessiva</td><td>Gera fragmentação sem hierarquia</td></tr>
+          <tr><td>Abuso de gradiente e glow</td><td>Reduz legibilidade operacional</td></tr>
+          <tr><td>Excesso de cor de risco</td><td>Perde impacto quando algo é realmente crítico</td></tr>
+          <tr><td>Gráficos sem apoio textual</td><td>Dado sem contexto amplifica ruído</td></tr>
+          <tr><td>CTA antes de contexto suficiente</td><td>Pressiona decisão sem base</td></tr>
+          <tr><td>Múltiplos destaques competindo</td><td>Elimina hierarquia visual</td></tr>
+          <tr><td>Semântica visual forte para sinal fraco</td><td>Cria alarme desnecessário</td></tr>
+          <tr><td>Reorganizar hierarquia só por estética</td><td>Desalinha forma e função</td></tr>
+          <tr><td>"Crítico" para qualquer variação</td><td>Dilui o peso do termo</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">6. Checklist antes de propor uma interface</h2>
+      <p class="section-desc">Se "não" para 2 ou mais itens → revisar antes de seguir.</p>
+      <div class="ord-list">
+        <div class="ord-item"><div class="ord-item-text">Esta tela tem uma <strong>tarefa principal</strong> identificada e nomeada?</div></div>
+        <div class="ord-item"><div class="ord-item-text">A hierarquia responde ao contexto do produto (crise, risco, evidência)?</div></div>
+        <div class="ord-item"><div class="ord-item-text">O bloco principal está visivelmente claro <em>sem análise</em>?</div></div>
+        <div class="ord-item"><div class="ord-item-text">O risco está representado com <strong>moderação e precisão semântica</strong>?</div></div>
+        <div class="ord-item"><div class="ord-item-text">A interface prioriza evidência quando a decisão está em jogo?</div></div>
+        <div class="ord-item"><div class="ord-item-text">Há ruído visual desnecessário que pode ser removido?</div></div>
+        <div class="ord-item"><div class="ord-item-text">Estou reutilizando patterns existentes do Pulso?</div></div>
+        <div class="ord-item"><div class="ord-item-text">Estou inventando solução que o sistema já resolve?</div></div>
+        <div class="ord-item"><div class="ord-item-text">A proposta parece ferramenta de crise ou dashboard genérico?</div></div>
+        <div class="ord-item"><div class="ord-item-text">A ação humana está preservada como etapa final em contextos críticos?</div></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">7. Comportamento esperado do agente</h2>
+      <p class="section-desc">Ao propor interface para o Crisis Monitor, o agente deve seguir esta sequência.</p>
+      <div class="ord-list">
+        <div class="ord-item"><div class="ord-item-text"><strong>Identificar</strong> — A natureza da tarefa e o tipo da tela</div></div>
+        <div class="ord-item"><div class="ord-item-text"><strong>Mapear</strong> — As prioridades de informação para aquele contexto</div></div>
+        <div class="ord-item"><div class="ord-item-text"><strong>Buscar</strong> — Patterns existentes antes de inventar composições</div></div>
+        <div class="ord-item"><div class="ord-item-text"><strong>Montar</strong> — A hierarquia com base em contexto, risco e decisão</div></div>
+        <div class="ord-item"><div class="ord-item-text"><strong>Aplicar</strong> — Tokens semânticos e componentes do Pulso</div></div>
+        <div class="ord-item"><div class="ord-item-text"><strong>Revisar</strong> — Densidade, risco e legibilidade antes de entregar</div></div>
+        <div class="ord-item"><div class="ord-item-text"><strong>Justificar</strong> — A proposta em termos de: leitura, evidência, risco, contexto ou decisão</div></div>
+      </div>
+
+      <div class="qa-block" style="margin-top: 24px;">
+        <div class="qa-label">CRITÉRIO FINAL</div>
+        <p style="font-size: 14.5px; color: var(--fg); line-height: 1.55; margin-top: 6px;">Se a proposta não puder ser justificada em pelo menos um desses termos — <strong>leitura, evidência, risco, contexto, decisão</strong> — ela não está coerente com o Pulso.</p>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

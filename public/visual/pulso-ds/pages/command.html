@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Command Palette</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.cmd-stage { position: relative; height: 520px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--muted); overflow: hidden; }
+.cmd-overlay { position: absolute; inset: 0; background: rgba(20, 18, 32, 0.45); backdrop-filter: blur(2px); display: flex; justify-content: center; padding-top: 80px; }
+html.dark .cmd-overlay { background: rgba(0, 0, 0, 0.55); }
+
+.cmd { width: 100%; max-width: 600px; max-height: 420px; background: var(--popover); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: 0 24px 60px rgba(20,18,32,0.28); overflow: hidden; display: flex; flex-direction: column; }
+
+.cmd-input-row { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--border-faint); }
+.cmd-input-row .ico { width: 16px; height: 16px; color: var(--fg-muted); flex-shrink: 0; }
+.cmd-input { flex: 1; border: 0; outline: 0; background: transparent; font-family: var(--font-pulso-sans); font-size: 14px; color: var(--fg); padding: 0; }
+.cmd-input::placeholder { color: var(--fg-muted); }
+.cmd-input-hint { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); padding: 2px 6px; background: var(--muted); border: 1px solid var(--border); border-radius: 3px; }
+
+.cmd-list { flex: 1; overflow-y: auto; padding: 6px; }
+.cmd-section { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-muted); padding: 8px 10px 4px; }
+
+.cmd-item { display: grid; grid-template-columns: 16px 1fr auto; align-items: center; gap: 12px; padding: 8px 10px; border-radius: var(--radius-xs); cursor: default; }
+.cmd-item:hover { background: var(--muted); }
+.cmd-item.focus { background: var(--primary-soft); }
+.cmd-item .ico { width: 16px; height: 16px; color: var(--fg-muted); }
+.cmd-item.focus .ico { color: var(--primary); }
+.cmd-item .body { min-width: 0; }
+.cmd-item .lbl { font-size: 13.5px; color: var(--fg); display: flex; align-items: center; gap: 8px; }
+.cmd-item.focus .lbl { color: var(--primary); font-weight: 500; }
+.cmd-item .meta { font-size: 11.5px; color: var(--fg-muted); margin-top: 2px; }
+.cmd-item .right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.cmd-item .kbd { font-family: var(--font-pulso-mono); font-size: 10.5px; padding: 1px 5px; background: var(--muted); border: 1px solid var(--border-faint); border-radius: 3px; color: var(--fg-secondary); font-weight: 500; }
+.cmd-item.focus .kbd { background: rgba(255,255,255,0.6); }
+html.dark .cmd-item.focus .kbd { background: rgba(255,255,255,0.06); }
+
+.cmd-tag { font-family: var(--font-pulso-mono); font-size: 10px; padding: 1px 6px; border-radius: 3px; font-weight: 600; letter-spacing: 0.04em; }
+.cmd-tag.crisis { background: var(--risk-critical-bg); color: var(--risk-critical); }
+.cmd-tag.high { background: var(--risk-high-bg); color: var(--risk-high); }
+.cmd-tag.live { background: var(--success-bg); color: var(--success); }
+
+.cmd-footer { padding: 8px 14px; border-top: 1px solid var(--border-faint); display: flex; justify-content: space-between; align-items: center; background: var(--surface-2, var(--background)); font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); }
+.cmd-footer .grp { display: inline-flex; align-items: center; gap: 14px; }
+.cmd-footer .leg { display: inline-flex; align-items: center; gap: 5px; }
+.cmd-footer .k { padding: 1px 5px; background: var(--card); border: 1px solid var(--border); border-radius: 3px; color: var(--fg-secondary); font-weight: 500; }
+
+.cmd-empty { padding: 36px 16px; text-align: center; color: var(--fg-muted); font-size: 13px; }
+.cmd-empty .em { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-secondary); display: block; margin-top: 4px; }
+
+.cmd-trigger { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px 0 10px; border-radius: var(--radius-md); border: 1px solid var(--border-strong); background: var(--card); font-size: 13px; color: var(--fg-secondary); cursor: text; min-width: 280px; }
+.cmd-trigger .ico { width: 14px; height: 14px; color: var(--fg-muted); }
+.cmd-trigger .ph { flex: 1; }
+.cmd-trigger .kbd-pair { display: inline-flex; gap: 3px; }
+.cmd-trigger .k { font-family: var(--font-pulso-mono); font-size: 10.5px; padding: 1px 5px; background: var(--muted); border: 1px solid var(--border-faint); border-radius: 3px; color: var(--fg-muted); }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Organisms · Onda 2 · 10</div>
+    <h1 class="page-title">Command Palette</h1>
+    <p class="page-sub">Atalho universal de busca + ação. Acionado por <span style="font-family:var(--font-pulso-mono);font-size:11px;padding:2px 7px;background:var(--muted);border:1px solid var(--border);border-radius:3px;">⌘K</span> em qualquer tela. Mistura navegação, busca de menções, ações e respostas da Cris.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Trigger</h2>
+      <p class="section-desc">Aparece no header como input "fake" — clique abre o palette real. Mostra atalho à direita.</p>
+      <div style="padding: 24px; background: var(--background); border: 1px solid var(--border); border-radius: var(--radius-md);">
+        <button class="cmd-trigger">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <span class="ph">Buscar ou comandar…</span>
+          <span class="kbd-pair"><span class="k">⌘</span><span class="k">K</span></span>
+        </button>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Estado vazio · sugestões iniciais</h2>
+      <p class="section-desc">Antes de digitar, mostra ações recentes e sugestões. Cada seção é categorizada.</p>
+      <div class="cmd-stage">
+        <div class="cmd-overlay">
+          <div class="cmd">
+            <div class="cmd-input-row">
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              <input class="cmd-input" placeholder="Buscar menções, ações ou perguntar à Cris…">
+              <span class="cmd-input-hint">⌘K</span>
+            </div>
+            <div class="cmd-list">
+              <div class="cmd-section">RECENTES</div>
+              <div class="cmd-item">
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <div class="body"><div class="lbl">Operação Água Nova</div><div class="meta">Crise ativa · score 87</div></div>
+                <div class="right"><span class="cmd-tag crisis">CRÍTICO</span></div>
+              </div>
+              <div class="cmd-item">
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                <div class="body"><div class="lbl">Briefing trimestral · CFO</div><div class="meta">Última edição há 2h</div></div>
+              </div>
+              <div class="cmd-section">SUGERIDO POR CRIS</div>
+              <div class="cmd-item focus">
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.5 13a2.5 2.5 0 1 1 5 0c0 1.5-2.5 2.5-2.5 4M12 21h.01"/><circle cx="12" cy="12" r="10"/></svg>
+                <div class="body"><div class="lbl">Por que o score subiu para crítico nas últimas 4h?</div><div class="meta">Cris analisa 3 fatores principais</div></div>
+                <div class="right"><span class="kbd">↵</span></div>
+              </div>
+              <div class="cmd-item">
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                <div class="body"><div class="lbl">Resumir o que aconteceu desde 14h hoje</div><div class="meta">3 menções Tier 1 publicadas</div></div>
+              </div>
+              <div class="cmd-section">AÇÕES</div>
+              <div class="cmd-item">
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <div class="body"><div class="lbl">Criar novo monitoramento</div></div>
+                <div class="right"><span class="kbd">N</span></div>
+              </div>
+              <div class="cmd-item">
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                <div class="body"><div class="lbl">Registrar nova decisão</div></div>
+                <div class="right"><span class="kbd">D</span></div>
+              </div>
+            </div>
+            <div class="cmd-footer">
+              <div class="grp">
+                <span class="leg"><span class="k">↑↓</span>navegar</span>
+                <span class="leg"><span class="k">↵</span>selecionar</span>
+                <span class="leg"><span class="k">ESC</span>fechar</span>
+              </div>
+              <span>Pulso · Cris assist</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Com query · resultados mistos</h2>
+      <p class="section-desc">Ao digitar, resultados se reordenam por relevância. Cris responde sempre no topo quando a query é uma pergunta.</p>
+      <div class="cmd-stage">
+        <div class="cmd-overlay">
+          <div class="cmd">
+            <div class="cmd-input-row">
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              <input class="cmd-input" value="vazamento" placeholder="Buscar…">
+            </div>
+            <div class="cmd-list">
+              <div class="cmd-section">PERGUNTAR À CRIS</div>
+              <div class="cmd-item focus">
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+                <div class="body"><div class="lbl">Pesquisar todas as menções sobre <strong>vazamento</strong></div><div class="meta">Resposta com timeline e cobertura por veículo</div></div>
+                <div class="right"><span class="kbd">↵</span></div>
+              </div>
+              <div class="cmd-section">MENÇÕES · 47 RESULTADOS</div>
+              <div class="cmd-item">
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                <div class="body"><div class="lbl">"Vazamento na refinaria expõe falhas no protocolo"</div><div class="meta">Folha · 14:32 · negativo · alcance 2.4M</div></div>
+                <div class="right"><span class="cmd-tag high">T1</span></div>
+              </div>
+              <div class="cmd-item">
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                <div class="body"><div class="lbl">"ANP investiga vazamento em São Sebastião"</div><div class="meta">Valor · 13:18 · neutro · alcance 1.1M</div></div>
+                <div class="right"><span class="cmd-tag high">T1</span></div>
+              </div>
+              <div class="cmd-item">
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                <div class="body"><div class="lbl">"Moradores cobram resposta sobre vazamento"</div><div class="meta">G1 · 11:42 · negativo · alcance 890K</div></div>
+                <div class="right"><span class="cmd-tag high">T1</span></div>
+              </div>
+              <div class="cmd-section">MONITORAMENTOS</div>
+              <div class="cmd-item">
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <div class="body"><div class="lbl">Operação Água Nova</div><div class="meta">Vazamento · monitoramento ativo · 2.847 menções</div></div>
+                <div class="right"><span class="cmd-tag live">LIVE</span></div>
+              </div>
+            </div>
+            <div class="cmd-footer">
+              <div class="grp">
+                <span class="leg"><span class="k">↑↓</span>navegar</span>
+                <span class="leg"><span class="k">↵</span>abrir</span>
+                <span class="leg"><span class="k">⌘↵</span>Cris</span>
+              </div>
+              <span>52 resultados · 28ms</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Estado vazio</h2>
+      <p class="section-desc">Quando não há resultados, oferece ação alternativa — perguntar à Cris ou criar.</p>
+      <div class="cmd-stage" style="height: 320px;">
+        <div class="cmd-overlay">
+          <div class="cmd">
+            <div class="cmd-input-row">
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              <input class="cmd-input" value="propylene glycol" placeholder="Buscar…">
+            </div>
+            <div class="cmd-empty">
+              Nenhum resultado para <strong style="color: var(--fg);">"propylene glycol"</strong>.
+              <span class="em">Pressione ⌘↵ para perguntar à Cris</span>
+            </div>
+            <div class="cmd-footer">
+              <div class="grp">
+                <span class="leg"><span class="k">⌘↵</span>perguntar à Cris</span>
+                <span class="leg"><span class="k">ESC</span>fechar</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Anatomia</h2>
+      <table class="tokens">
+        <thead><tr><th>Token</th><th>Valor</th></tr></thead>
+        <tbody>
+          <tr><td>Max-width</td><td class="mono">600px</td></tr>
+          <tr><td>Max-height</td><td class="mono">420px (lista scroll)</td></tr>
+          <tr><td>Posicionamento</td><td class="mono">Top: 80px (não centralizado vertical)</td></tr>
+          <tr><td>Border-radius</td><td class="mono">--radius-lg</td></tr>
+          <tr><td>Input height</td><td class="mono">~44px</td></tr>
+          <tr><td>Item padding</td><td class="mono">8 10</td></tr>
+          <tr><td>Item grid</td><td class="mono">16px ico · 1fr · auto</td></tr>
+          <tr><td>Focus bg</td><td class="mono">--primary-soft</td></tr>
+          <tr><td>Section label</td><td class="mono">mono · 10px · uppercase · --fg-muted</td></tr>
+          <tr><td>Footer</td><td class="mono">10.5px mono · --surface-2 bg</td></tr>
+          <tr><td>Atalho de abertura</td><td class="mono">⌘K · ctrl+K · "/"</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><div class="rule-tag">DO</div><div>Sempre tenha pelo menos uma sugestão antes de digitar — ações recentes ou recomendadas pela Cris.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Use seções claras (RECENTES, AÇÕES, MENÇÕES). Misturar tipos sem rótulo confunde.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Quando a query for uma pergunta, ofereça "Perguntar à Cris" como primeira opção sempre.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Suporte teclado completo: ↑↓ navega, ↵ abre, ⌘↵ ação alternativa, ESC fecha. Mouse opcional.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não esconda Command. Mostre o trigger no header com atalho visível — descobribilidade é função do produto.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não devolva &gt; 8 resultados por seção. Se passa disso, agrupe ou peça refinamento.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Estado vazio nunca é "sem resultados" sozinho. Sempre ofereça uma ação alternativa.</div></div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

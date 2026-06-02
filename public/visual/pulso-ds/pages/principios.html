@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Princípios</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Conceitual · 02</div>
+    <h1 class="page-title">Princípios de Interface</h1>
+    <p class="page-sub">Sete princípios que governam como o Pulso raciocina sobre interface. Não são regras estéticas — são <strong style="color: var(--fg);">critérios de julgamento</strong> para qualquer decisão de UI no Crisis Monitor.</p>
+
+    <section class="section">
+      <div class="principle">
+        <div class="principle-num">01</div>
+        <div>
+          <div class="principle-title">Sinal antes de espetáculo</div>
+          <div class="principle-tagline">A interface prioriza leitura operacional.</div>
+          <div class="principle-body">Elementos decorativos não podem competir com informação crítica. Gradientes sem função, glow excessivo, cards sem hierarquia e efeitos que remetem a tech futurista enfraquecem a leitura em cenários de alta pressão.</div>
+          <div class="principle-avoid">
+            <div class="principle-avoid-label">Evitar</div>
+            <div class="principle-avoid-list">
+              <div class="principle-avoid-list-item">Gradientes sem função semântica</div>
+              <div class="principle-avoid-list-item">Glow e brilho excessivo</div>
+              <div class="principle-avoid-list-item">Cards em excesso sem hierarquia</div>
+              <div class="principle-avoid-list-item">Efeitos visuais que remetem a tech futurista</div>
+              <div class="principle-avoid-list-item">Superfícies que lembram marketing, não operação</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="principle">
+        <div class="principle-num">02</div>
+        <div>
+          <div class="principle-title">Evidência antes de opinião</div>
+          <div class="principle-tagline">Toda leitura que possa influenciar decisão deve ter suporte visível.</div>
+          <div class="principle-body">Não basta mostrar score, cor ou classificação. Sempre que possível, a interface deve mostrar: origem da leitura, fator de risco, mudança observada e suporte textual ou contextual mínimo.</div>
+          <div class="principle-avoid">
+            <div class="principle-avoid-label">Evitar</div>
+            <div class="principle-avoid-list">
+              <div class="principle-avoid-list-item">Score sem explicação de fatores</div>
+              <div class="principle-avoid-list-item">Badge de risco sem evidência</div>
+              <div class="principle-avoid-list-item">Recomendações de IA sem bloco de explicabilidade</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="principle">
+        <div class="principle-num">03</div>
+        <div>
+          <div class="principle-title">Contexto antes de ação</div>
+          <div class="principle-tagline">A interface não empurra ação antes de oferecer contexto suficiente.</div>
+          <div class="principle-body">CTAs devem aparecer depois de leitura mínima, exceto em fluxos operacionais urgentes e muito explícitos. Pressionar decisão antes de base informacional adequada é um anti-padrão do produto.</div>
+          <div class="principle-avoid">
+            <div class="principle-avoid-label">Evitar</div>
+            <div class="principle-avoid-list">
+              <div class="principle-avoid-list-item">CTA proeminente antes de qualquer contexto</div>
+              <div class="principle-avoid-list-item">Botão de ação acima do resumo da situação</div>
+              <div class="principle-avoid-list-item">Fluxos que saltam direto para "O que fazer"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="principle">
+        <div class="principle-num">04</div>
+        <div>
+          <div class="principle-title">Decisão humana no centro</div>
+          <div class="principle-tagline">A plataforma apoia julgamento. Nunca substitui.</div>
+          <div class="principle-body">Em contextos críticos, a interface deve deixar isso claro — seja na cópia, no fluxo ou na estrutura. Recomendações da IA são insumo, não veredicto. O decisor humano sempre tem a palavra final.</div>
+          <div class="principle-avoid">
+            <div class="principle-avoid-label">Evitar</div>
+            <div class="principle-avoid-list">
+              <div class="principle-avoid-list-item">Linguagem que presume decisão automática</div>
+              <div class="principle-avoid-list-item">Fluxo que remove etapa de confirmação humana</div>
+              <div class="principle-avoid-list-item">IA apresentada como autoridade final</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="principle">
+        <div class="principle-num">05</div>
+        <div>
+          <div class="principle-title">Densidade com legibilidade</div>
+          <div class="principle-tagline">Densidade é aceitável. Densidade sem hierarquia, não.</div>
+          <div class="principle-body">O produto pode ser denso. O problema é densidade <em>sem separação visual, sem títulos informativos e sem distinção entre informação primária e secundária</em>. Quando houver muito conteúdo: agrupar semanticamente, separar camadas e preservar escaneabilidade.</div>
+          <div class="principle-avoid">
+            <div class="principle-avoid-label">Evitar</div>
+            <div class="principle-avoid-list">
+              <div class="principle-avoid-list-item">Blocos visualmente esmagados</div>
+              <div class="principle-avoid-list-item">Ausência de separação entre leitura primária e secundária</div>
+              <div class="principle-avoid-list-item">Listas longas sem títulos ou agrupamento</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="principle">
+        <div class="principle-num">06</div>
+        <div>
+          <div class="principle-title">Gravidade sem sensacionalismo</div>
+          <div class="principle-tagline">Estados críticos transmitem seriedade. Não espetáculo.</div>
+          <div class="principle-body">Risco deve ser visível, mas não teatral. A interface não deve parecer alarmista. Vermelho como cor dominante de tela, chips de risco em todos os blocos e uso de "crítico" para qualquer variação são anti-padrões que <strong>diluem o peso real do sinal</strong>.</div>
+          <div class="principle-avoid">
+            <div class="principle-avoid-label">Evitar</div>
+            <div class="principle-avoid-list">
+              <div class="principle-avoid-list-item">Vermelho como cor dominante da tela</div>
+              <div class="principle-avoid-list-item">Usar "crítico" para qualquer variação</div>
+              <div class="principle-avoid-list-item">Chips de risco espalhados sem hierarquia</div>
+              <div class="principle-avoid-list-item">Semântica visual forte para sinal fraco</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="principle">
+        <div class="principle-num">07</div>
+        <div>
+          <div class="principle-title">Consistência sem rigidez</div>
+          <div class="principle-tagline">Os padrões existem para ser usados, não para engessar.</div>
+          <div class="principle-body">O Pulso prescreve padrões com critério — mas o produto evolui. Adaptar com justificativa é diferente de ignorar. Quando um padrão não serve, <strong>nomeie o motivo antes de desviar</strong>.</div>
+          <div class="principle-avoid">
+            <div class="principle-avoid-label">Evitar</div>
+            <div class="principle-avoid-list">
+              <div class="principle-avoid-list-item">Ignorar padrões sem justificativa</div>
+              <div class="principle-avoid-list-item">Inventar composições locais que deveriam ser padrões globais</div>
+              <div class="principle-avoid-list-item">Seguir padrões mecanicamente quando o contexto pede adaptação</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Resumo rápido</h2>
+      <table class="vocab">
+        <thead><tr><th>Princípio</th><th colspan="2">Em uma linha</th></tr></thead>
+        <tbody>
+          <tr><td>Sinal antes de espetáculo</td><td colspan="2">A interface prioriza leitura operacional.</td></tr>
+          <tr><td>Evidência antes de opinião</td><td colspan="2">Toda leitura que possa influenciar decisão deve ter suporte visível.</td></tr>
+          <tr><td>Contexto antes de ação</td><td colspan="2">A interface não empurra ação antes de oferecer contexto suficiente.</td></tr>
+          <tr><td>Decisão humana no centro</td><td colspan="2">A plataforma apoia julgamento. Nunca substitui.</td></tr>
+          <tr><td>Densidade com legibilidade</td><td colspan="2">Densidade é aceitável. Densidade sem hierarquia, não.</td></tr>
+          <tr><td>Gravidade sem sensacionalismo</td><td colspan="2">Estados críticos transmitem seriedade. Não espetáculo.</td></tr>
+          <tr><td>Consistência sem rigidez</td><td colspan="2">Os padrões existem para ser usados, não para engessar.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

@@ -12,7 +12,17 @@ mais visual.
 Os exemplos foram reconstruídos em MDX/React com tokens atuais. Os HTMLs do Open
 Design servem como referência editorial e visual, não como código importado.
 
-<div className="mt-8 grid gap-4 md:grid-cols-3">
+<div className="mt-8 grid gap-4 md:grid-cols-2">
+  <a className="rounded-xl border bg-card p-6 no-underline transition hover:border-primary" href="./html">
+    <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+      HTML original
+    </p>
+    <h2 className="mt-3 text-2xl font-bold">Experiência visual completa</h2>
+    <p className="mt-3 text-sm text-muted-foreground">
+      Navegue o pacote visual vindo do Open Design, preservado como referência estática.
+    </p>
+  </a>
+
   <a className="rounded-xl border bg-card p-6 no-underline transition hover:border-primary" href="./release-v3">
     <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
       Release
@@ -49,6 +59,6 @@ Design servem como referência editorial e visual, não como código importado.
 | Regra | Implicação |
 |-------|------------|
 | Visual é demonstração | A fonte canônica continua nas páginas MDX e em `globals.css`. |
-| Sem HTML bruto | Exemplos são reconstruídos com tokens atuais. |
+| HTML original preservado | A experiência estática do Open Design fica em `/visual/pulso-ds/`. |
 | Sem novos tokens | Esta etapa não altera `src/app/globals.css`. |
 | Sem runtime de produto | O Pulso segue como contrato visual e documental. |

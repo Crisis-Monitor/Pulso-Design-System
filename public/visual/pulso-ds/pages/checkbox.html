@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Checkbox</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* ─── Checkbox ─────────────────────────────────────────────── */
+.pcb-row { display: inline-flex; align-items: flex-start; gap: 10px; cursor: pointer; user-select: none; padding: 4px 0; }
+.pcb-row input[type="checkbox"] { position: absolute; opacity: 0; pointer-events: none; }
+
+.pcb {
+  flex-shrink: 0;
+  width: 16px; height: 16px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-xs);
+  background: var(--card);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: transparent;
+  transition:
+    background-color 140ms var(--motion-easing),
+    border-color 140ms var(--motion-easing),
+    color 140ms var(--motion-easing),
+    transform 120ms var(--motion-easing);
+  margin-top: 1px;
+}
+.pcb svg { width: 11px; height: 11px; stroke-width: 3; transform: scale(0.5); transition: transform 160ms var(--motion-easing-bounce, cubic-bezier(0.34, 1.56, 0.64, 1)); }
+
+.pcb-row:hover .pcb { border-color: var(--fg-muted); background: var(--muted); }
+
+input:focus-visible + .pcb { outline: var(--ring-width) solid var(--ring); outline-offset: var(--ring-offset); }
+
+input:checked + .pcb { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); }
+input:checked + .pcb svg { transform: scale(1); }
+
+input:indeterminate + .pcb { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); }
+input:indeterminate + .pcb::after { content: ""; width: 8px; height: 1.5px; background: currentColor; border-radius: 1px; }
+input:indeterminate + .pcb svg { display: none; }
+
+input:disabled + .pcb { background: var(--muted); border-color: var(--border); cursor: not-allowed; }
+input:disabled:checked + .pcb { background: var(--fg-disabled); border-color: var(--fg-disabled); color: var(--card); }
+input:disabled ~ .pcb-content { color: var(--fg-disabled); cursor: not-allowed; }
+
+/* Error */
+.pcb-row.is-error .pcb { border-color: var(--destructive); }
+.pcb-row.is-error input:checked + .pcb { background: var(--destructive); border-color: var(--destructive); }
+
+/* Risk variants */
+.pcb-row.risk-high input:checked + .pcb { background: var(--risk-high); border-color: var(--risk-high); }
+.pcb-row.risk-critical input:checked + .pcb { background: var(--risk-critical); border-color: var(--risk-critical); }
+
+/* Content */
+.pcb-content { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pcb-label { font-size: 13px; line-height: 1.4; color: var(--fg-strong); font-weight: 500; }
+.pcb-help { font-size: 12px; color: var(--fg-muted); line-height: 1.4; }
+
+/* Sizes */
+.pcb-sm { width: 14px; height: 14px; }
+.pcb-sm svg { width: 9px; height: 9px; }
+.pcb-lg { width: 18px; height: 18px; }
+.pcb-lg svg { width: 12px; height: 12px; }
+
+/* Group */
+.pcb-group { display: flex; flex-direction: column; gap: 6px; }
+.pcb-group-title { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); margin-bottom: 8px; }
+
+/* Card-style checkbox (more presence — inline option chooser) */
+.pcb-card {
+  display: flex; gap: 12px; padding: 14px 16px;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+  background: var(--card); cursor: pointer; user-select: none;
+  transition: border-color 140ms var(--motion-easing), background 140ms var(--motion-easing);
+}
+.pcb-card:hover { border-color: var(--fg-muted); }
+.pcb-card.is-checked { border-color: var(--primary); background: var(--primary-soft); }
+.pcb-card-body { flex: 1; min-width: 0; }
+.pcb-card-title { font-size: 13.5px; font-weight: 600; color: var(--fg-strong); }
+.pcb-card-desc { font-size: 12px; color: var(--fg-muted); margin-top: 4px; line-height: 1.5; }
+.pcb-card-meta { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Atoms · Onda 3 · Form 01</div>
+    <h1 class="page-title">Checkbox</h1>
+    <p class="page-sub">Seleção múltipla. 16px é o tamanho padrão — calibrado para densidade de listas operacionais. Estado indeterminado é obrigatório em listas hierárquicas (ex: "selecionar tudo" parcial).</p>
+
+    <section class="section">
+      <h2 class="section-h1">Estados</h2>
+      <p class="section-desc">Cinco estados base: vazio, marcado, indeterminado, desabilitado, erro. Animação sutil de scale ao marcar (160ms ease-out-back) — fornece feedback tátil.</p>
+      <div class="preview-row" style="gap: 32px;">
+        <label class="pcb-row"><input type="checkbox"><span class="pcb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M3 8.5l3 3 7-7"/></svg></span><span class="pcb-content"><span class="pcb-label">Vazio</span></span></label>
+        <label class="pcb-row"><input type="checkbox" checked><span class="pcb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M3 8.5l3 3 7-7"/></svg></span><span class="pcb-content"><span class="pcb-label">Marcado</span></span></label>
+        <label class="pcb-row"><input type="checkbox" id="cb-ind"><span class="pcb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M3 8.5l3 3 7-7"/></svg></span><span class="pcb-content"><span class="pcb-label">Indeterminado</span></span></label>
+        <label class="pcb-row"><input type="checkbox" disabled><span class="pcb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M3 8.5l3 3 7-7"/></svg></span><span class="pcb-content"><span class="pcb-label">Desabilitado</span></span></label>
+        <label class="pcb-row"><input type="checkbox" disabled checked><span class="pcb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M3 8.5l3 3 7-7"/></svg></span><span class="pcb-content"><span class="pcb-label">Disabled marcado</span></span></label>
+        <label class="pcb-row is-error"><input type="checkbox"><span class="pcb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M3 8.5l3 3 7-7"/></svg></span><span class="pcb-content"><span class="pcb-label">Erro</span></span></label>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Com descrição</h2>
+      <p class="section-desc">Use sempre que a label sozinha não for suficiente — em formulários de configuração, escolhas com consequência operacional. Padding extra entre opções para dar espaço de leitura.</p>
+      <div class="preview-row" style="display: flex; flex-direction: column; gap: 14px; align-items: flex-start;">
+        <label class="pcb-row"><input type="checkbox" checked><span class="pcb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M3 8.5l3 3 7-7"/></svg></span><span class="pcb-content"><span class="pcb-label">Notificar por e-mail em alertas críticos</span><span class="pcb-help">Envia notificação imediata quando um sinal cruzar o nível Crítico.</span></span></label>
+        <label class="pcb-row"><input type="checkbox"><span class="pcb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M3 8.5l3 3 7-7"/></svg></span><span class="pcb-content"><span class="pcb-label">Auto-clipar menções de imprensa nacional</span><span class="pcb-help">Salva automaticamente todas as menções com tier 1. Pode ser revertido em até 24h.</span></span></label>
+        <label class="pcb-row"><input type="checkbox" checked><span class="pcb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M3 8.5l3 3 7-7"/></svg></span><span class="pcb-content"><span class="pcb-label">Resumo diário às 08:00</span><span class="pcb-help">Recebe resumo executivo no início do expediente.</span></span></label>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Grupo · selecionar tudo</h2>
+      <p class="section-desc">Padrão hierárquico. Pai indeterminado quando filhos parcialmente marcados; ao marcar pai, todos filhos marcam.</p>
+      <div class="preview-row" style="display: block;">
+        <div class="pcb-group" id="cb-tree">
+          <label class="pcb-row" data-role="parent"><input type="checkbox"><span class="pcb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M3 8.5l3 3 7-7"/></svg></span><span class="pcb-content"><span class="pcb-label">Todas as fontes</span></span></label>
+          <div style="display: flex; flex-direction: column; gap: 6px; padding-left: 26px; border-left: 1px solid var(--border); margin-left: 7px;">
+            <label class="pcb-row"><input type="checkbox" data-role="child" checked><span class="pcb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M3 8.5l3 3 7-7"/></svg></span><span class="pcb-content"><span class="pcb-label">Imprensa nacional</span></span></label>
+            <label class="pcb-row"><input type="checkbox" data-role="child"><span class="pcb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M3 8.5l3 3 7-7"/></svg></span><span class="pcb-content"><span class="pcb-label">Imprensa regional</span></span></label>
+            <label class="pcb-row"><input type="checkbox" data-role="child" checked><span class="pcb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M3 8.5l3 3 7-7"/></svg></span><span class="pcb-content"><span class="pcb-label">Redes sociais</span></span></label>
+            <label class="pcb-row"><input type="checkbox" data-role="child"><span class="pcb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M3 8.5l3 3 7-7"/></svg></span><span class="pcb-content"><span class="pcb-label">Blogs e newsletters</span></span></label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Tamanhos</h2>
+      <div class="preview-row" style="gap: 24px; align-items: center;">
+        <label class="pcb-row"><input type="checkbox" checked><span class="pcb pcb-sm"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M3 8.5l3 3 7-7"/></svg></span><span class="pcb-content"><span class="pcb-label" style="font-size: 12px;">Small · 14px</span></span></label>
+        <label class="pcb-row"><input type="checkbox" checked><span class="pcb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M3 8.5l3 3 7-7"/></svg></span><span class="pcb-content"><span class="pcb-label">Default · 16px</span></span></label>
+        <label class="pcb-row"><input type="checkbox" checked><span class="pcb pcb-lg"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M3 8.5l3 3 7-7"/></svg></span><span class="pcb-content"><span class="pcb-label" style="font-size: 14px;">Large · 18px</span></span></label>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Card variant</h2>
+      <p class="section-desc">Quando a escolha tem peso operacional ou precisa competir por atenção em uma tela vazia. Não usar em listas longas — fica visualmente pesado.</p>
+      <div class="preview-row" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+        <label class="pcb-card is-checked">
+          <input type="checkbox" checked style="position: absolute; opacity: 0;">
+          <span class="pcb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="3"><path d="M3 8.5l3 3 7-7"/></svg></span>
+          <span class="pcb-card-body">
+            <span class="pcb-card-title">Modo Crise</span>
+            <span class="pcb-card-desc">Eleva todos os limiares e dispara notificação para a sala de guerra. Rotação de turno automática a cada 4h.</span>
+            <span class="pcb-card-meta">Reversível</span>
+          </span>
+        </label>
+        <label class="pcb-card">
+          <input type="checkbox" style="position: absolute; opacity: 0;">
+          <span class="pcb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="3"><path d="M3 8.5l3 3 7-7"/></svg></span>
+          <span class="pcb-card-body">
+            <span class="pcb-card-title">Auto-resposta drafts</span>
+            <span class="pcb-card-desc">Gera rascunho de resposta para menções com sentimento negativo &gt; 0.7. Sempre requer revisão humana.</span>
+            <span class="pcb-card-meta">Beta</span>
+          </span>
+        </label>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Quando usar</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Use</div>
+          <ul>
+            <li>Seleção múltipla independente em listas (até dezenas de itens)</li>
+            <li>Settings on/off de mesma família</li>
+            <li>Filtros aplicados sobre uma tabela ou feed</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Evite</div>
+          <ul>
+            <li>Para escolhas mutuamente exclusivas → use Radio</li>
+            <li>Para toggle único de configuração → use Switch</li>
+            <li>Em lista &gt; 30 opções sem busca/categorização</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+
+<script>
+// Indeterminate demo
+document.getElementById('cb-ind').indeterminate = true;
+
+// Tree behavior — selecionar tudo
+(function() {
+  const tree = document.getElementById('cb-tree');
+  if (!tree) return;
+  const parent = tree.querySelector('input[data-role="parent"]');
+  const children = [...tree.querySelectorAll('input[data-role="child"]')];
+
+  function syncParent() {
+    const checked = children.filter(c => c.checked).length;
+    parent.checked = checked === children.length;
+    parent.indeterminate = checked > 0 && checked < children.length;
+  }
+  parent.addEventListener('change', () => {
+    children.forEach(c => c.checked = parent.checked);
+  });
+  children.forEach(c => c.addEventListener('change', syncParent));
+  syncParent();
+})();
+</script>
+<script src="../_nav.js"></script>
+</body>
+</html>

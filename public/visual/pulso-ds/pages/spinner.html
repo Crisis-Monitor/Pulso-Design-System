@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Spinner</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.psp { display: inline-block; border-radius: 50%; border-style: solid; border-color: var(--border); border-top-color: var(--primary); animation: psp-rot 0.8s linear infinite; }
+.psp-xs { width: 12px; height: 12px; border-width: 1.5px; }
+.psp-sm { width: 16px; height: 16px; border-width: 2px; }
+.psp-md { width: 20px; height: 20px; border-width: 2px; }
+.psp-lg { width: 32px; height: 32px; border-width: 3px; }
+.psp-xl { width: 48px; height: 48px; border-width: 3.5px; }
+.psp-on-fg { border-color: var(--border-faint); border-top-color: var(--fg); }
+.psp-on-mute { border-color: color-mix(in oklab, var(--fg-muted) 20%, transparent); border-top-color: var(--fg-muted); }
+.psp-inverse { border-color: rgba(255,255,255,0.18); border-top-color: #fff; }
+
+@keyframes psp-rot { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* Dot variant */
+.psp-dots { display: inline-flex; gap: 4px; align-items: center; }
+.psp-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); animation: psp-bounce 1.2s var(--motion-easing) infinite; }
+.psp-dots span:nth-child(2) { animation-delay: 0.15s; }
+.psp-dots span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes psp-bounce { 0%, 80%, 100% { opacity: 0.3; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-4px); } }
+
+/* Bar variant */
+.psp-bar { display: inline-block; width: 80px; height: 2px; background: var(--border); position: relative; overflow: hidden; border-radius: 999px; }
+.psp-bar::after { content: ""; position: absolute; left: 0; top: 0; width: 30%; height: 100%; background: var(--primary); animation: psp-bar 1.4s var(--motion-easing) infinite; border-radius: 999px; }
+@keyframes psp-bar { 0% { left: -30%; } 100% { left: 100%; } }
+
+.label-row { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg-secondary); }
+.label-row.on-dark { padding: 8px 14px; background: var(--fg-strong); color: var(--background); border-radius: var(--radius-sm); }
+
+.size-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 24px; align-items: end; }
+.size-cell { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.size-cell .label { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Atoms · Onda 2 · 01</div>
+    <h1 class="page-title">Spinner</h1>
+    <p class="page-sub">Indicador de processo em curso. Use para ações curtas (1–10s). Para processos longos com progresso conhecido, use Progress.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Tamanhos</h2>
+      <p class="section-desc">Cinco tamanhos. <code>sm</code> é o default em botões e inputs; <code>md</code> em conteúdo; <code>lg</code>/<code>xl</code> em estados de carregamento de página.</p>
+      <div class="size-grid">
+        <div class="size-cell"><span class="psp psp-xs"></span><span class="label">XS · 12px</span></div>
+        <div class="size-cell"><span class="psp psp-sm"></span><span class="label">SM · 16px</span></div>
+        <div class="size-cell"><span class="psp psp-md"></span><span class="label">MD · 20px</span></div>
+        <div class="size-cell"><span class="psp psp-lg"></span><span class="label">LG · 32px</span></div>
+        <div class="size-cell"><span class="psp psp-xl"></span><span class="label">XL · 48px</span></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Variantes de cor</h2>
+      <p class="section-desc">Brand é o padrão. Use neutro para estados secundários (skeleton, lazy load); inverse sobre superfícies escuras.</p>
+      <div class="preview-row" style="gap: 32px; align-items: center;">
+        <span class="label-row"><span class="psp psp-md"></span>Brand · default</span>
+        <span class="label-row"><span class="psp psp-md psp-on-fg"></span>On-foreground</span>
+        <span class="label-row"><span class="psp psp-md psp-on-mute"></span>Muted</span>
+        <span class="label-row on-dark"><span class="psp psp-md psp-inverse"></span>Inverse</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Em contexto</h2>
+      <div class="preview-row" style="gap: 16px; align-items: center;">
+        <button style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:var(--radius-md);background:var(--primary);color:var(--primary-foreground);border:none;font-size:13px;font-weight:500;cursor:default;">
+          <span class="psp psp-sm psp-inverse"></span>Salvando…
+        </button>
+        <button style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:var(--radius-md);background:var(--card);color:var(--fg);border:1px solid var(--border-strong);font-size:13px;font-weight:500;cursor:default;">
+          <span class="psp psp-sm"></span>Carregando
+        </button>
+        <span class="label-row"><span class="psp psp-sm"></span>Atualizando feed…</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Variante · Bar</h2>
+      <p class="section-desc">Linha indeterminada. Use para top-of-page, transições de rota, e dentro de tabelas.</p>
+      <div class="preview-row" style="gap: 16px; align-items: center;">
+        <span class="psp-bar"></span>
+        <span class="label-row"><span class="psp-bar"></span>Sincronizando menções</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Variante · Dots</h2>
+      <p class="section-desc">Use só em chats/streaming (assistente Cris está digitando). Não use em loading geral — é mais decorativo.</p>
+      <div class="preview-row" style="gap: 16px; align-items: center;">
+        <span class="psp-dots"><span></span><span></span><span></span></span>
+        <span class="label-row" style="background: var(--primary-soft); padding: 8px 12px; border-radius: var(--radius-sm); color: var(--primary);">
+          <span class="psp-dots"><span></span><span></span><span></span></span>Cris está pensando
+        </span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Anatomia</h2>
+      <table class="tokens">
+        <thead><tr><th>Tamanho</th><th>Diâmetro</th><th>Border-width</th><th>Velocidade</th><th>Uso</th></tr></thead>
+        <tbody>
+          <tr><td>XS</td><td class="mono">12px</td><td class="mono">1.5px</td><td class="mono">800ms</td><td>Inline em texto pequeno</td></tr>
+          <tr><td>SM</td><td class="mono">16px</td><td class="mono">2px</td><td class="mono">800ms</td><td>Botões, inputs</td></tr>
+          <tr><td>MD</td><td class="mono">20px</td><td class="mono">2px</td><td class="mono">800ms</td><td>Default conteúdo</td></tr>
+          <tr><td>LG</td><td class="mono">32px</td><td class="mono">3px</td><td class="mono">800ms</td><td>Loading de seção</td></tr>
+          <tr><td>XL</td><td class="mono">48px</td><td class="mono">3.5px</td><td class="mono">800ms</td><td>Loading de página inteira</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><div class="rule-tag">DO</div><div>Sempre acompanhe spinners de página com texto explicativo ("Carregando menções…"). Spinner sozinho dá sensação de travamento.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Use Spinner para esperas curtas. Para &gt; 4s, considere Skeleton (preserva a estrutura) ou Progress (se progresso for conhecido).</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Em ações de botão, troque o ícone pelo spinner — não duplique. Manter mesmo tamanho evita "pulo" de layout.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use Dots fora do contexto de streaming/chat. Em loading genérico fica infantil.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use spinner XL sem mensagem. Tela cheia em branco com spinner é o pior loading possível.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não combine Spinner + Skeleton ao mesmo tempo. São estratégias mutuamente exclusivas.</div></div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

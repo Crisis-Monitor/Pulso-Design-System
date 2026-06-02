@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Template · Notifications</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.n-screen { background: var(--surface-page); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.n-frame { padding: 0; }
+.n-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); background: var(--card); padding: 0 24px; }
+.n-tab { padding: 14px 18px; font-size: 13.5px; color: var(--fg-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; font-weight: 500; }
+.n-tab.active { color: var(--fg-strong); border-bottom-color: var(--primary); }
+
+/* Preferences matrix */
+.pref-grid { display: grid; grid-template-columns: 280px repeat(3, 1fr); padding: 24px 28px; gap: 0; background: var(--background); }
+.pref-h { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); padding: 10px 14px; border-bottom: 1px solid var(--border); }
+.pref-h.row { background: var(--card); border-radius: var(--radius-sm) 0 0 0; }
+.pref-cell { padding: 14px; border-bottom: 1px solid var(--border-faint); display: flex; align-items: center; justify-content: center; }
+.pref-cell.label { justify-content: flex-start; flex-direction: column; align-items: flex-start; gap: 2px; background: var(--card); }
+.pref-cell.label .name { font-size: 13.5px; font-weight: 500; color: var(--fg-strong); }
+.pref-cell.label .desc { font-size: 12px; color: var(--fg-muted); line-height: 1.4; }
+
+/* Switch */
+.psw { position: relative; width: 36px; height: 20px; background: var(--muted); border: 1px solid var(--border-strong); border-radius: 999px; cursor: pointer; }
+.psw::after { content: ''; position: absolute; top: 1px; left: 1px; width: 14px; height: 14px; background: var(--background); border-radius: 50%; transition: transform 180ms var(--motion-easing); }
+.psw.on { background: var(--primary); border-color: var(--primary); }
+.psw.on::after { transform: translateX(16px); }
+
+/* History */
+.hist { padding: 18px 28px; background: var(--background); display: flex; flex-direction: column; gap: 0; }
+.hist-toolbar { padding: 0 0 14px 0; display: flex; gap: 10px; align-items: center; }
+.hist-search { flex: 1; height: 32px; padding: 0 12px 0 32px; background: var(--card); border: 1px solid var(--input); border-radius: var(--radius-sm); font-size: 13px; position: relative; color: var(--fg); }
+.hist-search-wrap { flex: 1; position: relative; display: flex; }
+.hist-search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--fg-subtle); }
+.hist-mark { display: inline-flex; align-items: center; height: 32px; padding: 0 12px; background: var(--card); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font-size: 12.5px; color: var(--fg); cursor: pointer; font-family: inherit; }
+
+.h-row { padding: 12px 4px; border-bottom: 1px solid var(--border-faint); display: grid; grid-template-columns: 24px 1fr 100px 80px; gap: 12px; align-items: center; transition: background 100ms ease; }
+.h-row:hover { background: var(--muted); }
+.h-row.unread { background: color-mix(in oklab, var(--primary) 4%, transparent); }
+.h-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); margin-left: 6px; }
+.h-row:not(.unread) .h-dot { background: transparent; }
+.h-content { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.h-title { font-size: 13.5px; color: var(--fg-strong); line-height: 1.45; }
+.h-title strong { font-weight: 600; }
+.h-sub { font-size: 12px; color: var(--fg-muted); line-height: 1.4; }
+.h-id { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); }
+.h-time { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); text-align: right; }
+.h-type { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; padding: 2px 6px; border-radius: var(--radius-xs); font-weight: 600; letter-spacing: 0.04em; border: 1px solid; text-align: center; min-width: 70px; }
+.t-alert { background: var(--risk-critical-bg); color: var(--risk-critical-text); border-color: var(--risk-critical-border); }
+.t-update { background: var(--risk-monitor-bg); color: var(--risk-monitor-text); border-color: var(--risk-monitor-border); }
+.t-mention { background: var(--muted); color: var(--fg-secondary); border-color: var(--border); }
+.t-system { background: color-mix(in oklab, var(--chart-3) 14%, transparent); color: var(--chart-3); border-color: color-mix(in oklab, var(--chart-3) 30%, transparent); }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Templates · Notifications · 07</div>
+    <h1 class="page-title">Notifications · preferências e histórico</h1>
+    <p class="page-sub">Operador recebe 30+ notificações por turno. Sem controle granular, vira ruído e o operador silencia tudo. Preferences = matriz canais × tipos. Histórico = log auditável da última semana.</p>
+
+    <!-- ── Preferences ───────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Preferences · matriz canal × tipo</h2>
+      <div class="n-screen">
+        <div class="n-tabs">
+          <div class="n-tab active">Preferências</div>
+          <div class="n-tab">Histórico</div>
+          <div class="n-tab">Canais conectados</div>
+        </div>
+        <div class="pref-grid">
+          <div class="pref-h row">Tipo de notificação</div>
+          <div class="pref-h">In-app</div>
+          <div class="pref-h">Email</div>
+          <div class="pref-h">Slack</div>
+
+          <div class="pref-cell label">
+            <span class="name">Alerta crítico</span>
+            <span class="desc">Threshold rompido · escalonamento sugerido</span>
+          </div>
+          <div class="pref-cell"><div class="psw on"></div></div>
+          <div class="pref-cell"><div class="psw on"></div></div>
+          <div class="pref-cell"><div class="psw on"></div></div>
+
+          <div class="pref-cell label">
+            <span class="name">Caso escalado</span>
+            <span class="desc">Quando outro operador escala para você</span>
+          </div>
+          <div class="pref-cell"><div class="psw on"></div></div>
+          <div class="pref-cell"><div class="psw on"></div></div>
+          <div class="pref-cell"><div class="psw on"></div></div>
+
+          <div class="pref-cell label">
+            <span class="name">Resposta aprovada</span>
+            <span class="desc">Cliente aprovou ou rejeitou pronunciamento</span>
+          </div>
+          <div class="pref-cell"><div class="psw on"></div></div>
+          <div class="pref-cell"><div class="psw on"></div></div>
+          <div class="pref-cell"><div class="psw"></div></div>
+
+          <div class="pref-cell label">
+            <span class="name">Nova menção T1</span>
+            <span class="desc">Folha, Globo, UOL, Estadão, BBC</span>
+          </div>
+          <div class="pref-cell"><div class="psw on"></div></div>
+          <div class="pref-cell"><div class="psw"></div></div>
+          <div class="pref-cell"><div class="psw on"></div></div>
+
+          <div class="pref-cell label">
+            <span class="name">Mudança de nível de risco</span>
+            <span class="desc">Quando caso muda de attention para high, etc</span>
+          </div>
+          <div class="pref-cell"><div class="psw on"></div></div>
+          <div class="pref-cell"><div class="psw"></div></div>
+          <div class="pref-cell"><div class="psw"></div></div>
+
+          <div class="pref-cell label">
+            <span class="name">Resumo diário · 18h</span>
+            <span class="desc">Recap do dia · 5 KPIs</span>
+          </div>
+          <div class="pref-cell"><div class="psw"></div></div>
+          <div class="pref-cell"><div class="psw on"></div></div>
+          <div class="pref-cell"><div class="psw"></div></div>
+
+          <div class="pref-cell label">
+            <span class="name">Mudanças no workspace</span>
+            <span class="desc">Novo membro · permissão alterada</span>
+          </div>
+          <div class="pref-cell"><div class="psw"></div></div>
+          <div class="pref-cell"><div class="psw on"></div></div>
+          <div class="pref-cell"><div class="psw"></div></div>
+
+          <div class="pref-cell label">
+            <span class="name">Sistema · manutenção</span>
+            <span class="desc">Janelas de manutenção · incidentes</span>
+          </div>
+          <div class="pref-cell"><div class="psw on"></div></div>
+          <div class="pref-cell"><div class="psw on"></div></div>
+          <div class="pref-cell"><div class="psw"></div></div>
+        </div>
+      </div>
+      <p class="section-desc" style="margin-top:14px;"><strong>Default sane.</strong> Alerta crítico + escalonamento + resposta aprovada vêm ON em todos os canais. Resumo diário só por email. Operador pode silenciar tudo exceto crítico (forced-on protege de erro de configuração).</p>
+    </section>
+
+    <!-- ── History ───────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Histórico · últimos 7 dias</h2>
+      <div class="n-screen">
+        <div class="n-tabs">
+          <div class="n-tab">Preferências</div>
+          <div class="n-tab active">Histórico <span style="font-family:var(--font-pulso-mono);font-size:10px;background:var(--primary);color:var(--primary-foreground);padding:1px 5px;border-radius:3px;margin-left:6px;">8</span></div>
+          <div class="n-tab">Canais conectados</div>
+        </div>
+        <div class="hist">
+          <div class="hist-toolbar">
+            <div class="hist-search-wrap">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input class="hist-search" placeholder="Buscar notificações...">
+            </div>
+            <button class="hist-mark">Marcar todas como lidas</button>
+          </div>
+
+          <div class="h-row unread">
+            <span class="h-dot"></span>
+            <div class="h-content">
+              <div class="h-title"><strong>Threshold rompido em PLS-012</strong></div>
+              <div class="h-sub">Score subiu para 67 (era 55) · velocity acelerando · sugestão de escalar para crisis-team antes das 17h.</div>
+            </div>
+            <span class="h-type t-alert">alerta</span>
+            <span class="h-time">há 4 min</span>
+          </div>
+
+          <div class="h-row unread">
+            <span class="h-dot"></span>
+            <div class="h-content">
+              <div class="h-title">Ana Lima escalou <strong>PLS-014</strong> para você</div>
+              <div class="h-sub">"Risco de cobertura cruzada com PLS-012 · revisar antes de fechar."</div>
+            </div>
+            <span class="h-type t-update">caso</span>
+            <span class="h-time">há 22 min</span>
+          </div>
+
+          <div class="h-row unread">
+            <span class="h-dot"></span>
+            <div class="h-content">
+              <div class="h-title">Cliente aprovou pronunciamento de <strong>PLS-012</strong></div>
+              <div class="h-sub">Aprovação em 14 min · publicação agendada para 16:30.</div>
+            </div>
+            <span class="h-type t-update">resposta</span>
+            <span class="h-time">há 1 h</span>
+          </div>
+
+          <div class="h-row">
+            <span class="h-dot"></span>
+            <div class="h-content">
+              <div class="h-title">Folha de S. Paulo · matéria nova em PLS-012</div>
+              <div class="h-sub">"Empresa investiga suspeita de vazamento em base de clientes" · T1 · sentimento negativo.</div>
+            </div>
+            <span class="h-type t-mention">menção</span>
+            <span class="h-time">há 2 h</span>
+          </div>
+
+          <div class="h-row">
+            <span class="h-dot"></span>
+            <div class="h-content">
+              <div class="h-title">PLS-018 mudou de <strong>attention</strong> para <strong>monitor</strong></div>
+              <div class="h-sub">Score caiu para 41 · narrativa principal desacelerou · sentimento melhorou.</div>
+            </div>
+            <span class="h-type t-update">caso</span>
+            <span class="h-time">há 5 h</span>
+          </div>
+
+          <div class="h-row">
+            <span class="h-dot"></span>
+            <div class="h-content">
+              <div class="h-title">Resumo diário · 17 mai</div>
+              <div class="h-sub">2 casos abertos · 4 alertas disparados · SLA médio 2h 14m · sentimento −0,12.</div>
+            </div>
+            <span class="h-type t-system">sistema</span>
+            <span class="h-time">ontem · 18:00</span>
+          </div>
+
+          <div class="h-row">
+            <span class="h-dot"></span>
+            <div class="h-content">
+              <div class="h-title">Rodrigo Melo entrou no workspace</div>
+              <div class="h-sub">Papel: operador · convite enviado em 15 mai.</div>
+            </div>
+            <span class="h-type t-system">sistema</span>
+            <span class="h-time">14 mai</span>
+          </div>
+
+          <div class="h-row">
+            <span class="h-dot"></span>
+            <div class="h-content">
+              <div class="h-title">Manutenção concluída · pulso-ai-v3 disponível</div>
+              <div class="h-sub">Pulso IA agora inclui análise de velocity (3.4 · charts). Sem downtime.</div>
+            </div>
+            <span class="h-type t-system">sistema</span>
+            <span class="h-time">12 mai</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Composição ──────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Composição</h2>
+      <table class="tokens">
+        <thead><tr><th>Elemento</th><th>Componente</th><th>Spec</th></tr></thead>
+        <tbody>
+          <tr><td>Matriz preferences</td><td class="mono">Grid 4-col</td><td>1ª col label + descrição · 3 cols de canal · switch único por célula</td></tr>
+          <tr><td>Switch</td><td class="mono">Switch atom</td><td>Tamanho compact · transição 180ms</td></tr>
+          <tr><td>Tipo (badge)</td><td class="mono">Badge</td><td>4 tipos: alerta (critical) · caso (monitor) · menção (neutral) · sistema (chart-3)</td></tr>
+          <tr><td>Unread state</td><td>—</td><td>Background <code>chart-1</code> 4% + dot 8px ao lado esquerdo</td></tr>
+          <tr><td>Toolbar</td><td class="mono">FilterBar inline</td><td>Search + "Marcar todas como lidas" único · sem ações destrutivas no batch</td></tr>
+          <tr><td>Forced-on</td><td>—</td><td>Alerta crítico não pode ser desligado · switch fica visualmente fixo + tooltip explica</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Edge cases ─────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Edge cases</h2>
+      <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:10px;">
+        <li style="font-size:13px;color:var(--fg);line-height:1.55;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);"><strong style="color:var(--fg-strong);">Slack desconectado</strong> · coluna fica disabled + banner "Canal Slack desconectado · reconectar em <code style="font-family:var(--font-pulso-mono);background:var(--muted);padding:1px 5px;border-radius:3px;font-size:11.5px;">Canais conectados</code>".</li>
+        <li style="font-size:13px;color:var(--fg);line-height:1.55;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);"><strong style="color:var(--fg-strong);">Operador silencia "alerta crítico"</strong> · ação proibida (silenciar critical é incompatível com plantão) · switch desativa "tente silenciar" com explicação inline.</li>
+        <li style="font-size:13px;color:var(--fg);line-height:1.55;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);"><strong style="color:var(--fg-strong);">Modo "Não perturbe"</strong> · fora do turno, silencia tudo exceto crítico · janelas configuráveis em Settings · sempre auditado.</li>
+        <li style="font-size:13px;color:var(--fg);line-height:1.55;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);"><strong style="color:var(--fg-strong);">&gt; 30 dias de histórico</strong> · paginação por data · arquivo movido para audit log após 90 dias.</li>
+      </ul>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

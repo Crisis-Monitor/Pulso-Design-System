@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Audit Trail · Ação Assistida</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.cris-mark { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; flex-shrink: 0; }
+.cris-mark svg { width: 100%; height: 100%; }
+
+/* ── Filtro tabela audit ─────────────── */
+.audit-pane { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.audit-toolbar {
+  padding: 14px 20px; border-bottom: 1px solid var(--border-faint);
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  background: var(--surface-2);
+}
+.audit-toolbar .chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 600;
+  padding: 5px 10px; border-radius: var(--radius-xs);
+  background: var(--card); border: 1px solid var(--border); color: var(--fg-secondary);
+  letter-spacing: 0.04em;
+}
+.audit-toolbar .chip.active {
+  background: color-mix(in oklab, var(--primary) 10%, var(--card));
+  border-color: var(--primary-border); color: var(--primary);
+}
+.audit-toolbar .chip .count { color: var(--fg-strong); }
+.audit-toolbar .right { margin-left: auto; font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); }
+.audit-toolbar .right strong { color: var(--fg-strong); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.audit-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.audit-tbl thead th {
+  font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--fg-subtle); font-weight: 700; text-align: left;
+  padding: 12px 14px; border-bottom: 1px solid var(--border);
+  background: var(--surface-2); position: sticky; top: 0;
+}
+.audit-tbl tbody td { padding: 14px 14px; border-bottom: 1px solid var(--border-faint); vertical-align: top; }
+.audit-tbl tbody tr:hover { background: color-mix(in oklab, var(--primary) 3%, transparent); }
+.audit-tbl tbody tr.assisted { background: color-mix(in oklab, var(--primary) 2%, transparent); }
+.audit-tbl tbody tr.assisted:hover { background: color-mix(in oklab, var(--primary) 5%, transparent); }
+
+.audit-tbl .ts { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); white-space: nowrap; line-height: 1.55; }
+.audit-tbl .ts .date { color: var(--fg-subtle); }
+.audit-tbl .actor {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12.5px; color: var(--fg); font-weight: 500;
+}
+.audit-tbl .actor .a-av {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: color-mix(in oklab, var(--primary) 18%, transparent);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--font-pulso-mono); font-size: 9px; font-weight: 700; color: var(--primary);
+}
+.audit-tbl .with-cris {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-left: 6px;
+  padding: 1px 6px; border-radius: 3px;
+  background: color-mix(in oklab, var(--primary) 10%, transparent);
+  border: 1px solid var(--primary-border);
+  font-family: var(--font-pulso-mono); font-size: 9.5px; font-weight: 700;
+  color: var(--primary); letter-spacing: 0.06em; text-transform: uppercase;
+}
+.audit-tbl .action-cell { font-size: 13px; color: var(--fg); line-height: 1.5; }
+.audit-tbl .action-cell strong { color: var(--fg-strong); font-weight: 600; }
+.audit-tbl .action-cell .sub { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); letter-spacing: 0.04em; margin-top: 2px; display: block; }
+.audit-tbl .case-cell {
+  font-family: var(--font-pulso-mono); font-size: 11.5px; color: var(--fg-strong);
+  font-weight: 600;
+}
+
+.outcome-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--font-pulso-mono); font-size: 10px; font-weight: 700;
+  padding: 3px 8px; border-radius: 3px; letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.outcome-pill.accept   { background: color-mix(in oklab, var(--success) 14%, transparent); color: var(--success); }
+.outcome-pill.modify   { background: color-mix(in oklab, var(--primary) 14%, transparent); color: var(--primary); }
+.outcome-pill.reject   { background: color-mix(in oklab, var(--destructive) 14%, transparent); color: var(--destructive); }
+.outcome-pill.dismiss  { background: color-mix(in oklab, var(--fg-subtle) 18%, transparent); color: var(--fg-secondary); }
+.outcome-pill.exec     { background: color-mix(in oklab, var(--fg-subtle) 14%, transparent); color: var(--fg-secondary); }
+
+.audit-tbl .drill {
+  font-family: var(--font-pulso-mono); font-size: 11px; color: var(--primary);
+  font-weight: 600; cursor: default; white-space: nowrap;
+}
+
+/* ── Drilldown panel ─────────────── */
+.drill-pane {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.drill-head {
+  padding: 18px 26px; border-bottom: 1px solid var(--border-faint);
+  display: flex; gap: 16px; align-items: center; flex-wrap: wrap;
+  background: var(--surface-2);
+}
+.drill-head .id {
+  font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 600;
+  padding: 4px 9px; border-radius: var(--radius-xs);
+  background: var(--card); border: 1px solid var(--border); color: var(--fg);
+  letter-spacing: 0.04em;
+}
+.drill-head h4 { font-size: 16px; font-weight: 700; color: var(--fg-strong); letter-spacing: -0.005em; flex: 1; min-width: 200px; }
+.drill-head .meta { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); letter-spacing: 0.04em; }
+
+.drill-body { padding: 24px 28px; display: grid; grid-template-columns: 240px 1fr; gap: 32px; }
+@media (max-width: 880px) { .drill-body { grid-template-columns: 1fr; } }
+
+.drill-meta-list { display: flex; flex-direction: column; gap: 14px; }
+.drill-meta-row .k { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 600; margin-bottom: 4px; }
+.drill-meta-row .v { font-size: 13px; color: var(--fg-strong); line-height: 1.5; }
+.drill-meta-row .v code { font-family: var(--font-pulso-mono); font-size: 11.5px; background: var(--surface-2); padding: 1px 5px; border-radius: 3px; }
+
+.drill-diff h5 {
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--primary); font-weight: 700; margin-bottom: 12px;
+}
+.diff-block {
+  background: var(--surface-2); border: 1px solid var(--border-faint);
+  border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 10px;
+}
+.diff-block .label { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); margin-bottom: 6px; font-weight: 600; }
+.diff-block .row { display: grid; grid-template-columns: 70px 1fr; gap: 12px; padding: 4px 0; align-items: baseline; }
+.diff-block .row .slot { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); font-weight: 600; }
+.diff-block .row .val { font-size: 12.5px; }
+.diff-block .row .val.orig { color: var(--fg-muted); text-decoration: line-through; text-decoration-color: var(--destructive); text-decoration-thickness: 1px; }
+.diff-block .row .val.new { color: var(--fg-strong); font-weight: 500; background: color-mix(in oklab, var(--success) 14%, transparent); padding: 2px 6px; border-radius: 3px; display: inline-block; }
+.diff-block .row .val.kept { color: var(--fg); }
+
+.drill-evidence { margin-top: 16px; }
+.drill-evidence h6 { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); margin-bottom: 8px; font-weight: 700; }
+.drill-evidence ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.drill-evidence li { font-size: 12px; color: var(--fg); line-height: 1.55; padding: 4px 0 4px 18px; position: relative; }
+.drill-evidence li::before { content: '▣'; position: absolute; left: 0; color: var(--primary); font-size: 10px; top: 5px; }
+.drill-evidence li .ts { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); margin-left: 6px; }
+
+/* ── Schema ─────────────── */
+.schema { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.schema-head { padding: 16px 22px; background: var(--surface-2); border-bottom: 1px solid var(--border-faint); display: flex; gap: 12px; align-items: center; }
+.schema-head .kicker { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); font-weight: 700; }
+.schema-head .name { font-size: 14px; font-weight: 600; color: var(--fg-strong); }
+.schema-body { padding: 18px 22px 22px; }
+.schema-body pre { font-family: var(--font-pulso-mono); font-size: 12px; line-height: 1.7; color: var(--fg); margin: 0; white-space: pre; overflow-x: auto; }
+.schema-body .k { color: var(--primary); }
+.schema-body .s { color: var(--success); }
+.schema-body .n { color: var(--risk-attention-text); }
+.schema-body .c { color: var(--fg-subtle); font-style: italic; }
+
+/* ── Retention ─────────────── */
+.ret-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+.ret-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md);
+  padding: 18px 20px;
+}
+.ret-card .h { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 700; margin-bottom: 6px; }
+.ret-card .v {
+  font-family: var(--font-pulso-mono); font-size: 24px; font-weight: 700;
+  color: var(--fg-strong); letter-spacing: -0.01em; line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.ret-card .sub { font-size: 12px; color: var(--fg-muted); margin-top: 6px; line-height: 1.5; }
+.ret-card.crit { border-left: 3px solid var(--primary); }
+
+/* ── Don't / Do ─────────────── */
+.rules { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .rules { grid-template-columns: 1fr; } }
+.rule { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 22px; }
+.rule.do { border-left: 3px solid var(--success); }
+.rule.dont { border-left: 3px solid var(--destructive); }
+.rule .tag { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 8px; }
+.rule.do .tag { color: var(--success); }
+.rule.dont .tag { color: var(--destructive); }
+.rule p { font-size: 13px; color: var(--fg); line-height: 1.55; }
+.rule .note { padding-top: 10px; margin-top: 10px; border-top: 1px solid var(--border-faint); font-size: 12px; color: var(--fg-muted); line-height: 1.55; }
+.rule code { font-family: var(--font-pulso-mono); font-size: 11px; background: var(--surface-2); padding: 1px 5px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Patterns · AI · v3 · β.5 · entregue</div>
+    <h1 class="page-title">Audit trail · ação assistida</h1>
+    <p class="page-sub">Cada decisão tomada com assistência da Cris precisa ficar rastreável · quem decidiu, qual versão da Cris assistiu, qual sugestão original foi aceita ou modificada. β.5 estende o Audit Log template (v2 · 4.1) com eventos <code style="font-family:var(--font-pulso-mono);font-size:13px;background:var(--surface-2);padding:1px 6px;border-radius:3px;">assisted_action</code> · diff slot-by-slot, drill-down completo, política de retenção 12+ meses para ação crítica.</p>
+
+    <!-- Princípio -->
+    <section class="section">
+      <h2 class="section-h1">Princípio · auditável por construção</h2>
+      <p class="section-desc">Compliance pede. Produto agradece. Operador fica protegido. β.5 fecha a tríade · cada ação tomada com a Cris carrega assinatura técnica completa, diff vs proposta original e link cruzado com o caso. Não é log paralelo · é extensão do mesmo audit log que registra ação humana pura.</p>
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 26px;">
+        <p style="font-size:15px;color:var(--fg-strong);line-height:1.65;max-width:780px;">A unidade canônica é o evento <strong>assisted_action</strong> · cinco campos obrigatórios (ator, kind, cris_ref, outcome, audit_id) · imutável depois de gravado · indexado por caso e por operador.</p>
+      </div>
+    </section>
+
+    <!-- Audit log table -->
+    <section class="section">
+      <h2 class="section-h1">Audit Log · linha com tag assistida</h2>
+      <p class="section-desc">Linha do log assistida ganha · marcação <strong>com Cris</strong>, diff inline e link para drill-down. Filtros do topo permitem isolar só ação assistida ou comparar por outcome.</p>
+
+      <div class="audit-pane">
+        <div class="audit-toolbar">
+          <span class="chip active">Tudo <span class="count">2.847</span></span>
+          <span class="chip">Com Cris <span class="count">412</span></span>
+          <span class="chip">Aceita</span>
+          <span class="chip">Modificada</span>
+          <span class="chip">Rejeitada</span>
+          <span class="right">CASO 248 · últimas <strong>24h</strong></span>
+        </div>
+
+        <table class="audit-tbl">
+          <thead>
+            <tr>
+              <th style="width:130px;">Timestamp</th>
+              <th style="width:180px;">Ator</th>
+              <th>Ação</th>
+              <th style="width:110px;">Caso</th>
+              <th style="width:140px;">Outcome</th>
+              <th style="width:80px;text-align:right;"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="assisted">
+              <td class="ts"><span class="date">21 mai</span><br>11:48:11</td>
+              <td><span class="actor"><span class="a-av">OP</span>op_42<span class="with-cris"><span class="cris-mark" style="width:9px;height:9px;"><svg viewBox="0 0 14 14"><path d="M3 7 Q3 3 7 3 Q11 3 11 7" stroke="var(--primary)" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="7" cy="7" r="1.4" fill="var(--primary)"/><path d="M3 11 H11" stroke="var(--primary)" stroke-width="1.8" stroke-linecap="round"/></svg></span>+Cris</span></span></td>
+              <td class="action-cell">
+                <strong>Dispatch nível 2 enviado</strong>
+                <span class="sub">recomendação aceita · 1 slot alterado · veículo: email_inst → slack_t2</span>
+              </td>
+              <td class="case-cell">CASO 248</td>
+              <td><span class="outcome-pill modify">↻ Modificada</span></td>
+              <td><span class="drill">drill →</span></td>
+            </tr>
+
+            <tr class="assisted">
+              <td class="ts"><span class="date">21 mai</span><br>11:47:32</td>
+              <td><span class="actor"><span class="a-av">OP</span>op_42<span class="with-cris"><span class="cris-mark" style="width:9px;height:9px;"><svg viewBox="0 0 14 14"><path d="M3 7 Q3 3 7 3 Q11 3 11 7" stroke="var(--primary)" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="7" cy="7" r="1.4" fill="var(--primary)"/><path d="M3 11 H11" stroke="var(--primary)" stroke-width="1.8" stroke-linecap="round"/></svg></span>+Cris</span></span></td>
+              <td class="action-cell">
+                <strong>Nota institucional v3 publicada</strong>
+                <span class="sub">draft com Cris · 3 versões · regen com "mais firme + sem jurídico"</span>
+              </td>
+              <td class="case-cell">CASO 248</td>
+              <td><span class="outcome-pill accept">✓ Aceita</span></td>
+              <td><span class="drill">drill →</span></td>
+            </tr>
+
+            <tr class="assisted">
+              <td class="ts"><span class="date">21 mai</span><br>11:46:02</td>
+              <td><span class="actor"><span class="a-av">OP</span>op_42<span class="with-cris"><span class="cris-mark" style="width:9px;height:9px;"><svg viewBox="0 0 14 14"><path d="M3 7 Q3 3 7 3 Q11 3 11 7" stroke="var(--primary)" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="7" cy="7" r="1.4" fill="var(--primary)"/><path d="M3 11 H11" stroke="var(--primary)" stroke-width="1.8" stroke-linecap="round"/></svg></span>+Cris</span></span></td>
+              <td class="action-cell">
+                <strong>Tier elevado para atenção</strong>
+                <span class="sub">recomendação Cris · confidence decisive (0.91) · 7 evidências</span>
+              </td>
+              <td class="case-cell">CASO 248</td>
+              <td><span class="outcome-pill accept">✓ Aceita</span></td>
+              <td><span class="drill">drill →</span></td>
+            </tr>
+
+            <tr>
+              <td class="ts"><span class="date">21 mai</span><br>11:43:18</td>
+              <td><span class="actor"><span class="a-av">OP</span>op_42</span></td>
+              <td class="action-cell">
+                <strong>Caso aberto manualmente</strong>
+                <span class="sub">monitor manual · sem assistência</span>
+              </td>
+              <td class="case-cell">CASO 248</td>
+              <td><span class="outcome-pill exec">— executada</span></td>
+              <td><span class="drill">drill →</span></td>
+            </tr>
+
+            <tr class="assisted">
+              <td class="ts"><span class="date">20 mai</span><br>22:14:50</td>
+              <td><span class="actor"><span class="a-av">OP</span>op_19<span class="with-cris"><span class="cris-mark" style="width:9px;height:9px;"><svg viewBox="0 0 14 14"><path d="M3 7 Q3 3 7 3 Q11 3 11 7" stroke="var(--primary)" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="7" cy="7" r="1.4" fill="var(--primary)"/><path d="M3 11 H11" stroke="var(--primary)" stroke-width="1.8" stroke-linecap="round"/></svg></span>+Cris</span></span></td>
+              <td class="action-cell">
+                <strong>Recomendação rejeitada · contexto local</strong>
+                <span class="sub">justificativa · "fonte primária ainda não confirmada"</span>
+              </td>
+              <td class="case-cell">CASO 247</td>
+              <td><span class="outcome-pill reject">× Rejeitada</span></td>
+              <td><span class="drill">drill →</span></td>
+            </tr>
+
+            <tr class="assisted">
+              <td class="ts"><span class="date">20 mai</span><br>18:02:11</td>
+              <td><span class="actor"><span class="a-av">OP</span>op_07<span class="with-cris"><span class="cris-mark" style="width:9px;height:9px;"><svg viewBox="0 0 14 14"><path d="M3 7 Q3 3 7 3 Q11 3 11 7" stroke="var(--primary)" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="7" cy="7" r="1.4" fill="var(--primary)"/><path d="M3 11 H11" stroke="var(--primary)" stroke-width="1.8" stroke-linecap="round"/></svg></span>+Cris</span></span></td>
+              <td class="action-cell">
+                <strong>Sugestão dispensada</strong>
+                <span class="sub">Cris observação · cluster X · baixa confiança</span>
+              </td>
+              <td class="case-cell">CASO 246</td>
+              <td><span class="outcome-pill dismiss">– Dispensada</span></td>
+              <td><span class="drill">drill →</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Drilldown -->
+    <section class="section">
+      <h2 class="section-h1">Drill-down · um evento por completo</h2>
+      <p class="section-desc">Clique em "drill" abre o evento na íntegra · metadados técnicos à esquerda, diff slot-by-slot à direita. Tudo o que aparece foi gravado no momento da decisão · nada é re-derivado depois.</p>
+
+      <div class="drill-pane">
+        <div class="drill-head">
+          <span class="id">audit_id · 248-r-9a4f</span>
+          <h4>Dispatch nível 2 · CASO 248 · modificada</h4>
+          <span class="meta">21 mai 2026 · 11:48:11 UTC</span>
+        </div>
+
+        <div class="drill-body">
+          <div class="drill-meta-list">
+            <div class="drill-meta-row">
+              <div class="k">Operador</div>
+              <div class="v">op_42 · Diana M.</div>
+            </div>
+            <div class="drill-meta-row">
+              <div class="k">Recomendação</div>
+              <div class="v"><code>cris-9 · decisive (0.91)</code></div>
+            </div>
+            <div class="drill-meta-row">
+              <div class="k">Prompt version</div>
+              <div class="v"><code>recommend-tier/3.1.2</code></div>
+            </div>
+            <div class="drill-meta-row">
+              <div class="k">Outcome</div>
+              <div class="v">Modificada · 1 slot alterado</div>
+            </div>
+            <div class="drill-meta-row">
+              <div class="k">Tempo de decisão</div>
+              <div class="v">2 min 09s desde a apresentação</div>
+            </div>
+            <div class="drill-meta-row">
+              <div class="k">Retenção</div>
+              <div class="v"><strong style="color:var(--primary);">24 meses</strong> · classe crítica</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="drill-diff">
+              <h5>Diff slot-by-slot</h5>
+              <div class="diff-block">
+                <div class="label">Slot · veículo · alterado</div>
+                <div class="row">
+                  <span class="slot">original</span>
+                  <span class="val orig">email_inst (Email institucional)</span>
+                </div>
+                <div class="row">
+                  <span class="slot">executado</span>
+                  <span class="val new">slack_t2 (#crisis-tier2)</span>
+                </div>
+              </div>
+              <div class="diff-block">
+                <div class="label">Slots mantidos · 3</div>
+                <div class="row"><span class="slot">destinatário</span><span class="val kept">comms_team · 4 on-call</span></div>
+                <div class="row"><span class="slot">timing</span><span class="val kept">imediato</span></div>
+                <div class="row"><span class="slot">tom</span><span class="val kept">firm_no_legal</span></div>
+              </div>
+            </div>
+
+            <div class="drill-evidence">
+              <h6>Evidências consideradas · 7</h6>
+              <ul>
+                <li>Inflexão de menções · +62% em 4h <span class="ts">· 11:42–11:46</span></li>
+                <li>14 contas verificadas amplificam <span class="ts">· 11:43–11:46</span></li>
+                <li>Assinatura cluster X em 9/14 amplificadores <span class="ts">· 11:45</span></li>
+                <li>Paralelo CASO 218 · cluster X · escala em 6h <span class="ts">· ref. 18 abr</span></li>
+                <li>Sentimento médio cai de 0.32 para −0.41 <span class="ts">· 11:44</span></li>
+                <li>2 jornalistas tier 1 mencionam o caso <span class="ts">· 11:45</span></li>
+                <li>Pico de buscas externas relacionadas <span class="ts">· 11:46</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Schema -->
+    <section class="section">
+      <h2 class="section-h1">Schema · assisted_action</h2>
+      <p class="section-desc">Novo tipo de evento no audit log. Compatível com schema existente · adiciona campo <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">cris_ref</code> apontando para a recomendação que o gerou. Imutável após gravação.</p>
+
+      <div class="schema">
+        <div class="schema-head">
+          <span class="kicker">SCHEMA · audit-event</span>
+          <span class="name">v2 · estende v1 com kind: "assisted_action"</span>
+        </div>
+        <div class="schema-body">
+<pre>{
+  <span class="k">"audit_id"</span>: <span class="s">"248-r-9a4f"</span>,
+  <span class="k">"kind"</span>: <span class="s">"assisted_action"</span>,        <span class="c">// novo · v1 já tinha manual_action, system_event</span>
+  <span class="k">"executed_at"</span>: <span class="s">"2026-05-21T11:48:11Z"</span>,
+  <span class="k">"actor"</span>: {
+    <span class="k">"type"</span>: <span class="s">"operator"</span>,
+    <span class="k">"id"</span>:   <span class="s">"op_42"</span>,
+    <span class="k">"name"</span>: <span class="s">"Diana M."</span>
+  },
+  <span class="k">"case_id"</span>: <span class="s">"case_248"</span>,
+  <span class="k">"action"</span>: {
+    <span class="k">"name"</span>: <span class="s">"dispatch_tier2"</span>,
+    <span class="k">"slots"</span>: {
+      <span class="k">"vehicle"</span>:   <span class="s">"slack_t2"</span>,
+      <span class="k">"recipient"</span>: <span class="s">"comms_team"</span>,
+      <span class="k">"timing"</span>:    <span class="s">"now"</span>,
+      <span class="k">"tone"</span>:      <span class="s">"firm_no_legal"</span>
+    }
+  },
+  <span class="k">"cris_ref"</span>: {                       <span class="c">// presente apenas em assisted_action</span>
+    <span class="k">"recommendation_id"</span>: <span class="s">"rec_248_r9a4f"</span>,
+    <span class="k">"model"</span>:           <span class="s">"cris-9"</span>,
+    <span class="k">"prompt_version"</span>:  <span class="s">"recommend-tier/3.1.2"</span>,
+    <span class="k">"confidence"</span>:      { <span class="k">"score"</span>: <span class="n">0.91</span>, <span class="k">"label"</span>: <span class="s">"decisive"</span> },
+    <span class="k">"slots_suggested"</span>: {
+      <span class="k">"vehicle"</span>:   <span class="s">"email_inst"</span>,
+      <span class="k">"recipient"</span>: <span class="s">"comms_team"</span>,
+      <span class="k">"timing"</span>:    <span class="s">"now"</span>,
+      <span class="k">"tone"</span>:      <span class="s">"firm_no_legal"</span>
+    },
+    <span class="k">"slots_changed"</span>: [<span class="s">"vehicle"</span>],
+    <span class="k">"outcome"</span>:        <span class="s">"modified"</span>,    <span class="c">// accepted | modified | rejected | dismissed</span>
+    <span class="k">"reject_reason"</span>:  <span class="s">null</span>,
+    <span class="k">"sources_count"</span>:  <span class="n">7</span>,
+    <span class="k">"decision_latency_ms"</span>: <span class="n">129000</span>
+  },
+  <span class="k">"retention_class"</span>: <span class="s">"critical"</span>,     <span class="c">// critical (24mo) | standard (12mo) | low (3mo)</span>
+  <span class="k">"immutable"</span>: <span class="n">true</span>
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Retention -->
+    <section class="section">
+      <h2 class="section-h1">Política de retenção</h2>
+      <p class="section-desc">Três classes · definidas pela criticidade da ação, não pelo outcome. Rejeitar decisivo retém 24 meses · dispensar baixa retém 3 meses.</p>
+
+      <div class="ret-grid">
+        <div class="ret-card crit">
+          <div class="h">Crítica</div>
+          <div class="v">24 meses</div>
+          <div class="sub">Toda ação assistida sobre caso tier <strong>atenção+</strong> · toda rejeição de recomendação decisiva · toda comunicação externa originada com Cris.</div>
+        </div>
+        <div class="ret-card">
+          <div class="h">Padrão</div>
+          <div class="v">12 meses</div>
+          <div class="sub">Demais ações assistidas · drafts, sugestões aceitas em casos não-críticos, modificações sem comunicação externa.</div>
+        </div>
+        <div class="ret-card">
+          <div class="h">Leve</div>
+          <div class="v">3 meses</div>
+          <div class="sub">Dispensas de observação · turnos do Sheet em modo exploratório · ações no Ambient (β.3 formato 04).</div>
+        </div>
+        <div class="ret-card">
+          <div class="h">Sem retenção</div>
+          <div class="v">0</div>
+          <div class="sub">Hover/preview de proveniência · não gera evento.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Don't / Do -->
+    <section class="section">
+      <h2 class="section-h1">Don't / Do</h2>
+      <p class="section-desc">Erros típicos em audit trail de IA.</p>
+
+      <div class="rules">
+        <div class="rule dont">
+          <div class="tag">✕ Não criar log paralelo</div>
+          <p>"Audit log de Cris" separado do "audit log humano" fragmenta investigação. Eventos assistidos são <em>extensão</em> · mesmo log, mesmo schema, campo <code>cris_ref</code> adicional.</p>
+          <div class="note">Investigador deve filtrar com chip "Com Cris", não trocar de tela.</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Diff por slot, não por texto livre</div>
+          <p>"Operador mudou o texto" é inauditável. "Operador trocou slot <code>vehicle</code> de <code>email_inst</code> para <code>slack_t2</code>" é instantaneamente diff-ável.</p>
+          <div class="note">Combina com a aceitação parcial da β.4 · slots são unidade de decisão e unidade de auditoria.</div>
+        </div>
+
+        <div class="rule dont">
+          <div class="tag">✕ Não armazenar prompt completo</div>
+          <p>Prompt como texto livre é vetor de PII e de drift. Use versão nomeada (<code>recommend-tier/3.1.2</code>) · o texto vive no repositório de prompts versionado.</p>
+          <div class="note">Reprodução exige só recuperar o prompt por versão · prompts são gerenciados como código.</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Justificativa textual em rejeição decisiva</div>
+          <p>Único caso em que texto livre é obrigatório · proteção do operador. "Por que rejeitou recomendação decisiva?" exige resposta · sem texto, ação não confirma.</p>
+          <div class="note">Texto é livre · mas é monitorado por busca para identificar padrões de falha do modelo.</div>
+        </div>
+
+        <div class="rule dont">
+          <div class="tag">✕ Não permitir edição de evento</div>
+          <p>Evento é imutável após gravação. Erro só corrige com novo evento <code>correction</code> apontando para o original. Trilha de auditoria continua íntegra.</p>
+          <div class="note">Compliance regulatório exige imutabilidade · UI nem oferece "editar".</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Indexar por caso e por operador</div>
+          <p>Dois drill-downs canônicos · "todas as decisões da Cris no CASO 248" e "todas as ações do op_42 nas últimas 90d". Ambos &lt; 500ms.</p>
+          <div class="note">Investigação interna e externa começa de um destes dois ângulos. Otimizar para isso é compliance produto.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dependencies -->
+    <section class="section">
+      <h2 class="section-h1">Dependências</h2>
+      <p class="section-desc">Como β.5 fecha a Fase β.</p>
+
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 26px;">
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">β.1</span> &nbsp;<a href="ai-origin-tracking.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Origin tracking</a> · <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">audit_id</code> emitido em β.1 é o mesmo do evento β.5. Popover linka direto pro drill-down.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">β.2</span> &nbsp;<a href="ai-draft-regenerate.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Draft &amp; regenerate</a> · <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">version_chain</code> + restrições aparecem como sub-eventos do <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">assisted_action</code> de publicação.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">β.3</span> &nbsp;<a href="ai-embedding.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Embedding</a> · abertura de balão modal (formato 03) é evento auditável mesmo sem ação · expõe o que a Cris ofereceu sob pressão.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">β.4</span> &nbsp;<a href="ai-recommendation.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Recommendation</a> · <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">outcome</code> e <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">slots_changed</code> entram inteiros no <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">cris_ref</code> do evento.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">4.1</span> &nbsp;<a href="tpl-audit-log.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Audit Log template</a> · ganha filtros "Com Cris" e por outcome · sem nova rota, sem nova tela.</li>
+        </ul>
+      </div>
+    </section>
+
+    <div style="height:96px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

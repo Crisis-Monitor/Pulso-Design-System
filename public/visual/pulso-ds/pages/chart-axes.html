@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Chart Axes & Auxiliaries</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.demo-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; }
+.demo-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.demo-name { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); font-weight: 600; }
+.demo-title { font-size: 15px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; margin-top: 2px; }
+.demo-meta { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); }
+.demo-svg { width: 100%; display: block; }
+.demo-note { font-size: 12.5px; color: var(--fg-muted); line-height: 1.55; padding-top: 12px; border-top: 1px solid var(--border-faint); }
+.demo-note code { font-family: var(--font-pulso-mono); font-size: 11.5px; background: var(--muted); padding: 1px 5px; border-radius: 3px; }
+
+/* Tooltip floating demo */
+.tt-anchor { position: relative; display: inline-block; }
+.tt { background: var(--surface-inverse, #1A1530); color: #F5F4FA; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 12px; min-width: 180px; box-shadow: var(--shadow-lg); border: 1px solid rgba(255,255,255,0.08); }
+.tt-header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 6px; }
+.tt-when { font-family: var(--font-pulso-mono); font-size: 10.5px; color: rgba(255,255,255,0.55); }
+.tt-meta { font-family: var(--font-pulso-mono); font-size: 10.5px; color: rgba(255,255,255,0.55); }
+.tt-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 12px; }
+.tt-row .name { display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.85); }
+.tt-row .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.tt-row .val { font-family: var(--font-pulso-mono); color: #F5F4FA; font-variant-numeric: tabular-nums; font-weight: 600; }
+.tt-arrow { position: absolute; width: 10px; height: 10px; background: var(--surface-inverse, #1A1530); transform: rotate(45deg); border-right: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.08); }
+
+/* Spec rows */
+.spec-row { display: grid; grid-template-columns: 180px 1fr; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--border-faint); align-items: baseline; }
+.spec-row:last-child { border-bottom: none; }
+.spec-key { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.06em; }
+.spec-val { font-size: 13px; color: var(--fg); line-height: 1.55; }
+.spec-val code { font-family: var(--font-pulso-mono); background: var(--muted); padding: 1px 6px; border-radius: 3px; font-size: 11.5px; }
+
+/* Legend positions */
+.lp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 900px) { .lp-grid { grid-template-columns: 1fr; } }
+.lp-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; }
+.lp-tag { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); margin-bottom: 8px; font-weight: 600; }
+.lp-frame { position: relative; background: var(--surface-2); border-radius: var(--radius-sm); height: 140px; padding: 12px; display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--border-faint); }
+.lp-chart-bg { flex: 1; background: var(--card); border-radius: var(--radius-xs); position: relative; overflow: hidden; }
+.lp-chart-bg svg { width: 100%; height: 100%; display: block; }
+.lp-legend-mini { display: flex; gap: 10px; font-family: var(--font-pulso-mono); font-size: 9.5px; color: var(--fg-secondary); flex-wrap: wrap; }
+.lp-legend-mini .item { display: inline-flex; align-items: center; gap: 4px; }
+.lp-legend-mini .dot { width: 7px; height: 7px; border-radius: 50%; }
+.lp-row { display: flex; gap: 8px; flex: 1; }
+.lp-rail { width: 60px; display: flex; flex-direction: column; gap: 6px; }
+.lp-right .lp-rail { padding-top: 4px; }
+.lp-right .lp-rail .item { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-pulso-mono); font-size: 9.5px; color: var(--fg-secondary); }
+.lp-right .lp-rail .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+
+    <div class="page-kicker">Components · Charts · 03</div>
+    <h1 class="page-title">Axes, grids, tooltips, legendas</h1>
+    <p class="page-sub">Os componentes auxiliares ditam 60% da legibilidade. Sem padrão, cada chart parece de uma biblioteca diferente. Esta página fixa os tokens dedicados, o componente <code style="font-family:var(--font-pulso-mono);font-size:20px;background:var(--muted);padding:2px 8px;border-radius:4px;">ChartTooltip</code> reutilizável e os 4 posicionamentos de legend.</p>
+
+    <!-- ── Axes ─────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Eixos · X e Y</h2>
+      <p class="section-desc">Ticks mono tabular-nums · labels rotacionados a 0° (nunca 45°/90° em desktop) · alinhamento padronizado para todos os 6 primitives.</p>
+
+      <div class="demo-card">
+        <div class="demo-head">
+          <div>
+            <div class="demo-name">01 · Eixos canônicos</div>
+            <div class="demo-title">Score · 24h com threshold linha</div>
+          </div>
+          <div class="demo-meta">Y-label 40px · X-label 24px</div>
+        </div>
+        <svg class="demo-svg" viewBox="0 0 600 240" aria-label="Eixos canônicos do Pulso">
+          <!-- Grid -->
+          <g stroke="var(--chart-grid)" stroke-width="1">
+            <line x1="60" y1="30"  x2="580" y2="30"/>
+            <line x1="60" y1="80"  x2="580" y2="80"/>
+            <line x1="60" y1="130" x2="580" y2="130"/>
+            <line x1="60" y1="180" x2="580" y2="180"/>
+          </g>
+          <!-- Threshold -->
+          <line x1="60" y1="80" x2="580" y2="80" stroke="var(--risk-attention)" stroke-width="1" stroke-dasharray="3 4" opacity="0.7"/>
+          <text x="578" y="74" font-family="var(--font-pulso-mono)" font-size="10" fill="var(--risk-attention)" text-anchor="end">threshold 75</text>
+          <!-- Y axis baseline (subtle) -->
+          <line x1="60" y1="20" x2="60" y2="200" stroke="var(--border-faint)" stroke-width="1"/>
+          <!-- X axis baseline -->
+          <line x1="60" y1="200" x2="580" y2="200" stroke="var(--border)" stroke-width="1"/>
+          <!-- Ticks Y -->
+          <g font-family="var(--font-pulso-mono)" font-size="11" fill="var(--fg-secondary)" text-anchor="end">
+            <text x="54" y="34">100</text>
+            <text x="54" y="84">75</text>
+            <text x="54" y="134">50</text>
+            <text x="54" y="184">25</text>
+          </g>
+          <!-- Ticks X -->
+          <g font-family="var(--font-pulso-mono)" font-size="11" fill="var(--fg-secondary)" text-anchor="middle">
+            <text x="60"  y="220">12h</text>
+            <text x="190" y="220">15h</text>
+            <text x="320" y="220">18h</text>
+            <text x="450" y="220">21h</text>
+            <text x="580" y="220">00h</text>
+          </g>
+          <!-- Series line -->
+          <path d="M 60 168 L 190 156 L 320 130 L 450 96 L 580 64" fill="none" stroke="var(--chart-1)" stroke-width="2.25" stroke-linecap="round"/>
+          <circle cx="580" cy="64" r="4" fill="var(--chart-1)" stroke="var(--card)" stroke-width="2"/>
+          <!-- Y-axis title -->
+          <text x="24" y="110" font-family="var(--font-pulso-mono)" font-size="10" fill="var(--fg-subtle)" text-anchor="middle" letter-spacing="0.08em" transform="rotate(-90 24 110)">SCORE</text>
+        </svg>
+        <div class="demo-note"><strong>Anatomia:</strong> &nbsp;Y ticks alinhados à direita, font-size 11px mono · X ticks centrados sob a posição · Y baseline em <code>--border-faint</code> · X baseline em <code>--border</code> (mais forte por ser "chão") · axis title opcional, rotacionado 90° em uppercase mono.</div>
+      </div>
+    </section>
+
+    <!-- ── Token table ──────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Tokens dedicados</h2>
+      <p class="section-desc">Quatro tokens novos · adicionados em <code>globals.css</code> para isolar axes/grids/tooltip dos outros tokens.</p>
+
+      <table class="tokens">
+        <thead><tr><th>Token</th><th>Valor light · dark</th><th>Uso</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">--chart-axis</td><td class="mono">#A09CB4 · #7E78A0</td><td>Cor das tick labels (alinhada a <code>--fg-secondary</code>)</td></tr>
+          <tr><td class="mono">--chart-axis-baseline</td><td class="mono">--border · --border</td><td>Linha do chão (X axis principal)</td></tr>
+          <tr><td class="mono">--chart-grid</td><td class="mono">rgba(20,18,10,.06) · rgba(255,255,255,.06)</td><td>Linhas de grade horizontais</td></tr>
+          <tr><td class="mono">--chart-tooltip-bg</td><td class="mono">#1A1530 · #0F0C1A</td><td>Background do tooltip (sempre escuro · contraste forte)</td></tr>
+          <tr><td class="mono">--chart-tooltip-fg</td><td class="mono">#F5F4FA · #F5F4FA</td><td>Texto do tooltip</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Grid ──────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Grid</h2>
+      <p class="section-desc">Sugere, não compete. Sempre horizontal (exceto heatmap, que tem grid implícito nas células). Alpha baixo · grossura 1px constante.</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="demo-card">
+          <div class="demo-name">✓ Grid canônico</div>
+          <svg viewBox="0 0 300 150" style="width:100%;">
+            <g stroke="var(--chart-grid)" stroke-width="1">
+              <line x1="40" y1="20"  x2="290" y2="20"/>
+              <line x1="40" y1="55"  x2="290" y2="55"/>
+              <line x1="40" y1="90"  x2="290" y2="90"/>
+              <line x1="40" y1="125" x2="290" y2="125"/>
+            </g>
+            <g font-family="var(--font-pulso-mono)" font-size="10" fill="var(--fg-secondary)" text-anchor="end">
+              <text x="34" y="24">100</text><text x="34" y="59">75</text><text x="34" y="94">50</text><text x="34" y="129">25</text>
+            </g>
+            <path d="M 40 110 L 100 95 L 160 70 L 220 50 L 290 40" fill="none" stroke="var(--chart-1)" stroke-width="2"/>
+          </svg>
+          <div class="demo-note">Horizontal apenas · alpha 6% · 1px solid · sem chamar atenção.</div>
+        </div>
+        <div class="demo-card" style="border-color:color-mix(in oklab, var(--destructive) 22%, var(--border));background:color-mix(in oklab, var(--destructive-bg) 25%, var(--card));">
+          <div class="demo-name" style="color:var(--destructive);">✗ Grid pesado</div>
+          <svg viewBox="0 0 300 150" style="width:100%;">
+            <g stroke="rgba(0,0,0,0.4)" stroke-width="1">
+              <line x1="40" y1="20"  x2="290" y2="20"/>
+              <line x1="40" y1="55"  x2="290" y2="55"/>
+              <line x1="40" y1="90"  x2="290" y2="90"/>
+              <line x1="40" y1="125" x2="290" y2="125"/>
+              <line x1="40" y1="20" x2="40" y2="125"/>
+              <line x1="103" y1="20" x2="103" y2="125"/>
+              <line x1="166" y1="20" x2="166" y2="125"/>
+              <line x1="229" y1="20" x2="229" y2="125"/>
+              <line x1="290" y1="20" x2="290" y2="125"/>
+            </g>
+            <g font-family="var(--font-pulso-mono)" font-size="10" fill="var(--fg-secondary)" text-anchor="end">
+              <text x="34" y="24">100</text><text x="34" y="59">75</text><text x="34" y="94">50</text><text x="34" y="129">25</text>
+            </g>
+            <path d="M 40 110 L 100 95 L 160 70 L 220 50 L 290 40" fill="none" stroke="var(--chart-1)" stroke-width="2"/>
+          </svg>
+          <div class="demo-note">Verticais + alpha alto · briga com os dados. Operador procura o ponto dentro do quadriculado.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Tooltip ─────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Tooltip · <code style="font-family:var(--font-pulso-mono);font-size:18px;background:var(--muted);padding:2px 8px;border-radius:4px;">ChartTooltip</code></h2>
+      <p class="section-desc">Componente único usado em todos os 6 primitives. Sempre escuro (mesmo no light theme) · sombra forte · anchor inteligente (acima do ponto, com fallback abaixo se cortar viewport).</p>
+
+      <div class="demo-card">
+        <div class="demo-head">
+          <div>
+            <div class="demo-name">Tooltip vivo · anatomia completa</div>
+            <div class="demo-title">Hover em ponto de série única</div>
+          </div>
+          <div class="demo-meta">200ms fade-in · delay 80ms</div>
+        </div>
+
+        <div style="position:relative;padding:60px 0 30px;display:flex;justify-content:center;background:var(--surface-2);border-radius:var(--radius-sm);border:1px solid var(--border-faint);">
+          <svg viewBox="0 0 400 160" style="width:90%;">
+            <g stroke="var(--chart-grid)" stroke-width="1">
+              <line x1="40" y1="20" x2="380" y2="20"/>
+              <line x1="40" y1="60" x2="380" y2="60"/>
+              <line x1="40" y1="100" x2="380" y2="100"/>
+              <line x1="40" y1="140" x2="380" y2="140"/>
+            </g>
+            <path d="M 40 124 L 96 116 L 152 120 L 208 108 L 264 92 L 295 78 L 322 70 L 350 56 L 380 48" fill="none" stroke="var(--chart-1)" stroke-width="2.25" stroke-linecap="round"/>
+            <!-- Active point indicator -->
+            <line x1="264" y1="20" x2="264" y2="140" stroke="var(--chart-axis, var(--fg-subtle))" stroke-width="1" stroke-dasharray="2 3"/>
+            <circle cx="264" cy="92" r="5" fill="var(--chart-1)" stroke="var(--card)" stroke-width="2"/>
+          </svg>
+          <!-- Tooltip floating -->
+          <div class="tt" style="position:absolute;top:14px;left:50%;transform:translateX(-30px);">
+            <div class="tt-arrow" style="bottom:-6px;left:50%;transform:translateX(-50%) rotate(45deg);border-top:1px solid rgba(255,255,255,0.08);border-left:1px solid rgba(255,255,255,0.08);border-right:none;border-bottom:none;"></div>
+            <div class="tt-header">
+              <span class="tt-when">17/05 · 18:00</span>
+              <span class="tt-meta">PLS-012</span>
+            </div>
+            <div class="tt-row"><span class="name"><span class="dot" style="background:var(--chart-1);"></span>Score</span><span class="val">62</span></div>
+            <div class="tt-row"><span class="name"><span class="dot" style="background:var(--chart-2);"></span>Menções</span><span class="val">38</span></div>
+            <div class="tt-row"><span class="name"><span class="dot" style="background:var(--chart-positive);"></span>Sentimento</span><span class="val">−12</span></div>
+          </div>
+        </div>
+
+        <div class="demo-note">
+          <strong>Anatomia:</strong> &nbsp;header = quando (timestamp mono) + meta opcional (case ID) · rows = série com dot da cor · valor à direita mono tabular-nums · arrow apontando o ponto · padding <code>10px 14px</code> · min-width 180px · radius <code>--radius-sm</code> · shadow <code>--shadow-lg</code>.
+        </div>
+      </div>
+
+      <div style="margin-top:18px;">
+        <div class="spec-row">
+          <div class="spec-key">Anchor</div>
+          <div class="spec-val">Acima do ponto por padrão. Se cortar topo do viewport, flip para baixo. Distância 16px do ponto · arrow centralizada.</div>
+        </div>
+        <div class="spec-row">
+          <div class="spec-key">Trigger</div>
+          <div class="spec-val">Hover em desktop · touch tap em mobile · sempre escutável via teclado (foco em ponto).</div>
+        </div>
+        <div class="spec-row">
+          <div class="spec-key">Crosshair</div>
+          <div class="spec-val">Linha vertical pontilhada do ponto até o eixo X · stroke <code>--fg-subtle</code> · stroke-dasharray 2 3.</div>
+        </div>
+        <div class="spec-row">
+          <div class="spec-key">Animação</div>
+          <div class="spec-val">Fade-in 200ms <code>--motion-easing</code> · delay 80ms (evita flicker em scrubbing rápido). Reduced-motion: instantâneo.</div>
+        </div>
+        <div class="spec-row">
+          <div class="spec-key">Formatação</div>
+          <div class="spec-val">Valores via <code>formatNumber()</code> · timestamp via <code>formatDate('datetime')</code>. Ver <a href="localization.html" style="color:var(--primary);">2.3 Localização</a>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Legends ─────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Legend · 4 posições</h2>
+      <p class="section-desc">Top/bottom para charts wide · right para charts com muitas séries e altura sobrando · false quando o chart é sparkline ou single-series com endpoint marcado. Clique em item da legend toggla a série (com micro-animação de opacidade).</p>
+
+      <div class="lp-grid">
+        <div class="lp-card">
+          <div class="lp-tag">top</div>
+          <div class="lp-frame">
+            <div class="lp-legend-mini">
+              <span class="item"><span class="dot" style="background:var(--chart-1);"></span>PLS-012</span>
+              <span class="item"><span class="dot" style="background:var(--chart-2);"></span>PLS-014</span>
+              <span class="item"><span class="dot" style="background:var(--chart-3);"></span>PLS-018</span>
+            </div>
+            <div class="lp-chart-bg">
+              <svg viewBox="0 0 200 80" preserveAspectRatio="none">
+                <path d="M 5 60 L 50 50 L 100 35 L 150 25 L 195 18" fill="none" stroke="var(--chart-1)" stroke-width="2"/>
+                <path d="M 5 30 L 50 35 L 100 40 L 150 42 L 195 45" fill="none" stroke="var(--chart-2)" stroke-width="2"/>
+                <path d="M 5 50 L 50 48 L 100 49 L 150 47 L 195 48" fill="none" stroke="var(--chart-3)" stroke-width="2"/>
+              </svg>
+            </div>
+          </div>
+          <div class="demo-note" style="border-top:none;padding-top:8px;">Default. ≤ 4 séries · chart wide.</div>
+        </div>
+        <div class="lp-card">
+          <div class="lp-tag">bottom</div>
+          <div class="lp-frame">
+            <div class="lp-chart-bg">
+              <svg viewBox="0 0 200 80" preserveAspectRatio="none">
+                <path d="M 5 60 L 50 50 L 100 35 L 150 25 L 195 18" fill="none" stroke="var(--chart-1)" stroke-width="2"/>
+                <path d="M 5 30 L 50 35 L 100 40 L 150 42 L 195 45" fill="none" stroke="var(--chart-2)" stroke-width="2"/>
+              </svg>
+            </div>
+            <div class="lp-legend-mini">
+              <span class="item"><span class="dot" style="background:var(--chart-1);"></span>PLS-012</span>
+              <span class="item"><span class="dot" style="background:var(--chart-2);"></span>PLS-014</span>
+            </div>
+          </div>
+          <div class="demo-note" style="border-top:none;padding-top:8px;">Quando título do chart está acima · 1–3 séries.</div>
+        </div>
+        <div class="lp-card lp-right">
+          <div class="lp-tag">right</div>
+          <div class="lp-frame">
+            <div class="lp-row">
+              <div class="lp-chart-bg" style="flex:1;">
+                <svg viewBox="0 0 140 80" preserveAspectRatio="none">
+                  <path d="M 5 60 L 35 50 L 70 35 L 105 25 L 135 18" fill="none" stroke="var(--chart-1)" stroke-width="2"/>
+                  <path d="M 5 30 L 35 35 L 70 40 L 105 42 L 135 45" fill="none" stroke="var(--chart-2)" stroke-width="2"/>
+                  <path d="M 5 50 L 35 48 L 70 49 L 105 47 L 135 48" fill="none" stroke="var(--chart-3)" stroke-width="2"/>
+                  <path d="M 5 65 L 35 58 L 70 55 L 105 52 L 135 50" fill="none" stroke="var(--chart-4)" stroke-width="2"/>
+                </svg>
+              </div>
+              <div class="lp-rail">
+                <span class="item"><span class="dot" style="background:var(--chart-1);"></span>PLS-012</span>
+                <span class="item"><span class="dot" style="background:var(--chart-2);"></span>PLS-014</span>
+                <span class="item"><span class="dot" style="background:var(--chart-3);"></span>PLS-018</span>
+                <span class="item"><span class="dot" style="background:var(--chart-4);"></span>PLS-020</span>
+              </div>
+            </div>
+          </div>
+          <div class="demo-note" style="border-top:none;padding-top:8px;">≥ 5 séries · altura disponível.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Legend item interaction ─────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Legend interativa · toggle de série</h2>
+      <p class="section-desc">Clique em item da legend liga/desliga a série. Dot fica vazio (border só) quando off · linha some com fade 200ms.</p>
+
+      <div class="demo-card" style="flex-direction:row;gap:24px;align-items:center;flex-wrap:wrap;">
+        <svg viewBox="0 0 360 140" style="flex:1;min-width:280px;">
+          <g stroke="var(--chart-grid)" stroke-width="1"><line x1="20" y1="20" x2="340" y2="20"/><line x1="20" y1="60" x2="340" y2="60"/><line x1="20" y1="100" x2="340" y2="100"/></g>
+          <path d="M 20 100 L 100 80 L 180 60 L 260 40 L 340 28" fill="none" stroke="var(--chart-1)" stroke-width="2.25"/>
+          <!-- Faded series (toggled off) -->
+          <path d="M 20 50 L 100 60 L 180 65 L 260 60 L 340 55" fill="none" stroke="var(--chart-2)" stroke-width="2.25" opacity="0.2"/>
+          <path d="M 20 90 L 100 85 L 180 88 L 260 82 L 340 80" fill="none" stroke="var(--chart-3)" stroke-width="2.25"/>
+        </svg>
+        <div style="display:flex;flex-direction:column;gap:6px;min-width:140px;">
+          <div style="display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--fg);cursor:pointer;padding:4px 8px;border-radius:var(--radius-sm);background:var(--muted);"><span style="width:10px;height:10px;background:var(--chart-1);border-radius:50%;"></span>PLS-012 <span style="font-family:var(--font-pulso-mono);font-size:10px;color:var(--fg-subtle);margin-left:auto;">on</span></div>
+          <div style="display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--fg-muted);cursor:pointer;padding:4px 8px;border-radius:var(--radius-sm);text-decoration:line-through;"><span style="width:10px;height:10px;border-radius:50%;border:1.5px solid var(--chart-2);background:transparent;"></span>PLS-014 <span style="font-family:var(--font-pulso-mono);font-size:10px;color:var(--fg-subtle);margin-left:auto;text-decoration:none;">off</span></div>
+          <div style="display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--fg);cursor:pointer;padding:4px 8px;border-radius:var(--radius-sm);background:var(--muted);"><span style="width:10px;height:10px;background:var(--chart-3);border-radius:50%;"></span>PLS-018 <span style="font-family:var(--font-pulso-mono);font-size:10px;color:var(--fg-subtle);margin-left:auto;">on</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Bad patterns ─────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Anti-padrões</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="demo-card" style="border-color:color-mix(in oklab, var(--destructive) 22%, var(--border));">
+          <div class="demo-name" style="color:var(--destructive);">✗ Tooltip cobrindo o ponto</div>
+          <svg viewBox="0 0 300 140" style="width:100%;">
+            <g stroke="var(--chart-grid)" stroke-width="1"><line x1="20" y1="20" x2="280" y2="20"/><line x1="20" y1="80" x2="280" y2="80"/></g>
+            <path d="M 20 100 L 80 80 L 140 60 L 200 40 L 280 28" fill="none" stroke="var(--chart-1)" stroke-width="2"/>
+            <circle cx="140" cy="60" r="4" fill="var(--chart-1)"/>
+            <rect x="125" y="48" width="80" height="32" rx="4" fill="#1A1530"/>
+            <text x="165" y="68" font-family="var(--font-pulso-mono)" font-size="10" fill="white" text-anchor="middle">62 · 18h</text>
+          </svg>
+          <div class="demo-note">Operador não vê o que está medindo. Posicione acima/abaixo com distância ≥ 16px.</div>
+        </div>
+        <div class="demo-card" style="border-color:color-mix(in oklab, var(--destructive) 22%, var(--border));">
+          <div class="demo-name" style="color:var(--destructive);">✗ Labels rotacionados a 45°</div>
+          <svg viewBox="0 0 300 160" style="width:100%;">
+            <g stroke="var(--chart-grid)" stroke-width="1"><line x1="20" y1="20" x2="280" y2="20"/><line x1="20" y1="70" x2="280" y2="70"/></g>
+            <g fill="var(--chart-1)">
+              <rect x="40"  y="60" width="32" height="56"/>
+              <rect x="92"  y="50" width="32" height="66"/>
+              <rect x="144" y="40" width="32" height="76"/>
+              <rect x="196" y="55" width="32" height="61"/>
+              <rect x="248" y="48" width="32" height="68"/>
+            </g>
+            <g font-family="var(--font-pulso-mono)" font-size="9" fill="var(--fg-secondary)">
+              <text x="56"  y="135" transform="rotate(-45 56 135)">12 maio</text>
+              <text x="108" y="135" transform="rotate(-45 108 135)">13 maio</text>
+              <text x="160" y="135" transform="rotate(-45 160 135)">14 maio</text>
+              <text x="212" y="135" transform="rotate(-45 212 135)">15 maio</text>
+              <text x="264" y="135" transform="rotate(-45 264 135)">16 maio</text>
+            </g>
+          </svg>
+          <div class="demo-note">Indica que os labels não cabem. Solução: truncar (12/05 vs 12 maio), mostrar 1 em cada 2, ou aumentar largura.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Regras ─────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Faça</div>
+          <ul>
+            <li>Use <code>ChartTooltip</code> sempre · não escreva tooltip custom por chart.</li>
+            <li>Labels do eixo em mono tabular-nums · rotação 0°.</li>
+            <li>Threshold importante (ex: 75 do escalonamento) sempre marcado em linha dashed + label.</li>
+            <li>Legend top para ≤ 4 séries · right para ≥ 5 · bottom para charts com título acima.</li>
+            <li>Clique em legend toggla a série · dot vira outline quando off.</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Evite</div>
+          <ul>
+            <li>Não use grid vertical (exceto heatmap).</li>
+            <li>Não rotacione labels 45°/90° em desktop. Trunca ou aumenta o chart.</li>
+            <li>Não posicione tooltip cobrindo o ponto medido.</li>
+            <li>Não use tooltip claro no light theme. Sempre escuro · contraste forte.</li>
+            <li>Não esconda legend quando há ≥ 2 séries. Endpoint label não substitui.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Status ─────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Status da iniciativa · 3.3</h2>
+      <table class="tokens">
+        <thead><tr><th>Deliverable</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Tokens dedicados · <code>--chart-axis</code> · <code>--chart-grid</code> · <code>--chart-tooltip-bg</code></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Componente <code>ChartTooltip</code> reutilizável · padrão único</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Legend pattern · top · bottom · right · click-to-toggle</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Padrão de tick labels · mono · 0° · alinhamento</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Página <strong>Components · Charts · Axes &amp; Auxiliaries</strong></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Migração do tooltip atual do Crisis Monitor para <code>ChartTooltip</code></td><td><span style="color:var(--warning);font-family:var(--font-pulso-mono);font-size:11px;">⏳ PLS-CM-CHART-053</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

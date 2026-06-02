@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Real-time chart motion</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.demo-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; }
+.demo-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.demo-name { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); font-weight: 600; }
+.demo-title { font-size: 15px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; }
+.demo-svg { width: 100%; display: block; }
+.demo-controls { display: flex; gap: 8px; flex-wrap: wrap; padding-top: 10px; border-top: 1px solid var(--border-faint); }
+.demo-btn { display: inline-flex; align-items: center; justify-content: center; height: 30px; padding: 0 12px; background: var(--card); border: 1px solid var(--border-strong); color: var(--fg); border-radius: var(--radius-sm); font-size: 12.5px; font-family: inherit; cursor: pointer; transition: all 120ms var(--motion-easing); }
+.demo-btn:hover { background: var(--muted); }
+.demo-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.demo-btn-primary { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+.demo-btn-primary:hover { background: var(--primary-hover); }
+
+.demo-note { font-size: 12.5px; color: var(--fg-muted); line-height: 1.55; padding-top: 12px; border-top: 1px solid var(--border-faint); }
+.demo-note code { font-family: var(--font-pulso-mono); font-size: 11.5px; background: var(--muted); padding: 1px 5px; border-radius: 3px; }
+
+/* Reduced motion sim toggle */
+.rm-toggle { display: flex; align-items: center; gap: 14px; padding: 14px 18px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); margin-bottom: 18px; }
+.rm-switch { position: relative; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+.rm-switch input { position: absolute; opacity: 0; pointer-events: none; }
+.rm-switch-track { width: 38px; height: 22px; background: var(--muted); border: 1px solid var(--border-strong); border-radius: 999px; position: relative; transition: background var(--motion-duration-fast) var(--motion-easing); flex-shrink: 0; }
+.rm-switch-track::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: var(--background); border-radius: 50%; transition: transform var(--motion-duration-default) var(--motion-easing); box-shadow: 0 1px 2px rgba(0,0,0,0.15); }
+.rm-switch input:checked + .rm-switch-track { background: var(--primary); border-color: var(--primary); }
+.rm-switch input:checked + .rm-switch-track::after { transform: translateX(16px); }
+.rm-switch input:focus-visible + .rm-switch-track { outline: 2px solid var(--ring); outline-offset: 2px; }
+body[data-rm="on"] .demo-svg path,
+body[data-rm="on"] .demo-svg rect,
+body[data-rm="on"] .demo-svg circle { transition-duration: 0.001ms !important; }
+
+/* Spec rows */
+.spec-row { display: grid; grid-template-columns: 200px 1fr; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--border-faint); align-items: baseline; }
+.spec-row:last-child { border-bottom: none; }
+.spec-key { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.06em; }
+.spec-val { font-size: 13px; color: var(--fg); line-height: 1.55; }
+.spec-val code { font-family: var(--font-pulso-mono); background: var(--muted); padding: 1px 6px; border-radius: 3px; font-size: 11.5px; }
+
+/* Code block */
+.code-block { background: var(--muted); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; font-family: var(--font-pulso-mono); font-size: 12px; color: var(--fg-strong); white-space: pre; overflow-x: auto; line-height: 1.65; margin-top: 12px; }
+.code-block .c-key { color: var(--primary); }
+.code-block .c-str { color: var(--success); }
+.code-block .c-com { color: var(--fg-muted); font-style: italic; }
+.code-block .c-num { color: var(--risk-attention-text); }
+
+/* Bar chart animated */
+.bar-anim rect { transition: height 680ms var(--motion-easing), y 680ms var(--motion-easing); }
+
+/* Line chart animated */
+.line-anim path { transition: d 680ms var(--motion-easing); }
+.line-anim circle { transition: cx 680ms var(--motion-easing), cy 680ms var(--motion-easing); }
+
+/* Pulse on new point */
+@keyframes new-pulse {
+  0% { r: 4; opacity: 1; }
+  50% { r: 9; opacity: 0; }
+  100% { r: 4; opacity: 0; }
+}
+.point-pulse { animation: new-pulse 1.2s var(--motion-easing) 1; }
+
+/* Flash highlight on append */
+@keyframes append-flash {
+  0% { fill: var(--chart-1); opacity: 1; }
+  50% { fill: var(--chart-4); opacity: 1; }
+  100% { fill: var(--chart-1); opacity: 1; }
+}
+.bar-flash { animation: append-flash 800ms var(--motion-easing) 1; }
+
+/* Heatmap cell flash */
+@keyframes cell-flash {
+  0%   { fill: var(--card); }
+  35%  { fill: var(--chart-1); }
+  100% { fill: var(--chart-fill-soft); }
+}
+.cell-flash { animation: cell-flash 900ms var(--motion-easing) 1; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+
+    <div class="page-kicker">Components · Charts · 04</div>
+    <h1 class="page-title">Real-time motion</h1>
+    <p class="page-sub">Crisis Monitor é tempo real · gráfico atualizando mal feito é distrativo, bem feito é informativo. Esta página fixa o easing dedicado, as durações de morph vs append e como o reduced-motion (1.5) entra. Salva a atenção do operador.</p>
+
+    <!-- ── Princípio ──────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Princípio</h2>
+      <div style="background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: var(--radius-md); padding: 22px 26px;">
+        <p style="font-size: 16px; color: var(--fg-strong); line-height: 1.6; font-weight: 500; max-width: 720px;">Animação conta a história. Onde o valor estava · pra onde foi · com que velocidade. Movimento sem narrativa é decoração e rouba foco.</p>
+        <p style="font-size: 13.5px; color: var(--fg-secondary); margin-top: 12px; line-height: 1.6; max-width: 720px;">Em chart de monitoramento, três coisas precisam ser animadas: <strong>morph</strong> de valor existente (linha que sobe) · <strong>append</strong> de novo ponto (entra do final) · <strong>flash</strong> de evento de interesse (passou threshold, novo crítico). Tudo o mais é ruído.</p>
+      </div>
+    </section>
+
+    <!-- ── Toggle reduced motion ─────────────── -->
+    <div class="rm-toggle">
+      <div style="font-size: 13px; color: var(--fg); flex: 1; line-height: 1.5;">
+        <strong>Simulação reduced-motion</strong> — força transições instantâneas nas demos. Verifique que update permanece (o valor muda) sem o movimento.
+      </div>
+      <label class="rm-switch">
+        <input type="checkbox" id="rmInput">
+        <span class="rm-switch-track"></span>
+        <span style="font-family:var(--font-pulso-mono);font-size:11px;color:var(--fg-strong);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;min-width:60px;" id="rmState">normal</span>
+      </label>
+    </div>
+
+    <!-- ── Easing tokens ─────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Tokens dedicados</h2>
+      <p class="section-desc">Charts usam um easing mais suave que UI normal. Movimento "chart" lembra ponteiro de instrumento · não é emphasized.</p>
+
+      <table class="tokens">
+        <thead><tr><th>Token</th><th>Curva</th><th>Uso</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">--motion-easing-chart</td><td class="mono">cubic-bezier(0.4, 0.0, 0.2, 1)</td><td>Easing default de chart · suave em ambas pontas</td></tr>
+          <tr><td class="mono">--motion-duration-chart-morph</td><td class="mono">680ms</td><td>Valor existente muda (line/bar/donut update)</td></tr>
+          <tr><td class="mono">--motion-duration-chart-append</td><td class="mono">0ms</td><td>Novo ponto aparece · instantâneo + flash secundário</td></tr>
+          <tr><td class="mono">--motion-duration-chart-flash</td><td class="mono">900ms</td><td>Highlight de novo dado · pulse OU fill flash</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Demo 1: Bar morph ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Padrão 01 · morph de valor</h2>
+      <p class="section-desc">Valor existente muda. Altura, linha, segmento · interpola entre estado A e B. Easing chart-morph · 680ms.</p>
+
+      <div class="demo-card">
+        <div class="demo-head">
+          <div>
+            <div class="demo-name">BarChart · update</div>
+            <div class="demo-title">Distribuição por tier muda</div>
+          </div>
+          <div class="demo-meta" style="font-family:var(--font-pulso-mono);font-size:11px;color:var(--fg-muted);">680ms · easing-chart</div>
+        </div>
+        <svg class="demo-svg bar-anim" viewBox="0 0 400 220" aria-label="Demo de morph em barras">
+          <g stroke="var(--chart-grid)" stroke-width="1">
+            <line x1="40" y1="30" x2="380" y2="30"/>
+            <line x1="40" y1="80" x2="380" y2="80"/>
+            <line x1="40" y1="130" x2="380" y2="130"/>
+            <line x1="40" y1="180" x2="380" y2="180"/>
+          </g>
+          <g font-family="var(--font-pulso-mono)" font-size="10" fill="var(--fg-subtle)" text-anchor="end">
+            <text x="34" y="34">120</text><text x="34" y="84">90</text><text x="34" y="134">60</text><text x="34" y="184">30</text>
+          </g>
+          <g id="bars1">
+            <rect x="80"  y="60"  width="70" height="120" rx="3" fill="var(--chart-1)" data-t1=""/>
+            <rect x="170" y="100" width="70" height="80"  rx="3" fill="var(--chart-2)" data-t2=""/>
+            <rect x="260" y="140" width="70" height="40"  rx="3" fill="var(--chart-3)" data-t3=""/>
+          </g>
+          <g font-family="var(--font-pulso-mono)" font-size="11" fill="var(--fg-secondary)" text-anchor="middle">
+            <text x="115" y="200">T1</text><text x="205" y="200">T2</text><text x="295" y="200">T3</text>
+          </g>
+        </svg>
+        <div class="demo-controls">
+          <button class="demo-btn demo-btn-primary" id="barUpdate">Atualizar valores</button>
+          <button class="demo-btn" id="barReset">Reset</button>
+        </div>
+        <div class="demo-note"><strong>O que assistir:</strong> &nbsp;altura interpola, posição-Y interpola. Bar nunca pula. Em reduced-motion, salta direto para o novo valor — informação preservada.</div>
+      </div>
+    </section>
+
+    <!-- ── Demo 2: Line append ───────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Padrão 02 · append de ponto novo</h2>
+      <p class="section-desc">Nova menção chega · o ponto entra do canto direito. <strong>Instantâneo</strong> (não anima a entrada) · um pulse de 900ms no novo ponto chama atenção sem cobrir.</p>
+
+      <div class="demo-card">
+        <div class="demo-head">
+          <div>
+            <div class="demo-name">LineChart · live point</div>
+            <div class="demo-title">Score recebe novo data point</div>
+          </div>
+          <div class="demo-meta" style="font-family:var(--font-pulso-mono);font-size:11px;color:var(--fg-muted);">append 0ms · pulse 900ms</div>
+        </div>
+        <svg class="demo-svg line-anim" viewBox="0 0 600 200" aria-label="Demo de append em linha">
+          <g stroke="var(--chart-grid)" stroke-width="1">
+            <line x1="40" y1="20"  x2="580" y2="20"/>
+            <line x1="40" y1="70"  x2="580" y2="70"/>
+            <line x1="40" y1="120" x2="580" y2="120"/>
+            <line x1="40" y1="170" x2="580" y2="170"/>
+          </g>
+          <g font-family="var(--font-pulso-mono)" font-size="10" fill="var(--fg-subtle)" text-anchor="end">
+            <text x="34" y="24">100</text><text x="34" y="74">75</text><text x="34" y="124">50</text><text x="34" y="174">25</text>
+          </g>
+          <path id="linePath" fill="none" stroke="var(--chart-1)" stroke-width="2.25" stroke-linecap="round" d=""/>
+          <g id="linePoints"></g>
+          <g id="linePulse"></g>
+        </svg>
+        <div class="demo-controls">
+          <button class="demo-btn demo-btn-primary" id="appendPoint">Adicionar ponto</button>
+          <button class="demo-btn" id="lineReset">Reset</button>
+          <span style="font-family:var(--font-pulso-mono);font-size:11px;color:var(--fg-subtle);margin-left:auto;align-self:center;">pontos: <span id="lineCount" style="color:var(--fg);">0</span></span>
+        </div>
+        <div class="demo-note"><strong>Por que append é instantâneo:</strong> &nbsp;se o ponto desliza do lado direito, o operador vê "movimento" onde não há dado novo. Salta para a posição final e pulsa — operador sabe que algo novo chegou sem ser distraído pelo trajeto inexistente.</div>
+      </div>
+    </section>
+
+    <!-- ── Demo 3: Heatmap cell flash ────── -->
+    <section class="section">
+      <h2 class="section-h1">Padrão 03 · flash em célula nova</h2>
+      <p class="section-desc">Heatmap recebe atualização em célula específica · célula pisca da cor de destaque para a cor final. Informa "essa célula é nova" sem animar o grid inteiro.</p>
+
+      <div class="demo-card">
+        <div class="demo-head">
+          <div>
+            <div class="demo-name">Heatmap · cell update</div>
+            <div class="demo-title">Cobertura por hora · célula nova</div>
+          </div>
+          <div class="demo-meta" style="font-family:var(--font-pulso-mono);font-size:11px;color:var(--fg-muted);">flash 900ms</div>
+        </div>
+        <svg class="demo-svg" viewBox="0 0 600 80" aria-label="Demo de flash em heatmap" id="hmDemo">
+          <g font-family="var(--font-pulso-mono)" font-size="10" fill="var(--fg-subtle)" text-anchor="middle">
+            <text x="50" y="74">−6h</text><text x="155" y="74">−4h</text><text x="260" y="74">−2h</text><text x="365" y="74">−1h</text><text x="450" y="74">−30m</text><text x="540" y="74">agora</text>
+          </g>
+          <g id="hmCells"></g>
+        </svg>
+        <div class="demo-controls">
+          <button class="demo-btn demo-btn-primary" id="hmUpdate">Nova célula</button>
+        </div>
+        <div class="demo-note"><strong>O que assistir:</strong> &nbsp;a célula "agora" pisca <code>chart-1</code> forte e estabiliza em <code>chart-fill-soft</code>. Resto do grid não se move.</div>
+      </div>
+    </section>
+
+    <!-- ── Decisão por tipo ──────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Quando morph · quando snap · quando flash</h2>
+
+      <table class="tokens">
+        <thead><tr><th>Evento</th><th>Padrão</th><th>Razão</th></tr></thead>
+        <tbody>
+          <tr><td>Score do caso X muda</td><td class="mono">morph · 680ms</td><td>O <em>mesmo</em> valor evolui · trajeto é informação</td></tr>
+          <tr><td>Filtro re-segmenta os dados</td><td class="mono">morph · 680ms</td><td>Conjunto se reorganiza · operador entende a transformação</td></tr>
+          <tr><td>Nova menção entra no feed</td><td class="mono">append + pulse 900ms</td><td>Trajeto é mentira · pulse marca "novo" sem cobrir</td></tr>
+          <tr><td>Threshold rompido</td><td class="mono">flash + alert</td><td>Evento crítico · 1 pulso de cor + anúncio polite</td></tr>
+          <tr><td>Tab muda · novo dataset</td><td class="mono">snap</td><td>Contexto trocou · operador sabe que é outro conjunto</td></tr>
+          <tr><td>Window resize / zoom</td><td class="mono">snap</td><td>Não é o dado que muda · não animar</td></tr>
+          <tr><td>Initial render</td><td class="mono">snap</td><td>Animação inicial vira "loading com movimento" · use skeleton</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Reduced motion ─────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Reduced motion · contrato</h2>
+      <p class="section-desc">Sob <code>prefers-reduced-motion: reduce</code>, charts cortam transição mas mantêm update. Operador vê o novo valor instantaneamente · sem perder informação.</p>
+
+      <div class="spec-row">
+        <div class="spec-key">Morph</div>
+        <div class="spec-val">Cai para 0.001ms · valor "salta" para o novo · <strong>flash secundário opcional</strong> garante percepção da mudança.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Append</div>
+        <div class="spec-val">Já era instantâneo · pulse 900ms é cortado · <strong>color flash 1-frame</strong> substitui (cor brilha por 1 tick, ≈ 16ms).</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Flash</div>
+        <div class="spec-val">Pisca permanece (é informação, não decoração) · 1 ciclo · 1.6s · classe <code>.keep-anim</code>.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Skeleton</div>
+        <div class="spec-val">Shimmer cai para placeholder estático em <code>var(--muted)</code>. Ver <a href="accessibility-reduced-motion.html" style="color:var(--primary);">1.5</a>.</div>
+      </div>
+    </section>
+
+    <!-- ── Implementation ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Implementação · API</h2>
+
+      <pre class="code-block"><span class="c-com">// Hook que une matchMedia + token de duração</span>
+<span class="c-key">function</span> useChartMotion(<span class="c-key">type</span>: <span class="c-str">'morph'</span> | <span class="c-str">'append'</span> | <span class="c-str">'flash'</span>) {
+  <span class="c-key">const</span> reduced = usePrefersReducedMotion();
+  <span class="c-key">if</span> (reduced) {
+    <span class="c-key">return</span> { duration: <span class="c-num">0.001</span>, easing: <span class="c-str">'linear'</span> };
+  }
+  <span class="c-key">switch</span> (<span class="c-key">type</span>) {
+    <span class="c-key">case</span> <span class="c-str">'morph'</span>:  <span class="c-key">return</span> { duration: <span class="c-num">680</span>,  easing: <span class="c-str">'var(--motion-easing-chart)'</span> };
+    <span class="c-key">case</span> <span class="c-str">'append'</span>: <span class="c-key">return</span> { duration: <span class="c-num">0</span>,    easing: <span class="c-str">'linear'</span> };
+    <span class="c-key">case</span> <span class="c-str">'flash'</span>:  <span class="c-key">return</span> { duration: <span class="c-num">900</span>,  easing: <span class="c-str">'var(--motion-easing-chart)'</span> };
+  }
+}
+
+<span class="c-com">// LineChart consumindo</span>
+&lt;<span class="c-key">LineChart</span>
+  data={series}
+  animation={<span class="c-str">'morph'</span>}    <span class="c-com">// hint · component aplica via hook</span>
+  onAppend={(point) =&gt; <span class="c-com">/* triggera flash interno */</span>}
+/&gt;</pre>
+    </section>
+
+    <!-- ── Regras ─────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Faça</div>
+          <ul>
+            <li>Use morph 680ms para valor existente · append 0ms+pulse para novo ponto.</li>
+            <li>Use <code>var(--motion-easing-chart)</code>, não <code>--motion-easing-emphasized</code>. Chart não é entrada/saída de modal.</li>
+            <li>Em reduced-motion, mantenha o update · corte a transição · mantenha flash (informação).</li>
+            <li>Threshold rompido sempre flash + anúncio polite.</li>
+            <li>Initial render via skeleton · jamais "fly-in" das séries.</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Evite</div>
+          <ul>
+            <li>Não anime initial render. Skeleton resolve.</li>
+            <li>Não anime o ponto novo entrando da lateral. Salta + pulsa.</li>
+            <li>Não use easing emphasized em chart. É excesso de personalidade.</li>
+            <li>Não acumule animações concorrentes. Se há flash, não há morph simultâneo · cancela um e prioriza o evento mais novo.</li>
+            <li>Não use animação para chamar atenção (piscar em loop). Flash 1 ciclo basta · loop irrita.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Status ─────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Status da iniciativa · 3.4</h2>
+      <table class="tokens">
+        <thead><tr><th>Deliverable</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Easing dedicado <code>--motion-easing-chart</code></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Tokens de duração · morph 680ms · append 0ms · flash 900ms</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Reduced-motion · corta animação · mantém update + flash</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Hook <code>useChartMotion(type)</code></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Página <strong>Components · Charts · Real-time motion</strong></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Migração de Score Ring · morph → snap (componente legado)</td><td><span style="color:var(--warning);font-family:var(--font-pulso-mono);font-size:11px;">⏳ PLS-CM-CHART-058</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+
+<script>
+(function(){
+  // Reduced-motion toggle
+  const rm = document.getElementById('rmInput');
+  const rmState = document.getElementById('rmState');
+  function applyRM(on){ document.body.dataset.rm = on?'on':'off'; rmState.textContent = on?'reduzido':'normal'; }
+  const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  rm.checked = mq.matches; applyRM(rm.checked);
+  rm.addEventListener('change', () => applyRM(rm.checked));
+
+  // ── Bar morph demo ────────────────────────────────
+  // y/height mapping: y0=30 (top, max=120), y0=180 (bottom)
+  // value 0..120 → height = value, y = 180 - height
+  const bars = document.querySelectorAll('#bars1 rect');
+  const defaults = [
+    { y: 60,  h: 120 }, // t1=120
+    { y: 100, h: 80  }, // t2=80
+    { y: 140, h: 40  }, // t3=40
+  ];
+  function setBars(vals){
+    bars.forEach((b, i) => {
+      const v = Math.max(8, Math.min(120, vals[i]));
+      const h = v;
+      const y = 180 - h;
+      b.setAttribute('y', y);
+      b.setAttribute('height', h);
+    });
+  }
+  document.getElementById('barUpdate').addEventListener('click', () => {
+    setBars([
+      40 + Math.random()*80,
+      40 + Math.random()*80,
+      40 + Math.random()*80,
+    ]);
+  });
+  document.getElementById('barReset').addEventListener('click', () => {
+    bars.forEach((b, i) => { b.setAttribute('y', defaults[i].y); b.setAttribute('height', defaults[i].h); });
+  });
+
+  // ── Line append demo ─────────────────────────────
+  const linePath = document.getElementById('linePath');
+  const pts = document.getElementById('linePoints');
+  const pulses = document.getElementById('linePulse');
+  const lineCount = document.getElementById('lineCount');
+  const xStart = 40, xEnd = 580, yTop = 20, yBot = 170;
+  const initial = [
+    { x: 0, v: 35 },
+    { x: 1, v: 42 },
+    { x: 2, v: 48 },
+    { x: 3, v: 55 },
+    { x: 4, v: 58 },
+    { x: 5, v: 64 },
+  ];
+  let series = initial.map(p => ({...p}));
+  function valueToY(v){ return yBot - (v/100) * (yBot - yTop); }
+  function indexToX(i, total){ return xStart + (i/(total-1)) * (xEnd - xStart); }
+  function render(){
+    if (series.length < 2) { linePath.setAttribute('d', ''); pts.innerHTML = ''; return; }
+    let d = '';
+    pts.innerHTML = '';
+    series.forEach((p, i) => {
+      const x = indexToX(i, series.length);
+      const y = valueToY(p.v);
+      d += (i === 0 ? 'M' : 'L') + ' ' + x.toFixed(1) + ' ' + y.toFixed(1) + ' ';
+    });
+    linePath.setAttribute('d', d);
+    // Mark endpoint
+    const last = series[series.length-1];
+    const lx = indexToX(series.length-1, series.length);
+    const ly = valueToY(last.v);
+    pts.insertAdjacentHTML('beforeend', `<circle cx="${lx}" cy="${ly}" r="4" fill="var(--chart-1)" stroke="var(--card)" stroke-width="2"/>`);
+    lineCount.textContent = series.length;
+  }
+  function appendPoint(){
+    const last = series[series.length-1];
+    const next = Math.max(20, Math.min(95, last.v + (Math.random()*14 - 5)));
+    series.push({ x: series.length, v: next });
+    if (series.length > 18) series.shift();
+    render();
+    // Pulse on new endpoint
+    const lx = indexToX(series.length-1, series.length);
+    const ly = valueToY(series[series.length-1].v);
+    pulses.innerHTML = '';
+    if (document.body.dataset.rm !== 'on') {
+      pulses.insertAdjacentHTML('beforeend', `<circle cx="${lx}" cy="${ly}" r="4" fill="var(--chart-1)" opacity="0.4" class="point-pulse"/>`);
+    }
+  }
+  document.getElementById('appendPoint').addEventListener('click', appendPoint);
+  document.getElementById('lineReset').addEventListener('click', () => { series = initial.map(p => ({...p})); render(); pulses.innerHTML = ''; });
+  render();
+
+  // ── Heatmap flash demo ───────────────────────────
+  const hmCells = document.getElementById('hmCells');
+  const hmCols = 24, hmRows = 4;
+  const hmCellW = 19, hmCellH = 12, hmGap = 2;
+  const hmX0 = 20, hmY0 = 10;
+  function intensityCell(d, h){
+    const peak = h >= 9 && h <= 18;
+    return d < 3 ? (peak ? 0.6 + Math.random()*0.3 : 0.1 + Math.random()*0.2)
+                 : (peak ? 0.3 + Math.random()*0.25 : 0.05 + Math.random()*0.1);
+  }
+  function renderHM(){
+    hmCells.innerHTML = '';
+    for (let d = 0; d < hmRows; d++) {
+      for (let h = 0; h < hmCols; h++) {
+        const i = intensityCell(d, h);
+        const pct = Math.round(8 + i * 80);
+        const x = hmX0 + h * (hmCellW + hmGap);
+        const y = hmY0 + d * (hmCellH + hmGap);
+        const isLast = (d === hmRows-1 && h === hmCols-1);
+        hmCells.insertAdjacentHTML('beforeend',
+          `<rect data-pos="${d}-${h}" x="${x}" y="${y}" width="${hmCellW}" height="${hmCellH}" rx="2" fill="color-mix(in oklab, var(--chart-1) ${pct}%, var(--card))"/>`);
+      }
+    }
+  }
+  renderHM();
+  document.getElementById('hmUpdate').addEventListener('click', () => {
+    const lastIdx = hmRows-1;
+    const cells = hmCells.querySelectorAll('rect');
+    // Apply flash class to last column cells
+    cells.forEach((c) => {
+      const [d, h] = c.dataset.pos.split('-').map(Number);
+      if (h === hmCols-1) {
+        c.classList.remove('cell-flash');
+        // force reflow
+        void c.offsetWidth;
+        c.classList.add('cell-flash');
+      }
+    });
+  });
+})();
+</script>
+<script src="../_nav.js"></script>
+</body>
+</html>

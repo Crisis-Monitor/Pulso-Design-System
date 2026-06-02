@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Responsive Sheet</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Organisms</div>
+    <h1 class="page-title">Responsive Sheet</h1>
+    <p class="page-sub">Painel que adapta dimensão e direção ao viewport: <strong>side sheet</strong> em desktop (entra pela direita), <strong>bottom sheet</strong> em mobile (entra de baixo). Mesma API, mesmo conteúdo.</p>
+    <section class="section">
+      <h2 class="section-h1">Desktop · side sheet</h2>
+      <div class="preview-row" style="display:block;padding:0;background:var(--surface-subtle);">
+        <div style="display:flex;height:380px;">
+          <div style="flex:1;padding:20px;color:var(--fg-muted);font-size:12px;">Tela em background</div>
+          <div style="width:380px;background:var(--card);border-left:1px solid var(--border);box-shadow:var(--shadow-elevated);display:flex;flex-direction:column;">
+            <header style="padding:16px 20px;border-bottom:1px solid var(--border-faint);display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-family:var(--font-pulso-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);">Filtros</div>
+                <div style="font-size:15px;font-weight:600;color:var(--fg-strong);">Refinar busca</div>
+              </div>
+              <span style="font-size:18px;color:var(--fg-muted);cursor:pointer;">×</span>
+            </header>
+            <div style="flex:1;padding:20px;font-size:13px;color:var(--fg-secondary);">Conteúdo do sheet…</div>
+            <footer style="padding:14px 20px;border-top:1px solid var(--border-faint);display:flex;gap:8px;justify-content:flex-end;">
+              <button class="btn btn-ghost">Limpar</button>
+              <button class="btn btn-primary">Aplicar</button>
+            </footer>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">Mobile · bottom sheet</h2>
+      <div class="preview-row" style="display:block;padding:0;background:var(--surface-subtle);">
+        <div style="position:relative;height:480px;width:320px;margin:0 auto;background:var(--muted);overflow:hidden;border-radius:24px;">
+          <div style="position:absolute;bottom:0;left:0;right:0;background:var(--card);border-top-left-radius:18px;border-top-right-radius:18px;box-shadow:var(--shadow-elevated);max-height:70%;display:flex;flex-direction:column;">
+            <div style="padding-top:8px;display:flex;justify-content:center;"><div style="width:36px;height:4px;background:var(--border);border-radius:2px;"></div></div>
+            <header style="padding:12px 20px 14px;border-bottom:1px solid var(--border-faint);">
+              <div style="font-size:15px;font-weight:600;color:var(--fg-strong);">Refinar busca</div>
+            </header>
+            <div style="padding:16px 20px;font-size:13px;color:var(--fg-secondary);">Conteúdo do sheet…</div>
+            <footer style="padding:12px 20px 20px;display:flex;gap:8px;">
+              <button class="btn btn-ghost" style="flex:1;">Limpar</button>
+              <button class="btn btn-primary" style="flex:1;">Aplicar</button>
+            </footer>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Radio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* ─── Radio ─────────────────────────────────────────────── */
+.prd-row { display: inline-flex; align-items: flex-start; gap: 10px; cursor: pointer; user-select: none; padding: 4px 0; }
+.prd-row input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
+
+.prd {
+  flex-shrink: 0;
+  width: 16px; height: 16px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--card);
+  display: inline-flex; align-items: center; justify-content: center;
+  transition:
+    background-color 140ms var(--motion-easing),
+    border-color 140ms var(--motion-easing);
+  margin-top: 1px;
+  position: relative;
+}
+.prd::after {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--primary-foreground);
+  transform: scale(0);
+  transition: transform 160ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.prd-row:hover .prd { border-color: var(--fg-muted); background: var(--muted); }
+
+input:focus-visible + .prd { outline: var(--ring-width) solid var(--ring); outline-offset: var(--ring-offset); }
+
+input:checked + .prd { background: var(--primary); border-color: var(--primary); }
+input:checked + .prd::after { transform: scale(1); }
+
+input:disabled + .prd { background: var(--muted); border-color: var(--border); cursor: not-allowed; }
+input:disabled:checked + .prd { background: var(--fg-disabled); border-color: var(--fg-disabled); }
+input:disabled ~ .prd-content { color: var(--fg-disabled); cursor: not-allowed; }
+
+.prd-row.is-error .prd { border-color: var(--destructive); }
+.prd-row.is-error input:checked + .prd { background: var(--destructive); border-color: var(--destructive); }
+
+.prd-content { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.prd-label { font-size: 13px; line-height: 1.4; color: var(--fg-strong); font-weight: 500; }
+.prd-help { font-size: 12px; color: var(--fg-muted); line-height: 1.4; }
+
+/* Group */
+.prd-group { display: flex; flex-direction: column; gap: 6px; }
+
+/* Card variant */
+.prd-card {
+  display: flex; gap: 12px; padding: 14px 16px;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+  background: var(--card); cursor: pointer; user-select: none;
+  transition: border-color 140ms var(--motion-easing), background 140ms var(--motion-easing);
+  flex: 1; min-width: 0;
+}
+.prd-card:hover { border-color: var(--fg-muted); }
+.prd-card.is-checked { border-color: var(--primary); background: var(--primary-soft); }
+.prd-card-body { flex: 1; min-width: 0; }
+.prd-card-title { font-size: 13.5px; font-weight: 600; color: var(--fg-strong); display: flex; align-items: center; gap: 8px; }
+.prd-card-desc { font-size: 12px; color: var(--fg-muted); margin-top: 4px; line-height: 1.5; }
+.prd-card-tag { font-family: var(--font-pulso-mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 6px; border-radius: var(--radius-xs); background: var(--muted); color: var(--fg-secondary); }
+
+/* Segmented control (radio styled as button group) */
+.prd-segment {
+  display: inline-flex;
+  padding: 3px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.prd-segment label {
+  position: relative;
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--fg-muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: color 140ms var(--motion-easing), background 140ms var(--motion-easing);
+}
+.prd-segment label:hover { color: var(--fg); }
+.prd-segment input { position: absolute; opacity: 0; pointer-events: none; }
+.prd-segment label:has(input:checked) {
+  background: var(--card);
+  color: var(--fg-strong);
+  box-shadow: var(--shadow-xs);
+  font-weight: 600;
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Atoms · Onda 3 · Form 02</div>
+    <h1 class="page-title">Radio</h1>
+    <p class="page-sub">Escolha exclusiva. Diferente do Checkbox no formato (círculo) e na intenção: exatamente uma opção do grupo. Quando &gt; 5 opções ou opções têm hierarquia, prefira Select.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Estados</h2>
+      <p class="section-desc">Mesma calibragem do Checkbox: 16px padrão, motion sutil ao marcar (160ms scale com bounce).</p>
+      <div class="preview-row" style="gap: 32px;">
+        <label class="prd-row"><input type="radio" name="states-1"><span class="prd"></span><span class="prd-content"><span class="prd-label">Vazio</span></span></label>
+        <label class="prd-row"><input type="radio" name="states-1" checked><span class="prd"></span><span class="prd-content"><span class="prd-label">Marcado</span></span></label>
+        <label class="prd-row"><input type="radio" name="states-2" disabled><span class="prd"></span><span class="prd-content"><span class="prd-label">Desabilitado</span></span></label>
+        <label class="prd-row"><input type="radio" name="states-2" disabled checked><span class="prd"></span><span class="prd-content"><span class="prd-label">Disabled marcado</span></span></label>
+        <label class="prd-row is-error"><input type="radio" name="states-3"><span class="prd"></span><span class="prd-content"><span class="prd-label">Erro</span></span></label>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Grupo com descrição</h2>
+      <p class="section-desc">Cada opção descreve sua consequência operacional. Spacing 14px entre opções para leitura confortável.</p>
+      <div class="preview-row" style="display: block;">
+        <div class="prd-group">
+          <label class="prd-row"><input type="radio" name="alert-mode" checked><span class="prd"></span><span class="prd-content"><span class="prd-label">Imediato</span><span class="prd-help">Notificação push e e-mail no momento em que o sinal cruzar o limiar.</span></span></label>
+          <label class="prd-row"><input type="radio" name="alert-mode"><span class="prd"></span><span class="prd-content"><span class="prd-label">Agrupado · 15 min</span><span class="prd-help">Consolida sinais em janelas de 15 min para reduzir ruído. Recomendado.</span></span></label>
+          <label class="prd-row"><input type="radio" name="alert-mode"><span class="prd"></span><span class="prd-content"><span class="prd-label">Diário · 08:00</span><span class="prd-help">Apenas resumo no início do expediente. Não use em monitoramento ativo.</span></span></label>
+          <label class="prd-row"><input type="radio" name="alert-mode"><span class="prd"></span><span class="prd-content"><span class="prd-label">Apenas no painel</span><span class="prd-help">Sem notificações externas. Sinais ficam visíveis só dentro do Crisis Monitor.</span></span></label>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Card variant</h2>
+      <p class="section-desc">Para escolhas com peso operacional — modos de operação, planos, fluxos. Use 2–4 opções; mais que isso prejudica comparação.</p>
+      <div class="preview-row" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; align-items: stretch;">
+        <label class="prd-card">
+          <input type="radio" name="op-mode" style="position: absolute; opacity: 0;">
+          <span class="prd"></span>
+          <span class="prd-card-body">
+            <span class="prd-card-title">Vigilância <span class="prd-card-tag">padrão</span></span>
+            <span class="prd-card-desc">Monitoramento contínuo com limiares conservadores. Equipe rotativa em 12h.</span>
+          </span>
+        </label>
+        <label class="prd-card is-checked">
+          <input type="radio" name="op-mode" checked style="position: absolute; opacity: 0;">
+          <span class="prd"></span>
+          <span class="prd-card-body">
+            <span class="prd-card-title">Atenção <span class="prd-card-tag" style="background: var(--risk-medium-bg); color: var(--risk-medium); border: 1px solid var(--risk-medium-border);">Ativo</span></span>
+            <span class="prd-card-desc">Limiares baixados, refresh a cada 60s. Notifica sala de guerra automaticamente.</span>
+          </span>
+        </label>
+        <label class="prd-card">
+          <input type="radio" name="op-mode" style="position: absolute; opacity: 0;">
+          <span class="prd"></span>
+          <span class="prd-card-body">
+            <span class="prd-card-title">Crise <span class="prd-card-tag" style="background: var(--risk-critical-bg); color: var(--risk-critical); border: 1px solid var(--risk-critical-border);">Escalada</span></span>
+            <span class="prd-card-desc">Modo guerra. Resposta em &lt; 15 min, executivos notificados, log integral.</span>
+          </span>
+        </label>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Segmented control</h2>
+      <p class="section-desc">Radio renderizado como toggle inline. Padrão para 2–4 opções curtas — período, modo de visualização, escala. Ocupa pouco espaço; ideal em barras de filtro e headers.</p>
+      <div class="preview-row" style="gap: 24px; flex-wrap: wrap;">
+        <div class="prd-segment">
+          <label><input type="radio" name="period" checked>24h</label>
+          <label><input type="radio" name="period">7d</label>
+          <label><input type="radio" name="period">30d</label>
+          <label><input type="radio" name="period">90d</label>
+        </div>
+        <div class="prd-segment">
+          <label><input type="radio" name="view-mode" checked>Lista</label>
+          <label><input type="radio" name="view-mode">Tabela</label>
+          <label><input type="radio" name="view-mode">Timeline</label>
+        </div>
+        <div class="prd-segment">
+          <label><input type="radio" name="scale">Linear</label>
+          <label><input type="radio" name="scale" checked>Log</label>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Quando usar</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Use</div>
+          <ul>
+            <li>2–5 opções mutuamente exclusivas</li>
+            <li>Quando todas as opções precisam ficar visíveis para comparação</li>
+            <li>Segmented para escolhas curtas e frequentes (período, modo)</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Evite</div>
+          <ul>
+            <li>Mais de 5 opções → use Select</li>
+            <li>Toggle on/off → use Switch</li>
+            <li>Múltipla escolha → use Checkbox</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+
+<script src="../_nav.js"></script>
+</body>
+</html>

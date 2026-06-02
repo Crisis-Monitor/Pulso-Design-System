@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Form</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Organisms</div>
+    <h1 class="page-title">Form</h1>
+    <p class="page-sub">Composição canônica de campos. Header de seção + Form Fields verticalmente alinhados + footer com ações. Espaçamento de 20px entre seções.</p>
+    <section class="section">
+      <h2 class="section-h1">Novo caso</h2>
+      <div class="preview-row" style="display:block;padding:32px;">
+        <form style="max-width:560px;display:flex;flex-direction:column;gap:20px;">
+          <div>
+            <div style="font-family:var(--font-pulso-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);margin-bottom:6px;">Seção 01</div>
+            <div style="font-size:14px;font-weight:600;color:var(--fg-strong);margin-bottom:14px;">Identificação</div>
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              <div>
+                <label style="display:block;font-size:12px;font-weight:500;color:var(--fg);margin-bottom:4px;">Nome do caso <span style="color:var(--destructive);">*</span></label>
+                <input value="Operação Água Nova" style="width:100%;padding:0 12px;height:32px;background:var(--card);border:1px solid var(--input);border-radius:var(--radius-sm);font-size:13px;color:var(--fg);">
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;font-weight:500;color:var(--fg);margin-bottom:4px;">Descrição interna</label>
+                <textarea rows="3" style="width:100%;padding:8px 12px;background:var(--card);border:1px solid var(--input);border-radius:var(--radius-sm);font-family:inherit;font-size:13px;color:var(--fg);resize:vertical;">Vazamento reportado na ETA Norte. Acompanhar até comunicado oficial.</textarea>
+              </div>
+            </div>
+          </div>
+          <div style="height:1px;background:var(--border-faint);"></div>
+          <div>
+            <div style="font-family:var(--font-pulso-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);margin-bottom:6px;">Seção 02</div>
+            <div style="font-size:14px;font-weight:600;color:var(--fg-strong);margin-bottom:14px;">Configuração</div>
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              <div>
+                <label style="display:block;font-size:12px;font-weight:500;color:var(--fg);margin-bottom:4px;">Nível inicial</label>
+                <select style="width:100%;padding:0 12px;height:32px;background:var(--card);border:1px solid var(--input);border-radius:var(--radius-sm);font-size:13px;color:var(--fg);"><option>Atenção</option><option>Monitor</option><option>Alto</option></select>
+              </div>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                <input type="checkbox" checked style="width:16px;height:16px;">
+                <div>
+                  <div style="font-size:13px;color:var(--fg);">Notificar equipe agora</div>
+                  <div style="font-size:11px;color:var(--fg-muted);">Envia Slack para #crisis-ops</div>
+                </div>
+              </label>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;padding-top:8px;border-top:1px solid var(--border-faint);">
+            <button type="button" class="btn btn-ghost">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Criar caso</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

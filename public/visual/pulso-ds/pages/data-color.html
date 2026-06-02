@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Data Color</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* ── Palette swatches ─────────────────────────────── */
+.pal-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; }
+@media (max-width: 1100px) { .pal-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 600px) { .pal-grid { grid-template-columns: repeat(2, 1fr); } }
+.pal-cell { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0; overflow: hidden; }
+.pal-swatch { height: 64px; }
+.pal-meta { padding: 10px 12px; font-family: var(--font-pulso-mono); }
+.pal-name { font-size: 11px; color: var(--fg-strong); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+.pal-hex { font-size: 10.5px; color: var(--fg-muted); margin-top: 3px; }
+.pal-order { display: inline-block; padding: 1px 6px; background: var(--muted); color: var(--fg-strong); border-radius: 3px; font-size: 9.5px; margin-top: 4px; }
+
+/* ── Stacked bar demo ─────────────────────────────── */
+.stack-row { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+.stack-bar { display: flex; height: 36px; border-radius: var(--radius-sm); overflow: hidden; }
+.stack-bar > div { display: flex; align-items: center; justify-content: center; font-family: var(--font-pulso-mono); font-size: 11px; color: white; font-weight: 600; }
+.stack-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11.5px; color: var(--fg-secondary); }
+.stack-legend .item { display: inline-flex; align-items: center; gap: 6px; }
+.stack-legend .dot { width: 9px; height: 9px; border-radius: 2px; }
+
+/* ── Multi-line demo ──────────────────────────────── */
+.multi-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px; }
+
+/* ── Simulator ────────────────────────────────────── */
+.sim-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+@media (max-width: 1000px) { .sim-grid { grid-template-columns: repeat(2, 1fr); } }
+.sim-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px; }
+.sim-name { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); font-weight: 600; margin-bottom: 4px; }
+.sim-desc { font-size: 12px; color: var(--fg-muted); margin-bottom: 12px; line-height: 1.5; }
+.sim-strip { display: flex; gap: 3px; height: 24px; margin-bottom: 6px; border-radius: 3px; overflow: hidden; }
+.sim-strip > div { flex: 1; }
+.sim-prevalence { font-family: var(--font-pulso-mono); font-size: 10px; color: var(--fg-subtle); }
+
+/* Color-blindness simulation via SVG color-matrix filters defined below */
+
+/* ── Semantic palette ─────────────────────────────── */
+.sem-row { display: grid; grid-template-columns: 200px 1fr 120px; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border-faint); align-items: center; }
+.sem-row:last-child { border-bottom: none; }
+.sem-swatch-row { display: flex; align-items: center; gap: 10px; }
+.sem-swatch { width: 28px; height: 28px; border-radius: 4px; flex-shrink: 0; }
+.sem-name { font-family: var(--font-pulso-mono); font-size: 11.5px; color: var(--fg-strong); font-weight: 600; }
+.sem-hex { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); }
+.sem-desc { font-size: 13px; color: var(--fg); line-height: 1.5; }
+.sem-when { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); text-align: right; }
+
+/* ── Spec rows ───────────────────────────────────── */
+.spec-row { display: grid; grid-template-columns: 200px 1fr; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--border-faint); align-items: baseline; }
+.spec-row:last-child { border-bottom: none; }
+.spec-key { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.06em; }
+.spec-val { font-size: 13px; color: var(--fg); line-height: 1.55; }
+.spec-val code { font-family: var(--font-pulso-mono); background: var(--muted); padding: 1px 6px; border-radius: 3px; font-size: 11.5px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+
+    <div class="page-kicker">Foundations · Data Color</div>
+    <h1 class="page-title">Escala categórica para dados</h1>
+    <p class="page-sub">Hoje temos 3–4 cores semânticas. Para 5, 8, 12 séries, falta escala categórica perceptualmente equidistante. Esta página fixa a paleta de 8 cores, ordem de prioridade, versões para fundo escuro, simulação color-blind safe e regras de combinação.</p>
+
+    <!-- SVG filters for color-blindness simulation -->
+    <svg width="0" height="0" style="position:absolute;">
+      <filter id="cb-deuter"><feColorMatrix type="matrix" values=".367 .861 -.228 0 0  .280 .673 .047 0 0  -.012 .043 .969 0 0  0 0 0 1 0"/></filter>
+      <filter id="cb-protan"><feColorMatrix type="matrix" values=".152 1.053 -.205 0 0  .115 .786 .098 0 0  -.004 -.048 1.052 0 0  0 0 0 1 0"/></filter>
+      <filter id="cb-tritan"><feColorMatrix type="matrix" values="1.255 -.077 -.178 0 0  -.078 .931 .148 0 0  .005 .691 .304 0 0  0 0 0 1 0"/></filter>
+      <filter id="cb-mono"><feColorMatrix type="matrix" values=".299 .587 .114 0 0  .299 .587 .114 0 0  .299 .587 .114 0 0  0 0 0 1 0"/></filter>
+    </svg>
+
+    <!-- ── Princípio ────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Princípio</h2>
+      <div style="background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: var(--radius-md); padding: 22px 26px;">
+        <p style="font-size: 16px; color: var(--fg-strong); line-height: 1.6; font-weight: 500; max-width: 720px;">Cor de dado é função, não estética. Cada hue precisa ser distinguível em: padrão, deuteranopia, protanopia, monocromático. Se uma simulação reduz a paleta a borrão, a paleta perdeu.</p>
+        <p style="font-size: 13.5px; color: var(--fg-secondary); margin-top: 12px; line-height: 1.6; max-width: 720px;">Em produto crítico, paleta categórica perceptualmente equidistante é tão importante quanto contraste de texto. Operador daltônico precisa ler 8 séries num multi-line — não pode "confiar na ordem".</p>
+      </div>
+    </section>
+
+    <!-- ── Paleta categórica light ──────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Paleta categórica · light</h2>
+      <p class="section-desc">Oito cores ordenadas. A <strong>ordem importa</strong> — use sempre <code>chart-1</code> antes de <code>chart-2</code>. Garante consistência entre charts e máxima separação quando houver poucas séries.</p>
+
+      <div class="pal-grid">
+        <div class="pal-cell"><div class="pal-swatch" style="background:#5D52FF;"></div><div class="pal-meta"><div class="pal-name">chart-1</div><div class="pal-hex">#5D52FF · violet</div><span class="pal-order">01 primária</span></div></div>
+        <div class="pal-cell"><div class="pal-swatch" style="background:#2F9CC4;"></div><div class="pal-meta"><div class="pal-name">chart-2</div><div class="pal-hex">#2F9CC4 · cyan</div><span class="pal-order">02</span></div></div>
+        <div class="pal-cell"><div class="pal-swatch" style="background:#14857A;"></div><div class="pal-meta"><div class="pal-name">chart-3</div><div class="pal-hex">#14857A · teal</div><span class="pal-order">03</span></div></div>
+        <div class="pal-cell"><div class="pal-swatch" style="background:#8B79FF;"></div><div class="pal-meta"><div class="pal-name">chart-4</div><div class="pal-hex">#8B79FF · lavender</div><span class="pal-order">04</span></div></div>
+        <div class="pal-cell"><div class="pal-swatch" style="background:#B45309;"></div><div class="pal-meta"><div class="pal-name">chart-5</div><div class="pal-hex">#B45309 · amber</div><span class="pal-order">05</span></div></div>
+        <div class="pal-cell"><div class="pal-swatch" style="background:#C53341;"></div><div class="pal-meta"><div class="pal-name">chart-6</div><div class="pal-hex">#C53341 · rose</div><span class="pal-order">06</span></div></div>
+        <div class="pal-cell"><div class="pal-swatch" style="background:#6353D9;"></div><div class="pal-meta"><div class="pal-name">chart-7</div><div class="pal-hex">#6353D9 · purple</div><span class="pal-order">07</span></div></div>
+        <div class="pal-cell"><div class="pal-swatch" style="background:#34A599;"></div><div class="pal-meta"><div class="pal-name">chart-8</div><div class="pal-hex">#34A599 · teal-lt</div><span class="pal-order">08</span></div></div>
+      </div>
+    </section>
+
+    <!-- ── Paleta dark ────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Paleta categórica · dark</h2>
+      <p class="section-desc">Mesma ordem, lightness ajustada para fundo escuro. Tokens são os mesmos · valores trocam via <code>.dark</code>. Designer escreve <code>var(--chart-1)</code> uma vez.</p>
+
+      <div class="pal-grid" style="padding:18px;background:#0F0C1A;border-radius:var(--radius-md);border:1px solid var(--border);">
+        <div class="pal-cell" style="background:#151126;border-color:#302A50;"><div class="pal-swatch" style="background:#7B71FF;"></div><div class="pal-meta"><div class="pal-name" style="color:#E5E1F4;">chart-1</div><div class="pal-hex" style="color:#A09CB4;">#7B71FF</div></div></div>
+        <div class="pal-cell" style="background:#151126;border-color:#302A50;"><div class="pal-swatch" style="background:#58C7F2;"></div><div class="pal-meta"><div class="pal-name" style="color:#E5E1F4;">chart-2</div><div class="pal-hex" style="color:#A09CB4;">#58C7F2</div></div></div>
+        <div class="pal-cell" style="background:#151126;border-color:#302A50;"><div class="pal-swatch" style="background:#5DCAB8;"></div><div class="pal-meta"><div class="pal-name" style="color:#E5E1F4;">chart-3</div><div class="pal-hex" style="color:#A09CB4;">#5DCAB8</div></div></div>
+        <div class="pal-cell" style="background:#151126;border-color:#302A50;"><div class="pal-swatch" style="background:#B59CFF;"></div><div class="pal-meta"><div class="pal-name" style="color:#E5E1F4;">chart-4</div><div class="pal-hex" style="color:#A09CB4;">#B59CFF</div></div></div>
+        <div class="pal-cell" style="background:#151126;border-color:#302A50;"><div class="pal-swatch" style="background:#F5A23B;"></div><div class="pal-meta"><div class="pal-name" style="color:#E5E1F4;">chart-5</div><div class="pal-hex" style="color:#A09CB4;">#F5A23B</div></div></div>
+        <div class="pal-cell" style="background:#151126;border-color:#302A50;"><div class="pal-swatch" style="background:#F47080;"></div><div class="pal-meta"><div class="pal-name" style="color:#E5E1F4;">chart-6</div><div class="pal-hex" style="color:#A09CB4;">#F47080</div></div></div>
+        <div class="pal-cell" style="background:#151126;border-color:#302A50;"><div class="pal-swatch" style="background:#9990FF;"></div><div class="pal-meta"><div class="pal-name" style="color:#E5E1F4;">chart-7</div><div class="pal-hex" style="color:#A09CB4;">#9990FF</div></div></div>
+        <div class="pal-cell" style="background:#151126;border-color:#302A50;"><div class="pal-swatch" style="background:#74E0D8;"></div><div class="pal-meta"><div class="pal-name" style="color:#E5E1F4;">chart-8</div><div class="pal-hex" style="color:#A09CB4;">#74E0D8</div></div></div>
+      </div>
+    </section>
+
+    <!-- ── Ordem & quantidade ───────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Quantas séries · qual cor</h2>
+      <p class="section-desc">Use o mínimo necessário. Chart com 8 séries é menos legível que 4 séries + tabela com o resto.</p>
+
+      <table class="tokens">
+        <thead><tr><th>Séries</th><th>Cores nessa ordem</th><th>Observação</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td class="mono">chart-1</td><td>Sempre violet primário. Não improvise.</td></tr>
+          <tr><td>2</td><td class="mono">chart-1 + chart-2</td><td>Violet + cyan · contraste máximo entre warm/cool.</td></tr>
+          <tr><td>3</td><td class="mono">chart-1 + chart-2 + chart-3</td><td>+ teal. Adiciona dimensão sem ambiguidade.</td></tr>
+          <tr><td>4</td><td class="mono">chart-1 → chart-4</td><td>Inclui lavender. Última cor antes de diversificar para amber/rose.</td></tr>
+          <tr><td>5–6</td><td class="mono">chart-1 → chart-6</td><td>Adiciona amber e rose para break de monotonia. Verificar simulação.</td></tr>
+          <tr><td>7–8</td><td class="mono">chart-1 → chart-8</td><td>Use só se imprescindível. Considere agrupar séries.</td></tr>
+          <tr><td>9+</td><td class="mono">—</td><td>Não suportado. Use grouping, faceting, ou tabela complementar.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Composição: stacked bar ────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Composição · stacked bar</h2>
+      <p class="section-desc">Quando proporção entre N séries importa mais que valor absoluto. Use cores adjacentes no índice — vizinhas têm distância perceptual maior.</p>
+
+      <div class="stack-row">
+        <div>
+          <div style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);margin-bottom:6px;">PLS-012 · cobertura por veículo (240 menções)</div>
+          <div class="stack-bar">
+            <div style="background:var(--chart-1);width:32%;">32%</div>
+            <div style="background:var(--chart-2);width:24%;">24%</div>
+            <div style="background:var(--chart-3);width:18%;">18%</div>
+            <div style="background:var(--chart-4);width:14%;">14%</div>
+            <div style="background:var(--chart-5);width:8%;">8%</div>
+            <div style="background:var(--chart-neutral);width:4%;">4%</div>
+          </div>
+          <div class="stack-legend" style="margin-top:12px;">
+            <span class="item"><span class="dot" style="background:var(--chart-1);"></span>Folha</span>
+            <span class="item"><span class="dot" style="background:var(--chart-2);"></span>O Globo</span>
+            <span class="item"><span class="dot" style="background:var(--chart-3);"></span>UOL</span>
+            <span class="item"><span class="dot" style="background:var(--chart-4);"></span>G1</span>
+            <span class="item"><span class="dot" style="background:var(--chart-5);"></span>Estadão</span>
+            <span class="item"><span class="dot" style="background:var(--chart-neutral);"></span>Outros</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Composição: multi-line ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Composição · multi-line</h2>
+      <p class="section-desc">Quatro séries de score ao longo de 12h. Linhas devem ser distinguíveis sem legenda — cada cor + endpoint marker resolve.</p>
+
+      <div class="multi-card">
+        <svg width="100%" viewBox="0 0 720 260" aria-label="Comparativo de score entre 4 casos">
+          <g stroke="var(--chart-grid)" stroke-width="1">
+            <line x1="50" y1="30"  x2="690" y2="30"/>
+            <line x1="50" y1="85"  x2="690" y2="85"/>
+            <line x1="50" y1="140" x2="690" y2="140"/>
+            <line x1="50" y1="195" x2="690" y2="195"/>
+          </g>
+          <g font-family="var(--font-pulso-mono)" font-size="10" fill="var(--fg-subtle)" text-anchor="end">
+            <text x="44" y="34">100</text>
+            <text x="44" y="89">75</text>
+            <text x="44" y="144">50</text>
+            <text x="44" y="199">25</text>
+          </g>
+          <g font-family="var(--font-pulso-mono)" font-size="10" fill="var(--fg-subtle)" text-anchor="middle">
+            <text x="50"  y="232">12h atrás</text>
+            <text x="210" y="232">9h</text>
+            <text x="370" y="232">6h</text>
+            <text x="530" y="232">3h</text>
+            <text x="690" y="232">agora</text>
+          </g>
+          <!-- Series 1: PLS-012 (up) -->
+          <path d="M 50 175 L 130 165 L 210 148 L 290 130 L 370 110 L 450 92 L 530 70 L 610 55 L 690 50" fill="none" stroke="var(--chart-1)" stroke-width="2.25" stroke-linecap="round"/>
+          <circle cx="690" cy="50" r="4" fill="var(--chart-1)" stroke="var(--card)" stroke-width="2"/>
+          <text x="700" y="54" font-family="var(--font-pulso-mono)" font-size="11" fill="var(--chart-1)" font-weight="600">PLS-012</text>
+          <!-- Series 2: PLS-014 (flat-down) -->
+          <path d="M 50 110 L 130 115 L 210 120 L 290 118 L 370 122 L 450 128 L 530 132 L 610 130 L 690 135" fill="none" stroke="var(--chart-2)" stroke-width="2.25" stroke-linecap="round"/>
+          <circle cx="690" cy="135" r="4" fill="var(--chart-2)" stroke="var(--card)" stroke-width="2"/>
+          <text x="700" y="139" font-family="var(--font-pulso-mono)" font-size="11" fill="var(--chart-2)" font-weight="600">PLS-014</text>
+          <!-- Series 3: PLS-018 (flat) -->
+          <path d="M 50 160 L 130 161 L 210 159 L 290 162 L 370 160 L 450 161 L 530 159 L 610 160 L 690 158" fill="none" stroke="var(--chart-3)" stroke-width="2.25" stroke-linecap="round"/>
+          <circle cx="690" cy="158" r="4" fill="var(--chart-3)" stroke="var(--card)" stroke-width="2"/>
+          <text x="700" y="162" font-family="var(--font-pulso-mono)" font-size="11" fill="var(--chart-3)" font-weight="600">PLS-018</text>
+          <!-- Series 4: PLS-020 (volatile) -->
+          <path d="M 50 195 L 130 175 L 210 190 L 290 170 L 370 185 L 450 165 L 530 175 L 610 155 L 690 170" fill="none" stroke="var(--chart-4)" stroke-width="2.25" stroke-linecap="round"/>
+          <circle cx="690" cy="170" r="4" fill="var(--chart-4)" stroke="var(--card)" stroke-width="2"/>
+          <text x="700" y="174" font-family="var(--font-pulso-mono)" font-size="11" fill="var(--chart-4)" font-weight="600">PLS-020</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ── Color-blind simulator ───────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Auditoria · color-blind</h2>
+      <p class="section-desc">A paleta é testada nas 4 condições mais relevantes. Cada strip mostra os 8 hues lado a lado sob filtro. Se você não consegue distinguir as cores, a paleta falhou aquela condição.</p>
+
+      <div class="sim-grid">
+        <div class="sim-card">
+          <div class="sim-name">Normal</div>
+          <div class="sim-desc">Referência · todas as 8 cores na ordem.</div>
+          <div class="sim-strip">
+            <div style="background:#5D52FF;"></div><div style="background:#2F9CC4;"></div><div style="background:#14857A;"></div><div style="background:#8B79FF;"></div><div style="background:#B45309;"></div><div style="background:#C53341;"></div><div style="background:#6353D9;"></div><div style="background:#34A599;"></div>
+          </div>
+          <div class="sim-prevalence">100% da população</div>
+        </div>
+        <div class="sim-card">
+          <div class="sim-name">Deuteranopia</div>
+          <div class="sim-desc">Ausência de cones verdes. Mais comum.</div>
+          <div class="sim-strip" style="filter:url(#cb-deuter);">
+            <div style="background:#5D52FF;"></div><div style="background:#2F9CC4;"></div><div style="background:#14857A;"></div><div style="background:#8B79FF;"></div><div style="background:#B45309;"></div><div style="background:#C53341;"></div><div style="background:#6353D9;"></div><div style="background:#34A599;"></div>
+          </div>
+          <div class="sim-prevalence">~6% dos homens · 0.4% das mulheres</div>
+        </div>
+        <div class="sim-card">
+          <div class="sim-name">Protanopia</div>
+          <div class="sim-desc">Ausência de cones vermelhos.</div>
+          <div class="sim-strip" style="filter:url(#cb-protan);">
+            <div style="background:#5D52FF;"></div><div style="background:#2F9CC4;"></div><div style="background:#14857A;"></div><div style="background:#8B79FF;"></div><div style="background:#B45309;"></div><div style="background:#C53341;"></div><div style="background:#6353D9;"></div><div style="background:#34A599;"></div>
+          </div>
+          <div class="sim-prevalence">~2% dos homens</div>
+        </div>
+        <div class="sim-card">
+          <div class="sim-name">Tritanopia</div>
+          <div class="sim-desc">Ausência de cones azuis. Raríssima.</div>
+          <div class="sim-strip" style="filter:url(#cb-tritan);">
+            <div style="background:#5D52FF;"></div><div style="background:#2F9CC4;"></div><div style="background:#14857A;"></div><div style="background:#8B79FF;"></div><div style="background:#B45309;"></div><div style="background:#C53341;"></div><div style="background:#6353D9;"></div><div style="background:#34A599;"></div>
+          </div>
+          <div class="sim-prevalence">~0.01% da população</div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:18px 22px;">
+        <div style="font-family:var(--font-pulso-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--fg-subtle);margin-bottom:10px;">Caso-pior · monocromático (impressão B/W · 100% migrânea)</div>
+        <div class="sim-strip" style="filter:url(#cb-mono);height:32px;">
+          <div style="background:#5D52FF;"></div><div style="background:#2F9CC4;"></div><div style="background:#14857A;"></div><div style="background:#8B79FF;"></div><div style="background:#B45309;"></div><div style="background:#C53341;"></div><div style="background:#6353D9;"></div><div style="background:#34A599;"></div>
+        </div>
+        <div style="font-size:12.5px;color:var(--fg-secondary);margin-top:8px;line-height:1.55;">Em monocromático, <strong>chart-3</strong> e <strong>chart-8</strong> ficam próximos · use os outros 6 primeiro. Em B/W obrigatório (impressão de relatório), <strong>adicione padrão</strong> (hatch, dotted) além da cor.</div>
+      </div>
+    </section>
+
+    <!-- ── Pares perigosos ─────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Pares perigosos</h2>
+      <p class="section-desc">Algumas combinações são quase indistinguíveis sob daltonismo. Nunca use os dois lado a lado para séries diferentes.</p>
+
+      <div style="display:flex;gap:14px;flex-wrap:wrap;">
+        <div style="background:var(--card);border:1px solid var(--border);border-left:3px solid var(--destructive);border-radius:var(--radius-md);padding:14px 18px;flex:1;min-width:240px;">
+          <div style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--destructive);margin-bottom:6px;">Não · em deuteranopia ficam quase iguais</div>
+          <div style="display:flex;gap:8px;margin-bottom:4px;"><span style="width:24px;height:24px;background:#B45309;border-radius:3px;"></span><span style="width:24px;height:24px;background:#14857A;border-radius:3px;"></span></div>
+          <div style="font-family:var(--font-pulso-mono);font-size:11.5px;color:var(--fg);">chart-5 (amber) + chart-3 (teal)</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-left:3px solid var(--destructive);border-radius:var(--radius-md);padding:14px 18px;flex:1;min-width:240px;">
+          <div style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--destructive);margin-bottom:6px;">Não · violets adjacentes</div>
+          <div style="display:flex;gap:8px;margin-bottom:4px;"><span style="width:24px;height:24px;background:#5D52FF;border-radius:3px;"></span><span style="width:24px;height:24px;background:#6353D9;border-radius:3px;"></span></div>
+          <div style="font-family:var(--font-pulso-mono);font-size:11.5px;color:var(--fg);">chart-1 + chart-7 (não usar 7 com poucas séries)</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-left:3px solid var(--destructive);border-radius:var(--radius-md);padding:14px 18px;flex:1;min-width:240px;">
+          <div style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--destructive);margin-bottom:6px;">Não · teals próximos em B/W</div>
+          <div style="display:flex;gap:8px;margin-bottom:4px;"><span style="width:24px;height:24px;background:#14857A;border-radius:3px;"></span><span style="width:24px;height:24px;background:#34A599;border-radius:3px;"></span></div>
+          <div style="font-family:var(--font-pulso-mono);font-size:11.5px;color:var(--fg);">chart-3 + chart-8 (não usar 8 com 3)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Paleta semântica ────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Paleta semântica</h2>
+      <p class="section-desc">Quando o dado tem polaridade (positivo/negativo) ou tier (atenção/crítico), use a paleta semântica. Nunca <code>chart-1..8</code> para indicar sentido — só para distinguir séries iguais.</p>
+
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:8px 22px;">
+        <div class="sem-row">
+          <div class="sem-swatch-row"><span class="sem-swatch" style="background:#15803D;"></span><div><div class="sem-name">--chart-positive</div><div class="sem-hex">#15803D · #4ECB7C dark</div></div></div>
+          <div class="sem-desc">Sentimento positivo · melhora · score caindo (em domínio de crise)</div>
+          <div class="sem-when">success / good</div>
+        </div>
+        <div class="sem-row">
+          <div class="sem-swatch-row"><span class="sem-swatch" style="background:#D63D4E;"></span><div><div class="sem-name">--chart-negative</div><div class="sem-hex">#D63D4E · #F47080 dark</div></div></div>
+          <div class="sem-desc">Sentimento negativo · piora · score subindo</div>
+          <div class="sem-when">error / bad</div>
+        </div>
+        <div class="sem-row">
+          <div class="sem-swatch-row"><span class="sem-swatch" style="background:#5E5D68;"></span><div><div class="sem-name">--chart-neutral</div><div class="sem-hex">#5E5D68 · #A1A0AD dark</div></div></div>
+          <div class="sem-desc">Sentimento neutro · sem variação · outros</div>
+          <div class="sem-when">zero / "outros"</div>
+        </div>
+        <div class="sem-row">
+          <div class="sem-swatch-row"><span class="sem-swatch" style="background:#D97706;"></span><div><div class="sem-name">--chart-attention</div><div class="sem-hex">#D97706 · #F5A23B dark</div></div></div>
+          <div class="sem-desc">Nível attention · threshold próximo · em risk-attention</div>
+          <div class="sem-when">warning</div>
+        </div>
+        <div class="sem-row">
+          <div class="sem-swatch-row"><span class="sem-swatch" style="background:#B91C1C;"></span><div><div class="sem-name">--chart-critical</div><div class="sem-hex">#B91C1C · #F47080 dark</div></div></div>
+          <div class="sem-desc">Nível critical · escalonado · em risk-critical</div>
+          <div class="sem-when">danger</div>
+        </div>
+      </div>
+
+      <p class="section-desc" style="margin-top:14px;"><strong>Atenção:</strong> em Crisis Monitor, <em>queda</em> do score é melhora (verde). Em finance, é o oposto. A semântica é por <em>direção</em>, não por número — sempre escolhida pelo consumer.</p>
+    </section>
+
+    <!-- ── Implementation ─────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Implementação</h2>
+
+      <div class="spec-row">
+        <div class="spec-key">Tokens</div>
+        <div class="spec-val"><code>--chart-1</code> a <code>--chart-8</code> (categórico) · <code>--chart-positive</code>, <code>-negative</code>, <code>-neutral</code>, <code>-attention</code>, <code>-critical</code> (semântico).</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Fills auxiliares</div>
+        <div class="spec-val"><code>--chart-fill-soft</code> · 14% mix com white (light) / 18% mix com black (dark) · usado em area fills. <code>--chart-fill-strong</code> · 60% / 55% mix · usado em destaques.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Auto-assign</div>
+        <div class="spec-val">Helper <code>colorForSeries(index)</code> retorna <code>chart-{(index % 8) + 1}</code>. Garante consistência entre charts da mesma tela.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Override por consumer</div>
+        <div class="spec-val">Possível, mas exige justificativa em PR. Default ganha quase sempre.</div>
+      </div>
+    </section>
+
+    <!-- ── Regras ──────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Faça</div>
+          <ul>
+            <li>Use <code>chart-1</code> primeiro · <code>chart-8</code> só com 8 séries genuinamente necessárias.</li>
+            <li>Para polaridade ou tier, use a paleta semântica · nunca categórica.</li>
+            <li>Em B/W (impressão), some <strong>padrão</strong> (hatch, dotted) à cor.</li>
+            <li>Em proporção (donut, stacked bar), inclua percentual em texto · não dependa só de hue.</li>
+            <li>Em multi-series, marque endpoint de cada linha com label próprio — operador identifica sem voltar à legenda.</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Evite</div>
+          <ul>
+            <li>Não combine chart-3 + chart-5 (teal + amber) — colidem em deuteranopia.</li>
+            <li>Não use 9+ séries. Agrupar é solução, não cor extra.</li>
+            <li>Não use cores fora dos tokens. Hex custom não está documentado.</li>
+            <li>Não use vermelho/verde como única forma de comunicar bom/ruim. Sempre acompanhe sinal ou texto.</li>
+            <li>Não inverta a paleta entre charts da mesma tela. <code>chart-1</code> em um chart, <code>chart-3</code> em outro para a mesma série quebra o modelo mental.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Status ─────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Status da iniciativa · 3.2</h2>
+      <table class="tokens">
+        <thead><tr><th>Deliverable</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Paleta categórica · 8 cores · light + dark</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue · auditada</span></td></tr>
+          <tr><td>Paleta semântica · positive · negative · neutral · attention · critical</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Simulação color-blind · deuter · protan · tritan · mono</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Documento de pares perigosos · 3 pares mapeados</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Helper <code>colorForSeries(i)</code> + override API</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Página <strong>Foundations · Data Color</strong></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Padrões hatch/dotted para impressão B/W</td><td><span style="color:var(--warning);font-family:var(--font-pulso-mono);font-size:11px;">⏳ PLS-DS-PRINT-061</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Controls</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Atoms</div>
+    <h1 class="page-title">Controls</h1>
+    <p class="page-sub">Catálogo unificado dos primitives de controle. Mesma altura, mesmo radius, mesma família — só varia o tipo.</p>
+    <section class="section">
+      <h2 class="section-h1">Alturas canônicas</h2>
+      <p class="section-desc">Quatro tamanhos. <strong>32px (default)</strong> resolve 95% dos casos.</p>
+      <table class="tokens">
+        <thead><tr><th>Token</th><th>Altura</th><th>Uso</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">--control-h-compact</td><td class="mono">28px</td><td>Tabelas densas, filter bar</td></tr>
+          <tr><td class="mono">--control-h-default</td><td class="mono">32px</td><td>Forms padrão, botões inline</td></tr>
+          <tr><td class="mono">--control-h-prominent</td><td class="mono">36px</td><td>CTA destacado</td></tr>
+          <tr><td class="mono">--control-h-hero</td><td class="mono">44px</td><td>Landing, onboarding</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">Alinhamento horizontal</h2>
+      <div class="preview-row" style="gap:6px;">
+        <input type="text" placeholder="Buscar caso..." style="padding:0 12px;height:32px;background:var(--card);border:1px solid var(--input);border-radius:var(--radius-sm);font-family:inherit;font-size:13px;color:var(--fg);min-width:200px;">
+        <select style="padding:0 28px 0 12px;height:32px;background:var(--card);border:1px solid var(--input);border-radius:var(--radius-sm);font-size:13px;color:var(--fg);"><option>Todos</option></select>
+        <button class="btn btn-secondary">Filtros</button>
+        <button class="btn btn-primary">Novo caso</button>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

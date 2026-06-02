@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Sheet</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.sh-stage { position: relative; height: 540px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--muted); overflow: hidden; }
+.sh-page { position: absolute; inset: 0; background: var(--background); padding: 24px; opacity: 0.5; }
+.sh-overlay { position: absolute; inset: 0; background: rgba(20,18,32,0.42); backdrop-filter: blur(2px); }
+html.dark .sh-overlay { background: rgba(0,0,0,0.55); }
+
+.sh {
+  position: absolute;
+  background: var(--popover);
+  display: flex;
+  flex-direction: column;
+  box-shadow: -16px 0 40px rgba(20,18,32,0.18);
+}
+.sh-right { top: 0; bottom: 0; right: 0; width: 480px; max-width: 92%; border-left: 1px solid var(--border); }
+.sh-right-lg { width: 640px; }
+.sh-left { top: 0; bottom: 0; left: 0; width: 320px; border-right: 1px solid var(--border); box-shadow: 16px 0 40px rgba(20,18,32,0.18); }
+.sh-bottom { left: 0; right: 0; bottom: 0; max-height: 80%; border-top: 1px solid var(--border); border-top-left-radius: var(--radius-lg); border-top-right-radius: var(--radius-lg); box-shadow: 0 -16px 40px rgba(20,18,32,0.18); }
+
+/* mobile drag handle */
+.sh-handle { width: 36px; height: 4px; background: var(--border-strong); border-radius: 999px; margin: 8px auto 0; }
+
+.sh-header { padding: 18px 22px 14px; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; border-bottom: 1px solid var(--border-faint); }
+.sh-htext { flex: 1; min-width: 0; }
+.sh-kicker { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
+.sh-title { font-size: 17px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; line-height: 1.35; }
+.sh-desc { font-size: 13px; color: var(--fg-secondary); margin-top: 4px; line-height: 1.5; }
+.sh-close { background: transparent; border: 0; color: var(--fg-muted); cursor: pointer; padding: 4px; border-radius: var(--radius-xs); line-height: 0; }
+.sh-close:hover { background: var(--muted); color: var(--fg); }
+
+.sh-body { padding: 18px 22px; flex: 1; overflow-y: auto; }
+.sh-footer { padding: 14px 18px; border-top: 1px solid var(--border-faint); background: var(--surface-2, var(--background)); display: flex; justify-content: flex-end; gap: 8px; }
+.sh-footer.between { justify-content: space-between; align-items: center; }
+.sh-fmeta { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); }
+
+.sh-btn { height: 34px; padding: 0 14px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; border: 1px solid var(--border-strong); background: var(--card); color: var(--fg); cursor: pointer; }
+.sh-btn.primary { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+.sh-btn.ghost { background: transparent; border-color: transparent; color: var(--fg-secondary); }
+
+/* Form rows for filter sheet */
+.sh-row { margin-bottom: 18px; }
+.sh-row .lbl { font-size: 12.5px; font-weight: 500; color: var(--fg-strong); margin-bottom: 8px; display: block; }
+.sh-checks { display: flex; flex-direction: column; gap: 6px; }
+.sh-check { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border: 1px solid var(--border-faint); border-radius: var(--radius-sm); cursor: default; font-size: 13px; }
+.sh-check input { accent-color: var(--primary); }
+.sh-check.active { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); }
+.sh-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; font-size: 12px; color: var(--fg-secondary); cursor: default; }
+.sh-pill.active { background: var(--fg-strong); color: var(--background); border-color: var(--fg-strong); }
+.sh-pill-row { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Drilldown */
+.sh-section-h { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-muted); margin-bottom: 8px; padding-top: 4px; }
+.sh-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+.sh-meta { padding: 10px 12px; border: 1px solid var(--border-faint); background: var(--card); border-radius: var(--radius-sm); }
+.sh-meta .k { font-family: var(--font-pulso-mono); font-size: 10px; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+.sh-meta .v { font-size: 14px; font-weight: 600; color: var(--fg-strong); font-variant-numeric: tabular-nums; }
+
+/* Nav (left) */
+.sh-nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-xs); font-size: 13.5px; color: var(--fg); cursor: default; }
+.sh-nav-item.active { background: var(--muted); font-weight: 500; }
+.sh-nav-item .ico { width: 16px; height: 16px; color: var(--fg-muted); }
+.sh-nav-item.active .ico { color: var(--fg-strong); }
+
+.variant-tag { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Organisms · Onda 2 · 11</div>
+    <h1 class="page-title">Sheet</h1>
+    <p class="page-sub">Painel deslizante a partir de uma borda. Diferente de Dialog: não centraliza, não bloqueia totalmente o contexto. Use para filtros, drill-downs, configurações e <strong>navegação mobile</strong>.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Right · drill-down de menção</h2>
+      <p class="section-desc">Variante mais comum. Sai da direita preservando contexto da lista. 480px default; 640px <code>lg</code> para detalhes ricos.</p>
+      <div class="variant-tag">RIGHT · 480PX · DRILL-DOWN</div>
+      <div class="sh-stage">
+        <div class="sh-page"></div>
+        <div class="sh-overlay"></div>
+        <div class="sh sh-right">
+          <div class="sh-header">
+            <div class="sh-htext">
+              <div class="sh-kicker">Folha · Tier 1 · 14:32</div>
+              <div class="sh-title">Vazamento na refinaria expõe falhas no protocolo de contenção</div>
+              <div class="sh-desc">Marina Salomão · Cotidiano · alcance estimado 2.4M</div>
+            </div>
+            <button class="sh-close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+          </div>
+          <div class="sh-body">
+            <div class="sh-meta-grid">
+              <div class="sh-meta"><div class="k">Sentimento</div><div class="v" style="color: var(--destructive);">Negativo</div></div>
+              <div class="sh-meta"><div class="k">Score impact</div><div class="v">+18</div></div>
+              <div class="sh-meta"><div class="k">Engajamento</div><div class="v">14.2K</div></div>
+              <div class="sh-meta"><div class="k">Réplicas T1</div><div class="v">3</div></div>
+            </div>
+            <div class="sh-section-h">EXCERTO EDITORIAL</div>
+            <p style="font-size: 14px; color: var(--fg); line-height: 1.65; margin-bottom: 18px;">"Documentos obtidos pela reportagem mostram que a refinaria operava sem o protocolo de contenção atualizado desde a inspeção de 2023. A ANP confirmou em nota que abrirá inquérito formal nas próximas 48h."</p>
+            <div class="sh-section-h">RÉPLICAS DETECTADAS</div>
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <div style="padding: 8px 10px; border: 1px solid var(--border-faint); border-radius: var(--radius-sm); display: flex; justify-content: space-between; font-size: 12.5px;"><span>Valor Econômico</span><span class="sh-fmeta" style="color: var(--fg-muted);">14:38</span></div>
+              <div style="padding: 8px 10px; border: 1px solid var(--border-faint); border-radius: var(--radius-sm); display: flex; justify-content: space-between; font-size: 12.5px;"><span>G1</span><span class="sh-fmeta" style="color: var(--fg-muted);">14:41</span></div>
+              <div style="padding: 8px 10px; border: 1px solid var(--border-faint); border-radius: var(--radius-sm); display: flex; justify-content: space-between; font-size: 12.5px;"><span>UOL</span><span class="sh-fmeta" style="color: var(--fg-muted);">14:52</span></div>
+            </div>
+          </div>
+          <div class="sh-footer between">
+            <span class="sh-fmeta">Score impact: +18 pts</span>
+            <div style="display: flex; gap: 8px;">
+              <button class="sh-btn ghost">Ver no original</button>
+              <button class="sh-btn primary">Salvar para clipping</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Right · filtros</h2>
+      <p class="section-desc">Anatomia clássica de filtro avançado. Mantém visível o contexto da lista por trás.</p>
+      <div class="variant-tag">RIGHT · 480PX · FILTROS</div>
+      <div class="sh-stage" style="height: 580px;">
+        <div class="sh-page"></div>
+        <div class="sh-overlay"></div>
+        <div class="sh sh-right">
+          <div class="sh-header">
+            <div class="sh-htext">
+              <div class="sh-title">Filtrar menções</div>
+              <div class="sh-desc">Aplica em tempo real conforme você muda</div>
+            </div>
+            <button class="sh-close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+          </div>
+          <div class="sh-body">
+            <div class="sh-row">
+              <span class="lbl">Sentimento</span>
+              <div class="sh-pill-row">
+                <span class="sh-pill active">Todos</span>
+                <span class="sh-pill">Negativo</span>
+                <span class="sh-pill">Neutro</span>
+                <span class="sh-pill">Positivo</span>
+              </div>
+            </div>
+            <div class="sh-row">
+              <span class="lbl">Tier do veículo</span>
+              <div class="sh-checks">
+                <label class="sh-check active"><input type="checkbox" checked>Tier 1 — Folha, Valor, Estadão, G1</label>
+                <label class="sh-check active"><input type="checkbox" checked>Tier 2 — UOL, R7, Veja</label>
+                <label class="sh-check"><input type="checkbox">Tier 3 — Regional</label>
+                <label class="sh-check"><input type="checkbox">Tier 4 — Blog/podcast</label>
+              </div>
+            </div>
+            <div class="sh-row">
+              <span class="lbl">Período</span>
+              <div class="sh-pill-row">
+                <span class="sh-pill">1h</span>
+                <span class="sh-pill">6h</span>
+                <span class="sh-pill active">24h</span>
+                <span class="sh-pill">7d</span>
+                <span class="sh-pill">Customizado…</span>
+              </div>
+            </div>
+            <div class="sh-row">
+              <span class="lbl">Engajamento mínimo</span>
+              <div style="padding: 14px 0;">
+                <div style="height: 4px; background: var(--muted); border-radius: 999px; position: relative;">
+                  <div style="position: absolute; inset: 0 60% 0 12%; background: var(--primary); border-radius: 999px;"></div>
+                  <span style="position: absolute; left: 12%; top: -6px; width: 16px; height: 16px; background: var(--primary); border: 3px solid var(--card); border-radius: 50%;"></span>
+                  <span style="position: absolute; left: 40%; top: -6px; width: 16px; height: 16px; background: var(--primary); border: 3px solid var(--card); border-radius: 50%;"></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); margin-top: 8px;"><span>500</span><span>50K</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="sh-footer between">
+            <button class="sh-btn ghost">Limpar tudo</button>
+            <div style="display: flex; gap: 8px;">
+              <button class="sh-btn">Cancelar</button>
+              <button class="sh-btn primary">Aplicar · 412 menções</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Bottom · mobile · ações</h2>
+      <p class="section-desc">No mobile, Sheet bottom é o substituto natural de Dropdown e Dialog pequeno. Drag-handle no topo indica "arrastável".</p>
+      <div class="variant-tag">BOTTOM · MOBILE · 80% MAX</div>
+      <div class="sh-stage" style="height: 480px;">
+        <div class="sh-page"></div>
+        <div class="sh-overlay"></div>
+        <div class="sh sh-bottom" style="max-height: 60%;">
+          <div class="sh-handle"></div>
+          <div class="sh-header" style="padding-top: 14px;">
+            <div class="sh-htext">
+              <div class="sh-title">Ações rápidas</div>
+              <div class="sh-desc">Para "Vazamento na refinaria" — Folha, 14:32</div>
+            </div>
+          </div>
+          <div class="sh-body" style="padding: 6px 6px 8px;">
+            <div class="sh-nav-item"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Salvar para clipping</div>
+            <div class="sh-nav-item"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Adicionar comentário</div>
+            <div class="sh-nav-item"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Compartilhar</div>
+            <div class="sh-nav-item" style="color: var(--destructive);"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--destructive);"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>Marcar como ruído</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Left · navegação mobile</h2>
+      <p class="section-desc">Em mobile, sidebar vira Sheet à esquerda. Em desktop ela é fixa. Mesmo conteúdo, comportamento responsivo.</p>
+      <div class="variant-tag">LEFT · 320PX · MOBILE NAV</div>
+      <div class="sh-stage" style="height: 460px;">
+        <div class="sh-page"></div>
+        <div class="sh-overlay"></div>
+        <div class="sh sh-left">
+          <div class="sh-header">
+            <div class="sh-htext">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: var(--radius-sm); background: var(--fg-strong); color: var(--background);"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="3"/><path d="M2 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2z M18 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2z" fill="none" stroke="currentColor" stroke-width="2"/></svg></span>
+                <div class="sh-title" style="font-size: 15px;">Pulso</div>
+              </div>
+            </div>
+            <button class="sh-close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+          </div>
+          <div class="sh-body" style="padding: 12px 10px;">
+            <div class="sh-nav-item active"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Briefing diário</div>
+            <div class="sh-nav-item"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Crisis monitor</div>
+            <div class="sh-nav-item"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Pulso do mercado</div>
+            <div class="sh-nav-item"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>Decisões</div>
+            <div class="sh-nav-item"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg>Workspace</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Anatomia</h2>
+      <table class="tokens">
+        <thead><tr><th>Variante</th><th>Direção</th><th>Largura/altura</th><th>Uso</th></tr></thead>
+        <tbody>
+          <tr><td>Right</td><td>direita</td><td class="mono">480px (lg: 640px)</td><td>Drill-down, filtros, detalhes</td></tr>
+          <tr><td>Left</td><td>esquerda</td><td class="mono">320px</td><td>Navegação mobile</td></tr>
+          <tr><td>Bottom</td><td>baixo</td><td class="mono">max-height 80%</td><td>Mobile actions, picker</td></tr>
+          <tr><td>Border-radius</td><td>—</td><td class="mono">0 (right/left) · radius-lg top (bottom)</td><td>—</td></tr>
+          <tr><td>Shadow</td><td>—</td><td class="mono">16px na direção oposta · 40px blur</td><td>—</td></tr>
+          <tr><td>Animação</td><td>—</td><td class="mono">slide 220ms · easing var(--motion-easing)</td><td>—</td></tr>
+          <tr><td>Drag handle</td><td>bottom</td><td class="mono">36 × 4px · radius 999px</td><td>Mobile bottom apenas</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Sheet vs Dialog</h2>
+      <table class="tokens">
+        <thead><tr><th>Critério</th><th>Sheet</th><th>Dialog</th></tr></thead>
+        <tbody>
+          <tr><td>Posição</td><td>Borda da tela</td><td>Centralizado</td></tr>
+          <tr><td>Bloqueio de fluxo</td><td>Parcial — preserva contexto</td><td>Total</td></tr>
+          <tr><td>Tamanho</td><td>Médio a grande</td><td>Pequeno a médio</td></tr>
+          <tr><td>Conteúdo</td><td>Drill-down, filtros, formulário longo</td><td>Confirmação, formulário curto</td></tr>
+          <tr><td>Mobile</td><td>Idiomático (bottom)</td><td>Pode virar fullscreen</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><div class="rule-tag">DO</div><div>Use Sheet quando o usuário precisa <strong>ver e voltar</strong> ao contexto. Filtros, detalhes inline, configurações.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Em mobile, prefira Bottom Sheet a Dialog para ações. Mais ergonômico para polegar.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Animação ≤ 220ms. Mais que isso atrasa percepção de resposta.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não empilhe Sheets. Se precisa de outro nível, repense a navegação.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use Sheet para confirmação destrutiva. Dialog é o ferramental certo — bloqueia atenção.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não preencha Sheet right de altura inteira só com 2 campos. Use Popover ou Dialog menor.</div></div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

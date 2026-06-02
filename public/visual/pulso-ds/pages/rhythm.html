@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Rhythm</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* ── Audit cards ─────────────────── */
+.audit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 800px) { .audit-grid { grid-template-columns: 1fr; } }
+.audit { background: var(--card); border: 1px solid var(--border); border-left: 3px solid; border-radius: var(--radius-md); padding: 16px 20px; }
+.audit.bad { border-left-color: var(--destructive); }
+.audit.good { border-left-color: var(--success); }
+.audit-tag { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin-bottom: 6px; }
+.audit.bad .audit-tag { color: var(--destructive); }
+.audit.good .audit-tag { color: var(--success); }
+.audit-h { font-size: 14px; font-weight: 600; color: var(--fg-strong); margin-bottom: 4px; letter-spacing: -0.005em; }
+.audit-p { font-size: 12.5px; color: var(--fg-muted); line-height: 1.55; margin-bottom: 10px; }
+
+/* Before/after mocks for hairlines */
+.ha-pair { display: grid; grid-template-columns: 1fr 28px 1fr; gap: 0; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 24px; margin-top: 14px; }
+@media (max-width: 800px) { .ha-pair { grid-template-columns: 1fr; padding: 14px; } .ha-arrow { transform: rotate(90deg); margin: 8px auto; } }
+.ha-side { padding: 18px; min-height: 220px; }
+.ha-side.before { background: var(--surface-2); border-radius: var(--radius-sm); }
+.ha-side.after  { background: var(--surface-page); border-radius: var(--radius-sm); }
+.ha-arrow { display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 18px; }
+.ha-label { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 600; margin-bottom: 12px; }
+.ha-side.before .ha-label { color: var(--destructive); }
+.ha-side.after .ha-label { color: var(--success); }
+
+/* Card example before (heavy boxes) */
+.hb-card { background: var(--card); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 8px; }
+.hb-card-inner { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-xs); padding: 8px 10px; margin-top: 8px; }
+.hb-mt { font-family: var(--font-pulso-mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); }
+.hb-t { font-size: 13px; font-weight: 600; color: var(--fg-strong); margin-top: 4px; }
+.hb-p { font-size: 12px; color: var(--fg-secondary); margin-top: 4px; line-height: 1.5; }
+.hb-row { display: flex; gap: 8px; margin-top: 4px; align-items: center; }
+.hb-row .v { font-family: var(--font-pulso-mono); font-size: 13px; font-weight: 700; color: var(--fg-strong); }
+
+/* Card example after (cleaner) */
+.ha-clean { padding: 12px 0; }
+.ha-clean + .ha-clean { border-top: 1px solid var(--border-faint); margin-top: 0; }
+
+/* Cadence tokens visual */
+.cad-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 12px; }
+@media (max-width: 900px) { .cad-grid { grid-template-columns: 1fr; } }
+.cad { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.cad-head { padding: 14px 18px; border-bottom: 1px solid var(--border-faint); }
+.cad-name { font-family: var(--font-pulso-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 600; }
+.cad-token { font-family: var(--font-pulso-mono); font-size: 13px; color: var(--primary); font-weight: 600; margin-top: 4px; }
+.cad-px { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); margin-top: 2px; }
+.cad-body { padding: 16px 18px 22px; }
+.cad-when { font-size: 12.5px; color: var(--fg-secondary); line-height: 1.55; margin-bottom: 14px; }
+.cad-when strong { color: var(--fg-strong); }
+.cad-demo { background: var(--surface-page); border: 1px solid var(--border-faint); border-radius: var(--radius-sm); padding: 14px 16px; }
+.cad-line { display: block; height: 8px; background: color-mix(in oklab, var(--fg-strong) 30%, transparent); border-radius: 2px; }
+.cad-line.short { width: 60%; }
+.cad-line.shorter { width: 35%; background: color-mix(in oklab, var(--fg-strong) 18%, transparent); }
+.cad-tight .cad-line + .cad-line { margin-top: 6px; }
+.cad-beat .cad-line + .cad-line { margin-top: 14px; }
+.cad-breath .cad-line + .cad-line { margin-top: 26px; }
+
+/* Border-use table */
+.bu-tbl { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.bu-tbl th, .bu-tbl td { padding: 11px 14px; border-bottom: 1px solid var(--border-faint); text-align: left; vertical-align: top; }
+.bu-tbl thead th { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; background: var(--surface-2); }
+.bu-tbl tr:last-child td { border-bottom: none; }
+.bu-tbl .tag { font-family: var(--font-pulso-mono); font-size: 10px; padding: 3px 8px; border-radius: var(--radius-xs); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; display: inline-block; }
+.bu-tbl .tag.keep { background: color-mix(in oklab, var(--success) 14%, transparent); color: var(--success); }
+.bu-tbl .tag.dim { background: color-mix(in oklab, var(--info) 14%, transparent); color: var(--info-foreground, var(--info)); }
+.bu-tbl .tag.cut { background: color-mix(in oklab, var(--destructive) 14%, transparent); color: var(--destructive); }
+
+/* Density × cadence matrix */
+.dc-tbl { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.dc-tbl th, .dc-tbl td { padding: 12px 14px; border-bottom: 1px solid var(--border-faint); border-right: 1px solid var(--border-faint); text-align: center; }
+.dc-tbl th:last-child, .dc-tbl td:last-child { border-right: none; }
+.dc-tbl tr:last-child td { border-bottom: none; }
+.dc-tbl thead th { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 600; background: var(--surface-2); }
+.dc-tbl th:first-child, .dc-tbl td:first-child { text-align: left; }
+.dc-tbl td:first-child { font-family: var(--font-pulso-mono); font-size: 11.5px; color: var(--fg-strong); font-weight: 600; }
+.dc-tbl td.mono { font-family: var(--font-pulso-mono); font-size: 11.5px; color: var(--fg); }
+
+/* Layered hierarchy demo */
+.layered { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 24px 28px; }
+.layered.before { background: var(--surface-2); }
+.layered .lh { font-size: 13px; color: var(--fg); font-weight: 500; line-height: 1.55; }
+.layered.box-box .group { background: var(--card); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 8px; }
+.layered.box-box .group:last-child { margin-bottom: 0; }
+.layered.box-box .group .inner { background: var(--surface-2); border: 1px solid var(--border-faint); border-radius: var(--radius-xs); padding: 8px 10px; margin-top: 8px; }
+.layered.rhythm .group { padding: 14px 0; border-top: 1px solid var(--border-faint); }
+.layered.rhythm .group:first-child { border-top: none; padding-top: 0; }
+.layered.rhythm .group:last-child { padding-bottom: 0; }
+
+/* Inline rules */
+.rule { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: var(--radius-md); padding: 16px 22px; margin-bottom: 12px; }
+.rule h4 { font-size: 14.5px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; margin-bottom: 6px; }
+.rule p { font-size: 13px; color: var(--fg-secondary); line-height: 1.55; }
+.rule code { font-family: var(--font-pulso-mono); font-size: 11.5px; background: var(--surface-2); padding: 1px 6px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Foundations · Rhythm · v3 · α.3</div>
+    <h1 class="page-title">Hairlines, ritmo e densidade calibrada</h1>
+    <p class="page-sub">A α.1 mostrou que hairlines passam o teste sem cor, mas perdem força em demasia. A v3 separa <em>borda como sinal de contexto</em> de <em>borda como decoração</em> — e introduz tokens de cadência para que o ritmo vertical seja decisão, não acidente.</p>
+
+    <!-- ── Princípio ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Princípio · regra de ouro</h2>
+      <div style="background:var(--card);border:1px solid var(--border);border-left:3px solid var(--primary);border-radius:var(--radius-md);padding:22px 28px;margin-top:10px;">
+        <p style="font-size:16px;color:var(--fg-strong);line-height:1.55;font-weight:500;max-width:760px;">Hairline existe para <em>separar contexto</em>. Quando o espaço já o faz, a borda é decoração — e decoração compete com sinal.</p>
+        <p style="font-size:13.5px;color:var(--fg-muted);line-height:1.6;margin-top:12px;max-width:760px;">Crisis Monitor é cockpit. Cada elemento estrutural que não serve a um operador acelerado vira ruído. A v3 corta hairlines decorativas — não para minimalismo, mas para devolver atenção ao dado.</p>
+      </div>
+    </section>
+
+    <!-- ── Border-use audit ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Auditoria de uso de borda</h2>
+      <p class="section-desc">14 superfícies do produto categorizadas. Manter, reduzir (border-faint em vez de border) ou cortar (espaço + hierarquia tipográfica fazem o trabalho).</p>
+      <table class="bu-tbl">
+        <thead>
+          <tr><th style="width:30%;">Superfície</th><th style="width:14%;">v3</th><th>Por quê</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Card de caso (top-level)</td><td><span class="tag keep">MANTÉM</span></td><td>Separa contexto distinto · o card é a unidade primária de leitura.</td></tr>
+          <tr><td>Border interna do card (sub-blocos)</td><td><span class="tag cut">CORTAR</span></td><td>"Box dentro de box" · espaço + kicker já separam. v3 usa <code>--rhythm-cadence-beat</code>.</td></tr>
+          <tr><td>Divisor entre rows de tabela</td><td><span class="tag dim">REDUZIR</span></td><td>Hoje <code>--border</code> · v3 <code>--border-faint</code> · suficiente para guiar olho.</td></tr>
+          <tr><td>Hairline de cabeçalho de seção</td><td><span class="tag keep">MANTÉM</span></td><td>Marca início de seção · age como "regra" gráfica.</td></tr>
+          <tr><td>Tabs (border-bottom container)</td><td><span class="tag keep">MANTÉM</span></td><td>Estrutural · agora pareada com indicador de tab ativa não-colorido (α.4).</td></tr>
+          <tr><td>Border-left de evidência (3px)</td><td><span class="tag keep">MANTÉM</span></td><td>Signature shape · marca "isto é citação" sem cor depender. Promove para α.4.</td></tr>
+          <tr><td>Input field</td><td><span class="tag keep">MANTÉM</span></td><td>Affordance de interação · borda comunica "campo editável".</td></tr>
+          <tr><td>Botão ghost / secundário</td><td><span class="tag dim">REDUZIR</span></td><td>Hoje <code>border-strong</code> · v3 <code>border</code> · estado hover ganha border-strong.</td></tr>
+          <tr><td>Avatar</td><td><span class="tag cut">CORTAR</span></td><td>Quando avatar está sobre fundo distinto, borda é decoração. Mantém só em avatar-on-avatar (group).</td></tr>
+          <tr><td>Tooltip / popover</td><td><span class="tag keep">MANTÉM</span></td><td>Flutua sobre conteúdo · borda + sombra definem "isto não é da página".</td></tr>
+          <tr><td>Chip / badge</td><td><span class="tag keep">MANTÉM</span></td><td>Borda + fill carrega categoria · necessário em mono (α.1 confirmou).</td></tr>
+          <tr><td>Section dentro de página</td><td><span class="tag cut">CORTAR</span></td><td>Seção não é card · espaço + kicker resolvem. Hoje tem container box · v3 remove.</td></tr>
+          <tr><td>Sidebar item ativo</td><td><span class="tag keep">MANTÉM</span></td><td>Border-left tonal · sinal estrutural de "você está aqui".</td></tr>
+          <tr><td>Modal / sheet</td><td><span class="tag dim">REDUZIR</span></td><td>Sombra faz o trabalho de "isto flutua". Borda hoje é redundante · v3 mantém só em high-contrast mode.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Before/after example ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Antes vs depois · card de caso</h2>
+      <p class="section-desc">Mesmo conteúdo, tratamento diferente. À esquerda · box-dentro-de-box, hairlines pesadas. À direita · cadência por espaço, hairlines como sinal raro.</p>
+      <div class="ha-pair">
+        <div class="ha-side before">
+          <div class="ha-label">v2 · box-inside-box</div>
+          <div class="hb-card">
+            <div class="hb-mt">CASO ATIVO · TIER 1</div>
+            <div class="hb-t">Vazamento de dados — Operadora Beta</div>
+            <div class="hb-card-inner">
+              <div class="hb-mt">SCORE</div>
+              <div class="hb-row">
+                <span class="v">68</span>
+                <span style="font-family:var(--font-pulso-mono);font-size:10px;color:var(--success);">+12 4h</span>
+              </div>
+            </div>
+            <div class="hb-card-inner">
+              <div class="hb-mt">COBERTURA</div>
+              <div class="hb-p">14 veículos · 2.4k menções</div>
+            </div>
+          </div>
+        </div>
+        <div class="ha-arrow">→</div>
+        <div class="ha-side after">
+          <div class="ha-label">v3 · cadência por espaço</div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px 18px;">
+            <div class="hb-mt" style="letter-spacing:0.12em;">CASO ATIVO · TIER 1</div>
+            <div class="hb-t" style="margin-top:6px;">Vazamento de dados — Operadora Beta</div>
+            <div class="ha-clean" style="margin-top:14px;">
+              <div class="hb-mt" style="letter-spacing:0.12em;">SCORE</div>
+              <div class="hb-row" style="margin-top:4px;">
+                <span class="v" style="font-variant-numeric:tabular-nums;">68</span>
+                <span style="font-family:var(--font-pulso-mono);font-size:10px;color:var(--success);">+12 4h</span>
+              </div>
+            </div>
+            <div class="ha-clean">
+              <div class="hb-mt" style="letter-spacing:0.12em;">COBERTURA</div>
+              <div class="hb-p">14 veículos · 2.4k menções</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="section-desc" style="margin-top:10px;font-size:12.5px;">À esquerda · 3 bordas internas, 4 fundos distintos, sensação de "muitas caixas". À direita · 1 borda externa, 2 hairlines de separação, espaço fazendo o trabalho de hierarquia. Mesmo conteúdo, leitura mais rápida.</p>
+    </section>
+
+    <!-- ── Cadência tokens ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Cadência vertical · 3 tokens</h2>
+      <p class="section-desc">v3 nomeia o ritmo entre blocos. Cada token tem uma intenção · onde aplicar e quando trocar.</p>
+      <div class="cad-grid">
+        <div class="cad">
+          <div class="cad-head">
+            <div class="cad-name">tight</div>
+            <div class="cad-token">--rhythm-cadence-tight</div>
+            <div class="cad-px">6px (0.375rem)</div>
+          </div>
+          <div class="cad-body">
+            <div class="cad-when"><strong>Itens da mesma unidade.</strong> Kicker → label → valor. Rows próximas em lista densa. Onde os elementos são partes do mesmo "objeto" mental.</div>
+            <div class="cad-demo">
+              <div class="cad-tight">
+                <span class="cad-line shorter"></span>
+                <span class="cad-line"></span>
+                <span class="cad-line short"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cad">
+          <div class="cad-head">
+            <div class="cad-name">beat</div>
+            <div class="cad-token">--rhythm-cadence-beat</div>
+            <div class="cad-px">14px (0.875rem)</div>
+          </div>
+          <div class="cad-body">
+            <div class="cad-when"><strong>Sub-blocos do mesmo contexto.</strong> Sub-secções de um card · pares title+body. Onde os elementos compõem o mesmo card, mas são unidades semanticamente distintas.</div>
+            <div class="cad-demo">
+              <div class="cad-beat">
+                <span class="cad-line shorter"></span>
+                <span class="cad-line"></span>
+                <span class="cad-line short"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cad">
+          <div class="cad-head">
+            <div class="cad-name">breath</div>
+            <div class="cad-token">--rhythm-cadence-breath</div>
+            <div class="cad-px">26px (1.625rem)</div>
+          </div>
+          <div class="cad-body">
+            <div class="cad-when"><strong>Mudança de contexto.</strong> Entre seções da página · entre card-de-caso e tabela-de-cobertura. Espaço como "respiração", marca passagem mental para outro assunto.</div>
+            <div class="cad-demo">
+              <div class="cad-breath">
+                <span class="cad-line shorter"></span>
+                <span class="cad-line"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Density × cadence matrix ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Cadência por densidade</h2>
+      <p class="section-desc">A v2 · 4.5 entregou densidade como preferência. v3 entrega <em>cadência calibrada</em> · os tokens encolhem/crescem proporcionalmente, mantendo o sistema reconhecível em qualquer modo.</p>
+      <table class="dc-tbl">
+        <thead>
+          <tr>
+            <th style="width:25%;">Token</th>
+            <th style="width:25%;">Compact</th>
+            <th style="width:25%;">Comfortable · default</th>
+            <th style="width:25%;">Spacious</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>--rhythm-cadence-tight</td>
+            <td class="mono">4px</td>
+            <td class="mono">6px</td>
+            <td class="mono">8px</td>
+          </tr>
+          <tr>
+            <td>--rhythm-cadence-beat</td>
+            <td class="mono">10px</td>
+            <td class="mono">14px</td>
+            <td class="mono">20px</td>
+          </tr>
+          <tr>
+            <td>--rhythm-cadence-breath</td>
+            <td class="mono">18px</td>
+            <td class="mono">26px</td>
+            <td class="mono">36px</td>
+          </tr>
+          <tr>
+            <td>--density-pad-card</td>
+            <td class="mono">10px 12px</td>
+            <td class="mono">14px 16px</td>
+            <td class="mono">20px 22px</td>
+          </tr>
+          <tr>
+            <td>--density-pad-page</td>
+            <td class="mono">32px 40px</td>
+            <td class="mono">56px 64px</td>
+            <td class="mono">80px 88px</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="section-desc" style="margin-top:10px;font-size:12.5px;">Proporções fixas · um modo é versão escalada do outro, não uma redefinição. Operador percebe densidade como "ritmo mais apertado" · não como "tela diferente".</p>
+    </section>
+
+    <!-- ── Layered hierarchy demo ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Hierarquia por cadência · não por caixa</h2>
+      <p class="section-desc">A v3 promove "hierarquia por ritmo" — usando os tokens de cadência para indicar quão relacionados são os blocos. Sem precisar empilhar caixas.</p>
+      <div class="audit-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="layered box-box">
+          <div style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--destructive);font-weight:600;margin-bottom:14px;">v2 · box dentro de box</div>
+          <div class="group">
+            <div class="lh"><strong>Briefing</strong></div>
+            <div class="inner">Resumo dos fatos confirmados.</div>
+            <div class="inner">Hipóteses não confirmadas.</div>
+          </div>
+          <div class="group">
+            <div class="lh"><strong>Ações sugeridas</strong></div>
+            <div class="inner">Dispatch para tier 1.</div>
+            <div class="inner">Comunicado interno.</div>
+          </div>
+        </div>
+        <div class="layered rhythm">
+          <div style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--success);font-weight:600;margin-bottom:14px;">v3 · cadência</div>
+          <div class="group">
+            <div style="font-family:var(--font-pulso-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--primary);font-weight:600;">BRIEFING</div>
+            <div style="margin-top:6px;font-size:13px;color:var(--fg);">Resumo dos fatos confirmados.</div>
+            <div style="margin-top:6px;font-size:13px;color:var(--fg);">Hipóteses não confirmadas.</div>
+          </div>
+          <div class="group">
+            <div style="font-family:var(--font-pulso-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--primary);font-weight:600;">AÇÕES SUGERIDAS</div>
+            <div style="margin-top:6px;font-size:13px;color:var(--fg);">Dispatch para tier 1.</div>
+            <div style="margin-top:6px;font-size:13px;color:var(--fg);">Comunicado interno.</div>
+          </div>
+        </div>
+      </div>
+      <p class="section-desc" style="margin-top:10px;font-size:12.5px;">À esquerda · 5 caixas para 4 itens informativos. À direita · 1 hairline + 4 itens. Mesma hierarquia, leitura mais limpa.</p>
+    </section>
+
+    <!-- ── Anti-patterns ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Anti-patterns que a v3 trava</h2>
+      <p class="section-desc">Comportamentos comuns em DSs que envelhecem mal. v3 os bloqueia via lint, code review e Figma constraint.</p>
+      <div class="audit-grid">
+        <div class="audit bad">
+          <div class="audit-tag">✕ Anti-pattern</div>
+          <div class="audit-h">Box dentro de box dentro de box</div>
+          <div class="audit-p">Card → border interna → sub-card → border interna. 3 níveis de "ah, isto é separado". Visual ruim, hierarquia ambígua.</div>
+        </div>
+        <div class="audit good">
+          <div class="audit-tag">✓ Pulso v3</div>
+          <div class="audit-h">1 container + cadência interna</div>
+          <div class="audit-p">Um card externo. Hairlines apenas onde mudança de contexto pede. Espaço/kicker fazem o resto.</div>
+        </div>
+        <div class="audit bad">
+          <div class="audit-tag">✕ Anti-pattern</div>
+          <div class="audit-h">Border-left colorida sem razão</div>
+          <div class="audit-p">Sticker colorido no canto · decora, não informa. Vira o "Bootstrap alert" genérico.</div>
+        </div>
+        <div class="audit good">
+          <div class="audit-tag">✓ Pulso v3</div>
+          <div class="audit-h">Border-left = signature</div>
+          <div class="audit-p">Border-left 3px reservada para <em>evidência citada</em> · marca conteúdo de origem externa. Promovido a signature shape em α.4.</div>
+        </div>
+        <div class="audit bad">
+          <div class="audit-tag">✕ Anti-pattern</div>
+          <div class="audit-h">Divisores em toda lista</div>
+          <div class="audit-p">Hairline 1px entre todos os itens · ruído quando o espaço interno do row já é suficiente.</div>
+        </div>
+        <div class="audit good">
+          <div class="audit-tag">✓ Pulso v3</div>
+          <div class="audit-h">Divisor apenas quando o row é compacto</div>
+          <div class="audit-p">Row com padding ≥ 16px · sem divisor. Row compacto (densidade compact) · <code>border-faint</code> ajuda olho.</div>
+        </div>
+        <div class="audit bad">
+          <div class="audit-tag">✕ Anti-pattern</div>
+          <div class="audit-h">Border + shadow + bg distinto</div>
+          <div class="audit-p">Tudo ao mesmo tempo. Modal com sombra + borda + bg branco sobre página clara · sinalização redundante.</div>
+        </div>
+        <div class="audit good">
+          <div class="audit-tag">✓ Pulso v3</div>
+          <div class="audit-h">Pick one · sombra <em>ou</em> borda</div>
+          <div class="audit-p">Em superfícies flutuantes · sombra. Em superfícies cosídas à página · borda. Não ambos.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Tokens novos ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Tokens novos · cadência vertical</h2>
+      <table class="bu-tbl">
+        <thead>
+          <tr><th style="width:36%;">Token</th><th style="width:18%;">Valor default</th><th>Quando usar</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-family:var(--font-pulso-mono);font-size:11.5px;color:var(--fg-strong);">--rhythm-cadence-tight</td>
+            <td style="font-family:var(--font-pulso-mono);font-size:11.5px;color:var(--fg);">6px</td>
+            <td>Itens da mesma unidade · kicker → label → valor · rows compactos · siblings em lista.</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--font-pulso-mono);font-size:11.5px;color:var(--fg-strong);">--rhythm-cadence-beat</td>
+            <td style="font-family:var(--font-pulso-mono);font-size:11.5px;color:var(--fg);">14px</td>
+            <td>Sub-blocos dentro do mesmo card · transição entre kicker-groups · pares título+body.</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--font-pulso-mono);font-size:11.5px;color:var(--fg-strong);">--rhythm-cadence-breath</td>
+            <td style="font-family:var(--font-pulso-mono);font-size:11.5px;color:var(--fg);">26px</td>
+            <td>Mudança de contexto · entre seções da página · entre card-de-caso e bloco-de-cobertura.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Regras ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Regras formalizadas · v3</h2>
+      <div class="rule">
+        <h4>1 · Uma borda por nível de profundidade</h4>
+        <p>Nenhum elemento dentro de um card pode ter borda completa. Sub-blocos usam hairline-top apenas onde mudança de contexto pede · nunca borda integral.</p>
+      </div>
+      <div class="rule">
+        <h4>2 · Padding ≥ 16px? Sem divisor entre rows</h4>
+        <p>Quando o ar interno do row já dá respiração visual, divisor é ruído. Compact (10px) precisa de divisor · comfortable (14px+) não.</p>
+      </div>
+      <div class="rule">
+        <h4>3 · Section ≠ Card</h4>
+        <p>Seção da página é semântica de leitura · não container visual. Sem borda, sem fundo distinto. Apenas kicker + título + cadência <code>breath</code>.</p>
+      </div>
+      <div class="rule">
+        <h4>4 · Border-left 3px = evidência</h4>
+        <p>Reservada. Não usar como decoração de card, alerta, sidebar item, kicker. Promovida a signature shape em α.4.</p>
+      </div>
+      <div class="rule">
+        <h4>5 · Sombra <em>ou</em> borda em superfícies flutuantes</h4>
+        <p>Modal, sheet, popover, tooltip · escolhe uma. Default · sombra. Borda volta só em high-contrast (a11y).</p>
+      </div>
+    </section>
+
+    <!-- ── Entregas ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Entregas · α.3</h2>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;">
+        <tbody>
+          <tr><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);">Auditoria de border-use · 14 superfícies categorizadas (manter / reduzir / cortar)</td><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);text-align:right;"><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);">Tokens de cadência <code>--rhythm-cadence-{tight, beat, breath}</code></td><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);text-align:right;"><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);">Cadência calibrada por densidade · matriz 3×3</td><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);text-align:right;"><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);">5 regras formalizadas (sem box-dentro-de-box, sombra OU borda…)</td><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);text-align:right;"><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td style="padding:11px 14px;">Página <strong>Foundations · Rhythm</strong></td><td style="padding:11px 14px;text-align:right;"><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

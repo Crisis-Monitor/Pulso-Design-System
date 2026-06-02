@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Table</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.ptbl-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.ptbl { width: 100%; border-collapse: collapse; font-size: 13px; font-family: var(--font-pulso-sans); }
+.ptbl thead th { text-align: left; font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--surface-2); white-space: nowrap; user-select: none; }
+.ptbl thead th.sortable { cursor: pointer; }
+.ptbl thead th.sortable:hover { color: var(--fg); }
+.ptbl thead th.sorted { color: var(--fg-strong); }
+.ptbl thead th .sort-i { width: 10px; height: 10px; margin-left: 4px; vertical-align: -1px; opacity: 0.5; }
+.ptbl thead th.sorted .sort-i { opacity: 1; color: var(--primary); }
+.ptbl tbody tr { transition: background var(--motion-duration-fast) var(--motion-easing); }
+.ptbl tbody tr:hover { background: var(--surface-2); }
+.ptbl tbody tr.selected { background: var(--primary-soft); }
+.ptbl tbody td { padding: 12px 16px; border-bottom: 1px solid var(--border-faint); color: var(--fg); vertical-align: middle; }
+.ptbl tbody tr:last-child td { border-bottom: none; }
+.ptbl td.num, .ptbl th.num { text-align: right; font-family: var(--font-pulso-mono); font-feature-settings: 'tnum' 1; }
+.ptbl td.center, .ptbl th.center { text-align: center; }
+.ptbl td.mono { font-family: var(--font-pulso-mono); font-size: 12px; color: var(--fg-secondary); }
+.ptbl td.muted { color: var(--fg-muted); }
+
+/* Density */
+.ptbl-compact tbody td, .ptbl-compact thead th { padding-top: 7px; padding-bottom: 7px; }
+.ptbl-compact { font-size: 12.5px; }
+.ptbl-spacious tbody td, .ptbl-spacious thead th { padding-top: 16px; padding-bottom: 16px; }
+
+/* Cells */
+.cell-stack { display: flex; flex-direction: column; gap: 2px; }
+.cell-stack .ttl { color: var(--fg-strong); font-weight: 500; }
+.cell-stack .meta { color: var(--fg-subtle); font-size: 11.5px; font-family: var(--font-pulso-mono); }
+
+.cell-status { display: inline-flex; align-items: center; gap: 6px; }
+.cell-status .dot { width: 6px; height: 6px; border-radius: 50%; }
+
+/* Toolbar */
+.ptbl-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--card); }
+.ptbl-toolbar-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ptbl-toolbar-right { display: flex; align-items: center; gap: 6px; }
+.ptbl-search { position: relative; }
+.ptbl-search input { height: 28px; padding: 0 10px 0 28px; border: 1px solid var(--input); border-radius: var(--radius-sm); background: var(--card); font-family: inherit; font-size: 12.5px; width: 240px; }
+.ptbl-search input:focus { outline: none; border-color: var(--ring); box-shadow: 0 0 0 var(--ring-width) color-mix(in oklab, var(--ring) 30%, transparent); }
+.ptbl-search svg { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); width: 13px; height: 13px; color: var(--fg-subtle); }
+
+/* Toolbar buttons */
+.ttbtn { height: 28px; padding: 0 10px; background: transparent; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 12px; color: var(--fg-muted); cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 5px; }
+.ttbtn:hover { background: var(--muted); color: var(--fg); }
+.ttbtn svg { width: 12px; height: 12px; }
+
+/* Footer / pagination */
+.ptbl-footer { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-top: 1px solid var(--border); background: var(--card); font-size: 11.5px; color: var(--fg-muted); font-family: var(--font-pulso-mono); }
+.ptbl-pager { display: flex; align-items: center; gap: 4px; }
+.ptbl-pager button { width: 24px; height: 24px; border: 1px solid var(--border); background: var(--card); border-radius: var(--radius-xs); color: var(--fg-muted); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.ptbl-pager button:hover { background: var(--muted); color: var(--fg); }
+.ptbl-pager button.is-active { background: var(--primary-soft); border-color: var(--primary-border); color: var(--primary); }
+.ptbl-pager svg { width: 12px; height: 12px; }
+
+/* Risk pill inline */
+.r-pill { display: inline-flex; align-items: center; gap: 5px; padding: 2px 7px; border-radius: var(--radius-xs); font-family: var(--font-pulso-mono); font-size: 11px; border: 1px solid transparent; }
+.r-pill .dot { width: 5px; height: 5px; border-radius: 50%; }
+.r-pill.r-stable   { background: var(--risk-stable-bg);   color: var(--risk-stable);   border-color: var(--risk-stable-border); }
+.r-pill.r-stable .dot { background: var(--risk-stable); }
+.r-pill.r-monitor  { background: var(--risk-monitor-bg);  color: var(--risk-monitor);  border-color: var(--risk-monitor-border); }
+.r-pill.r-monitor .dot { background: var(--risk-monitor); }
+.r-pill.r-medium   { background: var(--risk-medium-bg);   color: var(--risk-medium);   border-color: var(--risk-medium-border); }
+.r-pill.r-medium .dot { background: var(--risk-medium); }
+.r-pill.r-high     { background: var(--risk-high-bg);     color: var(--risk-high);     border-color: var(--risk-high-border); }
+.r-pill.r-high .dot { background: var(--risk-high); }
+.r-pill.r-critical { background: var(--risk-critical-bg); color: var(--risk-critical); border-color: var(--risk-critical-border); }
+.r-pill.r-critical .dot { background: var(--risk-critical); animation: pulse-opacity 1.6s var(--motion-easing) infinite; }
+
+/* Delta */
+.dlc { display: inline-flex; align-items: center; gap: 3px; font-family: var(--font-pulso-mono); font-size: 11px; padding: 1px 5px; border-radius: var(--radius-xs); border: 1px solid transparent; }
+.dlc.bad { background: var(--destructive-bg); color: var(--destructive); border-color: var(--destructive-border); }
+.dlc.good { background: var(--success-bg); color: var(--success); border-color: var(--success-border); }
+.dlc.flat { background: var(--muted); color: var(--fg-secondary); border-color: var(--border); }
+
+/* Checkbox */
+.tcb { width: 14px; height: 14px; border: 1px solid var(--border-strong); border-radius: var(--radius-xs); background: var(--card); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.tcb.is-checked { background: var(--primary); border-color: var(--primary); }
+.tcb.is-checked svg { width: 9px; height: 9px; color: #fff; }
+.tcb svg { display: none; }
+.tcb.is-checked svg { display: block; }
+
+/* Row action */
+.row-act { width: 24px; height: 24px; background: transparent; border: 0; border-radius: var(--radius-xs); cursor: pointer; color: var(--fg-subtle); display: inline-flex; align-items: center; justify-content: center; opacity: 0.5; transition: opacity var(--motion-duration-fast); }
+.ptbl tbody tr:hover .row-act { opacity: 1; }
+.row-act:hover { background: var(--muted); color: var(--fg); }
+.row-act svg { width: 14px; height: 14px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Organisms · Onda 1 · 01</div>
+    <h1 class="page-title">Table</h1>
+    <p class="page-sub">A superfície mais densa do produto. Tipografia mono nas colunas numéricas, hover sutil, hairlines no lugar de linhas pesadas. Toolbar acima, paginação abaixo, density configurável.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Default · Casos ativos</h2>
+      <p class="section-desc">Padrão para listas de monitoramentos. Toolbar com busca + filtros, paginação no rodapé.</p>
+      <div class="ptbl-wrap">
+        <div class="ptbl-toolbar">
+          <div class="ptbl-toolbar-left">
+            <div class="ptbl-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              <input type="search" placeholder="Buscar caso, ID ou tag…">
+            </div>
+            <button class="ttbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M6 12h12M10 18h4"/></svg>Filtros · 2</button>
+            <button class="ttbtn">Últimas 24h</button>
+            <button class="ttbtn">Tier 1 · 2</button>
+          </div>
+          <div class="ptbl-toolbar-right">
+            <button class="ttbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Exportar</button>
+            <button class="ttbtn" aria-label="Configurar colunas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 005 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 005 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019 9.4V9.5a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09A1.65 1.65 0 0019.4 15z"/></svg></button>
+          </div>
+        </div>
+
+        <table class="ptbl">
+          <thead>
+            <tr>
+              <th style="width: 32px;"><span class="tcb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 8.5 6.5 12 13 4.5"/></svg></span></th>
+              <th class="sortable">Caso</th>
+              <th class="sortable">Status</th>
+              <th class="sortable">Tier</th>
+              <th class="sortable num sorted">Score
+                <svg class="sort-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 10l5-5 5 5M7 14l5 5 5-5" opacity="0.4"/><path d="M7 14l5 5 5-5"/></svg>
+              </th>
+              <th class="sortable num">Δ 24h</th>
+              <th class="sortable num">Menções</th>
+              <th class="sortable">Atualizado</th>
+              <th style="width: 32px;"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="selected">
+              <td><span class="tcb is-checked"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 8.5 6.5 12 13 4.5"/></svg></span></td>
+              <td>
+                <div class="cell-stack">
+                  <span class="ttl">Operação Água Nova</span>
+                  <span class="meta">CM-2026-0412 · Saúde pública</span>
+                </div>
+              </td>
+              <td><span class="r-pill r-critical"><span class="dot"></span>Crítico · ao vivo</span></td>
+              <td class="mono">T1</td>
+              <td class="num"><strong style="color: var(--fg-strong);">87</strong></td>
+              <td class="num"><span class="dlc bad">+12</span></td>
+              <td class="num">2.847</td>
+              <td class="muted mono">há 2 min</td>
+              <td><button class="row-act" aria-label="Ações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
+            </tr>
+            <tr>
+              <td><span class="tcb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 8.5 6.5 12 13 4.5"/></svg></span></td>
+              <td>
+                <div class="cell-stack">
+                  <span class="ttl">Reforma tributária · Norte</span>
+                  <span class="meta">CM-2026-0410 · Política</span>
+                </div>
+              </td>
+              <td><span class="r-pill r-high"><span class="dot"></span>Alto</span></td>
+              <td class="mono">T1</td>
+              <td class="num"><strong style="color: var(--fg-strong);">64</strong></td>
+              <td class="num"><span class="dlc bad">+04</span></td>
+              <td class="num">1.204</td>
+              <td class="muted mono">há 11 min</td>
+              <td><button class="row-act" aria-label="Ações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
+            </tr>
+            <tr>
+              <td><span class="tcb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 8.5 6.5 12 13 4.5"/></svg></span></td>
+              <td>
+                <div class="cell-stack">
+                  <span class="ttl">Concessão Aero RJ</span>
+                  <span class="meta">CM-2026-0407 · Infraestrutura</span>
+                </div>
+              </td>
+              <td><span class="r-pill r-medium"><span class="dot"></span>Médio</span></td>
+              <td class="mono">T2</td>
+              <td class="num"><strong style="color: var(--fg-strong);">42</strong></td>
+              <td class="num"><span class="dlc good">-08</span></td>
+              <td class="num">487</td>
+              <td class="muted mono">há 38 min</td>
+              <td><button class="row-act" aria-label="Ações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
+            </tr>
+            <tr>
+              <td><span class="tcb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 8.5 6.5 12 13 4.5"/></svg></span></td>
+              <td>
+                <div class="cell-stack">
+                  <span class="ttl">Lei do Combustível · audiência</span>
+                  <span class="meta">CM-2026-0402 · Energia</span>
+                </div>
+              </td>
+              <td><span class="r-pill r-monitor"><span class="dot"></span>Monitorar</span></td>
+              <td class="mono">T2</td>
+              <td class="num"><strong style="color: var(--fg-strong);">22</strong></td>
+              <td class="num"><span class="dlc flat">0</span></td>
+              <td class="num">128</td>
+              <td class="muted mono">há 1h</td>
+              <td><button class="row-act" aria-label="Ações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
+            </tr>
+            <tr>
+              <td><span class="tcb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 8.5 6.5 12 13 4.5"/></svg></span></td>
+              <td>
+                <div class="cell-stack">
+                  <span class="ttl">Programa de habitação · MG</span>
+                  <span class="meta">CM-2026-0398 · Social</span>
+                </div>
+              </td>
+              <td><span class="r-pill r-stable"><span class="dot"></span>Estável</span></td>
+              <td class="mono">T3</td>
+              <td class="num"><strong style="color: var(--fg-strong);">08</strong></td>
+              <td class="num"><span class="dlc good">-02</span></td>
+              <td class="num">42</td>
+              <td class="muted mono">há 4h</td>
+              <td><button class="row-act" aria-label="Ações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="ptbl-footer">
+          <span>1 selecionado · 5 de 12 casos</span>
+          <div class="ptbl-pager">
+            <button aria-label="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+            <button class="is-active">1</button>
+            <button>2</button>
+            <button>3</button>
+            <button aria-label="Próximo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Compact · log de eventos</h2>
+      <p class="section-desc">Density compact para superfícies de auditoria, logs, despachos. Mais linhas no mesmo espaço sem perder legibilidade.</p>
+      <div class="ptbl-wrap">
+        <table class="ptbl ptbl-compact">
+          <thead>
+            <tr>
+              <th class="mono">Timestamp</th>
+              <th>Evento</th>
+              <th>Origem</th>
+              <th class="num">Score</th>
+              <th>Operador</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="mono">14:32:08</td><td>Despacho · Tier 1 acionado</td><td class="mono">Folha · G1</td><td class="num">87</td><td class="muted">Cris · auto</td></tr>
+            <tr><td class="mono">14:18:44</td><td>Threshold rompido</td><td class="mono">radar</td><td class="num">82</td><td class="muted">—</td></tr>
+            <tr><td class="mono">13:51:02</td><td>Briefing publicado</td><td>—</td><td class="num">76</td><td>Neviton</td></tr>
+            <tr><td class="mono">13:22:19</td><td>Caso aberto</td><td class="mono">manual</td><td class="num">52</td><td>Marina Rocha</td></tr>
+            <tr><td class="mono">12:08:55</td><td>Detecção · pico de menções</td><td class="mono">X · UGC</td><td class="num">48</td><td class="muted">Cris · auto</td></tr>
+            <tr><td class="mono">11:44:01</td><td>Fonte adicionada</td><td>—</td><td class="num">—</td><td>Marina Rocha</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Estados</h2>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="ptbl-wrap">
+          <table class="ptbl">
+            <thead><tr><th>Caso</th><th class="num">Score</th></tr></thead>
+            <tbody>
+              <tr><td colspan="2" style="padding: 40px 16px; text-align: center; color: var(--fg-muted); font-size: 13px;">
+                <svg style="width: 24px; height: 24px; opacity: 0.4; margin: 0 auto 8px; display: block;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                Nenhum caso encontrado<br>
+                <span style="font-size: 11.5px; color: var(--fg-subtle); font-family: var(--font-pulso-mono);">Ajuste filtros ou tente outra busca</span>
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="ptbl-wrap">
+          <table class="ptbl">
+            <thead><tr><th>Caso</th><th class="num">Score</th></tr></thead>
+            <tbody>
+              <tr><td><div style="height: 14px; background: var(--muted); border-radius: 3px; width: 70%;"></div></td><td class="num"><div style="height: 14px; background: var(--muted); border-radius: 3px; width: 40px; margin-left: auto;"></div></td></tr>
+              <tr><td><div style="height: 14px; background: var(--muted); border-radius: 3px; width: 55%;"></div></td><td class="num"><div style="height: 14px; background: var(--muted); border-radius: 3px; width: 40px; margin-left: auto;"></div></td></tr>
+              <tr><td><div style="height: 14px; background: var(--muted); border-radius: 3px; width: 80%;"></div></td><td class="num"><div style="height: 14px; background: var(--muted); border-radius: 3px; width: 40px; margin-left: auto;"></div></td></tr>
+              <tr><td><div style="height: 14px; background: var(--muted); border-radius: 3px; width: 60%;"></div></td><td class="num"><div style="height: 14px; background: var(--muted); border-radius: 3px; width: 40px; margin-left: auto;"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Anatomia</h2>
+      <table class="tokens">
+        <thead><tr><th>Elemento</th><th>Default</th><th>Compact</th><th>Spacious</th></tr></thead>
+        <tbody>
+          <tr><td>Padding célula (vert)</td><td class="mono">12px</td><td class="mono">7px</td><td class="mono">16px</td></tr>
+          <tr><td>Padding célula (horiz)</td><td class="mono">16px</td><td class="mono">16px</td><td class="mono">16px</td></tr>
+          <tr><td>Header bg</td><td class="mono">--surface-2</td><td class="mono">--surface-2</td><td class="mono">--surface-2</td></tr>
+          <tr><td>Header type</td><td class="mono">mono · 10.5 · upper</td><td class="mono">mono · 10.5 · upper</td><td class="mono">mono · 10.5 · upper</td></tr>
+          <tr><td>Body type</td><td class="mono">sans · 13</td><td class="mono">sans · 12.5</td><td class="mono">sans · 13</td></tr>
+          <tr><td>Border row</td><td class="mono">1px solid --border-faint</td><td class="mono">1px solid --border-faint</td><td class="mono">1px solid --border-faint</td></tr>
+          <tr><td>Hover row</td><td class="mono">bg --surface-2</td><td class="mono">bg --surface-2</td><td class="mono">bg --surface-2</td></tr>
+          <tr><td>Selected row</td><td class="mono">bg --primary-soft</td><td class="mono">bg --primary-soft</td><td class="mono">bg --primary-soft</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><div class="rule-tag">DO</div><div>Mono em colunas numéricas (score, contagem, timestamp). <code style="font-family: var(--font-pulso-mono); font-size: 11px;">font-feature-settings: 'tnum'</code> alinha colunas.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Header sempre sticky em tabela longa. Toolbar e footer fora da área scroll.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Estado vazio descritivo + ação sugerida. Skeleton para carregamento (não spinner).</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use cores zebradas. Hairline + hover dão estrutura suficiente.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não centralize números. Numérico = right-align sempre.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use scroll horizontal sem indicador. Se a tabela é larga, ofereça toggle de colunas.</div></div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

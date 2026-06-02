@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Radii</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Foundations · 04</div>
+    <h1 class="page-title">Radii</h1>
+    <p class="page-sub">No v2 reduzimos os raios. O v1 tinha 22px em superfícies; agora o teto é 14px. Cantos firmes comunicam confiança e seriedade — exatamente o tom que ferramenta de gestão de crise pede.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Escala</h2>
+      <div class="radii-grid">
+        <div class="radius-card"><div class="radius-shape" style="border-radius: var(--radius-xs);"></div><div class="radius-name">--radius-xs</div><div class="radius-value">4px · chips, toggles</div></div>
+        <div class="radius-card"><div class="radius-shape" style="border-radius: var(--radius-sm);"></div><div class="radius-name">--radius-sm</div><div class="radius-value">6px · inputs, botões</div></div>
+        <div class="radius-card"><div class="radius-shape" style="border-radius: var(--radius-md);"></div><div class="radius-name">--radius-md</div><div class="radius-value">8px · cards, menus</div></div>
+        <div class="radius-card"><div class="radius-shape" style="border-radius: var(--radius-lg);"></div><div class="radius-name">--radius-lg</div><div class="radius-value">10px · superfícies</div></div>
+        <div class="radius-card"><div class="radius-shape" style="border-radius: var(--radius-xl);"></div><div class="radius-name">--radius-xl</div><div class="radius-value">14px · feature</div></div>
+        <div class="radius-card"><div class="radius-shape" style="border-radius: var(--radius-full);"></div><div class="radius-name">--radius-full</div><div class="radius-value">9999px · pills, avatar</div></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Focus ring</h2>
+      <p class="section-desc">Anel de foco em todo elemento interativo. Sempre visível para teclado.</p>
+      <div class="preview-row">
+        <button class="btn btn-primary" style="outline: var(--ring-width) solid var(--ring); outline-offset: var(--ring-offset);">Focado · primary</button>
+        <button class="btn btn-secondary" style="outline: var(--ring-width) solid var(--ring); outline-offset: var(--ring-offset);">Focado · secondary</button>
+        <input style="height: var(--control-h-default); padding: 0 12px; border: 1px solid var(--input); border-radius: var(--radius-sm); background: var(--card); color: var(--fg); font-family: inherit; font-size: 13px; outline: var(--ring-width) solid var(--ring); outline-offset: var(--ring-offset);" value="Input focado">
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><div class="rule-tag">DO</div><div>Use radius-md (8px) como default para qualquer container. radius-sm para controles inline.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Mantenha consistência hierárquica: nunca aninhe um radius maior dentro de um menor.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use radius-full em botões grandes — reservado para chips, badges, avatares.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não misture raios "estranhos" (12, 16) — saia da escala só com motivo claro.</div></div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

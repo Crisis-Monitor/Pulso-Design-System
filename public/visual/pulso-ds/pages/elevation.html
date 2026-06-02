@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Elevation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Foundations · 05</div>
+    <h1 class="page-title">Elevation</h1>
+    <p class="page-sub">No v2, sombras são quase invisíveis. Estrutura vem de bordas hairline (rgba 8%), não de drop-shadow. Sombra é reservada para o que <strong>realmente</strong> flutua: popovers, modais, tooltips.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Escala</h2>
+      <div class="shadows-grid">
+        <div class="shadow-card" style="box-shadow: var(--shadow-xs);"><div class="shadow-name">--shadow-xs</div><div class="shadow-value">hairline lift</div></div>
+        <div class="shadow-card" style="box-shadow: var(--shadow-sm);"><div class="shadow-name">--shadow-sm</div><div class="shadow-value">cards estáveis</div></div>
+        <div class="shadow-card" style="box-shadow: var(--shadow);"><div class="shadow-name">--shadow</div><div class="shadow-value">interação leve</div></div>
+        <div class="shadow-card" style="box-shadow: var(--shadow-md);"><div class="shadow-name">--shadow-md</div><div class="shadow-value">dropdown, menu</div></div>
+        <div class="shadow-card" style="box-shadow: var(--shadow-lg);"><div class="shadow-name">--shadow-lg</div><div class="shadow-value">popover</div></div>
+        <div class="shadow-card" style="box-shadow: var(--shadow-xl);"><div class="shadow-name">--shadow-xl</div><div class="shadow-value">modal, sheet</div></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Surface roles</h2>
+      <p class="section-desc">Cada papel mapeia background + sombra + borda. Não improvise combinações.</p>
+      <table class="tokens">
+        <thead><tr><th>Role</th><th>Background</th><th>Border</th><th>Shadow</th><th>Uso</th></tr></thead>
+        <tbody>
+          <tr><td>Page</td><td class="mono">--background</td><td>—</td><td>—</td><td>Fundo da página</td></tr>
+          <tr><td>Panel</td><td class="mono">--card</td><td class="mono">--border</td><td>—</td><td>Painéis laterais, seções</td></tr>
+          <tr><td>Card</td><td class="mono">--card</td><td class="mono">--border</td><td class="mono">--shadow-xs</td><td>Cards de conteúdo</td></tr>
+          <tr><td>Elevated</td><td class="mono">--card</td><td class="mono">--border</td><td class="mono">--shadow-md</td><td>Hover de card relevante</td></tr>
+          <tr><td>Overlay</td><td class="mono">--popover</td><td class="mono">--border-strong</td><td class="mono">--shadow-lg</td><td>Dropdowns, menus</td></tr>
+          <tr><td>Modal</td><td class="mono">--popover</td><td class="mono">--border-strong</td><td class="mono">--shadow-xl</td><td>Dialogs, sheets</td></tr>
+          <tr><td>Inverse</td><td class="mono">--sidebar</td><td class="mono">--sidebar-border</td><td>—</td><td>Sidebar, footer marca</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Z-index</h2>
+      <table class="tokens">
+        <thead><tr><th>Token</th><th>Valor</th><th>Uso</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">--z-base</td><td class="mono">0</td><td>Default</td></tr>
+          <tr><td class="mono">--z-elev-1</td><td class="mono">10</td><td>Sticky headers</td></tr>
+          <tr><td class="mono">--z-elev-2</td><td class="mono">20</td><td>Dropdowns inline</td></tr>
+          <tr><td class="mono">--z-elev-3</td><td class="mono">30</td><td>Sticky overlays</td></tr>
+          <tr><td class="mono">--z-overlay</td><td class="mono">40</td><td>Modal backdrop</td></tr>
+          <tr><td class="mono">--z-modal</td><td class="mono">50</td><td>Dialogs, sheets</td></tr>
+          <tr><td class="mono">--z-popover</td><td class="mono">60</td><td>Tooltips, popovers</td></tr>
+          <tr><td class="mono">--z-toast</td><td class="mono">70</td><td>Notifications</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><div class="rule-tag">DO</div><div>Prefira hairline a sombra. Borda 1px rgba 8% resolve 90% dos casos.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Use sombra forte só para o que flutua: popover, dropdown, modal. Indica que o elemento "sai" da página.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não combine sombra forte + borda visível no mesmo elemento. Escolha uma estrutura.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use sombra para hover de card estático. Use mudança sutil de border ou background.</div></div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

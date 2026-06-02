@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Offline-first Contract</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* ── Phone frame primitive (compartilhado com γ.1) ───── */
+.phone {
+  width: 260px; height: 520px;
+  background: #0f0c1a; border-radius: 36px; padding: 9px;
+  box-shadow: 0 8px 40px rgba(15, 12, 26, 0.18);
+  position: relative; flex-shrink: 0;
+}
+.phone .screen {
+  width: 100%; height: 100%; background: var(--card);
+  border-radius: 28px; position: relative; overflow: hidden;
+}
+.phone .notch {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  width: 70px; height: 18px; background: #0f0c1a; border-radius: 12px; z-index: 4;
+}
+.phone-status {
+  position: absolute; top: 0; left: 0; right: 0; height: 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 22px 0;
+  font-family: var(--font-pulso-mono); font-size: 10px;
+  color: var(--fg-strong); font-weight: 700; letter-spacing: 0.04em;
+  z-index: 3;
+}
+.phone-status .signal-x {
+  display: inline-flex; align-items: center; gap: 4px;
+  color: var(--risk-attention-text);
+}
+.phone-content {
+  position: absolute; top: 34px; left: 0; right: 0; bottom: 0;
+  padding: 12px 14px;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+
+/* ── Freshness banner ───── */
+.freshness-banner {
+  background: color-mix(in oklab, var(--risk-attention) 12%, transparent);
+  border: 1px solid var(--risk-attention-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 10px;
+}
+.freshness-banner .icon {
+  font-family: var(--font-pulso-mono); font-size: 12px;
+  color: var(--risk-attention-text); font-weight: 700;
+}
+.freshness-banner .txt {
+  font-size: 10px; line-height: 1.4;
+  color: var(--fg);
+}
+.freshness-banner .txt strong { color: var(--risk-attention-text); font-weight: 700; }
+
+.freshness-banner.success {
+  background: color-mix(in oklab, var(--success) 10%, transparent);
+  border-color: color-mix(in oklab, var(--success) 30%, transparent);
+}
+.freshness-banner.success .icon { color: var(--success); }
+.freshness-banner.success .txt strong { color: var(--success); }
+
+/* Item cards inside phone */
+.p-card {
+  background: var(--surface-2); border: 1px solid var(--border-faint);
+  border-radius: 8px; padding: 9px 11px; margin-bottom: 7px;
+}
+.p-card .head { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.p-card .glyph {
+  width: 13px; height: 13px; display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 700;
+}
+.p-card .glyph.crit { color: var(--risk-critical-text); }
+.p-card .glyph.att { color: var(--risk-attention-text); }
+.p-card .lbl { font-family: var(--font-pulso-mono); font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 700; }
+.p-card .age { margin-left: auto; font-family: var(--font-pulso-mono); font-size: 8.5px; color: var(--fg-subtle); }
+.p-card .title { font-size: 10.5px; color: var(--fg-strong); font-weight: 600; }
+.p-card .sub { font-size: 9.5px; color: var(--fg-muted); margin-top: 2px; line-height: 1.4; }
+
+/* Pending action card */
+.p-card.pending {
+  border-left: 2px solid var(--primary);
+  background: color-mix(in oklab, var(--primary) 5%, var(--card));
+}
+.p-card.pending .age {
+  color: var(--primary); font-weight: 700;
+  display: inline-flex; align-items: center; gap: 3px;
+}
+.p-card.pending .pending-dot {
+  width: 5px; height: 5px; border-radius: 50%; background: var(--primary);
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
+@keyframes pulse-dot { 50% { opacity: 0.3; } }
+
+/* Queue bar bottom */
+.queue-bar {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: var(--primary); color: var(--primary-foreground);
+  padding: 11px 14px;
+  display: flex; align-items: center; gap: 10px;
+  z-index: 3;
+}
+.queue-bar .n {
+  font-family: var(--font-pulso-mono); font-size: 13px; font-weight: 700;
+  background: rgba(255,255,255,0.18); padding: 2px 7px; border-radius: 4px;
+}
+.queue-bar .what { font-size: 10.5px; line-height: 1.4; flex: 1; }
+.queue-bar .arr { font-family: var(--font-pulso-mono); font-size: 11px; letter-spacing: 0.06em; }
+
+/* ── 3 phone states comparison ───── */
+.states-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  justify-items: center;
+}
+.state-col {
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  max-width: 320px;
+}
+.state-col .label {
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  font-weight: 700; padding: 4px 10px;
+  border-radius: var(--radius-xs);
+}
+.state-col .label.online { background: color-mix(in oklab, var(--success) 14%, transparent); color: var(--success); }
+.state-col .label.flaky { background: color-mix(in oklab, var(--risk-attention) 14%, transparent); color: var(--risk-attention-text); }
+.state-col .label.offline { background: color-mix(in oklab, var(--destructive) 14%, transparent); color: var(--destructive); }
+.state-col .desc {
+  font-size: 12.5px; color: var(--fg-secondary); line-height: 1.55;
+  text-align: center;
+}
+
+/* ── Capability matrix ───── */
+.cap-matrix { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.cap-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cap-tbl thead th {
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--fg-subtle); font-weight: 700;
+  padding: 14px 16px; border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+  text-align: center;
+}
+.cap-tbl thead th:first-child { text-align: left; }
+.cap-tbl tbody td {
+  padding: 14px 16px; border-bottom: 1px solid var(--border-faint);
+  vertical-align: middle;
+}
+.cap-tbl tbody tr:last-child td { border-bottom: none; }
+.cap-tbl tbody td.cap-name {
+  font-weight: 600; color: var(--fg-strong);
+}
+.cap-tbl tbody td.cap-name .sub {
+  display: block;
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  color: var(--fg-subtle); font-weight: 500;
+  margin-top: 2px; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.cap-cell {
+  text-align: center;
+  font-family: var(--font-pulso-mono); font-size: 11px;
+  font-weight: 700;
+}
+.cap-yes {
+  color: var(--success);
+}
+.cap-yes::before { content: '✓'; font-size: 14px; display: block; margin-bottom: 2px; }
+.cap-queue {
+  color: var(--primary);
+}
+.cap-queue::before { content: '⏳'; font-size: 13px; display: block; margin-bottom: 2px; }
+.cap-no {
+  color: var(--destructive);
+}
+.cap-no::before { content: '×'; font-size: 14px; display: block; margin-bottom: 2px; }
+
+.cap-legend {
+  display: flex; gap: 18px; padding: 14px 18px;
+  background: var(--surface-2); border-top: 1px solid var(--border-faint);
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  color: var(--fg-muted); letter-spacing: 0.04em;
+  flex-wrap: wrap;
+}
+.cap-legend .item { display: inline-flex; align-items: center; gap: 6px; }
+.cap-legend .item .sw {
+  font-family: var(--font-pulso-mono); font-weight: 700; font-size: 13px;
+}
+.cap-legend .item.yes .sw { color: var(--success); }
+.cap-legend .item.queue .sw { color: var(--primary); }
+.cap-legend .item.no .sw { color: var(--destructive); }
+
+/* ── Queue lifecycle ───── */
+.lifecycle {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 28px 32px;
+}
+.life-flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+@media (max-width: 900px) { .life-flow { grid-template-columns: 1fr 1fr; } }
+.life-step {
+  background: var(--surface-2); border: 1px solid var(--border-faint);
+  border-radius: var(--radius-sm); padding: 16px;
+  position: relative;
+}
+.life-step::after {
+  content: '→';
+  position: absolute; right: -14px; top: 50%; transform: translateY(-50%);
+  font-family: var(--font-pulso-mono); font-size: 18px; color: var(--primary); font-weight: 700;
+  z-index: 2;
+}
+.life-step:last-child::after { display: none; }
+@media (max-width: 900px) { .life-step::after { display: none; } }
+.life-step .n {
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--primary); font-weight: 700; margin-bottom: 6px;
+}
+.life-step .name {
+  font-size: 13.5px; font-weight: 600; color: var(--fg-strong);
+  margin-bottom: 6px;
+}
+.life-step .what {
+  font-size: 11.5px; color: var(--fg-secondary); line-height: 1.5;
+}
+.life-step .ico {
+  font-family: var(--font-pulso-mono); font-size: 16px;
+  color: var(--primary); margin-bottom: 8px;
+}
+
+/* ── Freshness indicators ───── */
+.fresh-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+}
+@media (max-width: 760px) { .fresh-grid { grid-template-columns: 1fr; } }
+.fresh-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex; flex-direction: column;
+}
+.fresh-mock {
+  padding: 22px;
+  background: var(--surface-page);
+  border-bottom: 1px solid var(--border-faint);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 110px;
+}
+.fresh-body { padding: 18px 22px; }
+.fresh-body h4 { font-size: 14.5px; font-weight: 600; color: var(--fg-strong); margin-bottom: 4px; }
+.fresh-body .when { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
+.fresh-body p { font-size: 13px; color: var(--fg-secondary); line-height: 1.55; }
+
+/* Indicador variantes */
+.indi {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: var(--radius-xs);
+  font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.indi.fresh { background: color-mix(in oklab, var(--success) 12%, transparent); color: var(--success); border: 1px solid color-mix(in oklab, var(--success) 28%, transparent); }
+.indi.stale { background: color-mix(in oklab, var(--risk-monitor) 12%, transparent); color: var(--risk-monitor-text); border: 1px solid var(--risk-monitor-border); }
+.indi.warning { background: color-mix(in oklab, var(--risk-attention) 14%, transparent); color: var(--risk-attention-text); border: 1px solid var(--risk-attention-border); }
+.indi.offline { background: color-mix(in oklab, var(--destructive) 12%, transparent); color: var(--destructive); border: 1px solid color-mix(in oklab, var(--destructive) 30%, transparent); }
+.indi .pulse {
+  width: 6px; height: 6px; border-radius: 50%; background: currentColor;
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+@keyframes pulse-soft { 50% { opacity: 0.4; } }
+
+/* ── Schema ───── */
+.schema { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.schema-head { padding: 16px 22px; background: var(--surface-2); border-bottom: 1px solid var(--border-faint); display: flex; gap: 12px; align-items: center; }
+.schema-head .kicker { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); font-weight: 700; }
+.schema-head .name { font-size: 14px; font-weight: 600; color: var(--fg-strong); }
+.schema-body { padding: 18px 22px 22px; }
+.schema-body pre { font-family: var(--font-pulso-mono); font-size: 12px; line-height: 1.7; color: var(--fg); margin: 0; white-space: pre; overflow-x: auto; }
+.schema-body .k { color: var(--primary); }
+.schema-body .s { color: var(--success); }
+.schema-body .n { color: var(--risk-attention-text); }
+.schema-body .c { color: var(--fg-subtle); font-style: italic; }
+
+/* ── Rules ───── */
+.rules { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .rules { grid-template-columns: 1fr; } }
+.rule { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 22px; }
+.rule.do { border-left: 3px solid var(--success); }
+.rule.dont { border-left: 3px solid var(--destructive); }
+.rule .tag { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 8px; }
+.rule.do .tag { color: var(--success); }
+.rule.dont .tag { color: var(--destructive); }
+.rule p { font-size: 13px; color: var(--fg); line-height: 1.55; }
+.rule .note { padding-top: 10px; margin-top: 10px; border-top: 1px solid var(--border-faint); font-size: 12px; color: var(--fg-muted); line-height: 1.55; }
+.rule code { font-family: var(--font-pulso-mono); font-size: 11px; background: var(--surface-2); padding: 1px 5px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Patterns · Mobile · v3 · γ.2 · entregue</div>
+    <h1 class="page-title">Offline-first contract</h1>
+    <p class="page-sub">Sinal cai · trabalho continua. γ.2 define o que sobrevive sem conexão · o que enfileira para sincronizar · o que falha de forma graceful. Indicador de freshness em toda superfície sensível ao tempo. Nada de "ops, sem internet".</p>
+
+    <!-- Princípio -->
+    <section class="section">
+      <h2 class="section-h1">Princípio · ler, reconhecer, rascunhar — sempre</h2>
+      <p class="section-desc">Operador em transit pode perder sinal a qualquer momento. O Crisis Monitor não pode virar inerte. Três capacidades nunca dependem de rede · <strong>ler briefing</strong>, <strong>ack alerta crítico</strong>, <strong>rascunhar nota</strong>. Tudo o mais pode enfileirar, falhar com aviso, ou cair em modo degradado · explicitamente.</p>
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 26px;">
+        <p style="font-size:15px;color:var(--fg-strong);line-height:1.65;max-width:780px;">A regra é <strong>conexão é otimização, não pré-requisito</strong>. Sem isso, mobile vira ilha; o aparelho do operador é o segundo cliente que precisa de robustez · não auxiliar.</p>
+      </div>
+    </section>
+
+    <!-- 3 phone states -->
+    <section class="section">
+      <h2 class="section-h1">Três estados de rede · mesma tela</h2>
+      <p class="section-desc">A mesma view de alertas, três conectividades. UI muda · capacidade muda · banner é explícito. Operador sempre sabe em qual estado está.</p>
+
+      <div class="states-grid">
+        <!-- Online -->
+        <div class="state-col">
+          <span class="label online">Online</span>
+          <div class="phone">
+            <div class="notch"></div>
+            <div class="screen">
+              <div class="phone-status"><span>09:42</span><span>5G</span></div>
+              <div class="phone-content">
+                <div style="font-family:var(--font-pulso-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);font-weight:700;margin-bottom:8px;">ALERTAS · 3 ATIVOS</div>
+                <div class="freshness-banner success">
+                  <span class="icon">●</span>
+                  <span class="txt"><strong>Ao vivo</strong> · atualizado agora</span>
+                </div>
+                <div class="p-card">
+                  <div class="head"><span class="glyph crit">●</span><span class="lbl">CRÍTICO</span><span class="age">2 min</span></div>
+                  <div class="title">CASO 248 · escalada</div>
+                  <div class="sub">+62% menções · 14 perfis</div>
+                </div>
+                <div class="p-card">
+                  <div class="head"><span class="glyph att">◆</span><span class="lbl">ATENÇÃO</span><span class="age">8 min</span></div>
+                  <div class="title">CASO 252 · ruído</div>
+                </div>
+                <div class="p-card">
+                  <div class="head"><span class="glyph att">○</span><span class="lbl">MONITOR</span><span class="age">22 min</span></div>
+                  <div class="title">CASO 250 · cluster X</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="desc">Conexão estável · live updates · ações executam direto. Indicador <em>fresh</em> verde no topo.</p>
+        </div>
+
+        <!-- Flaky -->
+        <div class="state-col">
+          <span class="label flaky">Instável</span>
+          <div class="phone">
+            <div class="notch"></div>
+            <div class="screen">
+              <div class="phone-status"><span>09:42</span><span class="signal-x">3G · ↓</span></div>
+              <div class="phone-content">
+                <div style="font-family:var(--font-pulso-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);font-weight:700;margin-bottom:8px;">ALERTAS · 3 ATIVOS</div>
+                <div class="freshness-banner">
+                  <span class="icon">◆</span>
+                  <span class="txt"><strong>Atraso</strong> · sincronizando…<br>última atualização há 4 min</span>
+                </div>
+                <div class="p-card">
+                  <div class="head"><span class="glyph crit">●</span><span class="lbl">CRÍTICO</span><span class="age">2 min</span></div>
+                  <div class="title">CASO 248 · escalada</div>
+                  <div class="sub">+62% menções · 14 perfis</div>
+                </div>
+                <div class="p-card pending">
+                  <div class="head"><span class="glyph att">◆</span><span class="lbl">ATENÇÃO</span><span class="age"><span class="pending-dot"></span>aguardando</span></div>
+                  <div class="title">ack pendente</div>
+                  <div class="sub">CASO 252 · enviando em &lt;30s</div>
+                </div>
+                <div class="p-card">
+                  <div class="head"><span class="glyph att">○</span><span class="lbl">MONITOR</span><span class="age">22 min</span></div>
+                  <div class="title">CASO 250</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="desc">Latência alta · ações executam local + enfileiram envio. Banner âmbar avisa atraso · ack já está reconhecido na UI.</p>
+        </div>
+
+        <!-- Offline -->
+        <div class="state-col">
+          <span class="label offline">Offline</span>
+          <div class="phone">
+            <div class="notch"></div>
+            <div class="screen">
+              <div class="phone-status"><span>09:42</span><span class="signal-x">SEM SINAL</span></div>
+              <div class="phone-content">
+                <div style="font-family:var(--font-pulso-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);font-weight:700;margin-bottom:8px;">ALERTAS · 3 ATIVOS</div>
+                <div class="freshness-banner" style="background: color-mix(in oklab, var(--destructive) 8%, transparent); border-color: color-mix(in oklab, var(--destructive) 28%, transparent);">
+                  <span class="icon" style="color: var(--destructive);">×</span>
+                  <span class="txt"><strong style="color: var(--destructive);">Offline</strong> · congelado há 11 min<br>3 ações em fila local</span>
+                </div>
+                <div class="p-card" style="opacity: 0.7;">
+                  <div class="head"><span class="glyph crit">●</span><span class="lbl">CRÍTICO</span><span class="age">11 min+</span></div>
+                  <div class="title">CASO 248 · estado congelado</div>
+                </div>
+                <div class="p-card pending">
+                  <div class="head"><span class="glyph att">◆</span><span class="lbl">ATENÇÃO</span><span class="age"><span class="pending-dot"></span>fila</span></div>
+                  <div class="title">Nota rascunhada · v2</div>
+                  <div class="sub">enviada ao reconectar</div>
+                </div>
+              </div>
+              <div class="queue-bar">
+                <span class="n">3</span>
+                <span class="what">ações em fila · sincronizam ao reconectar</span>
+                <span class="arr">VER</span>
+              </div>
+            </div>
+          </div>
+          <p class="desc">Sem rede · UI permanece operacional. Ack, leitura e drafts são locais. Queue-bar sempre visível · audit log local sela cada ação para futuro envio.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Capability matrix -->
+    <section class="section">
+      <h2 class="section-h1">Tabela de capacidades</h2>
+      <p class="section-desc">Por classe de ação · o que funciona em cada estado. Essa tabela é binding · todo time que adiciona ação ao Crisis Monitor classifica a operação aqui antes de ship.</p>
+
+      <div class="cap-matrix">
+        <table class="cap-tbl">
+          <thead>
+            <tr>
+              <th style="width: 36%;">Ação</th>
+              <th>Online</th>
+              <th>Instável</th>
+              <th>Offline</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="cap-name">Ler briefing<span class="sub">leitura · estado já cacheado</span></td>
+              <td class="cap-cell cap-yes">execução local</td>
+              <td class="cap-cell cap-yes">execução local</td>
+              <td class="cap-cell cap-yes">cache local</td>
+            </tr>
+            <tr>
+              <td class="cap-name">Ack alerta crítico<span class="sub">reconhecimento · reversível</span></td>
+              <td class="cap-cell cap-yes">imediato</td>
+              <td class="cap-cell cap-yes">local + sync</td>
+              <td class="cap-cell cap-queue">fila local</td>
+            </tr>
+            <tr>
+              <td class="cap-name">Rascunhar nota<span class="sub">draft · persistência local</span></td>
+              <td class="cap-cell cap-yes">imediato</td>
+              <td class="cap-cell cap-yes">imediato</td>
+              <td class="cap-cell cap-yes">salva localmente</td>
+            </tr>
+            <tr>
+              <td class="cap-name">Comentar em caso<span class="sub">anotação interna · idempotente</span></td>
+              <td class="cap-cell cap-yes">imediato</td>
+              <td class="cap-cell cap-queue">enfileira</td>
+              <td class="cap-cell cap-queue">fila local</td>
+            </tr>
+            <tr>
+              <td class="cap-name">Regenerar com Cris<span class="sub">requer chamada remota</span></td>
+              <td class="cap-cell cap-yes">imediato</td>
+              <td class="cap-cell cap-queue">retry com timeout</td>
+              <td class="cap-cell cap-no">degraded · falha clara</td>
+            </tr>
+            <tr>
+              <td class="cap-name">Escalar tier<span class="sub">efeito externo · não-idempotente</span></td>
+              <td class="cap-cell cap-yes">imediato</td>
+              <td class="cap-cell cap-queue">confirmação manual</td>
+              <td class="cap-cell cap-no">bloqueado · banner</td>
+            </tr>
+            <tr>
+              <td class="cap-name">Dispatch externo<span class="sub">comunicação para fora</span></td>
+              <td class="cap-cell cap-yes">imediato</td>
+              <td class="cap-cell cap-queue">requer reconfirmação</td>
+              <td class="cap-cell cap-no">bloqueado</td>
+            </tr>
+            <tr>
+              <td class="cap-name">Abrir Cris Sheet<span class="sub">conversa nova com Cris</span></td>
+              <td class="cap-cell cap-yes">imediato</td>
+              <td class="cap-cell cap-yes">com aviso de latência</td>
+              <td class="cap-cell cap-no">não disponível</td>
+            </tr>
+            <tr>
+              <td class="cap-name">Audit log · drill-down<span class="sub">evento já indexado</span></td>
+              <td class="cap-cell cap-yes">imediato</td>
+              <td class="cap-cell cap-yes">cache + lazy load</td>
+              <td class="cap-cell cap-yes">só eventos cacheados</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="cap-legend">
+          <span class="item yes"><span class="sw">✓</span> funciona inteiro</span>
+          <span class="item queue"><span class="sw">⏳</span> enfileira para sync</span>
+          <span class="item no"><span class="sw">×</span> bloqueado · UI desabilita</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Queue lifecycle -->
+    <section class="section">
+      <h2 class="section-h1">Ciclo da fila local · 5 estados</h2>
+      <p class="section-desc">Uma ação que enfileira passa por cinco estados visíveis. Operador vê em qual está · sem mistério, sem perda silenciosa.</p>
+
+      <div class="lifecycle">
+        <div class="life-flow">
+          <div class="life-step">
+            <div class="ico">●</div>
+            <div class="n">01 · captura</div>
+            <div class="name">Ação local</div>
+            <div class="what">Operador toca · UI confirma imediatamente · evento gravado em audit log local com flag <code style="font-family:var(--font-pulso-mono);font-size:10.5px;background:var(--card);padding:1px 4px;border-radius:3px;">pending: true</code>.</div>
+          </div>
+          <div class="life-step">
+            <div class="ico">⏳</div>
+            <div class="n">02 · fila</div>
+            <div class="name">Aguarda rede</div>
+            <div class="what">Sem conexão estável · entra em queue. Queue-bar mostra contagem · pull-to-refresh força tentativa.</div>
+          </div>
+          <div class="life-step">
+            <div class="ico">↑</div>
+            <div class="n">03 · envio</div>
+            <div class="name">Sync ativo</div>
+            <div class="what">Rede volta · cliente tenta envio em ordem · retry exponencial · cada sucesso atualiza UI.</div>
+          </div>
+          <div class="life-step">
+            <div class="ico">✓</div>
+            <div class="n">04 · confirmação</div>
+            <div class="name">Servidor aceita</div>
+            <div class="what">Servidor responde 200 · evento perde flag pending · audit log local sela com timestamp do servidor.</div>
+          </div>
+          <div class="life-step">
+            <div class="ico">×</div>
+            <div class="n">05 · resolução</div>
+            <div class="name">Conflito ou aceite</div>
+            <div class="what">Se servidor rejeita (conflito de estado), operador vê alerta · escolhe entre <strong>forçar</strong>, <strong>recarregar</strong> ou <strong>descartar</strong>.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Freshness indicators -->
+    <section class="section">
+      <h2 class="section-h1">Indicador de freshness · 4 níveis</h2>
+      <p class="section-desc">Toda superfície sensível ao tempo carrega indicador de freshness. Operador nunca olha valor sem saber a idade.</p>
+
+      <div class="fresh-grid">
+        <div class="fresh-card">
+          <div class="fresh-mock">
+            <span class="indi fresh"><span class="pulse"></span>Ao vivo · agora</span>
+          </div>
+          <div class="fresh-body">
+            <h4>Fresh · 0–30s</h4>
+            <div class="when">verde · pulse leve</div>
+            <p>Conexão ativa · stream recebe updates em tempo real. Indicador pulsando confirma que o tubo está aberto · não é decoração.</p>
+          </div>
+        </div>
+
+        <div class="fresh-card">
+          <div class="fresh-mock">
+            <span class="indi stale">Atualizado há 3 min</span>
+          </div>
+          <div class="fresh-body">
+            <h4>Stale · 30s–5min</h4>
+            <div class="when">cinza · idade explícita</div>
+            <p>Operador navegou · não chegou novo dado. Sem alarme · mas valor é congelado. Pull-to-refresh força atualização.</p>
+          </div>
+        </div>
+
+        <div class="fresh-card">
+          <div class="fresh-mock">
+            <span class="indi warning">⚠ Sincronizando · 12 min</span>
+          </div>
+          <div class="fresh-body">
+            <h4>Warning · 5–30 min</h4>
+            <div class="when">âmbar · ação suave</div>
+            <p>Estado começa a doer · ação manual recomendada. Banner no topo da tela · não-bloqueante mas presente.</p>
+          </div>
+        </div>
+
+        <div class="fresh-card">
+          <div class="fresh-mock">
+            <span class="indi offline">⚡ Offline · congelado há 47 min</span>
+          </div>
+          <div class="fresh-body">
+            <h4>Offline · 30 min+</h4>
+            <div class="when">vermelho · ação obrigatória</div>
+            <p>Operador precisa ver. Banner persistente no topo · valores na tela ficam ligeiramente esmaecidos. Audit log local cresce.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Schema -->
+    <section class="section">
+      <h2 class="section-h1">Schema · queued_action</h2>
+      <p class="section-desc">Cada ação na fila carrega esse payload. Reaproveita o schema de <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">assisted_action</code> (β.5) · adiciona campos de sync.</p>
+
+      <div class="schema">
+        <div class="schema-head">
+          <span class="kicker">SCHEMA · queued_action</span>
+          <span class="name">v1 · estende audit-event</span>
+        </div>
+        <div class="schema-body">
+<pre>{
+  <span class="k">"local_id"</span>: <span class="s">"q_a8c4f1"</span>,                  <span class="c">// UUID gerado no cliente</span>
+  <span class="k">"captured_at"</span>: <span class="s">"2026-05-21T09:42:13Z"</span>,     <span class="c">// timestamp local</span>
+  <span class="k">"action"</span>: { <span class="c">/* mesmo payload de audit-event */</span> },
+  <span class="k">"sync"</span>: {
+    <span class="k">"state"</span>: <span class="s">"queued"</span>,                 <span class="c">// queued | sending | confirmed | conflict | failed</span>
+    <span class="k">"attempts"</span>: <span class="n">0</span>,
+    <span class="k">"last_attempt"</span>: <span class="s">null</span>,
+    <span class="k">"next_retry"</span>: <span class="s">"2026-05-21T09:42:43Z"</span>,
+    <span class="k">"idempotency_key"</span>: <span class="s">"op_42-case_248-ack-2026052109421"</span>,
+    <span class="k">"requires_confirm_on_reconnect"</span>: <span class="n">false</span>      <span class="c">// true para ação não-idempotente</span>
+  },
+  <span class="k">"network_at_capture"</span>: {
+    <span class="k">"state"</span>: <span class="s">"offline"</span>,                <span class="c">// online | flaky | offline</span>
+    <span class="k">"signal"</span>: <span class="s">"none"</span>
+  },
+  <span class="k">"audit_id_local"</span>: <span class="s">"local-248-q-a8c4f1"</span>,   <span class="c">// migra para audit_id servidor após confirm</span>
+  <span class="k">"retention_class"</span>: <span class="s">"critical"</span>           <span class="c">// herda da β.5</span>
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Don't / Do -->
+    <section class="section">
+      <h2 class="section-h1">Don't / Do</h2>
+      <p class="section-desc">As armadilhas mais comuns em offline-first em produto de crise.</p>
+
+      <div class="rules">
+        <div class="rule dont">
+          <div class="tag">✕ Não mostrar "Sem internet" como erro modal</div>
+          <p>Modal bloqueante em offline é hostil. Banner persistente + queue-bar comunicam estado sem interromper. Operador precisa ler briefing mesmo offline.</p>
+          <div class="note">Modal só em ação <em>bloqueada</em> (ex: tentar escalar tier offline) · não em estado de rede.</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Idempotency key em toda ação enfileirável</div>
+          <p>Sync pode retentar · sem idempotency key, ack pode duplicar. Cliente gera UUID determinístico <code>operator-case-action-timestamp</code> · servidor recusa duplicatas silenciosamente.</p>
+          <div class="note">Compatível com retenção · cada local_id mapeia 1:1 a um audit_id servidor após confirm.</div>
+        </div>
+
+        <div class="rule dont">
+          <div class="tag">✕ Não enfileirar ação não-idempotente sem confirmação</div>
+          <p>Escalar tier offline e sincronizar 30 min depois pode causar incidente. Para essas ações, fila <strong>pede reconfirmação</strong> ao reconectar · operador valida estado atual antes de enviar.</p>
+          <div class="note">Campo <code>requires_confirm_on_reconnect: true</code> marca · UI gera prompt ao retomar rede.</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Indicador de freshness em toda superfície sensível</div>
+          <p>Score, contagem de menções, timeline de eventos · sem freshness, valor congelado parece valor atual. Indicador é contrato obrigatório.</p>
+          <div class="note">Componente <code>&lt;Freshness ts={lastSync}&gt;</code> com 4 estados automáticos (fresh/stale/warning/offline).</div>
+        </div>
+
+        <div class="rule dont">
+          <div class="tag">✕ Não esconder fila</div>
+          <p>Queue-bar fica visível sempre que tem ação pendente. Operador pode tocar para ver lista, retentar, descartar. Esconder fila = ações perdidas silenciosamente.</p>
+          <div class="note">Em desktop, queue-bar vira indicador no topbar · mesma função, posição adaptada.</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Audit log local pré-sincronização</div>
+          <p>Evento entra no audit log local imediatamente · com <code>pending: true</code>. Quando sincroniza, recebe o audit_id servidor · trilha preserva os dois IDs para investigação.</p>
+          <div class="note">Combina com β.5 · imutabilidade local antes de imutabilidade servidor.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dependencies -->
+    <section class="section">
+      <h2 class="section-h1">Dependências</h2>
+      <p class="section-desc">Como γ.2 conversa com o resto.</p>
+
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 26px;">
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">γ.1</span> &nbsp;<a href="mobile-gestures.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Gestures</a> · pull-to-refresh tem estado especial offline · "tentar sync agora · X em fila".</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">γ.3</span> &nbsp;<a href="mobile-handover.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Push handover</a> · ação iniciada offline no mobile pode confirmar no desktop ao reconectar.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">β.5</span> &nbsp;<a href="ai-audit-trail.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Audit trail</a> · evento offline herda <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">audit_id_local</code> · migra para servidor preservando trilha.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">4.2</span> &nbsp;<a href="states-matrix.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">States matrix</a> · estado offline ganha tier próprio · não é network error genérico.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">β.3</span> &nbsp;<a href="ai-embedding.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Embedding</a> · Cris Sheet fica indisponível offline · banner explica · não dispensa atalho ⌘K.</li>
+        </ul>
+      </div>
+    </section>
+
+    <div style="height:96px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

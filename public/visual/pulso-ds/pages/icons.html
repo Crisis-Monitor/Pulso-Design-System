@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Icons</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Foundations · 07</div>
+    <h1 class="page-title">Icons</h1>
+    <p class="page-sub">O Pulso usa Lucide como biblioteca de ícones — line-style, 1.5px, métrica consistente. Tamanhos canônicos: 12, 14, 16, 20. Cor sempre via <code>currentColor</code>.</p>
+    <section class="section">
+      <h2 class="section-h1">Tamanhos</h2>
+      <p class="section-desc">Quatro tamanhos. <strong>14px</strong> é o default para uso em-linha com texto body.</p>
+      <div class="preview-row" style="gap:32px;">
+        <div style="text-align:center;"><div style="width:12px;height:12px;margin:0 auto 6px;background:var(--fg);border-radius:2px;"></div><div style="font-family:var(--font-pulso-mono);font-size:10px;color:var(--fg-muted);">12 · micro</div></div>
+        <div style="text-align:center;"><div style="width:14px;height:14px;margin:0 auto 6px;background:var(--fg);border-radius:2px;"></div><div style="font-family:var(--font-pulso-mono);font-size:10px;color:var(--fg-muted);">14 · inline</div></div>
+        <div style="text-align:center;"><div style="width:16px;height:16px;margin:0 auto 6px;background:var(--fg);border-radius:2px;"></div><div style="font-family:var(--font-pulso-mono);font-size:10px;color:var(--fg-muted);">16 · button</div></div>
+        <div style="text-align:center;"><div style="width:20px;height:20px;margin:0 auto 6px;background:var(--fg);border-radius:2px;"></div><div style="font-family:var(--font-pulso-mono);font-size:10px;color:var(--fg-muted);">20 · feature</div></div>
+      </div>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">Convenções</h2>
+      <div class="rules">
+        <div class="rule do"><span class="rule-tag">Do</span><div><strong>currentColor</strong> sempre. Stroke 1.5px. Alinhe ao texto via flex + <code>align-items:center</code>.</div></div>
+        <div class="rule dont"><span class="rule-tag">Don't</span><div>Não preencha ícones com fill sólido. Não use família mista (lucide + emoji + custom svg).</div></div>
+      </div>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">Pacote</h2>
+      <pre class="code">import { AlertTriangle, Activity, BellRing, ChevronRight } from 'lucide-react';
+
+&lt;AlertTriangle size={14} aria-hidden="true" /&gt;</pre>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Accordion</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Molecules</div>
+    <h1 class="page-title">Accordion</h1>
+    <p class="page-sub">Lista de seções expansíveis. Para FAQ, configurações agrupadas e debug panels. Não use para navegação primária — abas resolvem melhor.</p>
+    <section class="section">
+      <h2 class="section-h1">Default</h2>
+      <div class="preview-row" style="display:block;padding:0;">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;max-width:560px;">
+          <details open style="border-bottom:1px solid var(--border-faint);">
+            <summary style="list-style:none;padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:500;color:var(--fg-strong);">
+              <span>Critérios de elevação para crítico</span><span style="color:var(--fg-muted);font-family:var(--font-pulso-mono);font-size:11px;">−</span>
+            </summary>
+            <div style="padding:0 16px 16px;font-size:13px;color:var(--fg-secondary);line-height:1.55;">Um caso entra em <strong>crítico</strong> quando: (1) é replicado por veículo Tier-1, OU (2) ultrapassa 500 menções/hora, OU (3) recebe escalada manual.</div>
+          </details>
+          <details style="border-bottom:1px solid var(--border-faint);">
+            <summary style="list-style:none;padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:500;color:var(--fg-strong);">
+              <span>Política de SLA por nível</span><span style="color:var(--fg-muted);font-family:var(--font-pulso-mono);font-size:11px;">+</span>
+            </summary>
+          </details>
+          <details>
+            <summary style="list-style:none;padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:500;color:var(--fg-strong);">
+              <span>Notificações e canais</span><span style="color:var(--fg-muted);font-family:var(--font-pulso-mono);font-size:11px;">+</span>
+            </summary>
+          </details>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">Variante flat (sem card)</h2>
+      <div class="preview-row" style="display:block;padding:24px;">
+        <div style="max-width:560px;">
+          <details open style="border-bottom:1px solid var(--border);">
+            <summary style="list-style:none;padding:12px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:500;color:var(--fg-strong);">
+              <span>O que conta como menção?</span><span style="color:var(--fg-muted);font-family:var(--font-pulso-mono);font-size:11px;">−</span>
+            </summary>
+            <div style="padding:0 0 12px;font-size:13px;color:var(--fg-secondary);line-height:1.55;">Qualquer post público em rede monitorada que contenha a marca, alias ou termo de risco configurado.</div>
+          </details>
+          <details style="border-bottom:1px solid var(--border);">
+            <summary style="list-style:none;padding:12px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:500;color:var(--fg-strong);">
+              <span>Como o sentimento é calculado?</span><span style="color:var(--fg-muted);font-family:var(--font-pulso-mono);font-size:11px;">+</span>
+            </summary>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

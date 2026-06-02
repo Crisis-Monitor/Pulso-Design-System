@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Token Architecture</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* Layer cards */
+.layer-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 8px; }
+@media (max-width: 1100px) { .layer-grid { grid-template-columns: 1fr; } }
+.layer { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; display: flex; flex-direction: column; }
+.layer-head { padding: 16px 18px 14px; border-bottom: 1px solid var(--border-faint); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.layer-num { font-family: var(--font-pulso-mono); font-size: 28px; font-weight: 700; line-height: 1; color: var(--primary); letter-spacing: -0.02em; }
+.layer-tag { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 600; padding: 3px 7px; border-radius: var(--radius-xs); border: 1px solid var(--border); background: var(--surface-2); }
+.layer-name { font-size: 15px; font-weight: 600; color: var(--fg-strong); margin-top: 6px; letter-spacing: -0.005em; }
+.layer-role { font-size: 12.5px; color: var(--fg-muted); margin-top: 3px; line-height: 1.5; }
+.layer-body { padding: 14px 18px; flex: 1; }
+.layer-eg { font-family: var(--font-pulso-mono); font-size: 11.5px; color: var(--fg); background: var(--surface-2); border: 1px solid var(--border-faint); border-radius: var(--radius-sm); padding: 10px 12px; line-height: 1.7; }
+.layer-eg .k { color: var(--primary); }
+.layer-eg .v { color: var(--success); }
+.layer-eg .c { color: var(--fg-subtle); }
+.layer-foot { padding: 12px 18px; border-top: 1px solid var(--border-faint); background: var(--surface-2); font-size: 12px; color: var(--fg-secondary); line-height: 1.55; }
+.layer-foot strong { color: var(--fg-strong); }
+
+/* Chain visualisation */
+.chain { display: grid; grid-template-columns: 1fr 28px 1fr 28px 1fr; align-items: center; gap: 0; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px; }
+@media (max-width: 900px) { .chain { grid-template-columns: 1fr; } .chain-arrow { transform: rotate(90deg); justify-self: center; } }
+.chain-node { padding: 14px 16px; background: var(--surface-2); border: 1px solid var(--border-faint); border-radius: var(--radius-sm); font-family: var(--font-pulso-mono); font-size: 12px; line-height: 1.5; min-height: 80px; display: flex; flex-direction: column; justify-content: center; }
+.chain-node .tag { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); margin-bottom: 6px; font-weight: 600; }
+.chain-node .name { color: var(--fg-strong); font-weight: 600; }
+.chain-node .val { color: var(--success); }
+.chain-arrow { display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 18px; }
+.chain-swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; border: 1px solid var(--border); }
+
+/* Code blocks */
+.code { background: var(--surface-2); border: 1px solid var(--border-faint); border-radius: var(--radius-md); padding: 16px 18px; font-family: var(--font-pulso-mono); font-size: 12px; line-height: 1.75; color: var(--fg); overflow-x: auto; }
+.code .k { color: var(--primary); }
+.code .v { color: var(--success); }
+.code .c { color: var(--fg-subtle); }
+.code .s { color: var(--risk-attention-text); }
+
+/* Naming table */
+.nm-tbl { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.nm-tbl th, .nm-tbl td { padding: 11px 14px; border-bottom: 1px solid var(--border-faint); text-align: left; vertical-align: top; }
+.nm-tbl thead th { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; background: var(--surface-2); }
+.nm-tbl tr:last-child td { border-bottom: none; }
+.nm-tbl td.mono { font-family: var(--font-pulso-mono); font-size: 11.5px; color: var(--fg-strong); }
+.nm-tbl td.mono .role { color: var(--fg-subtle); }
+.nm-tbl td.mono .var { color: var(--primary); }
+.nm-tbl td.bad { color: var(--destructive); }
+.nm-tbl td.good { color: var(--success); }
+
+/* Migration tabs */
+.mig-block { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.mig-head { padding: 14px 18px; border-bottom: 1px solid var(--border-faint); display: flex; align-items: center; gap: 12px; }
+.mig-head .icon { width: 26px; height: 26px; border-radius: var(--radius-xs); background: color-mix(in oklab, var(--primary) 14%, transparent); color: var(--primary); display: flex; align-items: center; justify-content: center; font-family: var(--font-pulso-mono); font-weight: 700; font-size: 13px; }
+.mig-head .label { font-size: 14px; font-weight: 600; color: var(--fg-strong); }
+.mig-head .meta { margin-left: auto; font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); }
+.mig-split { display: grid; grid-template-columns: 1fr 28px 1fr; gap: 0; padding: 18px; align-items: stretch; }
+@media (max-width: 900px) { .mig-split { grid-template-columns: 1fr; gap: 12px; } .mig-arrow { display: none; } }
+.mig-pane { background: var(--surface-2); border: 1px solid var(--border-faint); border-radius: var(--radius-sm); padding: 12px 14px; font-family: var(--font-pulso-mono); font-size: 11.5px; line-height: 1.75; }
+.mig-pane.before { border-left: 3px solid var(--destructive); }
+.mig-pane.after { border-left: 3px solid var(--success); }
+.mig-pane .tag { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 600; margin-bottom: 8px; font-family: var(--font-pulso-mono); }
+.mig-arrow { display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 18px; }
+
+/* Rebrand demo */
+.brand-demo { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0; overflow: hidden; }
+.brand-controls { padding: 16px 20px; border-bottom: 1px solid var(--border-faint); display: flex; align-items: center; gap: 14px; flex-wrap: wrap; background: var(--surface-2); }
+.brand-ctl-label { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 600; }
+.swatch-btn { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border); cursor: pointer; padding: 0; transition: transform 120ms var(--motion-easing); }
+.swatch-btn:hover { transform: scale(1.1); }
+.swatch-btn.active { border-color: var(--fg-strong); box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--fg-strong); }
+.brand-preview { padding: 28px 24px; background: var(--surface-page); display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+@media (max-width: 800px) { .brand-preview { grid-template-columns: 1fr; } }
+.bp-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px; }
+.bp-kicker { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--demo-primary, var(--primary)); margin-bottom: 6px; font-weight: 600; }
+.bp-h { font-size: 16px; font-weight: 600; color: var(--fg-strong); margin-bottom: 4px; letter-spacing: -0.005em; }
+.bp-p { font-size: 13px; color: var(--fg-muted); line-height: 1.55; margin-bottom: 12px; }
+.bp-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; background: var(--demo-primary, var(--primary)); color: var(--demo-primary-fg, var(--primary-foreground)); border-radius: var(--radius-sm); font-size: 12.5px; font-weight: 500; border: none; cursor: pointer; }
+.bp-link { color: var(--demo-primary, var(--primary)); font-size: 13px; text-decoration: none; border-bottom: 1px dashed currentColor; }
+.bp-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; background: color-mix(in oklab, var(--demo-primary, var(--primary)) 14%, transparent); color: var(--demo-primary, var(--primary)); border-radius: var(--radius-xs); font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 600; }
+.bp-ring { display: flex; align-items: center; justify-content: center; padding: 12px 0; }
+.bp-ring svg { width: 80px; height: 80px; }
+.bp-ring .ring-bg { stroke: var(--border); }
+.bp-ring .ring-fg { stroke: var(--demo-primary, var(--primary)); transition: stroke 300ms var(--motion-easing); }
+.bp-meta { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); margin-top: 8px; line-height: 1.6; }
+.bp-meta .v { color: var(--fg-strong); }
+
+/* Anti-patterns */
+.ap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 800px) { .ap-grid { grid-template-columns: 1fr; } }
+.ap { background: var(--card); border: 1px solid var(--border); border-left: 3px solid; border-radius: var(--radius-md); padding: 16px 18px; }
+.ap.bad { border-left-color: var(--destructive); }
+.ap.good { border-left-color: var(--success); }
+.ap-tag { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin-bottom: 6px; }
+.ap.bad .ap-tag { color: var(--destructive); }
+.ap.good .ap-tag { color: var(--success); }
+.ap-h { font-size: 14px; font-weight: 600; color: var(--fg-strong); margin-bottom: 4px; }
+.ap-p { font-size: 12.5px; color: var(--fg-muted); line-height: 1.55; margin-bottom: 10px; }
+.ap-code { font-family: var(--font-pulso-mono); font-size: 11px; padding: 8px 10px; border-radius: var(--radius-xs); background: var(--surface-2); color: var(--fg); line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Foundations · Tokens</div>
+    <h1 class="page-title">Token Architecture</h1>
+    <p class="page-sub">Três camadas — <strong>primitive · semantic · component</strong> — separadas por intenção. Sem isso, rebrand é cirurgia. Com elas, é troca da camada 1 em um dia.</p>
+
+    <!-- ── O problema ─────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">O problema que estamos resolvendo</h2>
+      <p class="section-desc">Hoje misturamos primitivos (<code>--lavender</code>, <code>--indigo-deep</code>) com semânticos (<code>--primary</code>) e específicos de componente (<code>--sidebar-accent</code>) na mesma camada. Quando precisamos trocar a cor primária — rebrand, white-label, dark/light — cada componente vira refator manual.</p>
+      <div class="ap-grid" style="margin-top:14px;">
+        <div class="ap bad">
+          <div class="ap-tag">Hoje · misturado</div>
+          <div class="ap-h">Component referencia primitive direto</div>
+          <div class="ap-p">Trocar <code>#6C46F5</code> exige varredura por todo o repositório. Cada uso de "violeta" pode ser intencional (brand) ou acidental (decoração).</div>
+          <div class="ap-code"><span style="color:var(--primary);">--button-bg:</span> <span style="color:var(--success);">#6C46F5</span>;<br><span style="color:var(--fg-subtle);">/* ou — pior — */</span><br><span style="color:var(--primary);">background:</span> <span style="color:var(--success);">#6C46F5</span>;</div>
+        </div>
+        <div class="ap good">
+          <div class="ap-tag">v2 · 3 camadas</div>
+          <div class="ap-h">Component → semantic → primitive</div>
+          <div class="ap-p">Trocar a cor primária = trocar <em>uma</em> referência na camada 1. As camadas 2 e 3 não sabem que houve mudança.</div>
+          <div class="ap-code"><span style="color:var(--primary);">--button-primary-bg:</span> <span style="color:var(--success);">var(--color-action-primary)</span>;<br><span style="color:var(--primary);">--color-action-primary:</span> <span style="color:var(--success);">var(--violet-500)</span>;<br><span style="color:var(--primary);">--violet-500:</span> <span style="color:var(--success);">#6C46F5</span>;</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── As 3 camadas ─────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">As três camadas</h2>
+      <p class="section-desc">Cada camada tem um papel claro. Componente nunca pula camada — sempre referencia a camada imediatamente acima.</p>
+      <div class="layer-grid">
+        <div class="layer">
+          <div class="layer-head">
+            <div>
+              <div class="layer-num">01</div>
+              <div class="layer-name">Primitive</div>
+              <div class="layer-role">Valor literal. Sem significado. Sem opinião sobre uso.</div>
+            </div>
+            <span class="layer-tag">~120 tokens</span>
+          </div>
+          <div class="layer-body">
+            <div class="layer-eg">
+              <span class="c">/* paleta crua */</span><br>
+              <span class="k">--violet-500</span>: <span class="v">#6C46F5</span>;<br>
+              <span class="k">--violet-700</span>: <span class="v">#5532D6</span>;<br>
+              <span class="k">--gray-50</span>:&nbsp;&nbsp;<span class="v">#F5F4FA</span>;<br>
+              <span class="k">--gray-900</span>: <span class="v">#0F0C1A</span>;<br>
+              <span class="k">--scale-4</span>:&nbsp;&nbsp;<span class="v">1rem</span>;<br>
+              <span class="k">--radius-2</span>: <span class="v">0.625rem</span>;
+            </div>
+          </div>
+          <div class="layer-foot"><strong>Quem usa:</strong> apenas a camada semantic. Nunca componente, nunca produto.</div>
+        </div>
+        <div class="layer">
+          <div class="layer-head">
+            <div>
+              <div class="layer-num">02</div>
+              <div class="layer-name">Semantic</div>
+              <div class="layer-role">Intenção. Diz <em>para quê</em> serve, não <em>o que</em> é.</div>
+            </div>
+            <span class="layer-tag">~80 tokens</span>
+          </div>
+          <div class="layer-body">
+            <div class="layer-eg">
+              <span class="c">/* propósito no produto */</span><br>
+              <span class="k">--color-action-primary</span>:<br>&nbsp;&nbsp;<span class="v">var(--violet-500)</span>;<br>
+              <span class="k">--color-surface-page</span>:<br>&nbsp;&nbsp;<span class="v">var(--gray-50)</span>;<br>
+              <span class="k">--space-airy</span>:<br>&nbsp;&nbsp;<span class="v">var(--scale-4)</span>;<br>
+              <span class="k">--radius-control</span>:<br>&nbsp;&nbsp;<span class="v">var(--radius-2)</span>;
+            </div>
+          </div>
+          <div class="layer-foot"><strong>Quem usa:</strong> camada component, e <em>excepcionalmente</em> produto quando não há componente.</div>
+        </div>
+        <div class="layer">
+          <div class="layer-head">
+            <div>
+              <div class="layer-num">03</div>
+              <div class="layer-name">Component</div>
+              <div class="layer-role">Aplicação. Específico de um componente ou família.</div>
+            </div>
+            <span class="layer-tag">~160 tokens</span>
+          </div>
+          <div class="layer-body">
+            <div class="layer-eg">
+              <span class="c">/* aplicado a UI específica */</span><br>
+              <span class="k">--button-primary-bg</span>:<br>&nbsp;&nbsp;<span class="v">var(--color-action-primary)</span>;<br>
+              <span class="k">--card-bg</span>:<br>&nbsp;&nbsp;<span class="v">var(--color-surface-page)</span>;<br>
+              <span class="k">--card-pad</span>:<br>&nbsp;&nbsp;<span class="v">var(--space-airy)</span>;<br>
+              <span class="k">--input-radius</span>:<br>&nbsp;&nbsp;<span class="v">var(--radius-control)</span>;
+            </div>
+          </div>
+          <div class="layer-foot"><strong>Quem usa:</strong> CSS interno do componente. Produto nunca toca aqui.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Chain visualisation ───────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">A cadeia em ação</h2>
+      <p class="section-desc">O botão primário do produto resolve três referências até chegar no valor literal. Trocar qualquer camada propaga sem refator.</p>
+      <div class="chain">
+        <div class="chain-node">
+          <div class="tag">L1 · Primitive</div>
+          <div class="name">--violet-500</div>
+          <div class="val"><span class="chain-swatch" style="background:#6C46F5;"></span>#6C46F5</div>
+        </div>
+        <div class="chain-arrow">→</div>
+        <div class="chain-node">
+          <div class="tag">L2 · Semantic</div>
+          <div class="name">--color-<br>action-primary</div>
+          <div class="val">var(--violet-500)</div>
+        </div>
+        <div class="chain-arrow">→</div>
+        <div class="chain-node">
+          <div class="tag">L3 · Component</div>
+          <div class="name">--button-<br>primary-bg</div>
+          <div class="val">var(--color-action-primary)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Rebrand demo ───────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Rebrand demo · trocar a camada 1</h2>
+      <p class="section-desc">Clique numa cor: apenas <code>--violet-500</code> muda. Botão, kicker, chip, ring — todos derivam.</p>
+      <div class="brand-demo">
+        <div class="brand-controls">
+          <span class="brand-ctl-label">--violet-500</span>
+          <button class="swatch-btn active" data-c="#6C46F5" data-fg="#FFFFFF" style="background:#6C46F5;" title="Pulso (default)"></button>
+          <button class="swatch-btn" data-c="#2A6FDB" data-fg="#FFFFFF" style="background:#2A6FDB;" title="Azul"></button>
+          <button class="swatch-btn" data-c="#1F8A5B" data-fg="#FFFFFF" style="background:#1F8A5B;" title="Verde"></button>
+          <button class="swatch-btn" data-c="#D97757" data-fg="#FFFFFF" style="background:#D97757;" title="Coral"></button>
+          <button class="swatch-btn" data-c="#0F0C1A" data-fg="#FFFFFF" style="background:#0F0C1A;" title="Preto"></button>
+          <div style="flex:1;"></div>
+          <div class="bp-meta" id="brand-readout">--violet-500 = <span class="v">#6C46F5</span></div>
+        </div>
+        <div class="brand-preview" id="brand-preview" style="--demo-primary:#6C46F5;--demo-primary-fg:#FFFFFF;">
+          <div class="bp-card">
+            <div class="bp-kicker">CASO ATIVO · 17 mai</div>
+            <div class="bp-h">Vazamento de dados — Operadora</div>
+            <div class="bp-p">Time de comunicação acionado · briefing pendente · cobertura em 14 veículos tier 1.</div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <button class="bp-btn">Abrir briefing →</button>
+              <span class="bp-chip">● P1</span>
+              <a class="bp-link" href="#">Ver cobertura</a>
+            </div>
+          </div>
+          <div class="bp-card">
+            <div class="bp-kicker">SCORE · ATENÇÃO</div>
+            <div class="bp-ring">
+              <svg viewBox="0 0 80 80">
+                <circle class="ring-bg" cx="40" cy="40" r="34" stroke-width="6" fill="none"></circle>
+                <circle class="ring-fg" cx="40" cy="40" r="34" stroke-width="6" fill="none" stroke-dasharray="213.6" stroke-dashoffset="64" stroke-linecap="round" transform="rotate(-90 40 40)"></circle>
+              </svg>
+            </div>
+            <div class="bp-meta">Atenção · <span class="v">68/100</span><br>+12 nas últimas 4h</div>
+          </div>
+        </div>
+      </div>
+      <p class="section-desc" style="margin-top:10px;">Em produção, isso seria <code>--color-action-primary</code> mudando — preserva contraste calculado, escalas tonais e estados <em>hover/pressed</em> derivados da mesma raiz.</p>
+    </section>
+
+    <!-- ── Naming convention ────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Convenção de nomenclatura</h2>
+      <p class="section-desc">Cada camada tem um padrão de nome. O nome diz a camada — não precisa ler a definição para saber se pode usar.</p>
+      <table class="nm-tbl">
+        <thead>
+          <tr><th style="width:14%;">Camada</th><th style="width:36%;">Padrão</th><th>Exemplos</th><th style="width:16%;">Pode usar em</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono"><strong>L1</strong> primitive</td>
+            <td class="mono">--{family}-{step}</td>
+            <td class="mono">--violet-500 · --gray-900 · --scale-4 · --radius-2 · --shadow-1</td>
+            <td>L2 apenas</td>
+          </tr>
+          <tr>
+            <td class="mono"><strong>L2</strong> semantic</td>
+            <td class="mono">--{kind}-{role}-{state?}</td>
+            <td class="mono">--color-action-primary · --color-surface-page · --color-text-strong · --space-airy</td>
+            <td>L3 + produto</td>
+          </tr>
+          <tr>
+            <td class="mono"><strong>L3</strong> component</td>
+            <td class="mono">--{component}-{slot}-{variant?}</td>
+            <td class="mono">--button-primary-bg · --card-border · --input-focus-ring · --sidebar-item-active-bg</td>
+            <td>CSS do próprio componente</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Anti-patterns ───────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Anti-patterns que a arquitetura previne</h2>
+      <p class="section-desc">Padrões que vamos travar via lint rules + code review.</p>
+      <div class="ap-grid">
+        <div class="ap bad">
+          <div class="ap-tag">✕ Pular camada</div>
+          <div class="ap-h">Component referenciando primitive</div>
+          <div class="ap-p">Sintoma de que não existe semantic para essa intenção. Crie um.</div>
+          <div class="ap-code"><span style="color:var(--destructive);">--button-bg: var(--violet-500);</span> <span style="color:var(--fg-subtle);">/* errado */</span><br><span style="color:var(--success);">--button-bg: var(--color-action-primary);</span></div>
+        </div>
+        <div class="ap bad">
+          <div class="ap-tag">✕ Valor literal no produto</div>
+          <div class="ap-h">Hex inline em componente</div>
+          <div class="ap-p">Cor solta no JSX/SCSS. Lint bloqueia. Toda cor vem de token.</div>
+          <div class="ap-code"><span style="color:var(--destructive);">background: #6C46F5;</span> <span style="color:var(--fg-subtle);">/* errado */</span><br><span style="color:var(--success);">background: var(--color-action-primary);</span></div>
+        </div>
+        <div class="ap bad">
+          <div class="ap-tag">✕ Semantic com nome de família</div>
+          <div class="ap-h">"--color-violet-primary"</div>
+          <div class="ap-p">Carrega o hue no nome. Quebra na hora do rebrand. Use a função no nome, não a cor.</div>
+          <div class="ap-code"><span style="color:var(--destructive);">--color-violet-primary</span><br><span style="color:var(--success);">--color-action-primary</span></div>
+        </div>
+        <div class="ap bad">
+          <div class="ap-tag">✕ Primitive sintético</div>
+          <div class="ap-h">color-mix() em L1</div>
+          <div class="ap-p">L1 é valor literal estático. Misturas e cálculos vivem em L2 ou L3, onde a intenção justifica.</div>
+          <div class="ap-code"><span style="color:var(--destructive);">--violet-soft: color-mix(...);</span><br><span style="color:var(--success);">--color-action-primary-soft: color-mix(in oklab, var(--color-action-primary) 14%, transparent);</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Migration / codemod ───────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Migração assistida via codemod</h2>
+      <p class="section-desc">A v2 inclui um codemod que reescreve usos legados no produto. Roda em CI, dry-run no PR, apply em merge. Casos cobertos:</p>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="mig-block">
+          <div class="mig-head">
+            <span class="icon">1</span>
+            <span class="label">Hex literal → semantic token</span>
+            <span class="meta">~340 ocorrências detectadas</span>
+          </div>
+          <div class="mig-split">
+            <div class="mig-pane before">
+              <div class="tag">antes</div>
+              background: <span style="color:var(--destructive);">#6C46F5</span>;<br>
+              color: <span style="color:var(--destructive);">#FFFFFF</span>;<br>
+              border-color: <span style="color:var(--destructive);">#DDD7EE</span>;
+            </div>
+            <div class="mig-arrow">→</div>
+            <div class="mig-pane after">
+              <div class="tag">depois</div>
+              background: <span style="color:var(--success);">var(--color-action-primary)</span>;<br>
+              color: <span style="color:var(--success);">var(--color-action-primary-fg)</span>;<br>
+              border-color: <span style="color:var(--success);">var(--color-border)</span>;
+            </div>
+          </div>
+        </div>
+        <div class="mig-block">
+          <div class="mig-head">
+            <span class="icon">2</span>
+            <span class="label">Primitive em component → via semantic</span>
+            <span class="meta">~120 ocorrências</span>
+          </div>
+          <div class="mig-split">
+            <div class="mig-pane before">
+              <div class="tag">antes · v1</div>
+              --button-bg:<br>&nbsp;&nbsp;<span style="color:var(--destructive);">var(--lavender)</span>;<br>
+              --card-bg:<br>&nbsp;&nbsp;<span style="color:var(--destructive);">var(--indigo-deep)</span>;
+            </div>
+            <div class="mig-arrow">→</div>
+            <div class="mig-pane after">
+              <div class="tag">depois · v2</div>
+              --button-bg:<br>&nbsp;&nbsp;<span style="color:var(--success);">var(--color-action-primary)</span>;<br>
+              --card-bg:<br>&nbsp;&nbsp;<span style="color:var(--success);">var(--color-surface-elevated)</span>;
+            </div>
+          </div>
+        </div>
+        <div class="mig-block">
+          <div class="mig-head">
+            <span class="icon">3</span>
+            <span class="label">Renomeação semantic → semantic</span>
+            <span class="meta">~58 tokens v1 deprecated</span>
+          </div>
+          <div class="mig-split">
+            <div class="mig-pane before">
+              <div class="tag">v1 · deprecated</div>
+              <span style="color:var(--destructive);">--primary</span><br>
+              <span style="color:var(--destructive);">--primary-foreground</span><br>
+              <span style="color:var(--destructive);">--card</span><br>
+              <span style="color:var(--destructive);">--fg-strong</span>
+            </div>
+            <div class="mig-arrow">→</div>
+            <div class="mig-pane after">
+              <div class="tag">v2</div>
+              <span style="color:var(--success);">--color-action-primary</span><br>
+              <span style="color:var(--success);">--color-action-primary-fg</span><br>
+              <span style="color:var(--success);">--color-surface-elevated</span><br>
+              <span style="color:var(--success);">--color-text-strong</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-h2" style="margin-top:24px;">Como rodar</h3>
+      <pre class="code"><span class="c"># dry-run · imprime mudanças propostas</span>
+<span class="k">$</span> npx pulso-codemod tokens-v2 --dry
+
+<span class="c"># aplica em todo o repositório (commit a parte)</span>
+<span class="k">$</span> npx pulso-codemod tokens-v2 --apply
+
+<span class="c"># aplica só em um diretório</span>
+<span class="k">$</span> npx pulso-codemod tokens-v2 --apply src/features/crisis-detail</pre>
+    </section>
+
+    <!-- ── Guardrails / lint ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Guardrails · lint rules</h2>
+      <p class="section-desc">Documentação não basta. A v2 ativa três lint rules no <code>eslint-plugin-pulso</code>:</p>
+      <table class="nm-tbl">
+        <thead>
+          <tr><th style="width:30%;">Rule</th><th>Bloqueia</th><th style="width:14%;">Nível</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono"><span class="var">pulso/no-literal-color</span></td>
+            <td>Hex, rgb(), hsl() em CSS-in-JS ou inline style.</td>
+            <td><strong style="color:var(--destructive);">error</strong></td>
+          </tr>
+          <tr>
+            <td class="mono"><span class="var">pulso/no-primitive-in-component</span></td>
+            <td>Componente referenciando <code>--violet-*</code>, <code>--gray-*</code> diretamente.</td>
+            <td><strong style="color:var(--destructive);">error</strong></td>
+          </tr>
+          <tr>
+            <td class="mono"><span class="var">pulso/no-deprecated-token</span></td>
+            <td>Token v1 marcado como deprecated. Mostra o substituto v2 no warning.</td>
+            <td><strong style="color:var(--risk-attention-text);">warn</strong> → error em v3</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Status entrega ────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Entregas · 5.1</h2>
+      <table class="nm-tbl">
+        <tbody>
+          <tr><td>Layer 1 (primitive) — paleta crua, 8 famílias de cor, scale, radius, shadow</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Layer 2 (semantic) — 80 tokens de role mapeados</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Layer 3 (component) — tokens por componente, alinhados aos atoms da v1</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Codemod <code>tokens-v2</code> · dry-run + apply</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Lint rules · 3 regras no <code>eslint-plugin-pulso</code></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Página <strong>Foundations · Token Architecture</strong></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+<script>
+/* Rebrand demo · swap --demo-primary on the preview block */
+(function() {
+  const preview = document.getElementById('brand-preview');
+  const readout = document.getElementById('brand-readout');
+  document.querySelectorAll('.swatch-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const c = btn.dataset.c, fg = btn.dataset.fg;
+      preview.style.setProperty('--demo-primary', c);
+      preview.style.setProperty('--demo-primary-fg', fg);
+      readout.innerHTML = '--violet-500 = <span class="v">' + c + '</span>';
+      document.querySelectorAll('.swatch-btn').forEach(b => b.classList.toggle('active', b === btn));
+    });
+  });
+})();
+</script>
+</body>
+</html>

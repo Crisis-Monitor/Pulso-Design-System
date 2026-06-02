@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Cris Embedding Pattern</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.cris-mark { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; flex-shrink: 0; }
+.cris-mark svg { width: 100%; height: 100%; }
+.cris-kicker { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-pulso-mono); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--primary); }
+
+/* ── 4 formats grid ────────────── */
+.fmt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 900px) { .fmt-grid { grid-template-columns: 1fr; } }
+.fmt {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md);
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.fmt-head {
+  padding: 18px 22px; border-bottom: 1px solid var(--border-faint);
+  display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap;
+}
+.fmt-num { font-family: var(--font-pulso-mono); font-size: 22px; font-weight: 700; color: var(--primary); line-height: 1; padding-top: 2px; flex-shrink: 0; }
+.fmt-id { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 600; }
+.fmt-name { font-size: 17px; font-weight: 700; color: var(--fg-strong); letter-spacing: -0.01em; margin-top: 2px; }
+.fmt-cap { font-size: 13px; color: var(--fg-secondary); line-height: 1.55; margin-top: 6px; max-width: 460px; }
+
+.fmt-mock {
+  position: relative;
+  background: var(--surface-page);
+  min-height: 240px;
+  border-bottom: 1px solid var(--border-faint);
+  overflow: hidden;
+}
+.fmt-mock .canvas {
+  position: absolute; inset: 0;
+  padding: 14px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.mc-block { background: var(--card); border: 1px solid var(--border-faint); border-radius: 6px; padding: 8px 10px; }
+.mc-bar { height: 8px; background: var(--border-faint); border-radius: 3px; margin-bottom: 4px; }
+.mc-bar.short { width: 50%; }
+.mc-bar.mid { width: 75%; }
+.mc-bar.long { width: 100%; }
+.mc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.mc-row { display: flex; gap: 6px; align-items: center; }
+.mc-tag { font-family: var(--font-pulso-mono); font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 700; }
+
+/* Mock 01 · Sheet (lateral) */
+.mock-sheet .sheet-panel {
+  position: absolute; top: 0; right: 0; bottom: 0;
+  width: 55%;
+  background: var(--card); border-left: 2px solid var(--primary);
+  box-shadow: var(--shadow-lg);
+  display: flex; flex-direction: column;
+}
+.mock-sheet .sheet-panel .sh {
+  padding: 12px 14px; border-bottom: 1px solid var(--border-faint);
+  display: flex; align-items: center; gap: 8px;
+}
+.mock-sheet .sheet-panel .sh .title { font-size: 11px; font-weight: 600; color: var(--fg-strong); flex: 1; }
+.mock-sheet .sheet-panel .sh .x { font-family: var(--font-pulso-mono); font-size: 12px; color: var(--fg-subtle); }
+.mock-sheet .sheet-panel .body { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.mock-sheet .msg { border-radius: 6px; padding: 8px 10px; font-size: 10.5px; line-height: 1.5; }
+.mock-sheet .msg.cris { background: color-mix(in oklab, var(--primary) 8%, transparent); border-left: 2px solid var(--primary); color: var(--fg); }
+.mock-sheet .msg.user { background: var(--surface-2); align-self: flex-end; max-width: 75%; color: var(--fg); }
+.mock-sheet .sheet-panel .foot { margin-top: auto; padding: 10px 14px; border-top: 1px solid var(--border-faint); background: var(--surface-2); display: flex; align-items: center; gap: 6px; }
+.mock-sheet .sheet-panel .foot .input { flex: 1; height: 22px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; }
+.mock-sheet .sheet-panel .foot .send { width: 22px; height: 22px; background: var(--primary); border-radius: 4px; }
+
+/* Mock 02 · Inline assist */
+.mock-inline .field {
+  background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+  padding: 10px 12px; margin-top: 6px;
+}
+.mock-inline .field .lbl { font-family: var(--font-pulso-mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-muted); margin-bottom: 4px; }
+.mock-inline .field .txt { font-size: 11px; color: var(--fg); padding: 8px 8px; background: var(--surface-2); border-radius: 4px; min-height: 60px; line-height: 1.5; }
+.mock-inline .assist {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-left: 2px solid var(--primary);
+  background: color-mix(in oklab, var(--primary) 5%, transparent);
+  border-radius: 0 6px 6px 0;
+}
+.mock-inline .assist .head { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+.mock-inline .assist .head .nm { font-family: var(--font-pulso-mono); font-size: 9px; font-weight: 700; letter-spacing: 0.08em; color: var(--primary); text-transform: uppercase; }
+.mock-inline .assist .body { font-size: 10.5px; color: var(--fg); line-height: 1.5; }
+.mock-inline .assist .chips { display: flex; gap: 4px; margin-top: 8px; }
+.mock-inline .assist .ch { font-family: var(--font-pulso-mono); font-size: 8.5px; padding: 2px 6px; border-radius: 3px; background: var(--card); border: 1px solid var(--border); color: var(--fg-secondary); }
+.mock-inline .assist .ch.primary { background: var(--primary); color: var(--primary-foreground); border-color: transparent; }
+
+/* Mock 03 · Balão modal */
+.mock-balloon .scrim {
+  position: absolute; inset: 0;
+  background: rgba(15, 12, 26, 0.18);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+.mock-balloon .balloon {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 75%; max-width: 320px;
+  background: var(--card); border: 1px solid var(--border); border-top: 3px solid var(--primary);
+  border-radius: 10px; box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+.mock-balloon .balloon .h {
+  padding: 12px 14px 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.mock-balloon .balloon .h .ttl { font-size: 11.5px; font-weight: 700; color: var(--fg-strong); }
+.mock-balloon .balloon .body { padding: 4px 14px 14px; font-size: 10.5px; color: var(--fg); line-height: 1.5; }
+.mock-balloon .balloon .body .quote {
+  background: var(--surface-2); border-radius: 5px;
+  padding: 8px 10px; margin: 8px 0;
+  font-size: 10px; color: var(--fg); line-height: 1.5;
+  border-left: 2px solid var(--primary);
+}
+.mock-balloon .balloon .actions {
+  padding: 10px 14px; border-top: 1px solid var(--border-faint); background: var(--surface-2);
+  display: flex; gap: 6px; justify-content: flex-end;
+}
+.mock-balloon .balloon .actions .b { font-family: inherit; font-size: 10px; font-weight: 600; padding: 5px 10px; border-radius: 4px; }
+.mock-balloon .balloon .actions .b.primary { background: var(--primary); color: var(--primary-foreground); }
+.mock-balloon .balloon .actions .b.ghost { background: var(--card); border: 1px solid var(--border); color: var(--fg-secondary); }
+
+/* Mock 04 · Ambient */
+.mock-ambient .topbar {
+  position: absolute; top: 0; left: 0; right: 0; height: 32px;
+  background: var(--card); border-bottom: 1px solid var(--border-faint);
+  display: flex; align-items: center; padding: 0 12px; gap: 10px;
+}
+.mock-ambient .topbar .nav { display: flex; gap: 6px; }
+.mock-ambient .topbar .nav .b { width: 18px; height: 12px; background: var(--surface-2); border-radius: 3px; }
+.mock-ambient .topbar .badge {
+  margin-left: auto;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 8px;
+  background: color-mix(in oklab, var(--primary) 10%, transparent);
+  border: 1px solid var(--primary-border);
+  border-radius: 4px;
+  font-family: var(--font-pulso-mono); font-size: 9px; font-weight: 700;
+  color: var(--primary); letter-spacing: 0.08em; text-transform: uppercase;
+}
+.mock-ambient .console {
+  position: absolute; top: 32px; left: 0; right: 0; bottom: 0;
+  padding: 14px;
+  display: flex; flex-direction: column; gap: 6px;
+  background: color-mix(in oklab, var(--primary) 2%, var(--surface-page));
+}
+.mock-ambient .turn { display: flex; gap: 8px; font-size: 10.5px; line-height: 1.5; }
+.mock-ambient .turn .who { font-family: var(--font-pulso-mono); font-size: 9px; font-weight: 700; letter-spacing: 0.04em; color: var(--fg-subtle); min-width: 30px; padding-top: 2px; }
+.mock-ambient .turn.cris .who { color: var(--primary); }
+.mock-ambient .turn .txt { flex: 1; color: var(--fg); }
+
+/* Fmt body */
+.fmt-body { padding: 16px 22px 18px; display: flex; flex-direction: column; gap: 10px; }
+.fmt-spec { font-family: var(--font-pulso-mono); font-size: 11px; line-height: 1.7; color: var(--fg-muted); }
+.fmt-spec code { font-family: inherit; background: var(--surface-2); padding: 1px 5px; border-radius: 3px; color: var(--fg); }
+.fmt-when { font-size: 13px; color: var(--fg); line-height: 1.55; }
+.fmt-when strong { color: var(--fg-strong); font-weight: 600; }
+
+/* ── Decision tree ────────────── */
+.tree { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 28px 32px; }
+.tree-q { background: var(--surface-2); border: 1px solid var(--border-faint); border-radius: var(--radius-sm); padding: 14px 18px; }
+.tree-q .lbl { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 700; margin-bottom: 6px; }
+.tree-q .q { font-size: 14.5px; color: var(--fg-strong); font-weight: 600; }
+
+.tree-branch { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 12px; }
+@media (max-width: 800px) { .tree-branch { grid-template-columns: 1fr; } }
+.tree-arm { padding: 14px 16px; border-left: 2px solid var(--border); }
+.tree-arm.yes { border-left-color: var(--primary); }
+.tree-arm.no { border-left-color: var(--border-strong); }
+.tree-arm .ar-lbl { font-family: var(--font-pulso-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+.tree-arm.yes .ar-lbl { color: var(--primary); }
+.tree-arm.no .ar-lbl { color: var(--fg-subtle); }
+.tree-arm .leaf {
+  display: flex; gap: 10px; align-items: center;
+  padding: 10px 12px; background: var(--card); border: 1px solid var(--border-faint);
+  border-radius: var(--radius-sm); margin-top: 8px;
+}
+.tree-arm .leaf .fmt-tag {
+  font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 700;
+  padding: 4px 8px; border-radius: 3px;
+  background: color-mix(in oklab, var(--primary) 12%, transparent); color: var(--primary);
+  letter-spacing: 0.04em;
+}
+.tree-arm .leaf .desc { font-size: 12.5px; color: var(--fg); line-height: 1.5; }
+.tree-arm > .followup { font-size: 12.5px; color: var(--fg-muted); line-height: 1.55; margin-top: 6px; }
+
+.tree-chain { display: flex; flex-direction: column; gap: 18px; }
+
+/* ── Invocation contract ────────────── */
+.invoke-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.invoke-tbl thead th { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 700; text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+.invoke-tbl tbody td { padding: 12px 14px; border-bottom: 1px solid var(--border-faint); vertical-align: top; color: var(--fg); line-height: 1.55; }
+.invoke-tbl tbody td.fmt { font-weight: 600; color: var(--fg-strong); }
+.invoke-tbl tbody td code { font-family: var(--font-pulso-mono); font-size: 11px; background: var(--surface-2); padding: 2px 7px; border-radius: 3px; color: var(--fg-strong); font-weight: 600; }
+.invoke-tbl tbody td .kbd { display: inline-flex; gap: 3px; }
+.invoke-tbl tbody td .key {
+  font-family: var(--font-pulso-mono); font-size: 11px;
+  padding: 2px 6px; border-radius: 4px;
+  background: var(--surface-2); border: 1px solid var(--border-faint);
+  color: var(--fg-strong); font-weight: 600;
+}
+
+/* ── Dismiss policy ────────────── */
+.dismiss-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 800px) { .dismiss-grid { grid-template-columns: 1fr; } }
+.dismiss { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 22px; }
+.dismiss .h { display: flex; gap: 8px; align-items: baseline; margin-bottom: 10px; }
+.dismiss .h .fmt-tag {
+  font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 700;
+  padding: 4px 8px; border-radius: 3px;
+  background: color-mix(in oklab, var(--primary) 12%, transparent); color: var(--primary);
+}
+.dismiss .h .name { font-size: 13.5px; font-weight: 600; color: var(--fg-strong); }
+.dismiss ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.dismiss ul li { font-size: 12.5px; color: var(--fg); line-height: 1.5; padding-left: 14px; position: relative; }
+.dismiss ul li::before { content: '·'; position: absolute; left: 0; color: var(--primary); font-weight: 700; }
+.dismiss ul li strong { color: var(--fg-strong); font-weight: 600; }
+
+/* ── Space contract ────────────── */
+.space-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 800px) { .space-grid { grid-template-columns: 1fr; } }
+.space-row { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px 20px; display: grid; grid-template-columns: 80px 1fr; gap: 14px; align-items: center; }
+.space-row .pct { font-family: var(--font-pulso-mono); font-size: 22px; font-weight: 700; color: var(--primary); letter-spacing: -0.01em; line-height: 1; font-variant-numeric: tabular-nums; }
+.space-row .info .lbl { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 700; margin-bottom: 2px; }
+.space-row .info .desc { font-size: 12.5px; color: var(--fg); line-height: 1.55; }
+
+/* ── Don't / Do ─────────── */
+.rules { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .rules { grid-template-columns: 1fr; } }
+.rule { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 22px; }
+.rule.do { border-left: 3px solid var(--success); }
+.rule.dont { border-left: 3px solid var(--destructive); }
+.rule .tag { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 8px; }
+.rule.do .tag { color: var(--success); }
+.rule.dont .tag { color: var(--destructive); }
+.rule p { font-size: 13px; color: var(--fg); line-height: 1.55; }
+.rule .note { padding-top: 10px; margin-top: 10px; border-top: 1px solid var(--border-faint); font-size: 12px; color: var(--fg-muted); line-height: 1.55; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Patterns · AI · v3 · β.3 · entregue</div>
+    <h1 class="page-title">Cris embedding pattern</h1>
+    <p class="page-sub">Onde a Cris aparece in-product hoje é caso a caso: sheet lateral, balão, inline. β.3 fixa <strong>quatro formatos canônicos</strong>, quando usar cada um, qual o contrato de espaço, atalho de invocação e política de saída — para que Cris nunca distraia no momento crítico.</p>
+
+    <!-- Princípio -->
+    <section class="section">
+      <h2 class="section-h1">Princípio</h2>
+      <p class="section-desc">A Cris não é um botão flutuante. Ela é um padrão de presença · entra com convite, ocupa espaço proporcional ao trabalho, sai sem deixar resíduo. O formato muda com a tarefa, não com a preferência de quem desenha a tela.</p>
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 26px;">
+        <p style="font-size:15px;color:var(--fg-strong);line-height:1.65;max-width:780px;">Hoje cada feature inventou uma Cris própria. β.3 normaliza · <strong>4 formatos · cada um com tarefa, atalho, espaço e saída fixos</strong>. Designer escolhe entre quatro · não inventa.</p>
+      </div>
+    </section>
+
+    <!-- Os 4 formatos -->
+    <section class="section">
+      <h2 class="section-h1">Os 4 formatos canônicos</h2>
+      <p class="section-desc">Lateral · inline · modal · ambiente. Ordenados por intensidade de presença · do menos invasivo (inline) ao mais (ambient).</p>
+
+      <div class="fmt-grid">
+        <!-- 01 Sheet -->
+        <div class="fmt">
+          <div class="fmt-head">
+            <div class="fmt-num">01</div>
+            <div style="flex:1;">
+              <div class="fmt-id">FORMATO · SHEET LATERAL</div>
+              <div class="fmt-name">Sheet — conversa lateral</div>
+              <div class="fmt-cap">Painel lateral persistente. Conversa contínua. Usado para trabalho exploratório · análise, pesquisa, redação assistida sem sair do contexto do caso.</div>
+            </div>
+          </div>
+          <div class="fmt-mock mock-sheet">
+            <div class="canvas">
+              <div class="mc-block"><div class="mc-bar long"></div><div class="mc-bar mid"></div></div>
+              <div class="mc-grid">
+                <div class="mc-block"><div class="mc-bar short"></div><div class="mc-bar mid"></div></div>
+                <div class="mc-block"><div class="mc-bar mid"></div><div class="mc-bar long"></div></div>
+              </div>
+              <div class="mc-block"><div class="mc-bar long"></div></div>
+            </div>
+            <div class="sheet-panel">
+              <div class="sh">
+                <div class="cris-kicker" style="font-size:9px;"><span class="cris-mark" style="width:11px;height:11px;"><svg viewBox="0 0 14 14"><path d="M3 7 Q3 3 7 3 Q11 3 11 7" stroke="var(--primary)" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="7" cy="7" r="1.4" fill="var(--primary)"/><path d="M3 11 H11" stroke="var(--primary)" stroke-width="1.6" stroke-linecap="round"/></svg></span><span>Cris</span></div>
+                <div class="title">Análise · CASO 248</div>
+                <div class="x">×</div>
+              </div>
+              <div class="body">
+                <div class="msg user">o cluster X é o mesmo do 218?</div>
+                <div class="msg cris">Parcialmente · 9 dos 14 perfis se sobrepõem. O resto entrou agora.</div>
+                <div class="msg user">resumir em 1 linha pro briefing</div>
+                <div class="msg cris">"Reincidência parcial · 9/14 perfis ativos no CASO 218 voltam a amplificar."</div>
+              </div>
+              <div class="foot"><div class="input"></div><div class="send"></div></div>
+            </div>
+          </div>
+          <div class="fmt-body">
+            <div class="fmt-when"><strong>Use quando</strong> · trabalho exploratório longo (múltiplas perguntas), comparação entre casos, redação assistida com vai-e-volta.</div>
+            <div class="fmt-spec">
+              <code>width</code>: 380–440px · 30–35% da tela<br>
+              <code>persist</code>: até dismiss explícito<br>
+              <code>scroll</code>: independente do conteúdo principal<br>
+              <code>conteúdo</code>: turnos · histórico · input
+            </div>
+          </div>
+        </div>
+
+        <!-- 02 Inline assist -->
+        <div class="fmt">
+          <div class="fmt-head">
+            <div class="fmt-num">02</div>
+            <div style="flex:1;">
+              <div class="fmt-id">FORMATO · INLINE ASSIST</div>
+              <div class="fmt-name">Inline — assistência no fluxo</div>
+              <div class="fmt-cap">Aparece <em>ao lado de</em> ou <em>abaixo de</em> um campo, focada numa única tarefa. Não interrompe · sugere. Some quando o foco sai do campo.</div>
+            </div>
+          </div>
+          <div class="fmt-mock mock-inline">
+            <div class="canvas">
+              <div class="mc-block"><div class="mc-bar long"></div></div>
+              <div class="field">
+                <div class="lbl">Nota institucional · v1</div>
+                <div class="txt">Reconhecemos a preocupação levantada pela reportagem e seguimos comprometidos com a transparência das operações…</div>
+              </div>
+              <div class="assist">
+                <div class="head">
+                  <span class="cris-mark" style="width:11px;height:11px;"><svg viewBox="0 0 14 14"><path d="M3 7 Q3 3 7 3 Q11 3 11 7" stroke="var(--primary)" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="7" cy="7" r="1.4" fill="var(--primary)"/><path d="M3 11 H11" stroke="var(--primary)" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+                  <span class="nm">Cris · sugestão</span>
+                </div>
+                <div class="body">"Reafirmamos o compromisso com a transparência operacional" · mais firme, evita ambiguidade do "seguimos comprometidos".</div>
+                <div class="chips"><span class="ch primary">Aplicar</span><span class="ch">Outras</span><span class="ch">Dispensar</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="fmt-body">
+            <div class="fmt-when"><strong>Use quando</strong> · o operador está num campo específico (input, draft, label) e a Cris oferece <em>uma</em> melhoria pontual.</div>
+            <div class="fmt-spec">
+              <code>width</code>: igual ao campo · empilhado abaixo<br>
+              <code>persist</code>: até foco sair (auto-dismiss)<br>
+              <code>height</code>: máx 1/3 do campo de origem<br>
+              <code>cta</code>: aplicar · alternativas · dispensar
+            </div>
+          </div>
+        </div>
+
+        <!-- 03 Balão modal -->
+        <div class="fmt">
+          <div class="fmt-head">
+            <div class="fmt-num">03</div>
+            <div style="flex:1;">
+              <div class="fmt-id">FORMATO · BALÃO MODAL</div>
+              <div class="fmt-name">Balão modal — decisão crítica</div>
+              <div class="fmt-cap">Overlay centrado com scrim. Toma a tela. Reservado para <strong>decisões sensíveis</strong> onde a Cris precisa ser lida antes da ação · confirmação de escalada, dispatch externo, alteração regulatória.</div>
+            </div>
+          </div>
+          <div class="fmt-mock mock-balloon">
+            <div class="canvas">
+              <div class="mc-block"><div class="mc-bar long"></div><div class="mc-bar mid"></div></div>
+              <div class="mc-grid">
+                <div class="mc-block"><div class="mc-bar mid"></div><div class="mc-bar short"></div></div>
+                <div class="mc-block"><div class="mc-bar long"></div><div class="mc-bar mid"></div></div>
+              </div>
+              <div class="mc-block"><div class="mc-bar long"></div></div>
+            </div>
+            <div class="scrim"></div>
+            <div class="balloon">
+              <div class="h">
+                <span class="cris-mark"><svg viewBox="0 0 14 14"><path d="M3 7 Q3 3 7 3 Q11 3 11 7" stroke="var(--primary)" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="7" cy="7" r="1.4" fill="var(--primary)"/><path d="M3 11 H11" stroke="var(--primary)" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+                <div class="ttl">Antes de escalar · Cris observa</div>
+              </div>
+              <div class="body">
+                <div class="quote">Escalada agora pode disparar comunicação automática para 4 stakeholders externos. O caso ainda não passou pelo crivo de tier 2.</div>
+                Recomendo confirmar com tier 2 antes · ou prosseguir explicitamente assumindo risco.
+              </div>
+              <div class="actions">
+                <span class="b ghost">Voltar</span>
+                <span class="b primary">Prosseguir</span>
+              </div>
+            </div>
+          </div>
+          <div class="fmt-body">
+            <div class="fmt-when"><strong>Use quando</strong> · a próxima ação do operador tem consequência <em>externa</em> ou irreversível. Balão é breve · uma observação + uma ação · sem turnos.</div>
+            <div class="fmt-spec">
+              <code>width</code>: 360–480px<br>
+              <code>scrim</code>: <code>0.18</code> + blur 2px<br>
+              <code>persist</code>: até ação ou cancel<br>
+              <code>esc</code>: fecha · volta à tela anterior
+            </div>
+          </div>
+        </div>
+
+        <!-- 04 Ambient -->
+        <div class="fmt">
+          <div class="fmt-head">
+            <div class="fmt-num">04</div>
+            <div style="flex:1;">
+              <div class="fmt-id">FORMATO · AMBIENT</div>
+              <div class="fmt-name">Ambient — modo Cris</div>
+              <div class="fmt-cap">A tela inteira é mediada pela Cris. Indicador <strong>Modo Cris</strong> no topbar · marcas individuais de origem-IA desligam (cada bloco já está implícito). Pensado para console e workshops.</div>
+            </div>
+          </div>
+          <div class="fmt-mock mock-ambient">
+            <div class="topbar">
+              <div class="nav"><div class="b"></div><div class="b"></div><div class="b"></div></div>
+              <div class="badge">
+                <span class="cris-mark" style="width:10px;height:10px;"><svg viewBox="0 0 14 14"><path d="M3 7 Q3 3 7 3 Q11 3 11 7" stroke="var(--primary)" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="7" cy="7" r="1.4" fill="var(--primary)"/><path d="M3 11 H11" stroke="var(--primary)" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+                Modo Cris
+              </div>
+            </div>
+            <div class="console">
+              <div class="turn"><div class="who">você</div><div class="txt">resume o status do CASO 248 em 3 linhas</div></div>
+              <div class="turn cris"><div class="who">Cris</div><div class="txt">+62% menções em 4h · 14 contas verificadas · padrão de escalada coordenada. Tier <strong>atenção</strong> com nota institucional v3 publicada às 11:50.</div></div>
+              <div class="turn"><div class="who">você</div><div class="txt">qual é o paralelo histórico mais próximo?</div></div>
+              <div class="turn cris"><div class="who">Cris</div><div class="txt">CASO 218 · abril · padrão de 9 perfis em comum · escalou em 6h e fechou em 18h.</div></div>
+            </div>
+          </div>
+          <div class="fmt-body">
+            <div class="fmt-when"><strong>Use quando</strong> · workshop de análise, retrospectiva, console fora do fluxo do operador em crise. <em>Não</em> para uso durante crise ativa · ambient é exploração, não operação.</div>
+            <div class="fmt-spec">
+              <code>scope</code>: rota inteira (<code>/cris-console</code>)<br>
+              <code>topbar</code>: badge "Modo Cris"<br>
+              <code>marca</code>: desliga marcas individuais β.1<br>
+              <code>conteúdo</code>: turnos · sem header por bloco
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Decision tree -->
+    <section class="section">
+      <h2 class="section-h1">Árvore de decisão</h2>
+      <p class="section-desc">Três perguntas em sequência · do contexto à tarefa. Resposta &gt; formato. Designer não escolhe · responde.</p>
+
+      <div class="tree">
+        <div class="tree-chain">
+          <!-- Q1 -->
+          <div>
+            <div class="tree-q">
+              <div class="lbl">Pergunta 01</div>
+              <div class="q">A ação seguinte tem consequência externa ou é irreversível?</div>
+            </div>
+            <div class="tree-branch">
+              <div class="tree-arm yes">
+                <div class="ar-lbl">Sim</div>
+                <div class="leaf">
+                  <span class="fmt-tag">03 · Balão</span>
+                  <span class="desc">Cris precisa ser lida antes da ação. Para a tela. Uma observação · uma escolha.</span>
+                </div>
+              </div>
+              <div class="tree-arm no">
+                <div class="ar-lbl">Não</div>
+                <div class="followup">→ próxima pergunta</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q2 -->
+          <div>
+            <div class="tree-q">
+              <div class="lbl">Pergunta 02</div>
+              <div class="q">O operador está focado em um campo único ou em trabalho amplo?</div>
+            </div>
+            <div class="tree-branch">
+              <div class="tree-arm yes">
+                <div class="ar-lbl">Campo único</div>
+                <div class="leaf">
+                  <span class="fmt-tag">02 · Inline</span>
+                  <span class="desc">Cris assiste o campo. Auto-dismiss no blur. Não compete com o restante da tela.</span>
+                </div>
+              </div>
+              <div class="tree-arm no">
+                <div class="ar-lbl">Trabalho amplo</div>
+                <div class="followup">→ próxima pergunta</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q3 -->
+          <div>
+            <div class="tree-q">
+              <div class="lbl">Pergunta 03</div>
+              <div class="q">A tarefa é exploração fora de crise ou análise mantendo contexto da tela?</div>
+            </div>
+            <div class="tree-branch">
+              <div class="tree-arm yes">
+                <div class="ar-lbl">Mantém contexto</div>
+                <div class="leaf">
+                  <span class="fmt-tag">01 · Sheet</span>
+                  <span class="desc">Painel lateral persistente. Conversa contínua sem perder o caso.</span>
+                </div>
+              </div>
+              <div class="tree-arm yes" style="border-left-color:var(--risk-monitor-text);">
+                <div class="ar-lbl" style="color:var(--risk-monitor-text);">Exploração fora de crise</div>
+                <div class="leaf">
+                  <span class="fmt-tag">04 · Ambient</span>
+                  <span class="desc">Console dedicado. Não use durante crise ativa · ambient é workshop.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Invocation contract -->
+    <section class="section">
+      <h2 class="section-h1">Contrato de invocação</h2>
+      <p class="section-desc">Cada formato tem um atalho dedicado. Consistente em todo o produto · documentado no Keyboard Map (v2 · 1.3).</p>
+
+      <table class="invoke-tbl">
+        <thead>
+          <tr>
+            <th>Formato</th>
+            <th>Atalho global</th>
+            <th>Origem</th>
+            <th>Estado padrão</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="fmt">01 · Sheet</td>
+            <td><span class="kbd"><span class="key">⌘</span><span class="key">K</span></span></td>
+            <td>Comando global · botão "Pergunte à Cris" no topbar</td>
+            <td>Aberto na largura média · histórico do caso atual</td>
+          </tr>
+          <tr>
+            <td class="fmt">02 · Inline</td>
+            <td><span class="kbd"><span class="key">⌥</span><span class="key">↵</span></span> com foco no campo</td>
+            <td>Botão Cris no toolbar do campo · ou trigger automático em campos marcados</td>
+            <td>Fechado · aparece sob demanda</td>
+          </tr>
+          <tr>
+            <td class="fmt">03 · Balão</td>
+            <td>Não-invocável · só programático</td>
+            <td>Sistema dispara antes de ação sensível pré-listada</td>
+            <td>Sempre fechado · aparece bloqueante quando relevante</td>
+          </tr>
+          <tr>
+            <td class="fmt">04 · Ambient</td>
+            <td><span class="kbd"><span class="key">⌘</span><span class="key">⇧</span><span class="key">C</span></span></td>
+            <td>Item de menu "Console Cris" · rota dedicada <code>/cris-console</code></td>
+            <td>Workspace separado · entra com transição explícita</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Dismiss policy -->
+    <section class="section">
+      <h2 class="section-h1">Política de saída</h2>
+      <p class="section-desc">Como cada formato sai. Sem isso, a Cris vira ruído residual. Cada formato tem regra própria · auto-dismiss, explicit dismiss, persistência.</p>
+
+      <div class="dismiss-grid">
+        <div class="dismiss">
+          <div class="h"><span class="fmt-tag">01 · Sheet</span><span class="name">Dismiss explícito</span></div>
+          <ul>
+            <li><strong>×</strong> no header fecha</li>
+            <li><strong>Esc</strong> fecha</li>
+            <li>Toggle <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">⌘K</code> abre/fecha</li>
+            <li>Conversa <strong>persiste</strong> ao reabrir · até trocar de caso</li>
+          </ul>
+        </div>
+
+        <div class="dismiss">
+          <div class="h"><span class="fmt-tag">02 · Inline</span><span class="name">Auto-dismiss</span></div>
+          <ul>
+            <li>Blur do campo fecha</li>
+            <li>Aplicar sugestão fecha</li>
+            <li>Dispensar fecha · <strong>não</strong> reaparece nesta sessão para o mesmo trigger</li>
+            <li>Esc fecha sem aplicar</li>
+          </ul>
+        </div>
+
+        <div class="dismiss">
+          <div class="h"><span class="fmt-tag">03 · Balão</span><span class="name">Bloqueante até ação</span></div>
+          <ul>
+            <li>Sem dismiss passivo · operador escolhe ação</li>
+            <li>Esc volta ao estado anterior · não confirma</li>
+            <li>Click no scrim <strong>não fecha</strong> · é decisão, não popover</li>
+            <li>Audit log registra a aparição mesmo se cancelada</li>
+          </ul>
+        </div>
+
+        <div class="dismiss">
+          <div class="h"><span class="fmt-tag">04 · Ambient</span><span class="name">Saída por navegação</span></div>
+          <ul>
+            <li>Sair da rota dedicada <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">/cris-console</code> sai do modo</li>
+            <li>Atalho <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">⌘⇧C</code> toggle</li>
+            <li><strong>Bloqueado</strong> quando há crise ativa em outro caso · banner avisa</li>
+            <li>Conversa do console <strong>não persiste</strong> entre sessões</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Space contract -->
+    <section class="section">
+      <h2 class="section-h1">Contrato de espaço</h2>
+      <p class="section-desc">Quanto da tela cada formato pode ocupar · regra rígida para não competir com a tarefa principal.</p>
+
+      <div class="space-grid">
+        <div class="space-row">
+          <div class="pct">35%</div>
+          <div class="info">
+            <div class="lbl">01 · Sheet · max</div>
+            <div class="desc">A coluna principal sempre mantém ≥65% da largura · em telas &lt;1280px, sheet desliza sobre conteúdo com scrim leve.</div>
+          </div>
+        </div>
+        <div class="space-row">
+          <div class="pct">33%</div>
+          <div class="info">
+            <div class="lbl">02 · Inline · max altura</div>
+            <div class="desc">Não pode passar de 1/3 da altura do campo de origem. Texto longo da Cris paginado · três turnos no máximo.</div>
+          </div>
+        </div>
+        <div class="space-row">
+          <div class="pct">480px</div>
+          <div class="info">
+            <div class="lbl">03 · Balão · max largura</div>
+            <div class="desc">Centralizado · responsivo até 360px. Texto cabe sem scroll · se não cabe, não é balão · é sheet.</div>
+          </div>
+        </div>
+        <div class="space-row">
+          <div class="pct">100%</div>
+          <div class="info">
+            <div class="lbl">04 · Ambient · rota</div>
+            <div class="desc">Workspace dedicado. Não convive com sheet ou inline · ambient é único. Aplicar β.1 marca individuais fica desligado.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Don't / Do -->
+    <section class="section">
+      <h2 class="section-h1">Don't / Do</h2>
+      <p class="section-desc">As armadilhas mais comuns ao escolher formato.</p>
+
+      <div class="rules">
+        <div class="rule dont">
+          <div class="tag">✕ Não inventar quinto formato</div>
+          <p>Floating action button, popover ancorado em ícone, tooltip "Cris", widget no canto inferior · não. β.3 é catálogo fechado. Caso de uso fora dos quatro vira RFC.</p>
+          <div class="note">Quatro é dois a menos do que parece e dois a mais do que precisamos. Vamos defender.</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Combinar formatos quando faz sentido</div>
+          <p>Sheet pode conter Inline (resposta em campo dentro da conversa). Balão pode delegar para Sheet · "ver conversa completa". O catálogo é composto.</p>
+          <div class="note">Combinar &lt;&gt; inventar. Cada formato individual mantém seu contrato.</div>
+        </div>
+
+        <div class="rule dont">
+          <div class="tag">✕ Não usar balão para informação</div>
+          <p>Balão é decisão. "Sabia que…" "Atualizei…" "Cris terminou…" nunca abrem balão. Vão para Sheet, inline ou toast.</p>
+          <div class="note">Cada balão custa atenção do operador. Use só quando a próxima ação precisa de pausa.</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Manter atalho previsível</div>
+          <p>⌘K em qualquer tela abre Sheet com contexto local. ⌘⇧C em qualquer tela vai para Ambient. Operador não aprende atalho por feature · aprende uma vez.</p>
+          <div class="note">Consistência de atalho é parte do brand operacional — não detalhe técnico.</div>
+        </div>
+
+        <div class="rule dont">
+          <div class="tag">✕ Não permitir Ambient em crise ativa</div>
+          <p>Console é workshop, não operação. Quando há caso tier <strong>atenção+</strong> aberto, <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">/cris-console</code> exibe banner e pede confirmação.</p>
+          <div class="note">Operador sob pressão precisa de Sheet ou Inline · não de console exploratório.</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Persistir conversa do Sheet por caso</div>
+          <p>Sheet aberto duas vezes no mesmo caso retoma a conversa. Ao trocar de caso, conversa nova começa · histórico anterior fica no audit log (β.5).</p>
+          <div class="note">Contexto do caso é a unidade de memória da Cris · não a sessão de browser.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dependencies -->
+    <section class="section">
+      <h2 class="section-h1">Dependências</h2>
+      <p class="section-desc">Como β.3 conversa com o resto da família.</p>
+
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 26px;">
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">β.1</span> &nbsp;<a href="ai-origin-tracking.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Origin tracking</a> · Sheet, Inline e Balão usam marcador prominente; Ambient usa densidade <strong>ambient</strong> (indicador no topbar, sem marca por bloco).</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">β.2</span> &nbsp;<a href="ai-draft-regenerate.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Draft &amp; regenerate</a> · DraftStack vive dentro do Sheet · Inline pode oferecer regenerate de campo.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">1.3</span> &nbsp;<a href="accessibility-focus-keyboard.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Keyboard map</a> · atalhos ⌘K · ⌘⇧C · ⌥↵ documentados como primeira classe.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">4.4</span> &nbsp;<a href="responsive.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Responsive contract</a> · em mobile, Sheet vira full-screen, Inline ocupa largura total, Balão centraliza com margens 16px.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">β.5</span> &nbsp;Audit log registra abertura e fechamento de Balão (mesmo sem ação) · e cada turno de Sheet em caso ativo.</li>
+        </ul>
+      </div>
+    </section>
+
+    <div style="height:96px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

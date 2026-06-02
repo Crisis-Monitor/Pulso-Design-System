@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Slider</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.psd-wrap { display: flex; flex-direction: column; gap: 10px; min-width: 320px; }
+.psd-head { display: flex; justify-content: space-between; align-items: baseline; }
+.psd-label { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); }
+.psd-value { font-family: var(--font-pulso-mono); font-size: 13px; color: var(--fg-strong); font-variant-numeric: tabular-nums; }
+
+.psd { position: relative; height: 18px; display: flex; align-items: center; cursor: pointer; touch-action: none; user-select: none; }
+.psd-track {
+  position: absolute; left: 0; right: 0; height: 4px;
+  background: var(--border-strong); border-radius: 2px;
+}
+.psd-fill {
+  position: absolute; left: 0; height: 4px;
+  background: var(--primary); border-radius: 2px;
+  transition: background-color 140ms var(--motion-easing);
+}
+.psd-thumb {
+  position: absolute;
+  width: 16px; height: 16px;
+  background: #fff;
+  border: 2px solid var(--primary);
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+  transform: translate(-50%, 0);
+  cursor: grab;
+  transition: transform 140ms var(--motion-easing), box-shadow 140ms var(--motion-easing);
+}
+.psd-thumb:hover { transform: translate(-50%, 0) scale(1.1); }
+.psd-thumb:active { cursor: grabbing; transform: translate(-50%, 0) scale(1.15); }
+.psd-thumb:focus-visible { outline: var(--ring-width) solid var(--ring); outline-offset: 2px; }
+
+/* Ticks */
+.psd-ticks { position: absolute; left: 0; right: 0; top: 12px; height: 4px; display: flex; justify-content: space-between; pointer-events: none; }
+.psd-tick { width: 1px; height: 4px; background: var(--border-strong); }
+.psd-scale { display: flex; justify-content: space-between; font-family: var(--font-pulso-mono); font-size: 10px; color: var(--fg-subtle); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* Range — gradient by risk levels */
+.psd.risk .psd-fill {
+  background: linear-gradient(to right,
+    var(--risk-stable) 0%, var(--risk-stable) 20%,
+    var(--risk-monitor) 20%, var(--risk-monitor) 40%,
+    var(--risk-medium) 40%, var(--risk-medium) 60%,
+    var(--risk-high) 60%, var(--risk-high) 80%,
+    var(--risk-critical) 80%);
+}
+.psd.risk .psd-thumb { border-color: var(--fg-strong); }
+
+/* Disabled */
+.psd[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+.psd[aria-disabled="true"] .psd-thumb { cursor: not-allowed; pointer-events: none; }
+
+/* Bubble (value popover) */
+.psd-bubble {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  padding: 4px 8px;
+  background: var(--fg-strong); color: var(--background);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-pulso-mono); font-size: 11px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  opacity: 0; visibility: hidden;
+  transition: opacity 140ms var(--motion-easing), visibility 140ms;
+  pointer-events: none;
+}
+.psd-bubble::after {
+  content: "";
+  position: absolute; top: 100%; left: 50%;
+  width: 6px; height: 6px;
+  background: var(--fg-strong);
+  transform: translateX(-50%) translateY(-3px) rotate(45deg);
+}
+.psd:hover .psd-bubble, .psd.is-active .psd-bubble { opacity: 1; visibility: visible; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Atoms · Onda 3 · Form 06</div>
+    <h1 class="page-title">Slider</h1>
+    <p class="page-sub">Entrada numérica em uma faixa contínua. Track 4px, thumb 16px com borda da marca. Bubble com valor aparece em hover/drag — não duplica info, mostra contexto durante a interação.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Single value</h2>
+      <p class="section-desc">Para limiares e ajustes contínuos. Valor sempre visível no header em mono.</p>
+      <div class="preview-row" style="display: flex; flex-direction: column; gap: 28px;">
+        <div class="psd-wrap" data-min="0" data-max="100">
+          <div class="psd-head">
+            <span class="psd-label">Limiar de alerta</span>
+            <span class="psd-value">62</span>
+          </div>
+          <div class="psd" tabindex="0" data-value="62">
+            <div class="psd-track"></div>
+            <div class="psd-fill" style="width: 62%;"></div>
+            <div class="psd-thumb" style="left: 62%;"><span class="psd-bubble">62</span></div>
+          </div>
+          <div class="psd-scale"><span>0</span><span>50</span><span>100</span></div>
+        </div>
+
+        <div class="psd-wrap" data-min="0" data-max="100">
+          <div class="psd-head">
+            <span class="psd-label">Sensibilidade da IA</span>
+            <span class="psd-value">28</span>
+          </div>
+          <div class="psd" tabindex="0" data-value="28">
+            <div class="psd-track"></div>
+            <div class="psd-fill" style="width: 28%;"></div>
+            <div class="psd-thumb" style="left: 28%;"><span class="psd-bubble">28</span></div>
+          </div>
+          <div class="psd-scale"><span>Conservador</span><span>Padrão</span><span>Agressivo</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Range (dual-handle)</h2>
+      <p class="section-desc">Para faixas — score range, intervalo de horário, alcance estimado. Dois thumbs, fill entre eles.</p>
+      <div class="preview-row">
+        <div class="psd-wrap" data-min="0" data-max="100" style="min-width: 420px;">
+          <div class="psd-head">
+            <span class="psd-label">Faixa de score</span>
+            <span class="psd-value">40 – 80</span>
+          </div>
+          <div class="psd" tabindex="0">
+            <div class="psd-track"></div>
+            <div class="psd-fill" style="left: 40%; width: 40%;"></div>
+            <div class="psd-thumb" style="left: 40%;"><span class="psd-bubble">40</span></div>
+            <div class="psd-thumb" style="left: 80%;"><span class="psd-bubble">80</span></div>
+          </div>
+          <div class="psd-scale"><span>Estável</span><span>Médio</span><span>Crítico</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Risk gradient</h2>
+      <p class="section-desc">Variante operacional. Fill preenchido com gradiente nos 5 níveis — usuário vê em qual zona o valor cai sem precisar ler número. Útil em telas de configuração de limiar.</p>
+      <div class="preview-row">
+        <div class="psd-wrap" data-min="0" data-max="100" style="min-width: 480px;">
+          <div class="psd-head">
+            <span class="psd-label">Limiar de escalonamento para Crítico</span>
+            <span class="psd-value">80</span>
+          </div>
+          <div class="psd risk" tabindex="0" data-value="80">
+            <div class="psd-track"></div>
+            <div class="psd-fill" style="width: 80%;"></div>
+            <div class="psd-thumb" style="left: 80%;"><span class="psd-bubble">80</span></div>
+          </div>
+          <div class="psd-scale"><span>Estável</span><span>Monitor</span><span>Médio</span><span>Alto</span><span>Crítico</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Com ticks</h2>
+      <p class="section-desc">Use ticks só quando o valor é discreto e poucos passos importam (1–10). Em escalas contínuas (0–100), os ticks viram ruído visual.</p>
+      <div class="preview-row">
+        <div class="psd-wrap" data-min="1" data-max="10" data-step="1" style="min-width: 360px;">
+          <div class="psd-head">
+            <span class="psd-label">Prioridade do incidente</span>
+            <span class="psd-value">7 / 10</span>
+          </div>
+          <div class="psd" tabindex="0" data-value="7">
+            <div class="psd-track"></div>
+            <div class="psd-fill" style="width: 66.66%;"></div>
+            <div class="psd-ticks">
+              <span class="psd-tick"></span><span class="psd-tick"></span><span class="psd-tick"></span><span class="psd-tick"></span><span class="psd-tick"></span>
+              <span class="psd-tick"></span><span class="psd-tick"></span><span class="psd-tick"></span><span class="psd-tick"></span><span class="psd-tick"></span>
+            </div>
+            <div class="psd-thumb" style="left: 66.66%;"><span class="psd-bubble">7</span></div>
+          </div>
+          <div class="psd-scale"><span>1</span><span>5</span><span>10</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Disabled</h2>
+      <div class="preview-row">
+        <div class="psd-wrap">
+          <div class="psd-head"><span class="psd-label">Bloqueado por permissão</span><span class="psd-value">50</span></div>
+          <div class="psd" aria-disabled="true">
+            <div class="psd-track"></div>
+            <div class="psd-fill" style="width: 50%;"></div>
+            <div class="psd-thumb" style="left: 50%;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+
+<script>
+// Drag-to-update for single-value sliders
+document.querySelectorAll('.psd-wrap').forEach(wrap => {
+  const psd = wrap.querySelector('.psd');
+  if (!psd || psd.getAttribute('aria-disabled') === 'true') return;
+  const thumbs = [...psd.querySelectorAll('.psd-thumb')];
+  if (thumbs.length !== 1) return; // skip range/dual
+  const thumb = thumbs[0];
+  const fill = psd.querySelector('.psd-fill');
+  const valueEl = wrap.querySelector('.psd-value');
+  const bubble = thumb.querySelector('.psd-bubble');
+  const min = parseFloat(wrap.dataset.min || '0');
+  const max = parseFloat(wrap.dataset.max || '100');
+  const step = parseFloat(wrap.dataset.step || '1');
+
+  let dragging = false;
+  function setFromX(clientX) {
+    const r = psd.getBoundingClientRect();
+    let pct = Math.max(0, Math.min(1, (clientX - r.left) / r.width));
+    let raw = min + pct * (max - min);
+    raw = Math.round(raw / step) * step;
+    pct = (raw - min) / (max - min);
+    thumb.style.left = (pct * 100) + '%';
+    fill.style.width = (pct * 100) + '%';
+    if (valueEl) {
+      const suffix = valueEl.textContent.includes('/') ? ' / ' + max : '';
+      valueEl.textContent = (Math.round(raw * 100) / 100) + suffix;
+    }
+    if (bubble) bubble.textContent = Math.round(raw);
+  }
+  psd.addEventListener('pointerdown', e => {
+    dragging = true; psd.classList.add('is-active');
+    psd.setPointerCapture(e.pointerId);
+    setFromX(e.clientX);
+  });
+  psd.addEventListener('pointermove', e => { if (dragging) setFromX(e.clientX); });
+  psd.addEventListener('pointerup', e => { dragging = false; psd.classList.remove('is-active'); });
+  psd.addEventListener('pointercancel', () => { dragging = false; psd.classList.remove('is-active'); });
+});
+</script>
+<script src="../_nav.js"></script>
+</body>
+</html>

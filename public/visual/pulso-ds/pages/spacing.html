@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Espaçamento</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Foundations · 03</div>
+    <h1 class="page-title">Espaçamento</h1>
+    <p class="page-sub">Grade rígida de 8 pontos. Toda margem, padding e gap deriva dessa escala — nada de pixels improvisados. Três densidades de superfície ajustam tudo de uma vez via tweak de sistema.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Escala 8pt</h2>
+      <div>
+        <div class="space-row"><div class="space-token">--space-1</div><div class="space-bar" style="width: 4px;"></div><div class="space-value">4px</div></div>
+        <div class="space-row"><div class="space-token">--space-2</div><div class="space-bar" style="width: 8px;"></div><div class="space-value">8px</div></div>
+        <div class="space-row"><div class="space-token">--space-3</div><div class="space-bar" style="width: 12px;"></div><div class="space-value">12px</div></div>
+        <div class="space-row"><div class="space-token">--space-4</div><div class="space-bar" style="width: 16px;"></div><div class="space-value">16px</div></div>
+        <div class="space-row"><div class="space-token">--space-5</div><div class="space-bar" style="width: 20px;"></div><div class="space-value">20px</div></div>
+        <div class="space-row"><div class="space-token">--space-6</div><div class="space-bar" style="width: 24px;"></div><div class="space-value">24px</div></div>
+        <div class="space-row"><div class="space-token">--space-8</div><div class="space-bar" style="width: 32px;"></div><div class="space-value">32px</div></div>
+        <div class="space-row"><div class="space-token">--space-10</div><div class="space-bar" style="width: 40px;"></div><div class="space-value">40px</div></div>
+        <div class="space-row"><div class="space-token">--space-12</div><div class="space-bar" style="width: 48px;"></div><div class="space-value">48px</div></div>
+        <div class="space-row"><div class="space-token">--space-16</div><div class="space-bar" style="width: 64px;"></div><div class="space-value">64px</div></div>
+        <div class="space-row"><div class="space-token">--space-20</div><div class="space-bar" style="width: 80px;"></div><div class="space-value">80px</div></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Ritmo Vertical</h2>
+      <p class="section-desc">Espaçamento canônico entre seções de uma mesma página.</p>
+      <table class="tokens">
+        <thead><tr><th>Token</th><th>Valor</th><th>Uso</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">--rhythm-tight</td><td class="mono">24px</td><td>Dashboards densos, tabelas seguidas</td></tr>
+          <tr><td class="mono">--rhythm-comfort</td><td class="mono">40px</td><td>Superfícies padrão, settings, formulários</td></tr>
+          <tr><td class="mono">--rhythm-editorial</td><td class="mono">72px</td><td>Marketing, landing, conceito</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Densidade</h2>
+      <p class="section-desc">Três modos. Trocam padding de cards, rows, página, altura de controle e gap geral. Use o tweak no canto direito desta página para ver a diferença em tempo real.</p>
+      <table class="tokens">
+        <thead><tr><th>Token</th><th>Compact</th><th>Comfortable</th><th>Spacious</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">--density-pad-card</td><td class="mono">14 16</td><td class="mono">22 24</td><td class="mono">32 32</td></tr>
+          <tr><td class="mono">--density-pad-row</td><td class="mono">8 16</td><td class="mono">12 22</td><td class="mono">18 28</td></tr>
+          <tr><td class="mono">--density-pad-page</td><td class="mono">24 24</td><td class="mono">40 32</td><td class="mono">56 48</td></tr>
+          <tr><td class="mono">--density-h-control</td><td class="mono">28</td><td class="mono">32</td><td class="mono">36</td></tr>
+          <tr><td class="mono">--density-gap</td><td class="mono">12</td><td class="mono">16</td><td class="mono">24</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Altura de controles</h2>
+      <p class="section-desc">Para inputs, botões e elementos interativos. Independe de densidade quando a hierarquia exige.</p>
+      <div class="preview-row">
+        <button class="btn btn-secondary" style="height: var(--control-h-compact);">Compact 28</button>
+        <button class="btn btn-secondary" style="height: var(--control-h-default);">Default 32</button>
+        <button class="btn btn-secondary" style="height: var(--control-h-prominent);">Prominent 36</button>
+        <button class="btn btn-primary" style="height: var(--control-h-hero); padding: 0 20px; font-size: 14px;">Hero CTA 44</button>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><div class="rule-tag">DO</div><div>Use sempre tokens (--space-N) ou utilities Tailwind que derivem deles. Nada de p-[13px].</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Mantenha a mesma densidade dentro de um mesmo contexto (ex: tabela inteira em compact).</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use margin para criar espaçamento interno. Use padding no container ou gap em flex/grid.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não invente valores intermediários. Se 16 é pouco e 24 é demais, repense o layout.</div></div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

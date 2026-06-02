@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Dialog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.dlg-stage { position: relative; height: 380px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--muted); overflow: hidden; }
+.dlg-overlay { position: absolute; inset: 0; background: rgba(20, 18, 32, 0.55); backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; padding: 24px; }
+html.dark .dlg-overlay { background: rgba(0, 0, 0, 0.65); }
+.dlg { width: 100%; max-width: 480px; background: var(--popover); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: 0 20px 60px rgba(20, 18, 32, 0.25); display: flex; flex-direction: column; overflow: hidden; }
+.dlg-md { max-width: 560px; }
+.dlg-lg { max-width: 720px; }
+.dlg-header { padding: 20px 24px 0; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.dlg-header-text { flex: 1; min-width: 0; }
+.dlg-kicker { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+.dlg-title { font-size: 17px; font-weight: 600; color: var(--fg-strong); line-height: 1.35; letter-spacing: -0.005em; }
+.dlg-desc { font-size: 13.5px; color: var(--fg-secondary); line-height: 1.55; margin-top: 6px; }
+.dlg-close { background: transparent; border: 0; color: var(--fg-muted); cursor: pointer; padding: 4px; border-radius: var(--radius-xs); line-height: 0; }
+.dlg-close:hover { background: var(--muted); color: var(--fg); }
+.dlg-body { padding: 16px 24px 24px; }
+.dlg-footer { padding: 14px 18px; border-top: 1px solid var(--border-faint); background: var(--surface-2, var(--background)); display: flex; justify-content: flex-end; gap: 8px; }
+.dlg-footer.between { justify-content: space-between; align-items: center; }
+.dlg-footer-meta { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); }
+
+.dlg-btn { height: 34px; padding: 0 14px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; border: 1px solid var(--border-strong); background: var(--card); color: var(--fg); cursor: pointer; }
+.dlg-btn:hover { background: var(--muted); }
+.dlg-btn.primary { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+.dlg-btn.primary:hover { background: var(--primary-hover); }
+.dlg-btn.destructive { background: var(--destructive); color: #fff; border-color: var(--destructive); }
+.dlg-btn.ghost { background: transparent; border-color: transparent; color: var(--fg-secondary); }
+
+/* Confirmation accent */
+.dlg-icon-row { display: flex; gap: 14px; align-items: flex-start; padding: 24px 24px 12px; }
+.dlg-icon-row .ico { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.dlg-icon-row .ico-destructive { background: var(--destructive-bg); color: var(--destructive); }
+.dlg-icon-row .ico-warning { background: var(--warning-bg); color: var(--warning); }
+
+.dlg-form-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.dlg-form-row label { font-size: 12.5px; font-weight: 500; color: var(--fg-strong); }
+.dlg-form-row input, .dlg-form-row textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--border-strong); border-radius: var(--radius-md); font-family: var(--font-pulso-sans); font-size: 13.5px; color: var(--fg); background: var(--card); }
+.dlg-form-row textarea { min-height: 80px; resize: vertical; }
+.dlg-form-row .help { font-size: 11.5px; color: var(--fg-muted); }
+
+/* Evidence list inside dialog body */
+.ev-row { display: flex; gap: 10px; padding: 8px 10px; border: 1px solid var(--border-faint); background: var(--card); border-radius: var(--radius-sm); margin-bottom: 6px; }
+.ev-row .src { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); padding: 1px 6px; background: var(--muted); border-radius: 3px; align-self: flex-start; }
+.ev-row .txt { font-size: 12.5px; color: var(--fg); line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Organisms · Onda 2 · 08</div>
+    <h1 class="page-title">Dialog</h1>
+    <p class="page-sub">Modal centralizado para confirmações, formulários curtos e revelações focadas. <strong>Bloqueia o fluxo</strong> — use só quando a tarefa requer atenção exclusiva.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Default · informacional</h2>
+      <p class="section-desc">Anatomia base: header (kicker + title + close) → body → footer (cancel + primary).</p>
+      <div class="dlg-stage">
+        <div class="dlg-overlay">
+          <div class="dlg">
+            <div class="dlg-header">
+              <div class="dlg-header-text">
+                <div class="dlg-kicker">Operação Água Nova</div>
+                <div class="dlg-title">Compartilhar relatório</div>
+                <div class="dlg-desc">Gera um link público com expiração configurável. O destinatário não precisa de conta.</div>
+              </div>
+              <button class="dlg-close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+            </div>
+            <div class="dlg-body">
+              <div class="dlg-form-row">
+                <label>Expiração</label>
+                <input type="text" value="7 dias" readonly>
+              </div>
+              <div class="dlg-form-row" style="margin-bottom: 0;">
+                <label>Permissões</label>
+                <input type="text" value="Leitura · sem download" readonly>
+              </div>
+            </div>
+            <div class="dlg-footer">
+              <button class="dlg-btn ghost">Cancelar</button>
+              <button class="dlg-btn primary">Gerar link</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Destrutivo · com evidência</h2>
+      <p class="section-desc">Para ações irreversíveis. Ícone semântico + descrição que <strong>nomeia a consequência</strong>. Botão primário em destructive, no lado direito.</p>
+      <div class="dlg-stage">
+        <div class="dlg-overlay">
+          <div class="dlg">
+            <div class="dlg-icon-row">
+              <div class="ico ico-destructive">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+              </div>
+              <div style="flex: 1;">
+                <div class="dlg-title">Arquivar monitoramento "Operação Água Nova"?</div>
+                <div class="dlg-desc">A crise será movida para o histórico. <strong style="color: var(--fg-strong);">2.847 menções coletadas e 14 decisões registradas serão preservadas</strong>, mas a coleta ativa será interrompida. Você pode reativar a qualquer momento.</div>
+              </div>
+            </div>
+            <div class="dlg-footer between">
+              <span class="dlg-footer-meta">Esta ação pode ser desfeita</span>
+              <div style="display: flex; gap: 8px;">
+                <button class="dlg-btn ghost">Cancelar</button>
+                <button class="dlg-btn destructive">Arquivar monitoramento</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Formulário · novo briefing</h2>
+      <p class="section-desc">Dialog médio (560px). Formulários curtos (≤ 4 campos). Para mais campos → Sheet ou página dedicada.</p>
+      <div class="dlg-stage" style="height: 460px;">
+        <div class="dlg-overlay">
+          <div class="dlg dlg-md">
+            <div class="dlg-header">
+              <div class="dlg-header-text">
+                <div class="dlg-kicker">Novo registro</div>
+                <div class="dlg-title">Adicionar decisão ao log</div>
+                <div class="dlg-desc">Toda decisão fica rastreável. Use linguagem operacional: o que, por quê, quem aprovou.</div>
+              </div>
+              <button class="dlg-close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+            </div>
+            <div class="dlg-body">
+              <div class="dlg-form-row">
+                <label>Título da decisão</label>
+                <input type="text" placeholder="Ex: Liberar disclosure para imprensa interna">
+              </div>
+              <div class="dlg-form-row">
+                <label>Justificativa</label>
+                <textarea placeholder="Contexto editorial e racional"></textarea>
+                <span class="help">Aparece no relatório bilíngue final.</span>
+              </div>
+              <div class="dlg-form-row" style="margin-bottom: 0;">
+                <label>Aprovado por</label>
+                <input type="text" value="Marina Costa · CCO" readonly>
+              </div>
+            </div>
+            <div class="dlg-footer">
+              <button class="dlg-btn ghost">Cancelar</button>
+              <button class="dlg-btn">Salvar rascunho</button>
+              <button class="dlg-btn primary">Registrar decisão</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Largo · com evidências</h2>
+      <p class="section-desc">Variante <code>lg</code> (720px). Para revelações com lista de itens — ex: "ver todas as evidências por trás deste score".</p>
+      <div class="dlg-stage" style="height: 480px;">
+        <div class="dlg-overlay">
+          <div class="dlg dlg-lg">
+            <div class="dlg-header">
+              <div class="dlg-header-text">
+                <div class="dlg-kicker">Score 87 · 3 fatores principais</div>
+                <div class="dlg-title">Por que o score subiu para crítico</div>
+                <div class="dlg-desc">Análise dos 3 fatores que mais contribuíram nas últimas 6h, com as evidências de cobertura.</div>
+              </div>
+              <button class="dlg-close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+            </div>
+            <div class="dlg-body">
+              <div style="font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px;">Velocidade de cobertura · +340%</div>
+              <div class="ev-row"><span class="src">FOLHA · T1</span><span class="txt">"Vazamento na refinaria expõe falhas no protocolo de contenção" — Marina Salomão</span></div>
+              <div class="ev-row"><span class="src">VALOR · T1</span><span class="txt">"ANP abre inspeção em planta da Petrobras após denúncia" — Caderno Empresas</span></div>
+              <div class="ev-row"><span class="src">G1 · T1</span><span class="txt">"Moradores cobram resposta sobre vazamento em São Sebastião" — Cotidiano</span></div>
+            </div>
+            <div class="dlg-footer between">
+              <span class="dlg-footer-meta">Atualizado há 4 min · 3 de 14 evidências</span>
+              <div style="display: flex; gap: 8px;">
+                <button class="dlg-btn ghost">Fechar</button>
+                <button class="dlg-btn primary">Ver evidências completas</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Anatomia</h2>
+      <table class="tokens">
+        <thead><tr><th>Token</th><th>SM (default)</th><th>MD</th><th>LG</th></tr></thead>
+        <tbody>
+          <tr><td>Max-width</td><td class="mono">480px</td><td class="mono">560px</td><td class="mono">720px</td></tr>
+          <tr><td>Border-radius</td><td class="mono">--radius-lg</td><td class="mono">--radius-lg</td><td class="mono">--radius-lg</td></tr>
+          <tr><td>Padding header</td><td class="mono">20 24 0</td><td class="mono">20 24 0</td><td class="mono">20 24 0</td></tr>
+          <tr><td>Padding body</td><td class="mono">16 24 24</td><td class="mono">16 24 24</td><td class="mono">16 24 24</td></tr>
+          <tr><td>Footer bg</td><td class="mono">--surface-2</td><td class="mono">--surface-2</td><td class="mono">--surface-2</td></tr>
+          <tr><td>Overlay</td><td class="mono">rgba(20,18,32,.55) + blur 2px</td><td colspan="2"></td></tr>
+          <tr><td>Shadow</td><td class="mono">0 20 60 rgba(20,18,32,.25)</td><td colspan="2"></td></tr>
+          <tr><td>Animação entrada</td><td class="mono">opacity + scale(0.96 → 1) · 180ms</td><td colspan="2"></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><div class="rule-tag">DO</div><div>Toda ação irreversível precisa de Dialog de confirmação que <strong>nomeia a consequência</strong>.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Botão primário no lado direito; ações secundárias e ghost à esquerda.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Esc fecha; click no overlay fecha; foco volta para o trigger.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use Dialog para ações secundárias ou conteúdo que não exige foco exclusivo. Use Sheet ou Popover.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não empilhe Dialogs. Se precisa de outra confirmação, fluxo deve ser repensado.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não coloque mais que 5 campos em Dialog. Para mais, use Sheet ou página dedicada.</div></div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

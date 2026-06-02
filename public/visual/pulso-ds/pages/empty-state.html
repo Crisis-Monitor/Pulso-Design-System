@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Empty State</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Molecules</div>
+    <h1 class="page-title">Empty State</h1>
+    <p class="page-sub">Quando uma tela legitimamente não tem dado. Tom calmo, nunca apologético. Sempre oferece próximo passo concreto.</p>
+    <section class="section">
+      <h2 class="section-h1">Default · vazio inicial</h2>
+      <div class="preview-row" style="display:block;padding:0;">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:64px 32px;text-align:center;max-width:600px;">
+          <div style="width:48px;height:48px;border-radius:50%;background:var(--muted);margin:0 auto 20px;display:flex;align-items:center;justify-content:center;color:var(--fg-muted);font-size:20px;">✓</div>
+          <div style="font-size:18px;font-weight:600;color:var(--fg-strong);margin-bottom:6px;">Nada pede atenção agora</div>
+          <div style="font-size:13px;color:var(--fg-secondary);line-height:1.55;max-width:380px;margin:0 auto 20px;">Você não tem casos abertos. Volta-aqui quando aparecer um alerta — ou cria um caso manual para acompanhar.</div>
+          <button class="btn btn-secondary">Criar caso manual</button>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">Após filtro</h2>
+      <div class="preview-row" style="display:block;padding:0;">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:48px 32px;text-align:center;max-width:600px;">
+          <div style="font-size:14px;font-weight:500;color:var(--fg-strong);margin-bottom:4px;">Nenhum caso bate com esses filtros</div>
+          <div style="font-size:13px;color:var(--fg-secondary);line-height:1.55;margin-bottom:16px;">Tenta afrouxar o intervalo de data ou remover o filtro de "crítico".</div>
+          <button class="btn btn-ghost">Limpar filtros</button>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">Erro · gracioso</h2>
+      <div class="preview-row" style="display:block;padding:0;">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:48px 32px;text-align:center;max-width:600px;">
+          <div style="font-family:var(--font-pulso-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--destructive);margin-bottom:6px;">Falha ao carregar</div>
+          <div style="font-size:14px;font-weight:500;color:var(--fg-strong);margin-bottom:4px;">A fonte de menções está fora do ar</div>
+          <div style="font-size:13px;color:var(--fg-secondary);line-height:1.55;margin-bottom:16px;">Já avisamos a equipe. Você ainda pode revisar casos arquivados.</div>
+          <div style="display:flex;gap:8px;justify-content:center;">
+            <button class="btn btn-secondary">Tentar de novo</button>
+            <button class="btn btn-ghost">Ver casos arquivados</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

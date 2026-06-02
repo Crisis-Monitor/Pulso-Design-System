@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Template · Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.pmc { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 20px; display: flex; flex-direction: column; gap: 6px; min-width: 200px; }
+.pmc-label { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); }
+.pmc-value { font-family: var(--font-pulso-mono); font-size: 30px; font-weight: 600; color: var(--fg-strong); line-height: 1.1; letter-spacing: -0.01em; font-feature-settings: 'tnum' 1; }
+.pmc-value-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.pmc-unit { font-family: var(--font-pulso-mono); font-size: 13px; color: var(--fg-muted); font-weight: 500; }
+.pmc-sub { font-size: 11.5px; color: var(--fg-muted); }
+.pmc-delta { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-pulso-mono); font-size: 11.5px; font-weight: 500; padding: 2px 6px; border-radius: var(--radius-xs); border: 1px solid transparent; }
+.pmc-delta-up { background: var(--success-bg); color: var(--success); border-color: var(--success-border); }
+.pmc-delta-down { background: var(--destructive-bg); color: var(--destructive); border-color: var(--destructive-border); }
+.pmc-delta-flat { background: var(--muted); color: var(--fg-secondary); border-color: var(--border); }
+.pmc-delta-rising-bad { background: var(--destructive-bg); color: var(--destructive); border-color: var(--destructive-border); }
+.pmc-delta-falling-good { background: var(--success-bg); color: var(--success); border-color: var(--success-border); }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Templates · 01</div>
+    <h1 class="page-title">Template · Dashboard</h1>
+    <p class="page-sub">Tela de abertura de turno do operador. Page header + 4 metric cards + tabela de casos abertos + side panel de atividade. Composta exclusivamente de moléculas e organismos já documentados.</p>
+    <section class="section" style="border-top:none;padding-top:0;">
+      <h2 class="section-h1">Composição</h2>
+      <div class="preview-row" style="display:block;padding:0;background:var(--surface-page);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);">
+        <div style="padding:24px 28px;border-bottom:1px solid var(--border-faint);background:var(--card);display:flex;justify-content:space-between;align-items:flex-end;gap:24px;">
+          <div>
+            <div style="font-family:var(--font-pulso-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);margin-bottom:6px;">Operação · Hoje · 09:42</div>
+            <div style="font-size:24px;font-weight:600;color:var(--fg-strong);letter-spacing:-0.01em;">Bom dia, Neviton.</div>
+            <div style="font-size:13px;color:var(--fg-secondary);margin-top:2px;">3 casos pedem revisão antes das 10h.</div>
+          </div>
+          <div style="display:flex;gap:8px;"><button class="btn btn-secondary">Exportar</button><button class="btn btn-primary">Criar caso</button></div>
+        </div>
+        <div style="padding:20px 28px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+          <div class="pmc">
+            <div class="pmc-label">MENÇÕES · 24H</div>
+            <div class="pmc-value-row"><span class="pmc-value">1.247</span><span class="pmc-delta pmc-delta-rising-bad">+12%</span></div>
+            <div class="pmc-sub">acima do baseline (1.1k)</div>
+          </div>
+          <div class="pmc">
+            <div class="pmc-label">SENTIMENTO</div>
+            <div class="pmc-value-row"><span class="pmc-value">+0,38</span><span class="pmc-delta pmc-delta-up">+0,04</span></div>
+            <div class="pmc-sub">média ponderada · 24h</div>
+          </div>
+          <div class="pmc">
+            <div class="pmc-label">CRÍTICOS ABERTOS</div>
+            <div class="pmc-value-row"><span class="pmc-value">03</span><span class="pmc-delta pmc-delta-rising-bad">+1</span></div>
+            <div class="pmc-sub">vs. ontem</div>
+          </div>
+          <div class="pmc">
+            <div class="pmc-label">SLA MÉDIO</div>
+            <div class="pmc-value-row"><span class="pmc-value">2h 14m</span><span class="pmc-delta pmc-delta-falling-good">−18m</span></div>
+            <div class="pmc-sub">tempo até primeira resposta</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 280px;gap:14px;padding:0 28px 28px;">
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
+            <div style="padding:14px 16px;border-bottom:1px solid var(--border-faint);display:flex;justify-content:space-between;align-items:center;"><div style="font-size:13px;font-weight:600;color:var(--fg-strong);">Casos abertos</div><div style="font-family:var(--font-pulso-mono);font-size:11px;color:var(--fg-muted);">8 itens</div></div>
+            <table style="width:100%;border-collapse:collapse;font-size:12px;">
+              <thead><tr style="background:var(--surface-subtle);color:var(--fg-muted);text-transform:uppercase;letter-spacing:0.04em;font-size:10px;"><th style="text-align:left;padding:8px 14px;font-weight:500;">ID</th><th style="text-align:left;padding:8px 14px;font-weight:500;">Caso</th><th style="text-align:left;padding:8px 14px;font-weight:500;">Nível</th><th style="text-align:right;padding:8px 14px;font-weight:500;">Menções/h</th></tr></thead>
+              <tbody>
+                <tr style="border-top:1px solid var(--border-faint);"><td style="padding:10px 14px;font-family:var(--font-pulso-mono);color:var(--fg-muted);">PLS-014</td><td style="padding:10px 14px;color:var(--fg);">Operação Água Nova</td><td style="padding:10px 14px;"><span style="display:inline-flex;align-items:center;gap:5px;padding:1px 7px;background:var(--risk-attention-bg);color:var(--risk-attention-text);border-radius:999px;font-size:10px;font-weight:600;">● Attention</span></td><td style="padding:10px 14px;text-align:right;font-family:var(--font-pulso-mono);color:var(--fg);">87</td></tr>
+                <tr style="border-top:1px solid var(--border-faint);"><td style="padding:10px 14px;font-family:var(--font-pulso-mono);color:var(--fg-muted);">PLS-012</td><td style="padding:10px 14px;color:var(--fg);">Vazamento de dados — APP</td><td style="padding:10px 14px;"><span style="display:inline-flex;align-items:center;gap:5px;padding:1px 7px;background:var(--risk-critical-bg);color:var(--risk-critical-text);border-radius:999px;font-size:10px;font-weight:600;">● Critical</span></td><td style="padding:10px 14px;text-align:right;font-family:var(--font-pulso-mono);color:var(--fg);">312</td></tr>
+                <tr style="border-top:1px solid var(--border-faint);"><td style="padding:10px 14px;font-family:var(--font-pulso-mono);color:var(--fg-muted);">PLS-011</td><td style="padding:10px 14px;color:var(--fg);">Reclamação atendimento SP</td><td style="padding:10px 14px;"><span style="display:inline-flex;align-items:center;gap:5px;padding:1px 7px;background:var(--risk-monitor-bg);color:var(--risk-monitor-text);border-radius:999px;font-size:10px;font-weight:600;">● Monitor</span></td><td style="padding:10px 14px;text-align:right;font-family:var(--font-pulso-mono);color:var(--fg);">23</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;">
+            <div style="font-size:12px;font-weight:600;color:var(--fg-strong);margin-bottom:12px;">Atividade</div>
+            <div style="display:flex;flex-direction:column;gap:14px;font-size:12px;">
+              <div><div style="color:var(--fg);">Resposta aprovada · Água Nova</div><div style="color:var(--fg-muted);font-size:11px;margin-top:1px;">há 4 min</div></div>
+              <div><div style="color:var(--fg);">PLS-012 elevado para Critical</div><div style="color:var(--fg-muted);font-size:11px;margin-top:1px;">há 18 min</div></div>
+              <div><div style="color:var(--fg);">Novo caso aberto · PLS-014</div><div style="color:var(--fg-muted);font-size:11px;margin-top:1px;">há 2h</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">Composições usadas</h2>
+      <ul style="font-size:13px;color:var(--fg-secondary);line-height:1.7;padding-left:18px;">
+        <li><a href="page-header.html" style="color:var(--primary);">Page Header</a> · com kicker de horário</li>
+        <li><a href="metric-card.html" style="color:var(--primary);">Metric Card</a> ×4 · tons neutral/emerald/rose/amber</li>
+        <li><a href="table.html" style="color:var(--primary);">Table</a> · com chip de risk-level por linha</li>
+        <li>Side panel de atividade · variante leve de <a href="card.html" style="color:var(--primary);">Card</a></li>
+      </ul>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Input Group</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Molecules</div>
+    <h1 class="page-title">Input Group</h1>
+    <p class="page-sub">Input com addon (prefixo, sufixo ou ação inline). Para buscar com ícone, número com unidade, URL com domínio, etc.</p>
+    <section class="section">
+      <h2 class="section-h1">Com ícone leading</h2>
+      <div class="preview-row" style="display:block;">
+        <div style="position:relative;max-width:360px;">
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--fg-muted);font-size:12px;">⌕</span>
+          <input type="text" placeholder="Buscar caso, alias ou ID..." style="width:100%;padding:0 12px 0 32px;height:32px;background:var(--card);border:1px solid var(--input);border-radius:var(--radius-sm);font-family:inherit;font-size:13px;color:var(--fg);">
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">Com sufixo (unidade)</h2>
+      <div class="preview-row" style="display:block;">
+        <div style="display:inline-flex;max-width:240px;border:1px solid var(--input);border-radius:var(--radius-sm);overflow:hidden;background:var(--card);">
+          <input type="number" value="50" style="flex:1;padding:0 12px;height:32px;background:transparent;border:none;font-family:var(--font-pulso-mono);font-size:13px;color:var(--fg);outline:none;">
+          <span style="padding:0 12px;height:32px;display:flex;align-items:center;background:var(--muted);border-left:1px solid var(--border);font-family:var(--font-pulso-mono);font-size:12px;color:var(--fg-muted);">menções/h</span>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">Com prefixo (URL)</h2>
+      <div class="preview-row" style="display:block;">
+        <div style="display:inline-flex;width:100%;max-width:420px;border:1px solid var(--input);border-radius:var(--radius-sm);overflow:hidden;background:var(--card);">
+          <span style="padding:0 12px;height:32px;display:flex;align-items:center;background:var(--muted);border-right:1px solid var(--border);font-family:var(--font-pulso-mono);font-size:12px;color:var(--fg-muted);">app.pulso.io/</span>
+          <input type="text" value="aguanova" style="flex:1;padding:0 12px;height:32px;background:transparent;border:none;font-family:inherit;font-size:13px;color:var(--fg);outline:none;">
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">Com ação inline (submit)</h2>
+      <div class="preview-row" style="display:block;">
+        <div style="display:inline-flex;width:100%;max-width:420px;background:var(--card);border:1px solid var(--input);border-radius:var(--radius-sm);overflow:hidden;">
+          <input type="email" placeholder="email@empresa.com" style="flex:1;padding:0 12px;height:32px;background:transparent;border:none;font-family:inherit;font-size:13px;color:var(--fg);outline:none;">
+          <button class="btn btn-primary" style="border-radius:0;height:32px;border:none;">Convidar</button>
+        </div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

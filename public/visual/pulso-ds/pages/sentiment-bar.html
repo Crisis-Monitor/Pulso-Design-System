@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Sentiment Bar</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+:root {
+  --sent-positive: #16A34A;
+  --sent-positive-bg: #E8F5EE;
+  --sent-neutral:  #6B7280;
+  --sent-neutral-bg: #F1F2F5;
+  --sent-negative: #D63D4E;
+  --sent-negative-bg: #FBEEF0;
+}
+.dark {
+  --sent-positive: #4ADE80;
+  --sent-positive-bg: rgba(74, 222, 128, 0.10);
+  --sent-neutral: #9CA3AF;
+  --sent-neutral-bg: rgba(156, 163, 175, 0.10);
+  --sent-negative: #F47080;
+  --sent-negative-bg: rgba(244, 112, 128, 0.10);
+}
+
+/* Stacked bar */
+.sb-stacked {
+  display: flex;
+  width: 100%;
+  height: 8px;
+  border-radius: 9999px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+.sb-stacked .seg { transition: flex-grow 400ms var(--motion-easing); }
+.sb-stacked .seg.pos { background: var(--sent-positive); }
+.sb-stacked .seg.neu { background: var(--sent-neutral); }
+.sb-stacked .seg.neg { background: var(--sent-negative); }
+
+.sb-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 200px;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+}
+.sb-row:first-child { border-top: 0; }
+.sb-row .label { color: var(--fg-strong); font-weight: 500; }
+.sb-row .breakdown {
+  display: flex; gap: 12px; justify-content: flex-end;
+  font-family: var(--font-pulso-mono); font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+.sb-row .breakdown .pos { color: var(--sent-positive); }
+.sb-row .breakdown .neu { color: var(--sent-neutral); }
+.sb-row .breakdown .neg { color: var(--sent-negative); }
+.sb-row .breakdown .v { font-weight: 600; }
+
+.sb-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+/* Single — score scale */
+.sb-scale {
+  position: relative;
+  height: 32px;
+  background: linear-gradient(to right,
+    var(--sent-negative) 0%,
+    var(--sent-negative) 30%,
+    var(--sent-neutral) 50%,
+    var(--sent-positive) 70%,
+    var(--sent-positive) 100%);
+  border-radius: 9999px;
+  display: flex; align-items: center;
+  padding: 0 10px;
+}
+.sb-scale-marker {
+  position: absolute;
+  top: -6px; bottom: -6px;
+  width: 4px;
+  border-radius: 4px;
+  background: var(--fg-strong);
+  box-shadow: 0 0 0 3px var(--card);
+}
+.sb-scale-tick {
+  flex: 1;
+  font-family: var(--font-pulso-mono); font-size: 10px;
+  text-align: center;
+  color: rgba(255,255,255, 0.92);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+.sb-scale-row {
+  display: grid;
+  grid-template-columns: 200px 1fr 80px;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+}
+.sb-scale-row:first-child { border-top: 0; }
+.sb-scale-row .name { font-weight: 500; color: var(--fg-strong); }
+.sb-scale-row .name .sub { display: block; font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+.sb-scale-row .score {
+  font-family: var(--font-pulso-mono);
+  font-size: 16px; font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.sb-scale-row .score.pos { color: var(--sent-positive); }
+.sb-scale-row .score.neu { color: var(--sent-neutral); }
+.sb-scale-row .score.neg { color: var(--sent-negative); }
+
+/* Compact diverging bar — used in lists */
+.sb-div {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 8px;
+  background: var(--surface-2);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.sb-div .center { position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--border-strong); }
+.sb-div .left { flex: 0 0 50%; display: flex; justify-content: flex-end; }
+.sb-div .right { flex: 0 0 50%; display: flex; justify-content: flex-start; }
+.sb-div .left .fill { background: var(--sent-negative); height: 100%; border-radius: 9999px 0 0 9999px; }
+.sb-div .right .fill { background: var(--sent-positive); height: 100%; border-radius: 0 9999px 9999px 0; }
+
+/* Time series — sparkline of sentiment over time */
+.sb-trend {
+  display: grid;
+  grid-template-columns: 220px 1fr auto;
+  gap: 16px;
+  padding: 16px;
+  align-items: center;
+  border-top: 1px solid var(--border);
+}
+.sb-trend:first-child { border-top: 0; }
+.sb-trend .info .title { font-weight: 500; color: var(--fg-strong); font-size: 13.5px; }
+.sb-trend .info .meta { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; }
+.sb-trend svg { display: block; }
+.sb-trend .delta {
+  font-family: var(--font-pulso-mono);
+  font-size: 13px; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.sb-trend .delta.up { color: var(--sent-positive); }
+.sb-trend .delta.dn { color: var(--sent-negative); }
+
+/* Inline mini variant */
+.sb-mini {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-pulso-mono); font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.sb-mini-bar {
+  width: 64px; height: 6px; border-radius: 9999px;
+  background: var(--surface-2);
+  overflow: hidden;
+  display: flex;
+}
+.sb-mini-bar .seg.pos { background: var(--sent-positive); }
+.sb-mini-bar .seg.neu { background: var(--sent-neutral); }
+.sb-mini-bar .seg.neg { background: var(--sent-negative); }
+
+/* Distribution histogram */
+.sb-hist {
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  gap: 2px;
+  align-items: end;
+  height: 80px;
+  padding: 0 16px;
+}
+.sb-hist .bar {
+  background: var(--sent-neutral);
+  border-radius: 2px 2px 0 0;
+  min-height: 4px;
+}
+.sb-hist .bar.neg { background: var(--sent-negative); }
+.sb-hist .bar.pos { background: var(--sent-positive); }
+.sb-hist .bar.peak {
+  outline: 1px solid var(--fg-strong);
+  outline-offset: 1px;
+}
+.sb-hist-axis {
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  gap: 2px;
+  padding: 6px 16px 0;
+  font-family: var(--font-pulso-mono);
+  font-size: 9.5px;
+  color: var(--fg-subtle);
+  text-align: center;
+}
+.sb-hist-foot {
+  display: flex; justify-content: space-between;
+  padding: 6px 16px 14px;
+  font-family: var(--font-pulso-mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--fg-muted);
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Patterns · Crisis Domain</div>
+    <h1 class="page-title">Sentiment Bar</h1>
+    <p class="page-sub">Família de visualizações de sentimento (-1 a +1, ou distribuição %). Quatro variantes: stacked (percentuais por categoria), diverging (saldo +/-), scale (score absoluto na régua) e histograma (distribuição de menções). Cores fixas: positivo verde, neutro cinza, negativo vermelho — nunca outras combinações.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Stacked · distribuição percentual</h2>
+      <p class="section-desc">Para mostrar a divisão de menções entre positivo, neutro e negativo. Use quando volume importa tanto quanto sentimento.</p>
+      <div class="sb-card">
+        <div class="sb-row">
+          <span class="label">Geral · 7d</span>
+          <div class="sb-stacked">
+            <div class="seg pos" style="flex-grow: 28"></div>
+            <div class="seg neu" style="flex-grow: 47"></div>
+            <div class="seg neg" style="flex-grow: 25"></div>
+          </div>
+          <div class="breakdown">
+            <span class="pos"><span class="v">28%</span></span>
+            <span class="neu"><span class="v">47%</span></span>
+            <span class="neg"><span class="v">25%</span></span>
+          </div>
+        </div>
+        <div class="sb-row">
+          <span class="label">Imprensa tier 1</span>
+          <div class="sb-stacked">
+            <div class="seg pos" style="flex-grow: 12"></div>
+            <div class="seg neu" style="flex-grow: 38"></div>
+            <div class="seg neg" style="flex-grow: 50"></div>
+          </div>
+          <div class="breakdown">
+            <span class="pos"><span class="v">12%</span></span>
+            <span class="neu"><span class="v">38%</span></span>
+            <span class="neg"><span class="v">50%</span></span>
+          </div>
+        </div>
+        <div class="sb-row">
+          <span class="label">Twitter / X</span>
+          <div class="sb-stacked">
+            <div class="seg pos" style="flex-grow: 18"></div>
+            <div class="seg neu" style="flex-grow: 32"></div>
+            <div class="seg neg" style="flex-grow: 50"></div>
+          </div>
+          <div class="breakdown">
+            <span class="pos"><span class="v">18%</span></span>
+            <span class="neu"><span class="v">32%</span></span>
+            <span class="neg"><span class="v">50%</span></span>
+          </div>
+        </div>
+        <div class="sb-row">
+          <span class="label">Reclame Aqui</span>
+          <div class="sb-stacked">
+            <div class="seg pos" style="flex-grow: 5"></div>
+            <div class="seg neu" style="flex-grow: 15"></div>
+            <div class="seg neg" style="flex-grow: 80"></div>
+          </div>
+          <div class="breakdown">
+            <span class="pos"><span class="v">5%</span></span>
+            <span class="neu"><span class="v">15%</span></span>
+            <span class="neg"><span class="v">80%</span></span>
+          </div>
+        </div>
+        <div class="sb-row">
+          <span class="label">LinkedIn</span>
+          <div class="sb-stacked">
+            <div class="seg pos" style="flex-grow: 62"></div>
+            <div class="seg neu" style="flex-grow: 31"></div>
+            <div class="seg neg" style="flex-grow: 7"></div>
+          </div>
+          <div class="breakdown">
+            <span class="pos"><span class="v">62%</span></span>
+            <span class="neu"><span class="v">31%</span></span>
+            <span class="neg"><span class="v">7%</span></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Scale · score absoluto</h2>
+      <p class="section-desc">Régua contínua de -1 a +1. Use para destacar o score composto de uma única menção ou cluster. Marcador preto sobre gradiente.</p>
+      <div class="sb-card">
+        <div class="sb-scale-row">
+          <div class="name">Folha de S.Paulo<span class="sub">tier 1 · imprensa</span></div>
+          <div class="sb-scale">
+            <div class="sb-scale-marker" style="left: 18%"></div>
+            <span class="sb-scale-tick">−1</span>
+            <span class="sb-scale-tick"></span>
+            <span class="sb-scale-tick">0</span>
+            <span class="sb-scale-tick"></span>
+            <span class="sb-scale-tick">+1</span>
+          </div>
+          <div class="score neg">−0.64</div>
+        </div>
+        <div class="sb-scale-row">
+          <div class="name">G1<span class="sub">tier 1 · portal</span></div>
+          <div class="sb-scale">
+            <div class="sb-scale-marker" style="left: 32%"></div>
+            <span class="sb-scale-tick">−1</span>
+            <span class="sb-scale-tick"></span>
+            <span class="sb-scale-tick">0</span>
+            <span class="sb-scale-tick"></span>
+            <span class="sb-scale-tick">+1</span>
+          </div>
+          <div class="score neg">−0.36</div>
+        </div>
+        <div class="sb-scale-row">
+          <div class="name">Estadão<span class="sub">tier 1 · imprensa</span></div>
+          <div class="sb-scale">
+            <div class="sb-scale-marker" style="left: 48%"></div>
+            <span class="sb-scale-tick">−1</span>
+            <span class="sb-scale-tick"></span>
+            <span class="sb-scale-tick">0</span>
+            <span class="sb-scale-tick"></span>
+            <span class="sb-scale-tick">+1</span>
+          </div>
+          <div class="score neu">−0.04</div>
+        </div>
+        <div class="sb-scale-row">
+          <div class="name">Valor Econômico<span class="sub">tier 1 · especializado</span></div>
+          <div class="sb-scale">
+            <div class="sb-scale-marker" style="left: 68%"></div>
+            <span class="sb-scale-tick">−1</span>
+            <span class="sb-scale-tick"></span>
+            <span class="sb-scale-tick">0</span>
+            <span class="sb-scale-tick"></span>
+            <span class="sb-scale-tick">+1</span>
+          </div>
+          <div class="score pos">+0.36</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Diverging · saldo positivo/negativo</h2>
+      <p class="section-desc">Mostra apenas o saldo (positivos − negativos), centrado em zero. Use em listas densas onde só o net importa. Neutros são omitidos.</p>
+      <div class="sb-card">
+        <div class="sb-row" style="grid-template-columns: 200px 1fr 100px;">
+          <span class="label">Acme Bank · 24h</span>
+          <div class="sb-div">
+            <div class="left"><div class="fill" style="width: 78%"></div></div>
+            <div class="center"></div>
+            <div class="right"><div class="fill" style="width: 0"></div></div>
+          </div>
+          <div style="font-family: var(--font-pulso-mono); font-size: 12px; text-align: right; color: var(--sent-negative); font-weight: 600">−39%</div>
+        </div>
+        <div class="sb-row" style="grid-template-columns: 200px 1fr 100px;">
+          <span class="label">Vento Sul · 24h</span>
+          <div class="sb-div">
+            <div class="left"><div class="fill" style="width: 24%"></div></div>
+            <div class="center"></div>
+            <div class="right"><div class="fill" style="width: 0"></div></div>
+          </div>
+          <div style="font-family: var(--font-pulso-mono); font-size: 12px; text-align: right; color: var(--sent-negative); font-weight: 600">−12%</div>
+        </div>
+        <div class="sb-row" style="grid-template-columns: 200px 1fr 100px;">
+          <span class="label">Norte Telecom · 24h</span>
+          <div class="sb-div">
+            <div class="left"><div class="fill" style="width: 0"></div></div>
+            <div class="center"></div>
+            <div class="right"><div class="fill" style="width: 16%"></div></div>
+          </div>
+          <div style="font-family: var(--font-pulso-mono); font-size: 12px; text-align: right; color: var(--sent-positive); font-weight: 600">+8%</div>
+        </div>
+        <div class="sb-row" style="grid-template-columns: 200px 1fr 100px;">
+          <span class="label">Sol Energia · 24h</span>
+          <div class="sb-div">
+            <div class="left"><div class="fill" style="width: 0"></div></div>
+            <div class="center"></div>
+            <div class="right"><div class="fill" style="width: 56%"></div></div>
+          </div>
+          <div style="font-family: var(--font-pulso-mono); font-size: 12px; text-align: right; color: var(--sent-positive); font-weight: 600">+28%</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Distribuição · histograma</h2>
+      <p class="section-desc">Para análises profundas onde a forma da distribuição importa. Mostra quantas menções caem em cada bucket de score (-1 a +1, em 11 buckets).</p>
+      <div class="sb-card" style="padding-top: 16px;">
+        <div style="padding: 0 16px; font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); margin-bottom: 12px;">
+          Acme Bank · 1.847 menções · 7d
+        </div>
+        <div class="sb-hist">
+          <div class="bar neg" style="height: 18%"></div>
+          <div class="bar neg" style="height: 32%"></div>
+          <div class="bar neg" style="height: 64%"></div>
+          <div class="bar neg peak" style="height: 92%"></div>
+          <div class="bar neg" style="height: 78%"></div>
+          <div class="bar" style="height: 48%"></div>
+          <div class="bar pos" style="height: 38%"></div>
+          <div class="bar pos" style="height: 28%"></div>
+          <div class="bar pos" style="height: 18%"></div>
+          <div class="bar pos" style="height: 9%"></div>
+          <div class="bar pos" style="height: 4%"></div>
+        </div>
+        <div class="sb-hist-axis">
+          <span>−1.0</span><span>−.8</span><span>−.6</span><span>−.4</span><span>−.2</span>
+          <span>0</span>
+          <span>+.2</span><span>+.4</span><span>+.6</span><span>+.8</span><span>+1.0</span>
+        </div>
+        <div class="sb-hist-foot">
+          <span>Pico em −0.4 · 421 menções</span>
+          <span>Mediana −0.31 · skew negativo</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Inline mini · em tabelas e cards</h2>
+      <p class="section-desc">Versão de 64×6px para uso inline. Útil em colunas de tabela e linhas densas.</p>
+      <div class="preview-row">
+        <span class="sb-mini">
+          <span class="sb-mini-bar"><span class="seg pos" style="flex: 28"></span><span class="seg neu" style="flex: 47"></span><span class="seg neg" style="flex: 25"></span></span>
+          <span style="color: var(--fg-muted)">28 · 47 · 25</span>
+        </span>
+        <span class="sb-mini">
+          <span class="sb-mini-bar"><span class="seg pos" style="flex: 12"></span><span class="seg neu" style="flex: 38"></span><span class="seg neg" style="flex: 50"></span></span>
+          <span style="color: var(--sent-negative); font-weight: 600">−38</span>
+        </span>
+        <span class="sb-mini">
+          <span class="sb-mini-bar"><span class="seg pos" style="flex: 62"></span><span class="seg neu" style="flex: 31"></span><span class="seg neg" style="flex: 7"></span></span>
+          <span style="color: var(--sent-positive); font-weight: 600">+55</span>
+        </span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Diretrizes</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Faça</div>
+          <ul>
+            <li>Cores fixas: positivo verde · neutro cinza · negativo vermelho</li>
+            <li>Stacked para distribuição · scale para score · diverging para saldo · histograma para análise</li>
+            <li>Sempre rotule percentuais ou valores numericamente, com tabular-nums</li>
+            <li>Em diverging, omita neutros e centre em zero</li>
+            <li>Em listas densas, use a variante mini (64×6px)</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Evite</div>
+          <ul>
+            <li>Inverter cores ou usar amarelo para negativo · acessibilidade</li>
+            <li>Stacked &lt; 4px de altura · ilegível</li>
+            <li>Misturar variantes na mesma vista — escolha uma metáfora</li>
+            <li>Mostrar apenas a barra · sempre acompanhe de números</li>
+            <li>Animar transições &gt; 600ms · informação muda devagar, leitor perde</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

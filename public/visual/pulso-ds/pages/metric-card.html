@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Metric Card</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.pmc { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 20px; display: flex; flex-direction: column; gap: 6px; min-width: 200px; }
+.pmc-label { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.pmc-value { font-family: var(--font-pulso-mono); font-size: 30px; font-weight: 600; color: var(--fg-strong); line-height: 1.1; letter-spacing: -0.01em; font-feature-settings: 'tnum' 1; }
+.pmc-value-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.pmc-unit { font-family: var(--font-pulso-mono); font-size: 13px; color: var(--fg-muted); font-weight: 500; }
+.pmc-sub { font-size: 11.5px; color: var(--fg-muted); display: flex; align-items: center; gap: 6px; }
+.pmc-spark { margin-top: 4px; height: 32px; }
+.pmc-icon { width: 14px; height: 14px; color: var(--fg-subtle); }
+
+/* Variants */
+.pmc-emphasis { background: var(--primary-soft); border-color: var(--primary-border); }
+.pmc-emphasis .pmc-value { color: var(--primary); }
+.pmc-emphasis .pmc-label { color: var(--primary); opacity: 0.8; }
+.pmc-critical { background: var(--risk-critical-bg); border-color: var(--risk-critical-border); }
+.pmc-critical .pmc-value { color: var(--risk-critical); }
+.pmc-critical .pmc-label { color: var(--risk-critical); opacity: 0.8; }
+
+/* Delta */
+.pmc-delta {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--font-pulso-mono); font-size: 11.5px; font-weight: 500;
+  padding: 2px 6px; border-radius: var(--radius-xs);
+  border: 1px solid transparent;
+  letter-spacing: 0;
+}
+.pmc-delta-up   { background: var(--success-bg);     color: var(--success);     border-color: var(--success-border); }
+.pmc-delta-down { background: var(--destructive-bg); color: var(--destructive); border-color: var(--destructive-border); }
+.pmc-delta-flat { background: var(--muted);          color: var(--fg-secondary); border-color: var(--border); }
+/* Inverse semantic for risk-rising */
+.pmc-delta-rising-bad { background: var(--destructive-bg); color: var(--destructive); border-color: var(--destructive-border); }
+.pmc-delta-falling-good { background: var(--success-bg); color: var(--success); border-color: var(--success-border); }
+.pmc-delta-icon { width: 11px; height: 11px; }
+
+.metric-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+
+.svg-i { width: 14px; height: 14px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Molecules · Onda 1 · 01</div>
+    <h1 class="page-title">Metric Card</h1>
+    <p class="page-sub">Cartão de número grande — ancora dashboards e relatórios. Sempre mono no valor, sempre com contexto (delta, período, sparkline). Número sem contexto é decoração.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Default</h2>
+      <p class="section-desc">Label kicker, valor mono, delta com sinal, sparkline opcional.</p>
+      <div class="metric-grid">
+        <div class="pmc">
+          <div class="pmc-label">CASOS ATIVOS</div>
+          <div class="pmc-value-row">
+            <span class="pmc-value">12</span>
+            <span class="pmc-delta pmc-delta-up">
+              <svg class="pmc-delta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 17l5-5 5 5M7 7h10v10"/></svg>
+              +3
+            </span>
+          </div>
+          <div class="pmc-sub">vs. ontem</div>
+        </div>
+
+        <div class="pmc">
+          <div class="pmc-label">SCORE MÉDIO</div>
+          <div class="pmc-value-row">
+            <span class="pmc-value">38</span>
+            <span class="pmc-unit">/ 100</span>
+            <span class="pmc-delta pmc-delta-falling-good">
+              <svg class="pmc-delta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M17 7l-5 5-5-5M17 17H7V7"/></svg>
+              -4
+            </span>
+          </div>
+          <div class="pmc-sub">últimas 24h</div>
+        </div>
+
+        <div class="pmc">
+          <div class="pmc-label">MENÇÕES · 24H</div>
+          <div class="pmc-value-row">
+            <span class="pmc-value">2.847</span>
+            <span class="pmc-delta pmc-delta-rising-bad">
+              <svg class="pmc-delta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 17l5-5 5 5M7 7h10v10"/></svg>
+              +18%
+            </span>
+          </div>
+          <div class="pmc-sub">acima do baseline (2.4k)</div>
+        </div>
+
+        <div class="pmc">
+          <div class="pmc-label">SENTIMENTO</div>
+          <div class="pmc-value-row">
+            <span class="pmc-value">-0,32</span>
+            <span class="pmc-delta pmc-delta-flat">
+              <svg class="pmc-delta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14"/></svg>
+              0,0
+            </span>
+          </div>
+          <div class="pmc-sub">estável · -1 a +1</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Com sparkline</h2>
+      <p class="section-desc">Sparkline ocupa 32px de altura. Cor segue tendência: subida ruim usa destructive; queda boa usa success.</p>
+      <div class="metric-grid">
+        <div class="pmc">
+          <div class="pmc-label">VOLUME · 6H</div>
+          <div class="pmc-value-row"><span class="pmc-value">847</span><span class="pmc-delta pmc-delta-rising-bad">+24%</span></div>
+          <svg class="pmc-spark" viewBox="0 0 200 32" preserveAspectRatio="none">
+            <path d="M0 22 L20 20 L40 24 L60 18 L80 19 L100 14 L120 16 L140 10 L160 12 L180 6 L200 4" fill="none" stroke="var(--risk-high)" stroke-width="1.5"/>
+            <path d="M0 22 L20 20 L40 24 L60 18 L80 19 L100 14 L120 16 L140 10 L160 12 L180 6 L200 4 L200 32 L0 32 Z" fill="var(--risk-high)" opacity="0.10"/>
+          </svg>
+          <div class="pmc-sub">12 amostras · 30 min</div>
+        </div>
+
+        <div class="pmc">
+          <div class="pmc-label">ALCANCE ESTIMADO</div>
+          <div class="pmc-value-row"><span class="pmc-value">1,2M</span><span class="pmc-delta pmc-delta-up">+8%</span></div>
+          <svg class="pmc-spark" viewBox="0 0 200 32" preserveAspectRatio="none">
+            <path d="M0 18 L20 16 L40 20 L60 14 L80 16 L100 12 L120 14 L140 8 L160 10 L180 6 L200 8" fill="none" stroke="var(--success)" stroke-width="1.5"/>
+            <path d="M0 18 L20 16 L40 20 L60 14 L80 16 L100 12 L120 14 L140 8 L160 10 L180 6 L200 8 L200 32 L0 32 Z" fill="var(--success)" opacity="0.10"/>
+          </svg>
+          <div class="pmc-sub">soma de impressões publicadas</div>
+        </div>
+
+        <div class="pmc">
+          <div class="pmc-label">DESPACHOS</div>
+          <div class="pmc-value-row"><span class="pmc-value">14</span><span class="pmc-delta pmc-delta-flat">=</span></div>
+          <svg class="pmc-spark" viewBox="0 0 200 32" preserveAspectRatio="none">
+            <path d="M0 18 L20 16 L40 18 L60 17 L80 18 L100 16 L120 18 L140 17 L160 18 L180 16 L200 17" fill="none" stroke="var(--fg-subtle)" stroke-width="1.5"/>
+          </svg>
+          <div class="pmc-sub">média móvel mantida</div>
+        </div>
+
+        <div class="pmc">
+          <div class="pmc-label">PICO DE 1H</div>
+          <div class="pmc-value-row"><span class="pmc-value">412</span><span class="pmc-unit">menções</span></div>
+          <svg class="pmc-spark" viewBox="0 0 200 32" preserveAspectRatio="none">
+            <path d="M0 26 L20 25 L40 22 L60 28 L80 24 L100 6 L120 14 L140 18 L160 24 L180 26 L200 25" fill="none" stroke="var(--primary)" stroke-width="1.5"/>
+          </svg>
+          <div class="pmc-sub">14:32 · porta-voz citado</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Ênfase · marca</h2>
+      <p class="section-desc">Quando o card é a métrica protagonista de uma tela.</p>
+      <div class="metric-grid">
+        <div class="pmc pmc-emphasis">
+          <div class="pmc-label">SCORE DO CASO</div>
+          <div class="pmc-value-row">
+            <span class="pmc-value">64</span>
+            <span class="pmc-unit">/ 100</span>
+          </div>
+          <div class="pmc-sub" style="color: var(--primary); opacity: 0.75;">acima do limiar de 60 · radar disparado</div>
+        </div>
+
+        <div class="pmc pmc-critical">
+          <div class="pmc-label">CRISES ATIVAS</div>
+          <div class="pmc-value-row">
+            <span class="pmc-value">02</span>
+            <span class="pmc-delta pmc-delta-rising-bad">+1</span>
+          </div>
+          <div class="pmc-sub" style="color: var(--risk-critical); opacity: 0.85;">declaradas nas últimas 6h</div>
+        </div>
+
+        <div class="pmc">
+          <div class="pmc-label">TIER 1 ENVOLVIDOS <svg class="pmc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></div>
+          <div class="pmc-value-row"><span class="pmc-value">3</span><span class="pmc-unit">/ 7 fontes</span></div>
+          <div class="pmc-sub">Folha · Estadão · G1</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Delta Chip · isolado</h2>
+      <p class="section-desc">Exposto como atom complementar. Reusável em tabelas, listas e cards.</p>
+      <div class="preview-row">
+        <span class="pmc-delta pmc-delta-up">
+          <svg class="pmc-delta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 17l5-5 5 5M7 7h10v10"/></svg>
+          +12%
+        </span>
+        <span class="pmc-delta pmc-delta-down">
+          <svg class="pmc-delta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M17 7l-5 5-5-5M17 17H7V7"/></svg>
+          -8%
+        </span>
+        <span class="pmc-delta pmc-delta-flat">
+          <svg class="pmc-delta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14"/></svg>
+          0,0
+        </span>
+        <span class="pmc-delta pmc-delta-rising-bad">
+          <svg class="pmc-delta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 17l5-5 5 5M7 7h10v10"/></svg>
+          +24% · ruim
+        </span>
+        <span class="pmc-delta pmc-delta-falling-good">
+          <svg class="pmc-delta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M17 7l-5 5-5-5M17 17H7V7"/></svg>
+          -18% · bom
+        </span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Anatomia</h2>
+      <p class="section-desc">Padding 18 20, gap 6 entre linhas. Valor 30px mono semibold. Label 10.5px mono uppercase.</p>
+      <table class="tokens">
+        <thead><tr><th>Elemento</th><th>Token</th><th>Valor</th></tr></thead>
+        <tbody>
+          <tr><td>Background</td><td class="mono">--card</td><td class="mono">white / surface</td></tr>
+          <tr><td>Border</td><td class="mono">1px solid --border</td><td class="mono">hairline</td></tr>
+          <tr><td>Padding</td><td class="mono">18 20</td><td class="mono">18px tb · 20px lr</td></tr>
+          <tr><td>Radius</td><td class="mono">--radius-md</td><td class="mono">8px</td></tr>
+          <tr><td>Label</td><td class="mono">mono · 10.5 · 0.08em</td><td>UPPERCASE, fg-subtle</td></tr>
+          <tr><td>Value</td><td class="mono">mono · 30 · 600</td><td>fg-strong, tnum</td></tr>
+          <tr><td>Sparkline</td><td class="mono">32px height</td><td>stroke 1.5px, opacidade 10%</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><div class="rule-tag">DO</div><div>Valor sempre mono. Tabular figures alinham colunas em grids de cards.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Delta sempre com sinal explícito (+ ou -). Cor segue o significado: subir <em>menções</em> é ruim, subir <em>alcance positivo</em> é bom.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Inclua referência temporal ("vs. ontem", "últimas 6h"). Número sem janela não é métrica.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use ênfase ou critical em mais de 1 card por dashboard. Quebra a hierarquia.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não exiba decimais desnecessárias. <code style="font-family: var(--font-pulso-mono); font-size: 11px;">2,4</code> em sentimento, sim. <code style="font-family: var(--font-pulso-mono); font-size: 11px;">2847,00</code> em contagem, não.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não combine sparkline com gráfico maior na mesma linha. Sparkline é summary, não substituto.</div></div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>
