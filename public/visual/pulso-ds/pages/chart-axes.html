@@ -16,16 +16,38 @@
 .demo-note code { font-family: var(--font-pulso-mono); font-size: 11.5px; background: var(--muted); padding: 1px 5px; border-radius: 3px; }
 
 /* Tooltip floating demo */
+:root {
+  --chart-tooltip-demo-bg: #1A1530;
+  --chart-tooltip-demo-fg: #F5F4FA;
+  --chart-tooltip-demo-muted: rgba(245,244,250,0.62);
+  --chart-tooltip-demo-row: rgba(245,244,250,0.86);
+  --chart-tooltip-demo-border: rgba(245,244,250,0.12);
+}
+html.dark {
+  --chart-tooltip-demo-bg: #0F0C1A;
+}
 .tt-anchor { position: relative; display: inline-block; }
-.tt { background: var(--surface-inverse, #1A1530); color: #F5F4FA; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 12px; min-width: 180px; box-shadow: var(--shadow-lg); border: 1px solid rgba(255,255,255,0.08); }
-.tt-header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 6px; }
-.tt-when { font-family: var(--font-pulso-mono); font-size: 10.5px; color: rgba(255,255,255,0.55); }
-.tt-meta { font-family: var(--font-pulso-mono); font-size: 10.5px; color: rgba(255,255,255,0.55); }
+.tt {
+  background: var(--chart-tooltip-demo-bg);
+  color: var(--chart-tooltip-demo-fg);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 12px;
+  min-width: 180px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--chart-tooltip-demo-border);
+}
+.tt-header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--chart-tooltip-demo-border); margin-bottom: 6px; }
+.tt-when { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--chart-tooltip-demo-muted); }
+.tt-meta { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--chart-tooltip-demo-muted); }
 .tt-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 12px; }
-.tt-row .name { display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.85); }
+.tt-row .name { display: inline-flex; align-items: center; gap: 6px; color: var(--chart-tooltip-demo-row); }
 .tt-row .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.tt-row .val { font-family: var(--font-pulso-mono); color: #F5F4FA; font-variant-numeric: tabular-nums; font-weight: 600; }
-.tt-arrow { position: absolute; width: 10px; height: 10px; background: var(--surface-inverse, #1A1530); transform: rotate(45deg); border-right: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.08); }
+.tt-row .val { font-family: var(--font-pulso-mono); color: var(--chart-tooltip-demo-fg); font-variant-numeric: tabular-nums; font-weight: 600; }
+.tt-arrow { position: absolute; width: 10px; height: 10px; background: var(--chart-tooltip-demo-bg); transform: rotate(45deg); border-right: 1px solid var(--chart-tooltip-demo-border); border-bottom: 1px solid var(--chart-tooltip-demo-border); }
+.tt-arrow.bottom { bottom: -6px; left: 50%; transform: translateX(-50%) rotate(45deg); border-top: 1px solid var(--chart-tooltip-demo-border); border-left: 1px solid var(--chart-tooltip-demo-border); border-right: none; border-bottom: none; }
+.bad-tooltip-box { fill: var(--chart-tooltip-demo-bg); }
+.bad-tooltip-text { fill: var(--chart-tooltip-demo-fg); }
 
 /* Spec rows */
 .spec-row { display: grid; grid-template-columns: 180px 1fr; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--border-faint); align-items: baseline; }
@@ -125,7 +147,7 @@
           <tr><td class="mono">--chart-axis</td><td class="mono">#A09CB4 · #7E78A0</td><td>Cor das tick labels (alinhada a <code>--fg-secondary</code>)</td></tr>
           <tr><td class="mono">--chart-axis-baseline</td><td class="mono">--border · --border</td><td>Linha do chão (X axis principal)</td></tr>
           <tr><td class="mono">--chart-grid</td><td class="mono">rgba(20,18,10,.06) · rgba(255,255,255,.06)</td><td>Linhas de grade horizontais</td></tr>
-          <tr><td class="mono">--chart-tooltip-bg</td><td class="mono">#1A1530 · #0F0C1A</td><td>Background do tooltip (sempre escuro · contraste forte)</td></tr>
+          <tr><td class="mono">--chart-tooltip-bg</td><td class="mono">#1A1530 · #0F0C1A</td><td>Background local do tooltip (sempre escuro · contraste forte)</td></tr>
           <tr><td class="mono">--chart-tooltip-fg</td><td class="mono">#F5F4FA · #F5F4FA</td><td>Texto do tooltip</td></tr>
         </tbody>
       </table>
@@ -206,7 +228,7 @@
           </svg>
           <!-- Tooltip floating -->
           <div class="tt" style="position:absolute;top:14px;left:50%;transform:translateX(-30px);">
-            <div class="tt-arrow" style="bottom:-6px;left:50%;transform:translateX(-50%) rotate(45deg);border-top:1px solid rgba(255,255,255,0.08);border-left:1px solid rgba(255,255,255,0.08);border-right:none;border-bottom:none;"></div>
+            <div class="tt-arrow bottom"></div>
             <div class="tt-header">
               <span class="tt-when">17/05 · 18:00</span>
               <span class="tt-meta">PLS-012</span>
@@ -342,8 +364,8 @@
             <g stroke="var(--chart-grid)" stroke-width="1"><line x1="20" y1="20" x2="280" y2="20"/><line x1="20" y1="80" x2="280" y2="80"/></g>
             <path d="M 20 100 L 80 80 L 140 60 L 200 40 L 280 28" fill="none" stroke="var(--chart-1)" stroke-width="2"/>
             <circle cx="140" cy="60" r="4" fill="var(--chart-1)"/>
-            <rect x="125" y="48" width="80" height="32" rx="4" fill="#1A1530"/>
-            <text x="165" y="68" font-family="var(--font-pulso-mono)" font-size="10" fill="white" text-anchor="middle">62 · 18h</text>
+            <rect class="bad-tooltip-box" x="125" y="48" width="80" height="32" rx="4"/>
+            <text class="bad-tooltip-text" x="165" y="68" font-family="var(--font-pulso-mono)" font-size="10" text-anchor="middle">62 · 18h</text>
           </svg>
           <div class="demo-note">Operador não vê o que está medindo. Posicione acima/abaixo com distância ≥ 16px.</div>
         </div>
