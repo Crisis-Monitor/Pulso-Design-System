@@ -5,12 +5,33 @@ description: Camada visual curada para apresentar o Pulso DS.
 
 # Showcase
 
-Esta seção mostra o Pulso como produto de design: não substitui a documentação,
-mas ajuda a explicar regras, diretrizes, componentes e comportamentos de forma
-mais visual.
+Esta seção conecta duas camadas: a **experiência visual completa do Open Design**
+e a **documentação MDX canônica**. Para navegar visualmente pelo sistema, comece
+pelo pacote HTML.
 
-Os exemplos foram reconstruídos em MDX/React com tokens atuais. Os HTMLs do Open
-Design servem como referência editorial e visual, não como código importado.
+<div className="not-prose my-8 rounded-2xl border border-primary/40 bg-card p-8">
+  <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+    recommended path
+  </p>
+  <h2 className="mt-3 text-3xl font-bold tracking-tight">
+    Navegue primeiro pela versão HTML do Open Design
+  </h2>
+  <p className="mt-4 max-w-3xl text-muted-foreground">
+    Ela preserva a experiência visual completa: sidebar própria, toggle de
+    densidade, componentes, padrões, templates e páginas de release.
+  </p>
+  <div className="mt-6 flex flex-wrap gap-3">
+    <a className="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground no-underline" href="../visual/pulso-ds/index.html">
+      Abrir experiência visual →
+    </a>
+    <a className="rounded-md border bg-background px-4 py-2 font-medium no-underline" href="../visual/pulso-ds/pages/density.html">
+      Ver densidade
+    </a>
+    <a className="rounded-md border bg-background px-4 py-2 font-medium no-underline" href="../visual/pulso-ds/pages/button.html">
+      Ver componentes
+    </a>
+  </div>
+</div>
 
 <div className="mt-8 grid gap-4 md:grid-cols-2">
   <a className="rounded-xl border bg-card p-6 no-underline transition hover:border-primary" href="./html">
