@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Switch</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* ─── Switch ─────────────────────────────────────────────── */
+.psw-row { display: inline-flex; align-items: flex-start; gap: 14px; cursor: pointer; user-select: none; padding: 4px 0; }
+.psw-row input[type="checkbox"] { position: absolute; opacity: 0; pointer-events: none; }
+
+.psw {
+  flex-shrink: 0;
+  position: relative;
+  width: 32px; height: 18px;
+  background: var(--border-strong);
+  border-radius: 9999px;
+  transition: background-color 180ms var(--motion-easing);
+  margin-top: 2px;
+}
+.psw::after {
+  content: "";
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 14px; height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.18);
+  transition: transform 200ms var(--motion-easing);
+}
+
+.psw-row:hover .psw { background: color-mix(in oklab, var(--border-strong) 70%, var(--fg-muted) 30%); }
+
+input:focus-visible + .psw { outline: var(--ring-width) solid var(--ring); outline-offset: 3px; }
+
+input:checked + .psw { background: var(--primary); }
+input:checked + .psw::after { transform: translateX(14px); }
+
+input:disabled + .psw { opacity: 0.5; cursor: not-allowed; }
+input:disabled ~ .psw-content { color: var(--fg-disabled); cursor: not-allowed; }
+
+/* Risk variants */
+.psw-row.risk-high input:checked + .psw { background: var(--risk-high); }
+.psw-row.risk-critical input:checked + .psw { background: var(--risk-critical); }
+.psw-row.success input:checked + .psw { background: var(--success); }
+
+.psw-content { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.psw-label { font-size: 13px; line-height: 1.4; color: var(--fg-strong); font-weight: 500; }
+.psw-help { font-size: 12px; color: var(--fg-muted); line-height: 1.4; }
+
+/* Sizes */
+.psw-sm { width: 26px; height: 14px; }
+.psw-sm::after { width: 10px; height: 10px; }
+input:checked + .psw-sm::after { transform: translateX(12px); }
+
+.psw-lg { width: 40px; height: 22px; }
+.psw-lg::after { width: 18px; height: 18px; }
+input:checked + .psw-lg::after { transform: translateX(18px); }
+
+/* Inline form layout — common: switch on the right */
+.psw-field {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 24px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.psw-field:last-child { border-bottom: 0; }
+.psw-field .psw-content { flex: 1; }
+.psw-field .psw-label { font-size: 13.5px; }
+.psw-field input[type="checkbox"] { position: absolute; opacity: 0; }
+.psw-field-trigger { display: inline-flex; align-items: center; cursor: pointer; user-select: none; flex-shrink: 0; padding-top: 2px; }
+
+/* Settings card grouping */
+.psw-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 4px 18px;
+}
+.psw-card-h {
+  font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--fg-subtle); padding: 14px 0 6px;
+  border-bottom: 1px solid var(--border);
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Atoms · Onda 3 · Form 03</div>
+    <h1 class="page-title">Switch</h1>
+    <p class="page-sub">Toggle binário para configuração reversível e com efeito imediato. Diferente do Checkbox: não é seleção em formulário — é uma chave que liga ou desliga um comportamento agora.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Estados</h2>
+      <p class="section-desc">Track 32×18px. Knob branco com sombra leve. Animação 200ms — cubic-bezier de saída do design system.</p>
+      <div class="preview-row" style="gap: 32px;">
+        <label class="psw-row"><input type="checkbox"><span class="psw"></span><span class="psw-content"><span class="psw-label">Off</span></span></label>
+        <label class="psw-row"><input type="checkbox" checked><span class="psw"></span><span class="psw-content"><span class="psw-label">On</span></span></label>
+        <label class="psw-row"><input type="checkbox" disabled><span class="psw"></span><span class="psw-content"><span class="psw-label">Off · disabled</span></span></label>
+        <label class="psw-row"><input type="checkbox" disabled checked><span class="psw"></span><span class="psw-content"><span class="psw-label">On · disabled</span></span></label>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Variantes semânticas</h2>
+      <p class="section-desc">A cor do estado <em>on</em> reflete a gravidade do que está sendo ligado. Modo Crise não pode ter o mesmo verde de "salvar como rascunho".</p>
+      <div class="preview-row" style="display: flex; flex-direction: column; gap: 14px; align-items: flex-start;">
+        <label class="psw-row success"><input type="checkbox" checked><span class="psw"></span><span class="psw-content"><span class="psw-label">Auto-save de relatórios</span><span class="psw-help">Sucesso · ação de baixo risco.</span></span></label>
+        <label class="psw-row"><input type="checkbox" checked><span class="psw"></span><span class="psw-content"><span class="psw-label">Notificações push ativas</span><span class="psw-help">Padrão · marca operacional.</span></span></label>
+        <label class="psw-row risk-high"><input type="checkbox" checked><span class="psw"></span><span class="psw-content"><span class="psw-label">Auto-publicar respostas pré-aprovadas</span><span class="psw-help">Risco alto · revisar antes de ativar.</span></span></label>
+        <label class="psw-row risk-critical"><input type="checkbox" checked><span class="psw"></span><span class="psw-content"><span class="psw-label">Modo Crise · sala de guerra</span><span class="psw-help">Crítico · notifica executivos e bloqueia ações de baixa prioridade.</span></span></label>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Lista de configurações</h2>
+      <p class="section-desc">Padrão para telas de Settings — switch alinhado à direita, descrição à esquerda. Hairlines separam linhas.</p>
+      <div class="preview-row" style="display: block; padding: 0;">
+        <div class="psw-card">
+          <div class="psw-card-h">Notificações</div>
+          <label class="psw-field">
+            <span class="psw-content">
+              <span class="psw-label">Alertas críticos por e-mail</span>
+              <span class="psw-help">Dispara para o endereço primário sempre que um sinal cruzar o nível Crítico.</span>
+            </span>
+            <span class="psw-field-trigger"><input type="checkbox" checked><span class="psw"></span></span>
+          </label>
+          <label class="psw-field">
+            <span class="psw-content">
+              <span class="psw-label">Resumo diário às 08:00</span>
+              <span class="psw-help">Consolidação executiva no início do expediente, com top 5 sinais.</span>
+            </span>
+            <span class="psw-field-trigger"><input type="checkbox" checked><span class="psw"></span></span>
+          </label>
+          <label class="psw-field">
+            <span class="psw-content">
+              <span class="psw-label">Notificações em horário não comercial</span>
+              <span class="psw-help">Inclui finais de semana e feriados. Apenas para sinais Críticos.</span>
+            </span>
+            <span class="psw-field-trigger"><input type="checkbox"><span class="psw"></span></span>
+          </label>
+          <label class="psw-field">
+            <span class="psw-content">
+              <span class="psw-label">Som de alerta no painel</span>
+              <span class="psw-help">Bipe curto quando um novo sinal aparece no feed em tempo real.</span>
+            </span>
+            <span class="psw-field-trigger"><input type="checkbox"><span class="psw"></span></span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Tamanhos</h2>
+      <div class="preview-row" style="gap: 32px; align-items: center;">
+        <label class="psw-row"><input type="checkbox" checked><span class="psw psw-sm"></span><span class="psw-content"><span class="psw-label" style="font-size: 12px;">Small · 26×14</span></span></label>
+        <label class="psw-row"><input type="checkbox" checked><span class="psw"></span><span class="psw-content"><span class="psw-label">Default · 32×18</span></span></label>
+        <label class="psw-row"><input type="checkbox" checked><span class="psw psw-lg"></span><span class="psw-content"><span class="psw-label" style="font-size: 14px;">Large · 40×22</span></span></label>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Switch vs. Checkbox</h2>
+      <p class="section-desc">Distinção de intenção, não de estilo. Switch = comportamento que muda <em>agora</em>; Checkbox = seleção que entra em uma submissão.</p>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Switch</div>
+          <ul>
+            <li>Configurações reversíveis com efeito imediato</li>
+            <li>"Modo X ativo / inativo"</li>
+            <li>Settings com persistência automática</li>
+            <li>Aparece em telas de Settings, side panels</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Checkbox</div>
+          <ul>
+            <li>Seleção dentro de um formulário com botão Salvar</li>
+            <li>"Aceito os termos"</li>
+            <li>Lista de filtros aplicáveis em conjunto</li>
+            <li>Aparece em forms, listas, tabelas</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+
+<script src="../_nav.js"></script>
+</body>
+</html>

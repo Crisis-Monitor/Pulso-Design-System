@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Mobile Gestures</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* ── Phone frame primitive ───────────── */
+.phone {
+  width: 220px; height: 440px;
+  background: #0f0c1a;
+  border-radius: 32px;
+  padding: 8px;
+  box-shadow: 0 8px 40px rgba(15, 12, 26, 0.18);
+  position: relative;
+  flex-shrink: 0;
+}
+.phone .screen {
+  width: 100%; height: 100%;
+  background: var(--card);
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.phone .notch {
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  width: 60px; height: 16px; background: #0f0c1a;
+  border-radius: 10px; z-index: 4;
+}
+.phone-status {
+  position: absolute; top: 0; left: 0; right: 0; height: 30px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 18px 0;
+  font-family: var(--font-pulso-mono); font-size: 9.5px;
+  color: var(--fg-strong); font-weight: 700; letter-spacing: 0.04em;
+  z-index: 3;
+}
+.phone-status .sigs { display: inline-flex; gap: 3px; align-items: center; }
+.phone-status .sigs .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--fg-strong); }
+.phone-content {
+  position: absolute; top: 32px; left: 0; right: 0; bottom: 0;
+  padding: 12px;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+/* Gesture overlay arrows */
+.gesture-overlay {
+  position: absolute; inset: 32px 0 0 0;
+  pointer-events: none; z-index: 5;
+}
+.gesture-arrow {
+  position: absolute;
+  font-family: var(--font-pulso-mono); font-weight: 700; color: var(--primary);
+  letter-spacing: 0.04em;
+}
+.gesture-trail {
+  position: absolute; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary));
+  border-radius: 2px;
+  box-shadow: 0 0 8px color-mix(in oklab, var(--primary) 50%, transparent);
+}
+.finger-touch {
+  position: absolute; width: 32px; height: 32px;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--primary) 25%, transparent);
+  border: 2px solid var(--primary);
+}
+.finger-touch::after {
+  content: ''; position: absolute; inset: -8px;
+  border-radius: 50%; border: 1px solid var(--primary);
+  opacity: 0.5;
+}
+
+/* Cards inside phone */
+.mini-card {
+  background: var(--surface-2); border: 1px solid var(--border-faint);
+  border-radius: 8px; padding: 8px 10px; margin-bottom: 6px;
+  font-size: 9.5px; line-height: 1.4;
+}
+.mini-card .head { display: flex; align-items: center; gap: 5px; margin-bottom: 4px; }
+.mini-card .glyph {
+  width: 12px; height: 12px; display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--font-pulso-mono); font-size: 10px; font-weight: 700;
+}
+.mini-card .glyph.crit { color: var(--risk-critical-text); }
+.mini-card .glyph.att { color: var(--risk-attention-text); }
+.mini-card .glyph.mon { color: var(--risk-monitor-text); }
+.mini-card .lbl { font-family: var(--font-pulso-mono); font-size: 8px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 700; }
+.mini-card .ts { margin-left: auto; font-family: var(--font-pulso-mono); font-size: 8px; color: var(--fg-subtle); }
+.mini-card .title { font-size: 10px; color: var(--fg-strong); font-weight: 600; }
+.mini-card .sub { font-size: 9px; color: var(--fg-muted); margin-top: 2px; }
+
+/* Swiped card */
+.mini-card.swiping {
+  transform: translateX(-60px);
+  position: relative;
+}
+.swipe-action-bg {
+  position: absolute; top: 0; right: -1px; bottom: 0; width: 60px;
+  background: var(--success);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-pulso-mono); font-size: 9px; font-weight: 700;
+  color: white; letter-spacing: 0.04em;
+  border-radius: 0 8px 8px 0;
+}
+.swipe-stack { position: relative; }
+
+/* Pull to refresh */
+.pull-indicator {
+  position: absolute; top: 38px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  z-index: 4;
+}
+.pull-indicator .ring {
+  width: 22px; height: 22px;
+  border: 2px solid color-mix(in oklab, var(--primary) 30%, transparent);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: pulse-rot 2s linear infinite;
+}
+@keyframes pulse-rot { to { transform: rotate(360deg); } }
+.pull-indicator .lbl {
+  font-family: var(--font-pulso-mono); font-size: 8px; font-weight: 700;
+  color: var(--primary); text-transform: uppercase; letter-spacing: 0.08em;
+}
+
+/* Long-press menu */
+.lp-menu {
+  position: absolute; top: 60px; right: 20px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; box-shadow: 0 4px 16px rgba(15,12,26,0.22);
+  padding: 4px; z-index: 6; min-width: 110px;
+}
+.lp-menu .item {
+  font-size: 10px; padding: 6px 10px; border-radius: 5px;
+  color: var(--fg); display: flex; align-items: center; gap: 6px;
+}
+.lp-menu .item .k { font-family: var(--font-pulso-mono); font-size: 9px; color: var(--fg-subtle); margin-left: auto; }
+.lp-menu .item:hover { background: var(--surface-2); }
+.lp-menu .item.danger { color: var(--destructive); }
+.lp-menu .sep { height: 1px; background: var(--border-faint); margin: 4px 8px; }
+
+/* Bottom sheet */
+.bottom-sheet {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  background: var(--card); border-top: 1px solid var(--border);
+  border-radius: 16px 16px 0 0;
+  padding: 12px 14px 10px;
+  z-index: 5;
+  box-shadow: 0 -4px 18px rgba(15,12,26,0.12);
+}
+.bottom-sheet .grabber {
+  width: 32px; height: 4px; background: var(--border-strong);
+  border-radius: 2px; margin: 0 auto 10px;
+}
+.bottom-sheet .title {
+  font-size: 11px; font-weight: 600; color: var(--fg-strong);
+  margin-bottom: 8px;
+}
+.bottom-sheet .btn {
+  width: 100%; padding: 7px; border-radius: 6px;
+  font-size: 10px; font-weight: 600; text-align: center;
+  background: var(--primary); color: var(--primary-foreground);
+  margin-bottom: 4px;
+}
+.bottom-sheet .btn.ghost { background: var(--surface-2); color: var(--fg); }
+
+/* Tab bar bottom */
+.tabbar {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 50px;
+  background: var(--card); border-top: 1px solid var(--border-faint);
+  display: grid; grid-template-columns: repeat(4, 1fr); align-items: center;
+  z-index: 3;
+}
+.tabbar .tab {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  font-family: var(--font-pulso-mono); font-size: 8.5px; font-weight: 600;
+  color: var(--fg-subtle); letter-spacing: 0.04em;
+}
+.tabbar .tab.active { color: var(--primary); }
+.tabbar .tab .ic {
+  width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface-2);
+  border-radius: 4px;
+}
+.tabbar .tab.active .ic { background: color-mix(in oklab, var(--primary) 15%, transparent); }
+
+/* ── Gesture card grid ───────────── */
+.gesture-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+}
+.g-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md); overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.g-card-mock {
+  background: var(--surface-page);
+  padding: 22px 0;
+  display: flex; align-items: center; justify-content: center;
+  border-bottom: 1px solid var(--border-faint);
+  min-height: 466px;
+  position: relative;
+}
+.g-card-body { padding: 20px 22px 18px; display: flex; flex-direction: column; gap: 12px; }
+.g-card-num {
+  font-family: var(--font-pulso-mono); font-size: 10.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary);
+}
+.g-card h3 {
+  font-size: 17px; font-weight: 700; color: var(--fg-strong);
+  letter-spacing: -0.005em;
+}
+.g-card .what { font-size: 13px; color: var(--fg-secondary); line-height: 1.55; }
+.g-card .spec {
+  padding-top: 12px; border-top: 1px solid var(--border-faint);
+  font-family: var(--font-pulso-mono); font-size: 11px; line-height: 1.7; color: var(--fg-muted);
+}
+.g-card .spec code { background: var(--surface-2); padding: 1px 5px; border-radius: 3px; color: var(--fg); }
+.g-card .haptic {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 8px; border-radius: var(--radius-xs);
+  background: color-mix(in oklab, var(--primary) 10%, transparent);
+  border: 1px solid var(--primary-border);
+  font-family: var(--font-pulso-mono); font-size: 10px; font-weight: 700;
+  color: var(--primary); letter-spacing: 0.06em; text-transform: uppercase;
+  align-self: flex-start;
+}
+
+/* ── Hit target diagram ───────────── */
+.hit-target { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 26px 28px; }
+.hit-rows { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+@media (max-width: 800px) { .hit-rows { grid-template-columns: 1fr; } }
+.hit-row { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.hit-circle {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--primary) 8%, transparent);
+  border: 2px dashed var(--primary-border);
+}
+.hit-circle.std { width: 44px; height: 44px; }
+.hit-circle.crit { width: 48px; height: 48px; }
+.hit-circle.cancel { width: 32px; height: 32px; border-style: solid; border-color: var(--border-strong); background: var(--surface-2); }
+.hit-circle .inner {
+  width: 24px; height: 24px;
+  border-radius: 50%; background: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--primary-foreground); font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 700;
+}
+.hit-circle.cancel .inner { background: var(--fg-subtle); width: 18px; height: 18px; font-size: 9px; }
+.hit-row .px { font-family: var(--font-pulso-mono); font-size: 14px; font-weight: 700; color: var(--fg-strong); letter-spacing: -0.005em; font-variant-numeric: tabular-nums; }
+.hit-row .label { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 700; }
+.hit-row .what { font-size: 12.5px; color: var(--fg-secondary); line-height: 1.5; max-width: 220px; }
+
+/* ── Thumb zone heatmap ───────────── */
+.thumb-pane {
+  display: grid; grid-template-columns: 240px 1fr; gap: 32px; align-items: start;
+}
+@media (max-width: 760px) { .thumb-pane { grid-template-columns: 1fr; } }
+.thumb-phone {
+  width: 240px; height: 480px;
+  background: #0f0c1a; border-radius: 36px; padding: 8px;
+  position: relative;
+  margin: 0 auto;
+}
+.thumb-phone .screen {
+  width: 100%; height: 100%; border-radius: 28px;
+  background: var(--card); position: relative; overflow: hidden;
+}
+.zone {
+  position: absolute; left: 0; right: 0;
+  border-top: 1px dashed var(--border);
+  display: flex; align-items: center; padding: 0 14px;
+  font-family: var(--font-pulso-mono); font-size: 9.5px;
+  text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700;
+}
+.zone.easy {
+  bottom: 0; height: 42%;
+  background: color-mix(in oklab, var(--success) 12%, transparent);
+  color: var(--success);
+}
+.zone.ok {
+  bottom: 42%; height: 28%;
+  background: color-mix(in oklab, var(--risk-monitor) 10%, transparent);
+  color: var(--risk-monitor-text);
+}
+.zone.hard {
+  bottom: 70%; height: 30%;
+  background: color-mix(in oklab, var(--destructive) 8%, transparent);
+  color: var(--destructive);
+}
+.zone .px { margin-left: auto; color: var(--fg-strong); }
+
+.thumb-notes h4 { font-size: 15px; font-weight: 600; color: var(--fg-strong); margin-bottom: 4px; }
+.thumb-notes .sub { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px; }
+.thumb-notes .zone-row { display: grid; grid-template-columns: 80px 1fr; gap: 14px; padding: 12px 0; border-top: 1px solid var(--border-faint); align-items: baseline; }
+.thumb-notes .zone-row:first-of-type { border-top: 1px solid var(--border-strong); }
+.thumb-notes .zone-row .name { font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.thumb-notes .zone-row .name.easy { color: var(--success); }
+.thumb-notes .zone-row .name.ok { color: var(--risk-monitor-text); }
+.thumb-notes .zone-row .name.hard { color: var(--destructive); }
+.thumb-notes .zone-row p { font-size: 12.5px; color: var(--fg); line-height: 1.55; }
+.thumb-notes .zone-row p strong { color: var(--fg-strong); font-weight: 600; }
+
+/* ── Rules ───────────── */
+.rules { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .rules { grid-template-columns: 1fr; } }
+.rule { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 22px; }
+.rule.do { border-left: 3px solid var(--success); }
+.rule.dont { border-left: 3px solid var(--destructive); }
+.rule .tag { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 8px; }
+.rule.do .tag { color: var(--success); }
+.rule.dont .tag { color: var(--destructive); }
+.rule p { font-size: 13px; color: var(--fg); line-height: 1.55; }
+.rule .note { padding-top: 10px; margin-top: 10px; border-top: 1px solid var(--border-faint); font-size: 12px; color: var(--fg-muted); line-height: 1.55; }
+.rule code { font-family: var(--font-pulso-mono); font-size: 11px; background: var(--surface-2); padding: 1px 5px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Patterns · Mobile · v3 · γ.1 · entregue</div>
+    <h1 class="page-title">Mobile gestures</h1>
+    <p class="page-sub">A v2 · 4.4 entregou responsive (reflow). γ.1 entrega <strong>vocabulário de gesto</strong> · cinco padrões canônicos com feedback háptico, hit-target adaptativo e zona segura do polegar mapeada. Operador no Uber não é exceção · é caso primário.</p>
+
+    <!-- Princípio -->
+    <section class="section">
+      <h2 class="section-h1">Princípio · gesto é atalho confiável</h2>
+      <p class="section-desc">Mobile não é desktop encolhido. Operador no celular toca com o polegar, em movimento, com latência de rede. Gesto bem desenhado tira fricção · gesto mal desenhado vira ansiedade. γ.1 fixa cinco gestos · cada um com tarefa, área, hit-target e feedback háptico definidos.</p>
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 26px;">
+        <p style="font-size:15px;color:var(--fg-strong);line-height:1.65;max-width:780px;">Cinco gestos · suficientes para ack, dispatch, escalar, descartar, contextualizar. Sexto gesto vira RFC · não decisão de feature.</p>
+      </div>
+    </section>
+
+    <!-- 5 gestures -->
+    <section class="section">
+      <h2 class="section-h1">Os 5 gestos canônicos</h2>
+      <p class="section-desc">Cada gesto tem um phone-mock animado, área de invocação, retorno háptico e o que NÃO fazer.</p>
+
+      <div class="gesture-grid">
+        <!-- 01 swipe-to-ack -->
+        <div class="g-card">
+          <div class="g-card-mock">
+            <div class="phone">
+              <div class="notch"></div>
+              <div class="screen">
+                <div class="phone-status"><span>09:42</span><span class="sigs"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
+                <div class="phone-content">
+                  <div style="font-family:var(--font-pulso-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);font-weight:700;margin-bottom:8px;">ALERTAS · 3 ATIVOS</div>
+                  <div class="swipe-stack">
+                    <div class="swipe-action-bg">ACK</div>
+                    <div class="mini-card swiping">
+                      <div class="head"><span class="glyph crit">●</span><span class="lbl">CRÍTICO</span><span class="ts">2 min</span></div>
+                      <div class="title">CASO 248 · escalada</div>
+                      <div class="sub">+62% menções · 14 perfis</div>
+                    </div>
+                  </div>
+                  <div class="mini-card">
+                    <div class="head"><span class="glyph att">◆</span><span class="lbl">ATENÇÃO</span><span class="ts">8 min</span></div>
+                    <div class="title">CASO 252 · ruído</div>
+                  </div>
+                  <div class="mini-card">
+                    <div class="head"><span class="glyph mon">○</span><span class="lbl">MONITOR</span><span class="ts">22 min</span></div>
+                    <div class="title">CASO 250 · cluster X</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="gesture-overlay">
+              <div class="gesture-trail" style="left: 56%; top: 70px; width: 50px; transform: rotate(180deg);"></div>
+              <div class="gesture-arrow" style="left: 38%; top: 63px; font-size: 14px;">←</div>
+            </div>
+          </div>
+          <div class="g-card-body">
+            <div class="g-card-num">Gesto 01</div>
+            <h3>Swipe-to-ack</h3>
+            <p class="what">Deslize horizontal sobre o card de alerta · reconhece e remove do feed ativo. Direção é convencional do produto · esquerda em RTL, direita em LTR.</p>
+            <span class="haptic">háptico · light · 8ms</span>
+            <div class="spec">
+              <code>min-distance</code> · 56px<br>
+              <code>velocity</code> · ≥ 0.4 px/ms<br>
+              <code>commit-at</code> · 60% da largura<br>
+              <code>cancel</code> · solta antes do limiar
+            </div>
+          </div>
+        </div>
+
+        <!-- 02 pull-to-refresh -->
+        <div class="g-card">
+          <div class="g-card-mock">
+            <div class="phone">
+              <div class="notch"></div>
+              <div class="screen">
+                <div class="phone-status"><span>09:42</span><span class="sigs"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
+                <div class="pull-indicator">
+                  <div class="ring"></div>
+                  <div class="lbl">Atualizando</div>
+                </div>
+                <div class="phone-content" style="padding-top: 56px;">
+                  <div class="mini-card" style="opacity: 0.5;">
+                    <div class="head"><span class="glyph crit">●</span><span class="lbl">CRÍTICO</span><span class="ts">2 min</span></div>
+                    <div class="title">CASO 248</div>
+                  </div>
+                  <div class="mini-card" style="opacity: 0.5;">
+                    <div class="head"><span class="glyph att">◆</span><span class="lbl">ATENÇÃO</span><span class="ts">8 min</span></div>
+                    <div class="title">CASO 252</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="gesture-overlay">
+              <div class="gesture-trail" style="left: 50%; top: 80px; width: 50px; transform: rotate(90deg); transform-origin: left center;"></div>
+              <div class="gesture-arrow" style="left: 48%; top: 125px; font-size: 14px;">↓</div>
+            </div>
+          </div>
+          <div class="g-card-body">
+            <div class="g-card-num">Gesto 02</div>
+            <h3>Pull-to-refresh</h3>
+            <p class="what">Puxar lista para baixo · sincroniza com servidor. Sinaliza freshness e oferece controle manual quando o operador desconfia que o estado pode estar atrasado.</p>
+            <span class="haptic">háptico · médio · ao soltar</span>
+            <div class="spec">
+              <code>commit-threshold</code> · 64px<br>
+              <code>spinner-show</code> · ao ultrapassar threshold<br>
+              <code>refresh-min</code> · 600ms (evita flash)<br>
+              <code>sucesso</code> · háptico light + chip "Atualizado · agora"
+            </div>
+          </div>
+        </div>
+
+        <!-- 03 long-press -->
+        <div class="g-card">
+          <div class="g-card-mock">
+            <div class="phone">
+              <div class="notch"></div>
+              <div class="screen">
+                <div class="phone-status"><span>09:42</span><span class="sigs"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
+                <div class="phone-content">
+                  <div style="font-family:var(--font-pulso-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);font-weight:700;margin-bottom:8px;">ALERTAS · 3 ATIVOS</div>
+                  <div class="mini-card" style="background: color-mix(in oklab, var(--primary) 10%, transparent); border-color: var(--primary-border);">
+                    <div class="head"><span class="glyph crit">●</span><span class="lbl">CRÍTICO</span><span class="ts">2 min</span></div>
+                    <div class="title">CASO 248 · escalada</div>
+                  </div>
+                  <div class="mini-card">
+                    <div class="head"><span class="glyph att">◆</span><span class="lbl">ATENÇÃO</span><span class="ts">8 min</span></div>
+                    <div class="title">CASO 252</div>
+                  </div>
+                </div>
+                <div class="lp-menu">
+                  <div class="item">Ack <span class="k">⌥A</span></div>
+                  <div class="item">Escalar</div>
+                  <div class="item">Atribuir…</div>
+                  <div class="sep"></div>
+                  <div class="item danger">Descartar</div>
+                </div>
+              </div>
+            </div>
+            <div class="gesture-overlay">
+              <div class="finger-touch" style="left: 48px; top: 60px;"></div>
+              <div class="gesture-arrow" style="left: 88px; top: 64px; font-size: 9px; letter-spacing: 0.12em;">300ms</div>
+            </div>
+          </div>
+          <div class="g-card-body">
+            <div class="g-card-num">Gesto 03</div>
+            <h3>Long-press · opções</h3>
+            <p class="what">Toque sustentado revela menu de ações secundárias · escalar, atribuir, copiar link. Cris embedding pattern (β.3) também usa este gesto para abrir Sheet no contexto do item.</p>
+            <span class="haptic">háptico · light · ao atingir 300ms</span>
+            <div class="spec">
+              <code>duração</code> · 300–500ms<br>
+              <code>tolerância</code> · 8px de movimento<br>
+              <code>preview</code> · sublinhado visual aos 200ms<br>
+              <code>cancel</code> · soltar ou mover além
+            </div>
+          </div>
+        </div>
+
+        <!-- 04 pull-down sheet -->
+        <div class="g-card">
+          <div class="g-card-mock">
+            <div class="phone">
+              <div class="notch"></div>
+              <div class="screen">
+                <div class="phone-status"><span>09:42</span><span class="sigs"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
+                <div class="phone-content">
+                  <div style="font-family:var(--font-pulso-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);font-weight:700;margin-bottom:8px;">CASO 248</div>
+                  <div style="font-size:11px;color:var(--fg-strong);font-weight:600;margin-bottom:4px;">Escalada coordenada</div>
+                  <div style="font-size:9.5px;color:var(--fg-muted);line-height:1.5;">+62% menções em 4h · 14 perfis verificados amplificam. Cluster X reincidente do CASO 218.</div>
+                </div>
+                <div class="bottom-sheet">
+                  <div class="grabber"></div>
+                  <div class="title">Próximas ações</div>
+                  <div class="btn">Elevar tier · atenção</div>
+                  <div class="btn ghost">Pingar tier 2</div>
+                  <div class="btn ghost">Publicar nota</div>
+                </div>
+              </div>
+            </div>
+            <div class="gesture-overlay">
+              <div class="finger-touch" style="left: 92px; top: 240px;"></div>
+              <div class="gesture-trail" style="left: 100px; top: 250px; width: 70px; transform: rotate(-90deg); transform-origin: left center;"></div>
+              <div class="gesture-arrow" style="left: 95px; top: 180px; font-size: 14px;">↑</div>
+            </div>
+          </div>
+          <div class="g-card-body">
+            <div class="g-card-num">Gesto 04</div>
+            <h3>Drag bottom-sheet</h3>
+            <p class="what">Sheet inferior com grabber visível · operador arrasta para expandir/colapsar · três alturas (peek 25% · half 55% · full 90%). Detents previsíveis · scroll dentro só na altura full.</p>
+            <span class="haptic">háptico · light · ao trocar de detent</span>
+            <div class="spec">
+              <code>detents</code> · 25% · 55% · 90%<br>
+              <code>velocity-flick</code> · 0.6 px/ms pula detent<br>
+              <code>grabber</code> · 32×4px · margem 10px<br>
+              <code>swipe-down-bottom</code> · fecha
+            </div>
+          </div>
+        </div>
+
+        <!-- 05 two-finger contextual -->
+        <div class="g-card">
+          <div class="g-card-mock">
+            <div class="phone">
+              <div class="notch"></div>
+              <div class="screen">
+                <div class="phone-status"><span>09:42</span><span class="sigs"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
+                <div class="phone-content">
+                  <div style="font-family:var(--font-pulso-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);font-weight:700;margin-bottom:6px;">SELECIONAR · 3</div>
+                  <div class="mini-card" style="border-color: var(--primary); background: color-mix(in oklab, var(--primary) 6%, transparent);">
+                    <div class="head"><span class="glyph crit">●</span><span class="lbl">CRÍTICO</span><span class="ts" style="color:var(--primary);">✓</span></div>
+                    <div class="title">CASO 248</div>
+                  </div>
+                  <div class="mini-card" style="border-color: var(--primary); background: color-mix(in oklab, var(--primary) 6%, transparent);">
+                    <div class="head"><span class="glyph att">◆</span><span class="lbl">ATENÇÃO</span><span class="ts" style="color:var(--primary);">✓</span></div>
+                    <div class="title">CASO 252</div>
+                  </div>
+                  <div class="mini-card" style="border-color: var(--primary); background: color-mix(in oklab, var(--primary) 6%, transparent);">
+                    <div class="head"><span class="glyph mon">○</span><span class="lbl">MONITOR</span><span class="ts" style="color:var(--primary);">✓</span></div>
+                    <div class="title">CASO 250</div>
+                  </div>
+                </div>
+                <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 10px 14px; background: var(--primary); color: var(--primary-foreground); display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 600;">
+                  <span style="font-family:var(--font-pulso-mono);font-size:13px;">3</span>
+                  <span>selecionados</span>
+                  <span style="margin-left:auto;font-family:var(--font-pulso-mono);font-size:9.5px;letter-spacing:0.06em;">AÇÕES ↑</span>
+                </div>
+              </div>
+            </div>
+            <div class="gesture-overlay">
+              <div class="finger-touch" style="left: 38px; top: 90px;"></div>
+              <div class="finger-touch" style="left: 38px; top: 130px;"></div>
+              <div class="gesture-arrow" style="left: 85px; top: 105px; font-size: 9px; letter-spacing: 0.12em;">2-DEDOS</div>
+            </div>
+          </div>
+          <div class="g-card-body">
+            <div class="g-card-num">Gesto 05</div>
+            <h3>Two-finger select</h3>
+            <p class="what">Dois dedos arrastando verticalmente sobre lista · seleção múltipla rápida. Usa o pattern multi-select da v2 · 4.3 · SelectionBar aparece quando começa.</p>
+            <span class="haptic">háptico · light · a cada item selecionado</span>
+            <div class="spec">
+              <code>min-pointers</code> · 2<br>
+              <code>min-distance</code> · 24px vertical<br>
+              <code>cancela-com</code> · 3º dedo<br>
+              <code>fallback-desktop</code> · Shift+click range
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hit target -->
+    <section class="section">
+      <h2 class="section-h1">Hit target adaptativo</h2>
+      <p class="section-desc">44px é piso. Em alvo crítico · 48px. Em ação cancelável (dismiss, ghost) · 32px é aceitável. Token <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">--touch-target</code> da v2 · 1.3 fica como default · γ.1 adiciona variants.</p>
+
+      <div class="hit-target">
+        <div class="hit-rows">
+          <div class="hit-row">
+            <div class="hit-circle std"><div class="inner">A</div></div>
+            <div class="px">44 × 44</div>
+            <div class="label">DEFAULT</div>
+            <p class="what">Toda ação primária e secundária · botões, chips, toggles, links em lista.</p>
+          </div>
+          <div class="hit-row">
+            <div class="hit-circle crit"><div class="inner">!</div></div>
+            <div class="px">48 × 48</div>
+            <div class="label">CRÍTICO</div>
+            <p class="what">Ações irreversíveis ou de alta consequência · escalar, dispatch externo, aceitar recomendação decisiva.</p>
+          </div>
+          <div class="hit-row">
+            <div class="hit-circle cancel"><div class="inner">×</div></div>
+            <div class="px">32 × 32</div>
+            <div class="label">DISMISS</div>
+            <p class="what">Botões de dispensar/fechar inline · ghost actions. Reservado para não-críticos com alternativa via gesto.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Thumb zones -->
+    <section class="section">
+      <h2 class="section-h1">Zona segura do polegar</h2>
+      <p class="section-desc">Smartphone em uma mão = polegar alcança ~58% da tela confortavelmente. Ações primárias ficam no terço inferior · navegação secundária no meio · indicadores e títulos no topo. Ações destrutivas <strong>nunca</strong> no canto inferior direito · zona de scroll natural.</p>
+
+      <div class="thumb-pane">
+        <div class="thumb-phone">
+          <div class="screen">
+            <div class="zone hard"><span>Difícil</span><span class="px">0–30%</span></div>
+            <div class="zone ok"><span>Ok</span><span class="px">30–58%</span></div>
+            <div class="zone easy"><span>Polegar</span><span class="px">58–100%</span></div>
+          </div>
+        </div>
+
+        <div class="thumb-notes">
+          <h4>Mapeamento por intensidade</h4>
+          <div class="sub">vertical · pontos do polegar para mão dominante</div>
+
+          <div class="zone-row">
+            <span class="name easy">Polegar</span>
+            <p><strong>Onde a ação vive.</strong> CTAs primários · bottom-sheet · ações destrutivas inversas (cancelar). É também onde fica o sticky <strong>SelectionBar</strong> em multi-select.</p>
+          </div>
+          <div class="zone-row">
+            <span class="name ok">Ok</span>
+            <p><strong>Navegação e conteúdo.</strong> Lista principal · cards de alerta · navegação por abas (tab bar fica no rodapé deste zone). Tudo aqui é interativo mas não urgente.</p>
+          </div>
+          <div class="zone-row">
+            <span class="name hard">Difícil</span>
+            <p><strong>Status e contexto.</strong> Header · status bar · indicador de freshness. Nada destrutivo aqui · operador esticando o polegar é candidato a slip.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Don't / Do -->
+    <section class="section">
+      <h2 class="section-h1">Don't / Do</h2>
+      <p class="section-desc">Erros típicos ao desenhar gestos em produto de crise.</p>
+
+      <div class="rules">
+        <div class="rule dont">
+          <div class="tag">✕ Não usar gesto como única affordance</div>
+          <p>Swipe-to-ack precisa ter botão "Ack" no long-press menu também. Gesto é atalho · não é a única forma. Acessibilidade pede equivalência.</p>
+          <div class="note">Em screen reader · gesto não é descoberto · ação precisa estar no menu rotular.</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Feedback háptico em todo gesto bem-sucedido</div>
+          <p>Sem haptic, gesto fica em dúvida. Operador deveria sentir que a ação registrou antes de a UI confirmar visualmente.</p>
+          <div class="note">Haptic é <em>confirmação</em>, não decoração. <code>iOS</code> usa <code>UIImpactFeedbackGenerator</code>, Android usa <code>HapticFeedbackConstants</code>.</div>
+        </div>
+
+        <div class="rule dont">
+          <div class="tag">✕ Não inventar sexto gesto</div>
+          <p>Pinch-to-zoom em alerta? Double-tap para escalar? Não. Catálogo é fechado · operador aprende uma vez e usa em qualquer tela do Crisis Monitor.</p>
+          <div class="note">Gesto novo passa por RFC do council · com pesquisa de uso e teste em 5+ operadores.</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Cancelamento sempre disponível</div>
+          <p>Todo gesto tem janela de cancel · soltar antes do threshold, mover além da tolerância, ou desfazer com toast de 5s. Erro de toque em movimento é regra · não exceção.</p>
+          <div class="note">Toast de undo aparece no <strong>bottom</strong> da tela · zona do polegar · tappable em 44px.</div>
+        </div>
+
+        <div class="rule dont">
+          <div class="tag">✕ Não esconder ação destrutiva atrás de gesto rápido</div>
+          <p>Swipe único não deveria <em>deletar</em> sem confirmação. Em crise, slip vira incidente. Swipe-to-ack é seguro (reversível) · swipe-to-delete não deveria existir.</p>
+          <div class="note">Ação destrutiva fica no long-press menu · com label "Descartar" e cor destrutiva.</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Aderir ao reduced-motion</div>
+          <p>Operador com <code>prefers-reduced-motion</code> recebe gestos sem animação · só a ação. Haptic continua · vibração não é animação.</p>
+          <div class="note">Herdado da v2 · 1.5. Reduced motion não é a11y opcional · é contrato.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dependencies -->
+    <section class="section">
+      <h2 class="section-h1">Dependências</h2>
+      <p class="section-desc">Como γ.1 se encaixa.</p>
+
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 26px;">
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">α.3</span> &nbsp;<a href="rhythm.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Rhythm</a> · cadence vertical informa altura dos detents da bottom-sheet.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">1.3</span> &nbsp;<a href="accessibility-focus-keyboard.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Keyboard map</a> · cada gesto tem atalho equivalente em desktop · ⌥A (ack), ⌘E (escalar).</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">1.5</span> &nbsp;<a href="accessibility-reduced-motion.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Reduced motion</a> · transições de detent/swipe respeitam preferência.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">4.3</span> &nbsp;<a href="multi-select.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Multi-select</a> · two-finger select alimenta o mesmo SelectionBar.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">β.3</span> &nbsp;<a href="ai-embedding.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Embedding</a> · long-press abre Cris Sheet no contexto do item.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">γ.2</span> &nbsp;<a href="mobile-offline.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Offline-first</a> · pull-to-refresh ganha estado especial offline · "fila local · X pendentes".</li>
+        </ul>
+      </div>
+    </section>
+
+    <div style="height:96px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Adoption Metrics & Performance Budget</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* Headline metric grid */
+.hm-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 1100px) { .hm-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .hm-grid { grid-template-columns: 1fr; } }
+.hm-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px 18px 14px; }
+.hm-label { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 600; }
+.hm-value { font-family: var(--font-pulso-mono); font-size: 30px; font-weight: 700; color: var(--fg-strong); margin-top: 6px; line-height: 1; letter-spacing: -0.02em; }
+.hm-target { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); margin-top: 6px; }
+.hm-target .ok { color: var(--success); font-weight: 600; }
+.hm-target .warn { color: var(--risk-attention-text); font-weight: 600; }
+.hm-bar { height: 4px; background: var(--muted); border-radius: 999px; overflow: hidden; margin-top: 10px; }
+.hm-bar > div { height: 100%; border-radius: 999px; }
+.hm-bar > div.ok { background: var(--success); }
+.hm-bar > div.warn { background: var(--risk-attention); }
+
+/* Coverage by page */
+.cov-tbl { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.cov-tbl th, .cov-tbl td { padding: 11px 14px; border-bottom: 1px solid var(--border-faint); text-align: left; vertical-align: middle; }
+.cov-tbl thead th { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; background: var(--surface-2); }
+.cov-tbl tr:last-child td { border-bottom: none; }
+.cov-tbl td.mono { font-family: var(--font-pulso-mono); font-size: 11.5px; color: var(--fg-strong); }
+.cov-tbl td.center { text-align: center; }
+.bar-cell { display: flex; align-items: center; gap: 10px; min-width: 200px; }
+.bar-cell .b { flex: 1; height: 6px; background: var(--muted); border-radius: 999px; overflow: hidden; }
+.bar-cell .b > div { height: 100%; border-radius: 999px; }
+.bar-cell .b > div.ok { background: var(--success); }
+.bar-cell .b > div.warn { background: var(--risk-attention); }
+.bar-cell .b > div.bad { background: var(--destructive); }
+.bar-cell .pct { font-family: var(--font-pulso-mono); font-size: 12px; font-weight: 600; color: var(--fg); min-width: 42px; text-align: right; }
+
+/* Top components chart */
+.comp-list { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 8px 0; }
+.comp-row { padding: 9px 18px; display: grid; grid-template-columns: 24px 160px 1fr 80px; gap: 14px; align-items: center; }
+.comp-row .rank { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); font-weight: 600; }
+.comp-row .name { font-size: 13px; color: var(--fg-strong); font-weight: 500; }
+.comp-row .bar { height: 8px; background: var(--muted); border-radius: 999px; overflow: hidden; }
+.comp-row .bar > div { height: 100%; background: var(--primary); border-radius: 999px; }
+.comp-row .count { font-family: var(--font-pulso-mono); font-size: 11.5px; color: var(--fg-secondary); text-align: right; }
+
+/* Unused list */
+.unused-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+.unused-card { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--risk-attention); border-radius: var(--radius-sm); padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+.unused-card .n { font-size: 13px; font-weight: 500; color: var(--fg-strong); }
+.unused-card .m { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); }
+
+/* Bundle budget */
+.bun-block { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 24px 26px; }
+.bun-bar-track { position: relative; height: 28px; background: var(--surface-2); border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border-faint); margin-top: 14px; }
+.bun-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(90deg, var(--success) 0%, var(--success) 70%, var(--risk-attention) 88%, var(--destructive) 100%); border-radius: var(--radius-sm) 0 0 var(--radius-sm); display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; color: var(--card); font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 700; }
+.bun-bar-marker { position: absolute; top: -6px; bottom: -6px; width: 2px; background: var(--fg-strong); }
+.bun-bar-marker .l { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-strong); white-space: nowrap; font-weight: 600; }
+.bun-stack { margin-top: 28px; display: grid; grid-template-columns: 1fr; gap: 6px; }
+.bun-row { display: grid; grid-template-columns: 180px 1fr 80px; gap: 14px; align-items: center; }
+.bun-row .l { font-size: 12.5px; color: var(--fg); }
+.bun-row .l .small { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); display: block; margin-top: 1px; }
+.bun-row .b { height: 10px; background: var(--muted); border-radius: 999px; overflow: hidden; }
+.bun-row .b > div { height: 100%; border-radius: 999px; }
+.bun-row .b > div.c1 { background: var(--chart-1, var(--primary)); }
+.bun-row .b > div.c2 { background: var(--chart-2); }
+.bun-row .b > div.c3 { background: var(--chart-3); }
+.bun-row .b > div.c4 { background: var(--chart-4); }
+.bun-row .b > div.c5 { background: var(--chart-5); }
+.bun-row .b > div.c6 { background: var(--chart-6); }
+.bun-row .b > div.c7 { background: var(--chart-7); }
+.bun-row .kb { font-family: var(--font-pulso-mono); font-size: 12px; font-weight: 600; color: var(--fg-strong); text-align: right; }
+
+/* Perf budgets per template */
+.perf-tbl { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.perf-tbl th, .perf-tbl td { padding: 11px 14px; border-bottom: 1px solid var(--border-faint); text-align: left; }
+.perf-tbl thead th { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; background: var(--surface-2); }
+.perf-tbl tr:last-child td { border-bottom: none; }
+.perf-tbl td.center { text-align: center; }
+.perf-tbl td.mono { font-family: var(--font-pulso-mono); font-size: 11.5px; color: var(--fg); }
+.perf-cell { display: inline-flex; align-items: center; gap: 6px; }
+.perf-cell .dot { width: 8px; height: 8px; border-radius: 50%; }
+.perf-cell .dot.ok { background: var(--success); }
+.perf-cell .dot.warn { background: var(--risk-attention); }
+.perf-cell .dot.bad { background: var(--destructive); }
+
+/* Audit script code */
+.code { background: var(--surface-2); border: 1px solid var(--border-faint); border-radius: var(--radius-md); padding: 16px 18px; font-family: var(--font-pulso-mono); font-size: 11.5px; line-height: 1.8; color: var(--fg); overflow-x: auto; white-space: pre; }
+.code .k { color: var(--primary); }
+.code .v { color: var(--success); }
+.code .c { color: var(--fg-subtle); }
+.code .s { color: var(--risk-attention-text); }
+
+/* CI gates */
+.gate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 800px) { .gate-grid { grid-template-columns: 1fr; } }
+.gate { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--success); border-radius: var(--radius-md); padding: 16px 20px; }
+.gate.warn { border-left-color: var(--risk-attention); }
+.gate .head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.gate .name { font-size: 14.5px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; }
+.gate .status { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 8px; border-radius: var(--radius-xs); font-weight: 600; }
+.gate .status.pass { background: color-mix(in oklab, var(--success) 14%, transparent); color: var(--success); }
+.gate .status.fail { background: color-mix(in oklab, var(--destructive) 14%, transparent); color: var(--destructive); }
+.gate .status.warn { background: color-mix(in oklab, var(--risk-attention) 14%, transparent); color: var(--risk-attention-text); }
+.gate .desc { font-size: 12.5px; color: var(--fg-muted); line-height: 1.55; }
+.gate .meta { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); margin-top: 8px; }
+.gate .meta strong { color: var(--fg-strong); }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Governance · Adoption</div>
+    <h1 class="page-title">Adoption Metrics &amp; Performance Budget</h1>
+    <p class="page-sub">Não medimos uso = não sabemos onde investir. Telemetria mínima abre conversa baseada em dado, não opinião. Snapshot atual abaixo · atualizado por audit script no CI.</p>
+
+    <!-- ── Headline metrics ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Snapshot · 17 mai 2026</h2>
+      <p class="section-desc">Quatro métricas-chave que abrimos para o time todo. Verde = no budget, amarelo = aproximando, vermelho = fora.</p>
+      <div class="hm-grid">
+        <div class="hm-card">
+          <div class="hm-label">Uso de tokens</div>
+          <div class="hm-value">97<span style="font-size:18px;color:var(--fg-muted);">%</span></div>
+          <div class="hm-target">target ≥ 95% · <span class="ok">+2pp</span></div>
+          <div class="hm-bar"><div class="ok" style="width:97%;"></div></div>
+        </div>
+        <div class="hm-card">
+          <div class="hm-label">Bundle gzip</div>
+          <div class="hm-value">72<span style="font-size:18px;color:var(--fg-muted);">KB</span></div>
+          <div class="hm-target">budget &lt; 80 KB · <span class="ok">90% usado</span></div>
+          <div class="hm-bar"><div class="ok" style="width:90%;"></div></div>
+        </div>
+        <div class="hm-card">
+          <div class="hm-label">LCP · p75</div>
+          <div class="hm-value">1.4<span style="font-size:18px;color:var(--fg-muted);">s</span></div>
+          <div class="hm-target">budget ≤ 2.0s · <span class="ok">no verde</span></div>
+          <div class="hm-bar"><div class="ok" style="width:70%;"></div></div>
+        </div>
+        <div class="hm-card">
+          <div class="hm-label">A11y CI · contraste AA</div>
+          <div class="hm-value">100<span style="font-size:18px;color:var(--fg-muted);">%</span></div>
+          <div class="hm-target">target 100% · <span class="ok">passou em todas</span></div>
+          <div class="hm-bar"><div class="ok" style="width:100%;"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Coverage por tela ─────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Cobertura por tela · % de DOM usando tokens Pulso</h2>
+      <p class="section-desc">Script roda em cada PR · escaneia DOM renderizado, marca cor / espaçamento / tipografia. Verde = ≥95% · Amarelo = 80–95% · Vermelho = abaixo.</p>
+      <table class="cov-tbl">
+        <thead>
+          <tr>
+            <th style="width:30%;">Tela / Template</th>
+            <th style="width:14%;">Cor</th>
+            <th style="width:14%;">Spacing</th>
+            <th style="width:14%;">Typography</th>
+            <th style="width:14%;">Radius</th>
+            <th style="width:14%;">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Dashboard</td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:98%;"></div></div><span class="pct">98%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><strong style="font-family:var(--font-pulso-mono);color:var(--success);">99%</strong></td>
+          </tr>
+          <tr>
+            <td>Crisis Detail</td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:99%;"></div></div><span class="pct">99%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:96%;"></div></div><span class="pct">96%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><strong style="font-family:var(--font-pulso-mono);color:var(--success);">99%</strong></td>
+          </tr>
+          <tr>
+            <td>Settings</td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><strong style="font-family:var(--font-pulso-mono);color:var(--success);">100%</strong></td>
+          </tr>
+          <tr>
+            <td>Auth · Login / MFA</td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:97%;"></div></div><span class="pct">97%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><strong style="font-family:var(--font-pulso-mono);color:var(--success);">99%</strong></td>
+          </tr>
+          <tr>
+            <td>Onboarding</td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:98%;"></div></div><span class="pct">98%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:94%;"></div></div><span class="pct">94%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><strong style="font-family:var(--font-pulso-mono);color:var(--success);">98%</strong></td>
+          </tr>
+          <tr>
+            <td>Search</td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:99%;"></div></div><span class="pct">99%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:96%;"></div></div><span class="pct">96%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><strong style="font-family:var(--font-pulso-mono);color:var(--success);">99%</strong></td>
+          </tr>
+          <tr>
+            <td>Notifications</td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:97%;"></div></div><span class="pct">97%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><strong style="font-family:var(--font-pulso-mono);color:var(--success);">99%</strong></td>
+          </tr>
+          <tr>
+            <td>Audit Log</td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><strong style="font-family:var(--font-pulso-mono);color:var(--success);">100%</strong></td>
+          </tr>
+          <tr>
+            <td>Landing page · pública</td>
+            <td><div class="bar-cell"><div class="b"><div class="warn" style="width:84%;"></div></div><span class="pct">84%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="warn" style="width:88%;"></div></div><span class="pct">88%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:97%;"></div></div><span class="pct">97%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:95%;"></div></div><span class="pct">95%</span></div></td>
+            <td><strong style="font-family:var(--font-pulso-mono);color:var(--risk-attention-text);">91%</strong></td>
+          </tr>
+          <tr>
+            <td>Compare · WIP</td>
+            <td><div class="bar-cell"><div class="b"><div class="bad" style="width:62%;"></div></div><span class="pct">62%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="warn" style="width:78%;"></div></div><span class="pct">78%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:96%;"></div></div><span class="pct">96%</span></div></td>
+            <td><div class="bar-cell"><div class="b"><div class="ok" style="width:100%;"></div></div><span class="pct">100%</span></div></td>
+            <td><strong style="font-family:var(--font-pulso-mono);color:var(--destructive);">84%</strong></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="section-desc" style="margin-top:10px;font-size:12.5px;">Landing e Compare estão fora do verde · ação aberta: <strong>RFC-0029</strong> moverá os 16 hex literais restantes da landing para tokens semantic; Compare é WIP, conformidade exigida antes do GA.</p>
+    </section>
+
+    <!-- ── Top components ─────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Top componentes · uso no Crisis Monitor</h2>
+      <p class="section-desc">Contagem de uso por componente · base, instâncias em JSX (não rodada em runtime).</p>
+      <div class="comp-list">
+        <div class="comp-row"><div class="rank">01</div><div class="name">Button</div><div class="bar"><div style="width:100%;"></div></div><div class="count">1.842 usos</div></div>
+        <div class="comp-row"><div class="rank">02</div><div class="name">Badge</div><div class="bar"><div style="width:78%;"></div></div><div class="count">1.437</div></div>
+        <div class="comp-row"><div class="rank">03</div><div class="name">Card</div><div class="bar"><div style="width:64%;"></div></div><div class="count">1.182</div></div>
+        <div class="comp-row"><div class="rank">04</div><div class="name">Input</div><div class="bar"><div style="width:52%;"></div></div><div class="count">956</div></div>
+        <div class="comp-row"><div class="rank">05</div><div class="name">Avatar</div><div class="bar"><div style="width:44%;"></div></div><div class="count">812</div></div>
+        <div class="comp-row"><div class="rank">06</div><div class="name">Tooltip</div><div class="bar"><div style="width:39%;"></div></div><div class="count">718</div></div>
+        <div class="comp-row"><div class="rank">07</div><div class="name">Chip</div><div class="bar"><div style="width:36%;"></div></div><div class="count">659</div></div>
+        <div class="comp-row"><div class="rank">08</div><div class="name">Table</div><div class="bar"><div style="width:24%;"></div></div><div class="count">443</div></div>
+        <div class="comp-row"><div class="rank">09</div><div class="name">Tabs</div><div class="bar"><div style="width:22%;"></div></div><div class="count">412</div></div>
+        <div class="comp-row"><div class="rank">10</div><div class="name">Dialog</div><div class="bar"><div style="width:18%;"></div></div><div class="count">331</div></div>
+      </div>
+    </section>
+
+    <!-- ── Não usados ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Componentes raramente usados</h2>
+      <p class="section-desc">Menos de 10 instâncias. Sinal de alerta — ou o componente é overkill, ou foi mal documentado, ou o produto não precisa. RFC pendente para cada um decidir.</p>
+      <div class="unused-grid">
+        <div class="unused-card"><span class="n">Accordion</span><span class="m">6 usos · revisar</span></div>
+        <div class="unused-card"><span class="n">Slider</span><span class="m">4 usos · revisar</span></div>
+        <div class="unused-card"><span class="n">Avatar Group</span><span class="m">3 usos · revisar</span></div>
+        <div class="unused-card"><span class="n">Date Picker</span><span class="m">8 usos · ok</span></div>
+        <div class="unused-card"><span class="n">Progress</span><span class="m">7 usos · ok</span></div>
+        <div class="unused-card"><span class="n">Collapsible Card</span><span class="m">2 usos · candidato a remover</span></div>
+      </div>
+    </section>
+
+    <!-- ── Bundle size ─────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Bundle size · budget &lt; 80 KB gzip</h2>
+      <p class="section-desc">DS completo tree-shaken · medido com <code>esbuild --bundle --minify</code> e <code>gzip-size</code>. Cresce em PR? Bot comenta. Estoura budget? Bloqueia merge.</p>
+      <div class="bun-block">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+          <div>
+            <div style="font-family:var(--font-pulso-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);font-weight:600;">total · v2.4.1</div>
+            <div style="font-family:var(--font-pulso-mono);font-size:32px;font-weight:700;color:var(--fg-strong);letter-spacing:-0.02em;line-height:1;margin-top:6px;">71.8 <span style="font-size:18px;color:var(--fg-muted);">KB</span></div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-family:var(--font-pulso-mono);font-size:11px;color:var(--fg-subtle);">budget</div>
+            <div style="font-family:var(--font-pulso-mono);font-size:14px;color:var(--fg);">80.0 KB · <span style="color:var(--success);">89.8% usado</span></div>
+          </div>
+        </div>
+        <div class="bun-bar-track">
+          <div class="bun-bar-fill" style="width:89.8%;">71.8 KB</div>
+          <div class="bun-bar-marker" style="left:75%;"><span class="l">⚠ warn @ 75%</span></div>
+          <div class="bun-bar-marker" style="right:0;left:auto;"><span class="l" style="right:0;left:auto;transform:none;">budget · 80 KB</span></div>
+        </div>
+
+        <h3 class="section-h2" style="margin-top:34px;margin-bottom:8px;">Composição</h3>
+        <div class="bun-stack">
+          <div class="bun-row">
+            <div class="l">Charts<span class="small">primitives + recipes</span></div>
+            <div class="b"><div class="c1" style="width:36%;"></div></div>
+            <div class="kb">26.1 KB</div>
+          </div>
+          <div class="bun-row">
+            <div class="l">Form atoms<span class="small">input, select, checkbox, radio, switch…</span></div>
+            <div class="b"><div class="c2" style="width:18%;"></div></div>
+            <div class="kb">12.8 KB</div>
+          </div>
+          <div class="bun-row">
+            <div class="l">Organisms<span class="small">table, tabs, dialog, dropdown, sheet…</span></div>
+            <div class="b"><div class="c3" style="width:15%;"></div></div>
+            <div class="kb">10.7 KB</div>
+          </div>
+          <div class="bun-row">
+            <div class="l">Tokens + globals<span class="small">CSS custom properties + base styles</span></div>
+            <div class="b"><div class="c4" style="width:12%;"></div></div>
+            <div class="kb">8.4 KB</div>
+          </div>
+          <div class="bun-row">
+            <div class="l">Atoms<span class="small">button, badge, chip, avatar, alert, tooltip…</span></div>
+            <div class="b"><div class="c5" style="width:9%;"></div></div>
+            <div class="kb">6.5 KB</div>
+          </div>
+          <div class="bun-row">
+            <div class="l">Patterns<span class="small">risk levels, score ring, sentiment bar, mention card</span></div>
+            <div class="b"><div class="c6" style="width:6%;"></div></div>
+            <div class="kb">4.3 KB</div>
+          </div>
+          <div class="bun-row">
+            <div class="l">Helpers + utils<span class="small">localization, motion, focus, a11y</span></div>
+            <div class="b"><div class="c7" style="width:4%;"></div></div>
+            <div class="kb">3.0 KB</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Perf budget por template ─────── -->
+    <section class="section">
+      <h2 class="section-h1">Performance budget por template</h2>
+      <p class="section-desc">LCP, CLS e INP medidos em produção (CrUX p75) por template. Templates fora do verde abrem incidente.</p>
+      <table class="perf-tbl">
+        <thead>
+          <tr>
+            <th style="width:24%;">Template</th>
+            <th style="width:19%;">LCP · p75</th>
+            <th style="width:19%;">CLS · p75</th>
+            <th style="width:19%;">INP · p75</th>
+            <th style="width:19%;">JS first-load</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Dashboard</td>
+            <td><span class="perf-cell"><span class="dot ok"></span>1.3s <span class="mono" style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 2.0s</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>0.04 <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 0.10</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>180ms <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 200ms</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>148 KB <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 180 KB</span></span></td>
+          </tr>
+          <tr>
+            <td>Crisis Detail</td>
+            <td><span class="perf-cell"><span class="dot ok"></span>1.6s <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 2.0s</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>0.06 <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 0.10</span></span></td>
+            <td><span class="perf-cell"><span class="dot warn"></span>196ms <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 200ms</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>164 KB <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 180 KB</span></span></td>
+          </tr>
+          <tr>
+            <td>Settings</td>
+            <td><span class="perf-cell"><span class="dot ok"></span>1.1s <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 2.0s</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>0.02 <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 0.10</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>112ms <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 200ms</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>104 KB <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 180 KB</span></span></td>
+          </tr>
+          <tr>
+            <td>Auth · Login</td>
+            <td><span class="perf-cell"><span class="dot ok"></span>0.8s <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 1.5s</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>0.01 <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 0.10</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>74ms <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 200ms</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>62 KB <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 100 KB</span></span></td>
+          </tr>
+          <tr>
+            <td>Search</td>
+            <td><span class="perf-cell"><span class="dot ok"></span>1.2s <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 2.0s</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>0.05 <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 0.10</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>148ms <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 200ms</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>132 KB <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 180 KB</span></span></td>
+          </tr>
+          <tr>
+            <td>Notifications</td>
+            <td><span class="perf-cell"><span class="dot ok"></span>1.0s <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 2.0s</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>0.03 <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 0.10</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>98ms <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 200ms</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>108 KB <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 180 KB</span></span></td>
+          </tr>
+          <tr>
+            <td>Audit Log</td>
+            <td><span class="perf-cell"><span class="dot warn"></span>1.9s <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 2.0s</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>0.04 <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 0.10</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>176ms <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 200ms</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>156 KB <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 180 KB</span></span></td>
+          </tr>
+          <tr>
+            <td>Onboarding</td>
+            <td><span class="perf-cell"><span class="dot ok"></span>1.4s <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 2.0s</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>0.07 <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 0.10</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>136ms <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 200ms</span></span></td>
+            <td><span class="perf-cell"><span class="dot ok"></span>122 KB <span style="color:var(--fg-subtle);font-family:var(--font-pulso-mono);font-size:11px;">/ 180 KB</span></span></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="section-desc" style="margin-top:10px;font-size:12.5px;"><strong>Audit Log</strong> · LCP a 1.9s aproximando o limite. Causa: render inicial das 200 linhas. Em curso: virtualização para reduzir ~30%. Owner: @rafa.e.</p>
+    </section>
+
+    <!-- ── Audit script ────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Audit script · como medimos</h2>
+      <p class="section-desc">Roda em CI · uma pasta, três outputs: token coverage, bundle size, perf budget. Tudo dump em <code>artifacts/audit.json</code>; bot comenta no PR.</p>
+      <pre class="code"><span class="c"># package.json · scripts</span>
+<span class="k">"audit:tokens"</span>: <span class="v">"pulso-audit tokens --root src --report json"</span>,
+<span class="k">"audit:bundle"</span>: <span class="v">"size-limit --json"</span>,
+<span class="k">"audit:perf"</span>:   <span class="v">"node scripts/perf-budget.mjs"</span>,
+<span class="k">"audit"</span>:        <span class="v">"npm-run-all audit:tokens audit:bundle audit:perf"</span>
+
+<span class="c"># .github/workflows/audit.yml</span>
+- run: npm run audit
+- uses: pulso/audit-action@v1
+  with:
+    artifact: artifacts/audit.json
+    fail-on: <span class="v">coverage&lt;0.95</span>, <span class="v">bundle&gt;80kb</span>, <span class="v">lcp&gt;2s</span></pre>
+    </section>
+
+    <!-- ── Gates ─────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">CI gates · o que bloqueia merge</h2>
+      <p class="section-desc">Estados atuais do branch <code>main</code>. Vermelho = bloqueia; amarelo = exige aprovação extra do council; verde = passa.</p>
+      <div class="gate-grid">
+        <div class="gate">
+          <div class="head">
+            <div class="name">Token coverage</div>
+            <span class="status pass">PASS</span>
+          </div>
+          <div class="desc">Cada tela do produto deve ter ≥ 95% de uso de tokens.</div>
+          <div class="meta">Atual <strong>97%</strong> · 9 / 10 telas no verde · landing aberta em RFC-0029.</div>
+        </div>
+        <div class="gate">
+          <div class="head">
+            <div class="name">Bundle size</div>
+            <span class="status pass">PASS</span>
+          </div>
+          <div class="desc">DS completo tree-shaken &lt; 80 KB gzip. Bot comenta delta em cada PR.</div>
+          <div class="meta">Atual <strong>71.8 KB</strong> · headroom 8.2 KB · +0.4 KB no último release.</div>
+        </div>
+        <div class="gate">
+          <div class="head">
+            <div class="name">A11y · contraste AA</div>
+            <span class="status pass">PASS</span>
+          </div>
+          <div class="desc"><code>axe-core</code> roda nas 3 templates principais · zero violation crítica permitida.</div>
+          <div class="meta">Atual <strong>100%</strong> · 412 / 412 combinações no verde.</div>
+        </div>
+        <div class="gate warn">
+          <div class="head">
+            <div class="name">LCP · p75 produção</div>
+            <span class="status warn">WATCH</span>
+          </div>
+          <div class="desc">CrUX p75 ≤ 2.0s por template. 1 template aproximando o limite.</div>
+          <div class="meta">Audit Log a <strong>1.9s</strong> · ação em curso · virtualização em sprint 22.</div>
+        </div>
+        <div class="gate">
+          <div class="head">
+            <div class="name">No deprecated tokens</div>
+            <span class="status pass">PASS</span>
+          </div>
+          <div class="desc">Lint rule <code>pulso/no-deprecated-token</code> aciona warn → error em PR.</div>
+          <div class="meta">Atual <strong>0</strong> ocorrências · codemod aplicado em 14 mai.</div>
+        </div>
+        <div class="gate">
+          <div class="head">
+            <div class="name">Visual regression</div>
+            <span class="status pass">PASS</span>
+          </div>
+          <div class="desc">Chromatic snapshot em cada PR. Mudança não declarada bloqueia merge.</div>
+          <div class="meta">Atual <strong>0</strong> diff sem aprovação · 1.842 stories cobertas.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Entregas ─────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Entregas · 5.4</h2>
+      <table class="cov-tbl">
+        <tbody>
+          <tr><td>Audit script · <code>pulso-audit</code> rodando token coverage por tela</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Top 10 componentes usados / não usados · relatório mensal</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Bundle size budget · &lt; 80 KB gzip, monitorado em CI</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>LCP / CLS / INP budget por template · medido via CrUX</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Dashboard interno · <strong>Governance · Adoption</strong></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

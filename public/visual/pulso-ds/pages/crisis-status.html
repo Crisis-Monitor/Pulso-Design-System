@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Crisis Status</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Patterns</div>
+    <h1 class="page-title">Crisis Status</h1>
+    <p class="page-sub">O status de um caso é um <strong>par</strong>: nível de risco (5 valores) + estado de fluxo (4 valores). Combinados, dão a tela inteira o seu tom emocional.</p>
+    <section class="section">
+      <h2 class="section-h1">Estados de fluxo</h2>
+      <table class="tokens">
+        <thead><tr><th>Estado</th><th>Significa</th><th>Cor</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Aberto</strong></td><td>Caso ativo, sendo monitorado</td><td><span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;background:var(--risk-monitor-bg);color:var(--risk-monitor-text);border-radius:999px;font-size:11px;font-weight:600;">● Aberto</span></td></tr>
+          <tr><td><strong>Em resposta</strong></td><td>Equipe atuando, comunicado em curso</td><td><span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;background:var(--primary-soft);color:var(--primary);border-radius:999px;font-size:11px;font-weight:600;">● Em resposta</span></td></tr>
+          <tr><td><strong>Contido</strong></td><td>Resposta enviada, monitorando ressaca</td><td><span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;background:var(--risk-stable-bg);color:var(--risk-stable-text);border-radius:999px;font-size:11px;font-weight:600;">● Contido</span></td></tr>
+          <tr><td><strong>Arquivado</strong></td><td>Sem nova atividade há 48h; lições registradas</td><td><span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;background:var(--muted);color:var(--fg-muted);border-radius:999px;font-size:11px;font-weight:600;">● Arquivado</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">Composição em header de caso</h2>
+      <div class="preview-row" style="display:block;padding:24px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <span style="font-family:var(--font-pulso-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);">#PLS-2026-014</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;background:var(--risk-attention-bg);color:var(--risk-attention-text);border:1px solid var(--risk-attention-border);border-radius:999px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;"><span style="width:6px;height:6px;border-radius:50%;background:var(--risk-attention);"></span>Attention</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;background:var(--primary-soft);color:var(--primary);border-radius:999px;font-size:11px;font-weight:600;">● Em resposta</span>
+        </div>
+        <div style="font-size:24px;font-weight:600;color:var(--fg-strong);letter-spacing:-0.01em;">Operação Água Nova</div>
+      </div>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">Combinações típicas</h2>
+      <p class="section-desc">Nem todo par faz sentido. <strong>Stable + Em resposta</strong> não existe — se está estável, não há resposta em curso.</p>
+      <table class="tokens">
+        <thead><tr><th>Nível ↓ / Fluxo →</th><th>Aberto</th><th>Em resposta</th><th>Contido</th><th>Arquivado</th></tr></thead>
+        <tbody>
+          <tr><td>Stable</td><td>—</td><td>—</td><td>•</td><td>•</td></tr>
+          <tr><td>Monitor</td><td>•</td><td>—</td><td>•</td><td>•</td></tr>
+          <tr><td>Attention</td><td>•</td><td>•</td><td>•</td><td>•</td></tr>
+          <tr><td>High</td><td>•</td><td>•</td><td>•</td><td>•</td></tr>
+          <tr><td>Critical</td><td>•</td><td>•</td><td>•</td><td>•</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

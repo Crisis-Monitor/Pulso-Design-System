@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Chip</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.pch {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-pulso-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1;
+  padding: 5px 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-strong);
+  background: var(--card);
+  color: var(--fg);
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-easing),
+    border-color var(--motion-duration-fast) var(--motion-easing),
+    color var(--motion-duration-fast) var(--motion-easing);
+}
+.pch:hover { background: var(--muted); border-color: var(--border-strong); }
+.pch:focus-visible { outline: var(--ring-width) solid var(--ring); outline-offset: var(--ring-offset); }
+
+/* Selected state — filter chip */
+.pch.is-active { background: var(--primary-soft); border-color: var(--primary-border); color: var(--primary); }
+.pch.is-active:hover { background: color-mix(in oklab, var(--primary-soft) 70%, var(--primary) 10%); }
+
+/* Removable */
+.pch-remove { width: 14px; height: 14px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; opacity: 0.5; transition: opacity var(--motion-duration-fast) var(--motion-easing); margin-left: 2px; margin-right: -2px; background: transparent; border: 0; padding: 0; color: inherit; }
+.pch:hover .pch-remove { opacity: 1; }
+.pch-remove:hover { background: color-mix(in oklab, currentColor 10%, transparent); opacity: 1; }
+.pch-remove svg { width: 10px; height: 10px; }
+
+/* Sizes */
+.pch-sm { padding: 3px 8px; font-size: 11.5px; }
+.pch-lg { padding: 7px 14px; font-size: 13.5px; }
+
+/* Variants — semantic */
+.pch-stable   { background: var(--risk-stable-bg);   color: var(--risk-stable);   border-color: var(--risk-stable-border); }
+.pch-monitor  { background: var(--risk-monitor-bg);  color: var(--risk-monitor);  border-color: var(--risk-monitor-border); }
+.pch-medium   { background: var(--risk-medium-bg);   color: var(--risk-medium);   border-color: var(--risk-medium-border); }
+.pch-high     { background: var(--risk-high-bg);     color: var(--risk-high);     border-color: var(--risk-high-border); }
+.pch-critical { background: var(--risk-critical-bg); color: var(--risk-critical); border-color: var(--risk-critical-border); }
+
+/* Avatar inside chip */
+.pch-avatar { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; background: var(--primary-soft); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-pulso-mono); font-size: 9.5px; font-weight: 600; margin-left: -4px; border: 1px solid var(--primary-border); }
+
+/* Toggle group */
+.pch-group { display: inline-flex; gap: 6px; padding: 4px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-full); }
+.pch-group .pch { border: 1px solid transparent; background: transparent; }
+.pch-group .pch.is-active { background: var(--card); border-color: var(--border-strong); color: var(--fg-strong); box-shadow: var(--shadow-xs); }
+
+.svg-i { width: 12px; height: 12px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Atoms · Onda 1 · 04</div>
+    <h1 class="page-title">Chip</h1>
+    <p class="page-sub">Elemento clicável e removível. Filtros aplicados, tags, seleções, atalhos. Borda completa (radius-full) é a marca diferencial — distingue Chip de Badge à primeira vista.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Filtro · seleção</h2>
+      <p class="section-desc">Chip de filtro é toggleável. Estado <code style="font-family: var(--font-pulso-mono); font-size: 11px; background: var(--muted); padding: 1px 6px;">is-active</code> usa marca soft.</p>
+      <div class="preview-row">
+        <button class="pch is-active">Todos</button>
+        <button class="pch">Imprensa nacional</button>
+        <button class="pch is-active">Regional</button>
+        <button class="pch">Rede social</button>
+        <button class="pch">Newsletter</button>
+        <button class="pch">Blog</button>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Removível</h2>
+      <p class="section-desc">Tags ativas em barras de filtro. X só aparece em hover, mas é sempre clicável.</p>
+      <div class="preview-row">
+        <button class="pch is-active">
+          Tier 1
+          <button class="pch-remove" aria-label="Remover Tier 1">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </button>
+        <button class="pch is-active">
+          Score ≥ 60
+          <button class="pch-remove" aria-label="Remover Score">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </button>
+        <button class="pch is-active">
+          Últimas 24h
+          <button class="pch-remove" aria-label="Remover janela">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </button>
+        <button class="pch is-active">
+          Operação Água Nova
+          <button class="pch-remove" aria-label="Remover caso">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </button>
+        <button class="pch pb-ghost" style="background: transparent; border-color: transparent; color: var(--fg-muted);">Limpar tudo</button>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Por nível de risco</h2>
+      <p class="section-desc">Quando chip representa filtro de risco, herda a paleta semântica.</p>
+      <div class="preview-row">
+        <button class="pch pch-stable">Estável <span style="font-family: var(--font-pulso-mono); font-size: 11px; opacity: 0.7;">12</span></button>
+        <button class="pch pch-monitor">Monitorar <span style="font-family: var(--font-pulso-mono); font-size: 11px; opacity: 0.7;">04</span></button>
+        <button class="pch pch-medium">Médio <span style="font-family: var(--font-pulso-mono); font-size: 11px; opacity: 0.7;">02</span></button>
+        <button class="pch pch-high">Alto <span style="font-family: var(--font-pulso-mono); font-size: 11px; opacity: 0.7;">01</span></button>
+        <button class="pch pch-critical">Crítico <span style="font-family: var(--font-pulso-mono); font-size: 11px; opacity: 0.7;">01</span></button>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Pessoa · entidade</h2>
+      <p class="section-desc">Chip carrega avatar quando representa pessoa (atribuído a, mencionado, etc).</p>
+      <div class="preview-row">
+        <button class="pch">
+          <span class="pch-avatar" style="margin-left: -2px;">NV</span>
+          Neviton
+          <button class="pch-remove" aria-label="Remover">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </button>
+        <button class="pch">
+          <span class="pch-avatar" style="margin-left: -2px; background: var(--evidence-bg); color: var(--evidence); border-color: var(--evidence-border);">MR</span>
+          Marina Rocha
+        </button>
+        <button class="pch">
+          <span class="pch-avatar" style="margin-left: -2px;">+3</span>
+          mais
+        </button>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Toggle group</h2>
+      <p class="section-desc">Conjunto de chips mutuamente exclusivos (segmented). O selecionado tem fundo card + sombra hairline.</p>
+      <div class="preview-row" style="gap: 16px;">
+        <div class="pch-group">
+          <button class="pch is-active">6h</button>
+          <button class="pch">24h</button>
+          <button class="pch">7d</button>
+          <button class="pch">30d</button>
+        </div>
+        <div class="pch-group">
+          <button class="pch is-active">Volume</button>
+          <button class="pch">Score</button>
+          <button class="pch">Sentimento</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Tamanhos</h2>
+      <div class="preview-row">
+        <button class="pch pch-sm">Small</button>
+        <button class="pch">Default</button>
+        <button class="pch pch-lg">Large</button>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Anatomia</h2>
+      <table class="tokens">
+        <thead><tr><th>Token</th><th>SM</th><th>Default</th><th>LG</th></tr></thead>
+        <tbody>
+          <tr><td>Padding</td><td class="mono">3 8</td><td class="mono">5 10</td><td class="mono">7 14</td></tr>
+          <tr><td>Font-size</td><td class="mono">11.5px</td><td class="mono">12.5px</td><td class="mono">13.5px</td></tr>
+          <tr><td>Border-radius</td><td class="mono">--radius-full</td><td class="mono">--radius-full</td><td class="mono">--radius-full</td></tr>
+          <tr><td>Border</td><td class="mono">1px solid --border-strong</td><td class="mono">1px solid --border-strong</td><td class="mono">1px solid --border-strong</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Chip vs. Badge</h2>
+      <table class="tokens">
+        <thead><tr><th></th><th>Chip</th><th>Badge</th></tr></thead>
+        <tbody>
+          <tr><td>Forma</td><td class="mono">radius-full (pill)</td><td class="mono">radius-xs (4px)</td></tr>
+          <tr><td>Interativo</td><td>Sim — clicável, removível</td><td>Não — apenas leitura</td></tr>
+          <tr><td>Tamanho default</td><td class="mono">28px (height)</td><td class="mono">~20px (height)</td></tr>
+          <tr><td>Uso</td><td>Filtros, tags, seleções, toggles</td><td>Estado, categoria, contagem</td></tr>
+          <tr><td>Cursor</td><td class="mono">pointer</td><td class="mono">default</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><div class="rule-tag">DO</div><div>Use chip quando o usuário pode <strong>agir</strong> sobre ele — clicar, remover, alternar.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Em barra de filtros, mostre os ativos como chips removíveis + botão "Limpar tudo".</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Toggle group para escolha exclusiva (período, métrica). Mantém tudo numa linha.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use chip para informação estática — vira badge.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não combine chip com checkbox dentro do mesmo filtro. Escolha um padrão.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não esconda o X em estado <code style="font-family: var(--font-pulso-mono); font-size: 11px;">is-active</code> em mobile (hover não existe).</div></div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

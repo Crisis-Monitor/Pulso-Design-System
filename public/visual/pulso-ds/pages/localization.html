@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Localização</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.l-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 900px) { .l-grid { grid-template-columns: 1fr; } }
+.l-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; display: flex; flex-direction: column; gap: 8px; }
+.l-locale { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); font-weight: 600; }
+.l-flag { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); margin-left: 6px; }
+.l-card h4 { font-size: 14px; font-weight: 600; color: var(--fg-strong); }
+.l-eg { font-family: var(--font-pulso-mono); font-size: 15px; color: var(--fg-strong); padding: 10px 12px; background: var(--surface-2); border: 1px solid var(--border-faint); border-radius: var(--radius-sm); }
+.l-eg-row { display: flex; justify-content: space-between; padding: 4px 0; font-family: var(--font-pulso-mono); font-size: 12.5px; color: var(--fg); border-bottom: 1px dashed var(--border-faint); }
+.l-eg-row:last-child { border-bottom: none; }
+.l-eg-row span:first-child { color: var(--fg-subtle); font-size: 11px; }
+
+/* Format table */
+.fmt-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.fmt-tbl th, .fmt-tbl td { padding: 12px 14px; border-bottom: 1px solid var(--border-faint); text-align: left; vertical-align: top; }
+.fmt-tbl th { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.fmt-tbl td:first-child { font-weight: 500; color: var(--fg-strong); }
+.fmt-tbl td.mono { font-family: var(--font-pulso-mono); font-size: 12px; color: var(--fg); }
+.fmt-tbl td code { font-family: var(--font-pulso-mono); font-size: 11.5px; background: var(--muted); padding: 1px 6px; border-radius: 3px; }
+
+/* Code blocks */
+.code-block { background: var(--muted); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; font-family: var(--font-pulso-mono); font-size: 12px; color: var(--fg-strong); white-space: pre; overflow-x: auto; line-height: 1.65; margin-top: 12px; }
+.code-block .c-key { color: var(--primary); }
+.code-block .c-str { color: var(--success); }
+.code-block .c-com { color: var(--fg-muted); font-style: italic; }
+.code-block .c-num { color: var(--risk-attention-text); }
+.code-block .c-fn  { color: var(--risk-monitor-text); }
+
+/* Plural cards */
+.plural-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 900px) { .plural-grid { grid-template-columns: 1fr; } }
+.plural-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 20px; }
+.plural-card h4 { font-family: var(--font-pulso-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); margin-bottom: 12px; font-weight: 600; }
+.plural-row { display: flex; gap: 10px; padding: 6px 0; font-family: var(--font-pulso-mono); font-size: 12.5px; align-items: baseline; }
+.plural-row .n { color: var(--fg-subtle); font-size: 11px; min-width: 60px; }
+.plural-row .out { color: var(--fg-strong); }
+
+/* Delta examples */
+.delta-row { display: grid; grid-template-columns: 80px 1fr 1fr; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--border-faint); align-items: center; }
+.delta-row:last-child { border-bottom: none; }
+.delta-row .label { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.06em; }
+.delta-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: var(--radius-sm); font-family: var(--font-pulso-mono); font-size: 11.5px; font-weight: 600; }
+.delta-pos { background: var(--delta-success-bg); color: var(--delta-success); border: 1px solid var(--delta-success-border); }
+.delta-neg { background: var(--delta-error-bg); color: var(--delta-error); border: 1px solid var(--delta-error-border); }
+.delta-zero{ background: var(--delta-neutral-bg); color: var(--delta-neutral); border: 1px solid var(--delta-neutral-border); }
+
+/* Spec rows */
+.spec-row { display: grid; grid-template-columns: 200px 1fr; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--border-faint); align-items: baseline; }
+.spec-row:last-child { border-bottom: none; }
+.spec-key { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.06em; }
+.spec-val { font-size: 13px; color: var(--fg); line-height: 1.55; }
+.spec-val code { font-family: var(--font-pulso-mono); background: var(--muted); padding: 1px 6px; border-radius: 3px; font-size: 11.5px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+
+    <div class="page-kicker">Foundations · Voice · 03</div>
+    <h1 class="page-title">Localização e formatação</h1>
+    <p class="page-sub">Datas, números, plurais — cada componente precisa de contrato. Crisis Monitor pode escalar para clientes globais; preparar o terreno agora é barato, depois é refator. Esta página fixa o token <code style="font-family:var(--font-pulso-mono);font-size:20px;background:var(--muted);padding:2px 8px;border-radius:4px;">--locale</code> e os helpers que toda string passa antes de chegar ao operador.</p>
+
+    <!-- ── Locale token ────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Token <code style="font-family:var(--font-pulso-mono);font-size:18px;background:var(--muted);padding:2px 8px;border-radius:4px;">--locale</code></h2>
+      <p class="section-desc">Uma única source of truth. Definido no <code>:root</code> via <code>data-locale</code> no <code>&lt;html&gt;</code> · pode ser sobrescrito por workspace (cliente global) ou por usuário (preferência).</p>
+
+      <pre class="code-block"><span class="c-com">// Resolução de locale — ordem de precedência</span>
+<span class="c-num">1.</span> user.preference        <span class="c-com">// Settings → Personal → Idioma</span>
+<span class="c-num">2.</span> workspace.locale       <span class="c-com">// Conta-cliente · default do workspace</span>
+<span class="c-num">3.</span> navigator.language     <span class="c-com">// Browser hint</span>
+<span class="c-num">4.</span> <span class="c-str">'pt-BR'</span>                <span class="c-com">// Default do produto</span></pre>
+
+      <div class="spec-row" style="margin-top:18px;">
+        <div class="spec-key">Locales suportados v2</div>
+        <div class="spec-val"><code>pt-BR</code> (default) · <code>en-US</code>. Demais locais ficam em <em>fallback</em> para <code>en-US</code> com warning em console.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Roadmap v3</div>
+        <div class="spec-val"><code>es-ES</code> · <code>es-MX</code> · <code>fr-FR</code>. Não habilitados sem revisão editorial completa do glossário (2.1) em cada idioma.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Fonte da verdade</div>
+        <div class="spec-val">Tudo passa por <code>Intl.*</code> nativo + helpers do Pulso. <strong>Nunca</strong> concatenar string manualmente (<code>${n} mentions</code>).</div>
+      </div>
+    </section>
+
+    <!-- ── Helpers ──────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Helpers · API canônica</h2>
+      <p class="section-desc">Cinco funções cobrem 95% dos casos. Wrap fino sobre <code>Intl</code> que injeta o locale do produto e aplica defaults do Pulso.</p>
+
+      <pre class="code-block"><span class="c-com">// @pulso/i18n</span>
+<span class="c-key">import</span> { formatNumber, formatDate, formatRelative, formatPlural, formatCurrency } <span class="c-key">from</span> <span class="c-str">'@pulso/i18n'</span>;
+
+<span class="c-com">// Números — separadores, sinal, casas decimais</span>
+formatNumber(<span class="c-num">1234.5</span>)                          <span class="c-com">// "1.234,5"   (pt-BR)</span>
+formatNumber(<span class="c-num">1234.5</span>, { signed: <span class="c-key">true</span> })           <span class="c-com">// "+1.234,5"</span>
+formatNumber(<span class="c-num">0.84</span>,   { style: <span class="c-str">'percent'</span> })       <span class="c-com">// "84%"</span>
+formatNumber(<span class="c-num">1234567</span>,{ notation: <span class="c-str">'compact'</span> })     <span class="c-com">// "1,2 mi"</span>
+
+<span class="c-com">// Datas — quatro estilos canônicos</span>
+formatDate(date, <span class="c-str">'short'</span>)                      <span class="c-com">// "17/05/2026"</span>
+formatDate(date, <span class="c-str">'long'</span>)                       <span class="c-com">// "17 de maio de 2026"</span>
+formatDate(date, <span class="c-str">'datetime'</span>)                   <span class="c-com">// "17/05/2026, 14:32"</span>
+formatDate(date, <span class="c-str">'time'</span>)                       <span class="c-com">// "14:32"</span>
+
+<span class="c-com">// Relativo — auto-escolhe unidade</span>
+formatRelative(<span class="c-num">-5</span> * <span class="c-num">60_000</span>)                   <span class="c-com">// "há 5 min"</span>
+formatRelative(<span class="c-num">3</span> * <span class="c-num">3600_000</span>)                  <span class="c-com">// "em 3 h"</span>
+
+<span class="c-com">// Plural — escolhe a forma correta por número</span>
+formatPlural(<span class="c-num">42</span>, <span class="c-str">'menção'</span>, <span class="c-str">'menções'</span>)        <span class="c-com">// "42 menções"</span>
+formatPlural(<span class="c-num">1</span>,  <span class="c-str">'menção'</span>, <span class="c-str">'menções'</span>)        <span class="c-com">// "1 menção"</span>
+
+<span class="c-com">// Moeda — symbol, posição, casas decimais</span>
+formatCurrency(<span class="c-num">8400</span>, <span class="c-str">'BRL'</span>)                  <span class="c-com">// "R$ 8.400,00"</span></pre>
+    </section>
+
+    <!-- ── Numbers ──────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Números</h2>
+      <p class="section-desc">Decimal, separador de milhares, sinal explícito e notação compacta. Cada locale tem regra própria — nunca improvisar.</p>
+
+      <div class="l-grid">
+        <div class="l-card">
+          <div class="l-locale">pt-BR <span class="l-flag">· vírgula decimal</span></div>
+          <h4>Brasil</h4>
+          <div class="l-eg">
+            <div class="l-eg-row"><span>inteiro</span><span>1.234.567</span></div>
+            <div class="l-eg-row"><span>decimal</span><span>1.234,56</span></div>
+            <div class="l-eg-row"><span>signed</span><span>+12,5 / −8,3</span></div>
+            <div class="l-eg-row"><span>percent</span><span>84%</span></div>
+            <div class="l-eg-row"><span>compact</span><span>1,2 mi / 240 mil</span></div>
+          </div>
+        </div>
+        <div class="l-card">
+          <div class="l-locale">en-US <span class="l-flag">· ponto decimal</span></div>
+          <h4>EUA · default global</h4>
+          <div class="l-eg">
+            <div class="l-eg-row"><span>integer</span><span>1,234,567</span></div>
+            <div class="l-eg-row"><span>decimal</span><span>1,234.56</span></div>
+            <div class="l-eg-row"><span>signed</span><span>+12.5 / −8.3</span></div>
+            <div class="l-eg-row"><span>percent</span><span>84%</span></div>
+            <div class="l-eg-row"><span>compact</span><span>1.2M / 240K</span></div>
+          </div>
+        </div>
+        <div class="l-card">
+          <div class="l-locale">es-ES <span class="l-flag">· vírgula decimal</span></div>
+          <h4>Espanha · v3 preview</h4>
+          <div class="l-eg">
+            <div class="l-eg-row"><span>integer</span><span>1.234.567</span></div>
+            <div class="l-eg-row"><span>decimal</span><span>1.234,56</span></div>
+            <div class="l-eg-row"><span>signed</span><span>+12,5 / −8,3</span></div>
+            <div class="l-eg-row"><span>percent</span><span>84&nbsp;%</span></div>
+            <div class="l-eg-row"><span>compact</span><span>1,2 M / 240 mil</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="spec-row" style="margin-top:18px;">
+        <div class="spec-key">Sinal explícito</div>
+        <div class="spec-val">Sempre <code>+</code> e <code>−</code> (U+2212 minus sign, não hífen). Toda delta tem sinal — <code>0</code> também tem (<code>+0</code> com cor neutra).</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Fonte mono</div>
+        <div class="spec-val">Todo número renderiza com <code>var(--font-pulso-mono)</code> + <code>font-variant-numeric: tabular-nums</code>. Coluna de score alinha.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Compact threshold</div>
+        <div class="spec-val">Switch automático: <code>&lt; 10.000</code> = forma longa; <code>≥ 10.000</code> = compact. Operador escolhe override em Settings.</div>
+      </div>
+    </section>
+
+    <!-- ── Delta sign positioning ──────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Posição do sinal · delta</h2>
+      <p class="section-desc">Delta (variação) tem regra firme em todo o produto. Sinal antes do número, mono, sem espaço.</p>
+
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:18px 22px;">
+        <div class="delta-row">
+          <div class="label">Score sobe</div>
+          <div><span class="delta-chip delta-pos">↑ +12</span> &nbsp;&nbsp; <em style="font-size:13px;color:var(--fg-secondary);">"score subiu 12 pontos · risk-attention"</em></div>
+          <div style="font-family:var(--font-pulso-mono);font-size:11.5px;color:var(--fg-muted);">pulso-mono · tabular-nums</div>
+        </div>
+        <div class="delta-row">
+          <div class="label">Score cai</div>
+          <div><span class="delta-chip delta-neg">↓ −5</span> &nbsp;&nbsp; <em style="font-size:13px;color:var(--fg-secondary);">Em domínio de crise, queda do score é melhora — cor verde do success</em></div>
+          <div style="font-family:var(--font-pulso-mono);font-size:11.5px;color:var(--fg-muted);">Atenção: invertido em finance</div>
+        </div>
+        <div class="delta-row">
+          <div class="label">Sem variação</div>
+          <div><span class="delta-chip delta-zero">→ +0</span> &nbsp;&nbsp; <em style="font-size:13px;color:var(--fg-secondary);">Zero é informativo · não é "vazio"</em></div>
+          <div style="font-family:var(--font-pulso-mono);font-size:11.5px;color:var(--fg-muted);">Cor neutra · sem direção</div>
+        </div>
+        <div class="delta-row">
+          <div class="label">Variação %</div>
+          <div><span class="delta-chip delta-pos">+18%</span> &nbsp;&nbsp; <em style="font-size:13px;color:var(--fg-secondary);">Percent é uma forma do delta · mesmo padrão</em></div>
+          <div style="font-family:var(--font-pulso-mono);font-size:11.5px;color:var(--fg-muted);">Symbol colado ao número</div>
+        </div>
+      </div>
+
+      <p class="section-desc" style="margin-top:14px;"><strong>Em crise, queda do score é boa.</strong> Token <code>--delta-success</code> aplica-se a <em>melhora</em>, não a "subiu" — direção semântica, não matemática.</p>
+    </section>
+
+    <!-- ── Dates ────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Datas e horários</h2>
+      <p class="section-desc">Quatro estilos cobrem o produto. Sempre via helper — concatenar dia/mês/ano à mão proíbe.</p>
+
+      <table class="fmt-tbl">
+        <thead><tr><th>Estilo</th><th>Quando usar</th><th class="mono" style="font-family:var(--font-pulso-mono);">pt-BR</th><th class="mono" style="font-family:var(--font-pulso-mono);">en-US</th></tr></thead>
+        <tbody>
+          <tr><td>short</td><td>Coluna de tabela, lista densa</td><td class="mono">17/05/2026</td><td class="mono">5/17/2026</td></tr>
+          <tr><td>long</td><td>Cabeçalho de caso, relatório</td><td class="mono">17 de maio de 2026</td><td class="mono">May 17, 2026</td></tr>
+          <tr><td>datetime</td><td>Audit log, timeline</td><td class="mono">17/05/2026, 14:32</td><td class="mono">May 17, 2026 · 2:32 PM</td></tr>
+          <tr><td>time</td><td>Slot do mesmo dia</td><td class="mono">14:32</td><td class="mono">2:32 PM</td></tr>
+          <tr><td>iso</td><td>API, export CSV, debug</td><td class="mono">2026-05-17T14:32:00−03:00</td><td class="mono">2026-05-17T14:32:00−03:00</td></tr>
+        </tbody>
+      </table>
+
+      <div class="spec-row" style="margin-top:18px;">
+        <div class="spec-key">Timezone</div>
+        <div class="spec-val">Display em timezone do <strong>operador</strong>, sempre indicado quando ambíguo (<code>14:32 BRT</code>, <code>5:32 PM EST</code>). Toda timestamp persiste em UTC.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Hora 12 vs 24</div>
+        <div class="spec-val">pt-BR: <strong>24h</strong>. en-US: <strong>12h</strong> com AM/PM. Não misturar.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Separadores</div>
+        <div class="spec-val">pt-BR data: <code>/</code> · en-US data: <code>/</code> · ISO: <code>−</code>. Hora: <code>:</code> em todos. Nunca <code>.</code> para hora.</div>
+      </div>
+    </section>
+
+    <!-- ── Relative ─────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Tempo relativo</h2>
+      <p class="section-desc">Em Crisis Monitor, "há 3min" comunica urgência melhor que "14:32". Auto-escolhe unidade — segundos até &lt; 60s, minutos até &lt; 60min, horas até &lt; 24h, depois <em>datetime</em>.</p>
+
+      <div class="l-grid">
+        <div class="l-card">
+          <div class="l-locale">pt-BR</div>
+          <h4>Relativo no passado</h4>
+          <div class="l-eg">
+            <div class="l-eg-row"><span>5s atrás</span><span>agora</span></div>
+            <div class="l-eg-row"><span>40s atrás</span><span>há 40 s</span></div>
+            <div class="l-eg-row"><span>5min atrás</span><span>há 5 min</span></div>
+            <div class="l-eg-row"><span>3h atrás</span><span>há 3 h</span></div>
+            <div class="l-eg-row"><span>2d atrás</span><span>há 2 d</span></div>
+            <div class="l-eg-row"><span>30d atrás</span><span>17/04/2026</span></div>
+          </div>
+        </div>
+        <div class="l-card">
+          <div class="l-locale">pt-BR</div>
+          <h4>Relativo no futuro</h4>
+          <div class="l-eg">
+            <div class="l-eg-row"><span>+5min</span><span>em 5 min</span></div>
+            <div class="l-eg-row"><span>+3h</span><span>em 3 h</span></div>
+            <div class="l-eg-row"><span>+2d</span><span>em 2 d</span></div>
+          </div>
+        </div>
+        <div class="l-card">
+          <div class="l-locale">en-US</div>
+          <h4>Espelho</h4>
+          <div class="l-eg">
+            <div class="l-eg-row"><span>5s ago</span><span>now</span></div>
+            <div class="l-eg-row"><span>5min ago</span><span>5 min ago</span></div>
+            <div class="l-eg-row"><span>3h ago</span><span>3 hr ago</span></div>
+            <div class="l-eg-row"><span>+5min</span><span>in 5 min</span></div>
+            <div class="l-eg-row"><span>30d ago</span><span>4/17/2026</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="spec-row" style="margin-top:18px;">
+        <div class="spec-key">"agora"</div>
+        <div class="spec-val">Janela de <strong>−10s a +10s</strong>. Antes ou depois: usa unidade. Operador vê "agora" para o que acabou de chegar.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Cutoff</div>
+        <div class="spec-val">Acima de 7 dias: cai para <code>short</code> date. Reduz confusão com escalas grandes ("há 47 d" não é útil).</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Auto-update</div>
+        <div class="spec-val">Componente <code>&lt;RelativeTime&gt;</code> atualiza a cada 30s. Em jornada longa, o "há 1 min" vira "há 2 min" sem reload.</div>
+      </div>
+    </section>
+
+    <!-- ── Plural ─────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Plural · <code style="font-family:var(--font-pulso-mono);font-size:18px;background:var(--muted);padding:2px 8px;border-radius:4px;">Intl.PluralRules</code></h2>
+      <p class="section-desc">"1 menção" ≠ "2 menções" ≠ "0 menções". A regra varia por idioma — português tem 2 formas (uma/outra); árabe tem 6. Sempre use o helper.</p>
+
+      <pre class="code-block">formatPlural(<span class="c-num">0</span>,  <span class="c-str">'menção'</span>, <span class="c-str">'menções'</span>)   <span class="c-com">// "0 menções"</span>
+formatPlural(<span class="c-num">1</span>,  <span class="c-str">'menção'</span>, <span class="c-str">'menções'</span>)   <span class="c-com">// "1 menção"</span>
+formatPlural(<span class="c-num">2</span>,  <span class="c-str">'menção'</span>, <span class="c-str">'menções'</span>)   <span class="c-com">// "2 menções"</span>
+formatPlural(<span class="c-num">42</span>, <span class="c-str">'menção'</span>, <span class="c-str">'menções'</span>)   <span class="c-com">// "42 menções"</span>
+
+<span class="c-com">// Com placeholder em ICU MessageFormat (v3+)</span>
+t(<span class="c-str">'mentions'</span>, { count }) <span class="c-com">// {count, plural, one {# menção} other {# menções}}</span></pre>
+
+      <div class="plural-grid">
+        <div class="plural-card">
+          <h4>pt-BR · 2 formas</h4>
+          <div class="plural-row"><span class="n">0</span><span class="out">0 menções</span></div>
+          <div class="plural-row"><span class="n">1</span><span class="out">1 menção</span></div>
+          <div class="plural-row"><span class="n">2+</span><span class="out">N menções</span></div>
+        </div>
+        <div class="plural-card">
+          <h4>en-US · 2 formas</h4>
+          <div class="plural-row"><span class="n">0</span><span class="out">0 mentions</span></div>
+          <div class="plural-row"><span class="n">1</span><span class="out">1 mention</span></div>
+          <div class="plural-row"><span class="n">2+</span><span class="out">N mentions</span></div>
+        </div>
+        <div class="plural-card">
+          <h4>fr-FR · 2 formas <span style="color:var(--fg-muted);font-size:10px;">(v3)</span></h4>
+          <div class="plural-row"><span class="n">0</span><span class="out">0 mention</span></div>
+          <div class="plural-row"><span class="n">1</span><span class="out">1 mention</span></div>
+          <div class="plural-row"><span class="n">2+</span><span class="out">N mentions</span></div>
+        </div>
+      </div>
+
+      <p class="section-desc" style="margin-top:14px;"><strong>Atenção:</strong> &nbsp;francês considera <code>0</code> e <code>1</code> ambos <code>one</code> ("0 mention", "1 mention"). Concatenar <code>${n} mention</code> só funciona até bater nesse caso.</p>
+    </section>
+
+    <!-- ── Currency ─────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Moeda · onde aparece</h2>
+      <p class="section-desc">Crisis Monitor não cobra dentro do produto, mas Settings exibe ciclo de billing. Padrão pronto para quando precisar.</p>
+
+      <table class="fmt-tbl">
+        <thead><tr><th>Moeda</th><th>Posição</th><th class="mono" style="font-family:var(--font-pulso-mono);">Exemplo</th><th>Notas</th></tr></thead>
+        <tbody>
+          <tr><td>BRL <span style="font-family:var(--font-pulso-mono);font-size:11px;color:var(--fg-muted);">· pt-BR</span></td><td>símbolo antes · espaço</td><td class="mono">R$ 8.400,00</td><td>2 casas obrigatórias</td></tr>
+          <tr><td>USD <span style="font-family:var(--font-pulso-mono);font-size:11px;color:var(--fg-muted);">· en-US</span></td><td>símbolo antes · sem espaço</td><td class="mono">$8,400.00</td><td>2 casas obrigatórias</td></tr>
+          <tr><td>EUR <span style="font-family:var(--font-pulso-mono);font-size:11px;color:var(--fg-muted);">· es-ES</span></td><td>símbolo depois · espaço</td><td class="mono">8.400,00 €</td><td>2 casas obrigatórias</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Direção ─────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Direção do texto · RTL</h2>
+      <p class="section-desc">Não suportado na v2. Mas o sistema é preparado: classes utilitárias usam <code>start</code>/<code>end</code> em vez de <code>left</code>/<code>right</code>, e ícones com seta usam <code>logical</code>. Habilitar RTL no futuro é flip de <code>dir="rtl"</code> no <code>&lt;html&gt;</code> + auditoria visual.</p>
+
+      <div class="spec-row">
+        <div class="spec-key">Pronto</div>
+        <div class="spec-val">Spacing utilities (<code>ps-4</code>, <code>me-2</code>), borders (<code>border-s</code>), text-align (<code>text-start</code>).</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Auditar antes</div>
+        <div class="spec-val">Ícones direcionais (chevron, arrow-right), gradientes, sombras laterais, charts.</div>
+      </div>
+    </section>
+
+    <!-- ── Regras ─────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Faça</div>
+          <ul>
+            <li>Toda string de número/data/plural passa por helper. Zero exceções.</li>
+            <li>Persista timestamp em <strong>UTC</strong>; renderize no timezone do operador.</li>
+            <li>Use sinal explícito em delta (<code>+12</code> / <code>−5</code> / <code>+0</code>). U+2212 para minus, não hífen.</li>
+            <li>Use <code>tabular-nums</code> em colunas numéricas para alinhamento.</li>
+            <li>Em copy nova, pense no plural antes de fixar a estrutura ("1 caso aberto" vs "{N} casos abertos").</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Evite</div>
+          <ul>
+            <li>Não concatene partes de data: <code>`${day}/${month}/${year}`</code> é proibido.</li>
+            <li>Não escreva pluralização inline: <code>${n} ${n === 1 ? 'menção' : 'menções'}</code> não cobre 0 e quebra em outros idiomas.</li>
+            <li>Não force ponto decimal em pt-BR ("R$ 8.400.00" é erro de digitação que vira release).</li>
+            <li>Não use timezone implícito. <code>14:32</code> em produto global é ambíguo — sempre indique <em>BRT/EST/UTC</em> quando relevante.</li>
+            <li>Não traduza IDs (<code>PLS-012</code> fica em qualquer locale), termos técnicos (<code>workspace</code>, <code>audit log</code>) ou nomes próprios.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Status ─────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Status da iniciativa · 2.3</h2>
+      <table class="tokens">
+        <thead><tr><th>Deliverable</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Token <code>--locale</code> + ordem de precedência</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Helpers <code>formatNumber</code>, <code>formatDate</code>, <code>formatRelative</code>, <code>formatPlural</code>, <code>formatCurrency</code></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue · @pulso/i18n</span></td></tr>
+          <tr><td>Plural pattern · 1/N · Intl.PluralRules</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Sinal de delta canônico · U+2212 minus + tabular-nums</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Página <strong>Foundations · Localização</strong></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Migração do Crisis Monitor para helpers (todas as strings de data/número)</td><td><span style="color:var(--warning);font-family:var(--font-pulso-mono);font-size:11px;">⏳ PLS-CM-I18N-031 (rolling)</span></td></tr>
+          <tr><td>Catálogo en-US revisado + lint contra strings hardcoded</td><td><span style="color:var(--warning);font-family:var(--font-pulso-mono);font-size:11px;">⏳ depende fase 5 (lint)</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

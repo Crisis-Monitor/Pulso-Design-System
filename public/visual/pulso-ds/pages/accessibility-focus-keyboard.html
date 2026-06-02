@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Focus & Keyboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.focus-demo { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; padding: 24px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.demo-btn { display: inline-flex; align-items: center; justify-content: center; height: 32px; padding: 0 14px; border-radius: var(--radius-sm); font-family: inherit; font-size: 13px; font-weight: 500; border: 1px solid; cursor: pointer; }
+.demo-btn-primary { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+.demo-btn-secondary { background: var(--card); color: var(--fg); border-color: var(--border-strong); }
+.demo-btn-ghost { background: transparent; color: var(--fg-muted); border-color: transparent; }
+.demo-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+.demo-input { height: 32px; padding: 0 12px; border-radius: var(--radius-sm); border: 1px solid var(--input); background: var(--card); color: var(--fg); font-family: inherit; font-size: 13px; min-width: 240px; }
+.demo-input:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; border-color: var(--primary); }
+
+/* Forced-focused demos (always-on outline) */
+.forced-focus { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+.km-tbl { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 4px; }
+.km-tbl th, .km-tbl td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--border-faint); vertical-align: top; }
+.km-tbl th { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.km-tbl td:first-child { font-family: var(--font-pulso-mono); color: var(--fg-strong); font-weight: 600; white-space: nowrap; }
+.km-tbl td:nth-child(2) { color: var(--fg); }
+.km-tbl td:nth-child(3) { color: var(--fg-secondary); font-size: 12px; }
+
+kbd.k { display: inline-block; font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 500; padding: 2px 6px; min-width: 18px; text-align: center; background: var(--muted); border: 1px solid var(--border-strong); border-bottom-width: 2px; border-radius: 4px; color: var(--fg-strong); margin-right: 2px; }
+
+.target-bar { display: grid; grid-template-columns: 80px 1fr; gap: 16px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-faint); }
+.target-bar:last-child { border-bottom: none; }
+.target-size { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); }
+.target-ok { color: var(--success); }
+.target-fail { color: var(--destructive); }
+
+.spec-row { display: grid; grid-template-columns: 160px 1fr; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--border-faint); align-items: baseline; }
+.spec-row:last-child { border-bottom: none; }
+.spec-key { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.06em; }
+.spec-val { font-size: 13px; color: var(--fg); }
+.spec-val code { font-family: var(--font-pulso-mono); background: var(--muted); padding: 1px 6px; border-radius: 3px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+
+    <div class="page-kicker">Foundations · Accessibility · 03</div>
+    <h1 class="page-title">Focus &amp; Keyboard</h1>
+    <p class="page-sub">Todo controle do Pulso é navegável apenas com teclado. Esta página documenta o focus ring canônico, o mapa de teclas por componente e o contrato de hit target. Se um componente não passa nessas três checks, ele não está pronto.</p>
+
+    <!-- ── Focus ring canônico ─────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Focus ring · canônico</h2>
+      <p class="section-desc">Um único padrão para todo o produto. Suficientemente espesso para enxergar de canto-de-olho, suficientemente sutil para não brigar com a UI.</p>
+
+      <div class="spec-row">
+        <div class="spec-key">Token cor</div>
+        <div class="spec-val"><code>--ring</code> · derivado de <code>--primary</code> com 32% alpha (light) / 40% alpha (dark)</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Espessura</div>
+        <div class="spec-val"><code>--ring-width: 2px</code> · solid</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Offset</div>
+        <div class="spec-val"><code>--ring-offset: 2px</code> · respira em volta do elemento, evita aglutinar com a borda</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Pseudo-class</div>
+        <div class="spec-val"><code>:focus-visible</code> sempre — nunca <code>:focus</code> sozinho. Mouse não dispara ring, só teclado.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Contraste</div>
+        <div class="spec-val"><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">AA 4.88:1</span> sobre sidebar, <span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">AA 5.48:1</span> sobre card</div>
+      </div>
+    </section>
+
+    <!-- ── Demo do ring ─────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Demo · estado focado</h2>
+      <p class="section-desc">Clique nos controles ou navegue por <kbd class="k">Tab</kbd> para ver o focus ring real. A segunda linha mostra os mesmos controles com ring permanentemente aplicado para comparação.</p>
+
+      <h3 style="font-size:12px;font-weight:600;color:var(--fg-muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:18px;margin-bottom:10px;">Focus real (Tab para ver)</h3>
+      <div class="focus-demo">
+        <button class="demo-btn demo-btn-primary">Aprovar</button>
+        <button class="demo-btn demo-btn-secondary">Cancelar</button>
+        <button class="demo-btn demo-btn-ghost">Mais opções</button>
+        <input class="demo-input" placeholder="Buscar caso...">
+        <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;">
+          <input type="checkbox" style="width:16px;height:16px;cursor:pointer;">
+          <span style="font-size:13px;color:var(--fg);">Notificar equipe</span>
+        </label>
+      </div>
+
+      <h3 style="font-size:12px;font-weight:600;color:var(--fg-muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:18px;margin-bottom:10px;">Focus simulado (sempre visível)</h3>
+      <div class="focus-demo">
+        <button class="demo-btn demo-btn-primary forced-focus">Aprovar</button>
+        <button class="demo-btn demo-btn-secondary forced-focus">Cancelar</button>
+        <button class="demo-btn demo-btn-ghost forced-focus">Mais opções</button>
+        <input class="demo-input forced-focus" placeholder="Buscar caso..." style="border-color: var(--primary);">
+      </div>
+    </section>
+
+    <!-- ── Hit target ─────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Hit target</h2>
+      <p class="section-desc">Apple HIG · Material · WCAG 2.5.5 — todos exigem ≥ 44×44px para alvos primários em touch. O Pulso adota <strong>44×44 como contrato</strong>, com afrouxamento para 32×32 em UI puramente desktop densa (tabelas, filter bars). Nunca abaixo de 32.</p>
+
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 22px;">
+        <div class="target-bar">
+          <div class="target-size">44 × 44</div>
+          <div style="display:flex;align-items:center;gap:14px;">
+            <button class="demo-btn demo-btn-primary" style="height:44px;width:44px;padding:0;">+</button>
+            <div style="font-size:13px;color:var(--fg);">Token <code style="font-family:var(--font-pulso-mono);background:var(--muted);padding:1px 6px;border-radius:3px;">--touch-target</code> · default em mobile e CTAs primárias</div>
+            <span class="target-ok" style="font-family:var(--font-pulso-mono);font-size:11px;">✓ contrato WCAG 2.5.5</span>
+          </div>
+        </div>
+        <div class="target-bar">
+          <div class="target-size">36 × 36</div>
+          <div style="display:flex;align-items:center;gap:14px;">
+            <button class="demo-btn demo-btn-secondary" style="height:36px;width:36px;padding:0;">⌕</button>
+            <div style="font-size:13px;color:var(--fg);">Prominent · CTA desktop, ações em destaque</div>
+            <span class="target-ok" style="font-family:var(--font-pulso-mono);font-size:11px;">✓ ok desktop</span>
+          </div>
+        </div>
+        <div class="target-bar">
+          <div class="target-size">32 × 32</div>
+          <div style="display:flex;align-items:center;gap:14px;">
+            <button class="demo-btn demo-btn-secondary" style="height:32px;width:32px;padding:0;">⌕</button>
+            <div style="font-size:13px;color:var(--fg);">Default · ações inline, controles densos · <strong>limite inferior do Pulso</strong></div>
+            <span class="target-ok" style="font-family:var(--font-pulso-mono);font-size:11px;">✓ ok desktop denso</span>
+          </div>
+        </div>
+        <div class="target-bar">
+          <div class="target-size">28 × 28</div>
+          <div style="display:flex;align-items:center;gap:14px;">
+            <button class="demo-btn demo-btn-ghost" style="height:28px;width:28px;padding:0;border:1px dashed var(--destructive);color:var(--destructive);">×</button>
+            <div style="font-size:13px;color:var(--fg);">Compact · <strong>só dentro de tabelas com row hover</strong>, jamais standalone</div>
+            <span class="target-fail" style="font-family:var(--font-pulso-mono);font-size:11px;">✗ proibido fora de tabela</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Tab order ─────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Tab order · regras gerais</h2>
+      <ol style="padding-left:18px;display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+        <li style="font-size:13.5px;color:var(--fg);line-height:1.55;">Top-to-bottom, left-to-right — segue o fluxo visual.</li>
+        <li style="font-size:13.5px;color:var(--fg);line-height:1.55;">Skip link no topo da página: <kbd class="k">Tab</kbd> com página recém-carregada deve focar "Pular para conteúdo principal".</li>
+        <li style="font-size:13.5px;color:var(--fg);line-height:1.55;">Nunca use <code>tabindex</code> &gt; 0. Só 0 (foca) ou -1 (não foca via teclado, mas pode receber focus programático).</li>
+        <li style="font-size:13.5px;color:var(--fg);line-height:1.55;">Modais e sheets: <strong>focus trap</strong> obrigatório. <kbd class="k">Tab</kbd> não escapa. <kbd class="k">Esc</kbd> fecha e devolve foco ao trigger.</li>
+        <li style="font-size:13.5px;color:var(--fg);line-height:1.55;">Item ativo em listas/menus recebe foco visível mesmo sem <code>:focus-visible</code>.</li>
+      </ol>
+    </section>
+
+    <!-- ── Keyboard map por componente ──────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Keyboard map · por componente</h2>
+      <p class="section-desc">Mapa canônico de teclas. Cada componente do Pulso implementa <em>exatamente</em> isso. Desvios precisam de RFC.</p>
+
+      <h3 style="font-size:13px;font-weight:600;color:var(--fg-strong);margin-top:24px;margin-bottom:8px;">Button · IconButton</h3>
+      <table class="km-tbl">
+        <thead><tr><th>Tecla</th><th>Ação</th><th>Notas</th></tr></thead>
+        <tbody>
+          <tr><td><kbd class="k">Tab</kbd> / <kbd class="k">Shift</kbd>+<kbd class="k">Tab</kbd></td><td>Foca / desfoca</td><td>Default browser</td></tr>
+          <tr><td><kbd class="k">Enter</kbd></td><td>Dispara <code>onClick</code></td><td></td></tr>
+          <tr><td><kbd class="k">Space</kbd></td><td>Dispara <code>onClick</code></td><td>WAI-ARIA exige equivalência</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="font-size:13px;font-weight:600;color:var(--fg-strong);margin-top:24px;margin-bottom:8px;">Input · Textarea</h3>
+      <table class="km-tbl">
+        <thead><tr><th>Tecla</th><th>Ação</th><th>Notas</th></tr></thead>
+        <tbody>
+          <tr><td><kbd class="k">Tab</kbd></td><td>Foca próximo controle</td><td></td></tr>
+          <tr><td><kbd class="k">Esc</kbd></td><td>Limpa busca (se <code>type=search</code>) · cancela edição inline</td><td></td></tr>
+          <tr><td><kbd class="k">Enter</kbd></td><td>Submete form pai</td><td>Apenas em <code>&lt;input&gt;</code> · textarea quebra linha</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="font-size:13px;font-weight:600;color:var(--fg-strong);margin-top:24px;margin-bottom:8px;">Checkbox · Switch · Radio</h3>
+      <table class="km-tbl">
+        <thead><tr><th>Tecla</th><th>Ação</th><th>Notas</th></tr></thead>
+        <tbody>
+          <tr><td><kbd class="k">Space</kbd></td><td>Toggle checkbox/switch · seleciona radio</td><td></td></tr>
+          <tr><td><kbd class="k">↑</kbd> / <kbd class="k">↓</kbd> / <kbd class="k">←</kbd> / <kbd class="k">→</kbd></td><td>Move entre opções (radio group)</td><td>Wrap no fim</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="font-size:13px;font-weight:600;color:var(--fg-strong);margin-top:24px;margin-bottom:8px;">Select · Dropdown · Command</h3>
+      <table class="km-tbl">
+        <thead><tr><th>Tecla</th><th>Ação</th><th>Notas</th></tr></thead>
+        <tbody>
+          <tr><td><kbd class="k">Enter</kbd> / <kbd class="k">Space</kbd> / <kbd class="k">↓</kbd></td><td>Abre menu</td><td></td></tr>
+          <tr><td><kbd class="k">↑</kbd> / <kbd class="k">↓</kbd></td><td>Navega opções</td><td>Wrap habilitado</td></tr>
+          <tr><td><kbd class="k">Home</kbd> / <kbd class="k">End</kbd></td><td>Primeira / última opção</td><td></td></tr>
+          <tr><td><kbd class="k">A</kbd>–<kbd class="k">Z</kbd></td><td>Type-ahead · pula para opção começando com a letra</td><td>Reset após 1s sem digitar</td></tr>
+          <tr><td><kbd class="k">Enter</kbd></td><td>Seleciona opção em destaque</td><td></td></tr>
+          <tr><td><kbd class="k">Esc</kbd></td><td>Fecha sem selecionar · foco volta ao trigger</td><td></td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="font-size:13px;font-weight:600;color:var(--fg-strong);margin-top:24px;margin-bottom:8px;">Dialog · Sheet · Responsive Sheet</h3>
+      <table class="km-tbl">
+        <thead><tr><th>Tecla</th><th>Ação</th><th>Notas</th></tr></thead>
+        <tbody>
+          <tr><td><kbd class="k">Tab</kbd> / <kbd class="k">Shift</kbd>+<kbd class="k">Tab</kbd></td><td>Cicla dentro do modal · trap obrigatório</td><td></td></tr>
+          <tr><td><kbd class="k">Esc</kbd></td><td>Fecha · foco volta ao trigger</td><td>Salvo se <code>preventClose</code></td></tr>
+          <tr><td><kbd class="k">Enter</kbd></td><td>Confirma ação primária (em dialog de confirmação)</td><td>Não em dialog editável (form)</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="font-size:13px;font-weight:600;color:var(--fg-strong);margin-top:24px;margin-bottom:8px;">Tabs</h3>
+      <table class="km-tbl">
+        <thead><tr><th>Tecla</th><th>Ação</th><th>Notas</th></tr></thead>
+        <tbody>
+          <tr><td><kbd class="k">←</kbd> / <kbd class="k">→</kbd></td><td>Move entre tabs · ativa imediatamente</td><td>Wrap habilitado</td></tr>
+          <tr><td><kbd class="k">Home</kbd> / <kbd class="k">End</kbd></td><td>Primeiro / último tab</td><td></td></tr>
+          <tr><td><kbd class="k">Tab</kbd></td><td>Sai do tablist para conteúdo do tab ativo</td><td>Tablist = único stop · panel = stops próprios</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="font-size:13px;font-weight:600;color:var(--fg-strong);margin-top:24px;margin-bottom:8px;">Table · com row select</h3>
+      <table class="km-tbl">
+        <thead><tr><th>Tecla</th><th>Ação</th><th>Notas</th></tr></thead>
+        <tbody>
+          <tr><td><kbd class="k">↑</kbd> / <kbd class="k">↓</kbd></td><td>Foca linha anterior / próxima</td><td>roving tabindex</td></tr>
+          <tr><td><kbd class="k">Space</kbd></td><td>Toggle seleção da linha focada</td><td></td></tr>
+          <tr><td><kbd class="k">Shift</kbd>+<kbd class="k">↑/↓</kbd></td><td>Estende seleção em range</td><td></td></tr>
+          <tr><td><kbd class="k">Cmd</kbd>+<kbd class="k">A</kbd></td><td>Seleciona todas da página atual</td><td></td></tr>
+          <tr><td><kbd class="k">Enter</kbd></td><td>Abre detalhe da linha</td><td></td></tr>
+          <tr><td><kbd class="k">Esc</kbd></td><td>Limpa seleção</td><td></td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="font-size:13px;font-weight:600;color:var(--fg-strong);margin-top:24px;margin-bottom:8px;">Command Palette</h3>
+      <table class="km-tbl">
+        <thead><tr><th>Tecla</th><th>Ação</th><th>Notas</th></tr></thead>
+        <tbody>
+          <tr><td><kbd class="k">Cmd</kbd>+<kbd class="k">K</kbd></td><td>Abre command palette</td><td>Sempre disponível globalmente</td></tr>
+          <tr><td><kbd class="k">↑</kbd> / <kbd class="k">↓</kbd></td><td>Navega resultados</td><td></td></tr>
+          <tr><td><kbd class="k">Enter</kbd></td><td>Executa comando focado</td><td></td></tr>
+          <tr><td><kbd class="k">Esc</kbd></td><td>Fecha palette</td><td></td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="font-size:13px;font-weight:600;color:var(--fg-strong);margin-top:24px;margin-bottom:8px;">Accordion · Collapsible Card</h3>
+      <table class="km-tbl">
+        <thead><tr><th>Tecla</th><th>Ação</th><th>Notas</th></tr></thead>
+        <tbody>
+          <tr><td><kbd class="k">Enter</kbd> / <kbd class="k">Space</kbd></td><td>Expande / colapsa</td><td>No header</td></tr>
+          <tr><td><kbd class="k">↑</kbd> / <kbd class="k">↓</kbd></td><td>Move entre headers</td><td>Quando múltiplos itens</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Atalhos globais ──────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Atalhos globais do produto</h2>
+      <p class="section-desc">Reservados para o Crisis Monitor. Cada atalho aparece num cheat sheet acessível via <kbd class="k">?</kbd>.</p>
+      <table class="km-tbl">
+        <thead><tr><th>Atalho</th><th>Ação</th><th>Contexto</th></tr></thead>
+        <tbody>
+          <tr><td><kbd class="k">Cmd</kbd>+<kbd class="k">K</kbd></td><td>Command palette</td><td>Global</td></tr>
+          <tr><td><kbd class="k">G</kbd> <kbd class="k">D</kbd></td><td>Ir para Dashboard</td><td>Global · sequência</td></tr>
+          <tr><td><kbd class="k">G</kbd> <kbd class="k">C</kbd></td><td>Ir para Casos</td><td>Global · sequência</td></tr>
+          <tr><td><kbd class="k">G</kbd> <kbd class="k">S</kbd></td><td>Ir para Settings</td><td>Global · sequência</td></tr>
+          <tr><td><kbd class="k">N</kbd></td><td>Novo caso</td><td>Dashboard · Casos</td></tr>
+          <tr><td><kbd class="k">A</kbd></td><td>Arquivar caso</td><td>Crisis Detail</td></tr>
+          <tr><td><kbd class="k">Cmd</kbd>+<kbd class="k">Enter</kbd></td><td>Aprovar &amp; enviar resposta</td><td>Crisis Detail · IA panel</td></tr>
+          <tr><td><kbd class="k">?</kbd></td><td>Mostra cheat sheet</td><td>Global</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Auditoria de focus ─────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Auditoria de focus · status</h2>
+      <p class="section-desc">Todos os atoms e form atoms checados. Componentes do Crisis Monitor podem ainda carecer do ring — issue tracking inline com a release v2.</p>
+      <table class="km-tbl">
+        <thead><tr><th>Componente</th><th>Focus ring</th><th>Keyboard map</th></tr></thead>
+        <tbody>
+          <tr><td>Button</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ AA</span></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓</span></td></tr>
+          <tr><td>Input</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ AA</span></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓</span></td></tr>
+          <tr><td>Checkbox · Switch · Radio</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ AA</span></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓</span></td></tr>
+          <tr><td>Select · Dropdown · Command</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ AA</span></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓</span></td></tr>
+          <tr><td>Tabs</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ AA</span></td><td><span style="color:var(--warning);font-family:var(--font-pulso-mono);font-size:11px;">⚠ verificar Home/End</span></td></tr>
+          <tr><td>Dialog · Sheet · Responsive Sheet</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ AA</span></td><td><span style="color:var(--warning);font-family:var(--font-pulso-mono);font-size:11px;">⚠ implementar focus trap</span></td></tr>
+          <tr><td>Table</td><td><span style="color:var(--warning);font-family:var(--font-pulso-mono);font-size:11px;">⚠ row focus pendente</span></td><td><span style="color:var(--warning);font-family:var(--font-pulso-mono);font-size:11px;">⚠ multi-select pendente</span></td></tr>
+          <tr><td>Accordion · Collapsible Card</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ AA</span></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Regras ───────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Faça</div>
+          <ul>
+            <li>Use sempre <code>:focus-visible</code>, nunca <code>:focus</code> sozinho. Mouse não dispara ring.</li>
+            <li>Mantenha hit target ≥ 32×32 em desktop denso, ≥ 44×44 em mobile e CTAs primárias.</li>
+            <li>Implemente focus trap em todo Dialog/Sheet. <kbd class="k">Esc</kbd> fecha e devolve foco.</li>
+            <li>Skip link no topo de toda página: <kbd class="k">Tab</kbd> com página recém-carregada foca "Pular para conteúdo".</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Evite</div>
+          <ul>
+            <li>Não use <code>outline: none</code> sem oferecer substituto visível.</li>
+            <li>Não use <code>tabindex</code> &gt; 0. Quebra a ordem natural.</li>
+            <li>Não dispare ações somente em <kbd class="k">Enter</kbd> sem <kbd class="k">Space</kbd> em botão (WAI-ARIA exige ambos).</li>
+            <li>Não esconda controles atrás de hover. Hover não existe em teclado.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

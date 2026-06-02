@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Motion</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.motion-demo { display: inline-block; padding: 14px 20px; background: var(--primary); color: var(--primary-foreground); border-radius: var(--radius-sm); font-weight: 500; cursor: pointer; transition: transform var(--motion-duration-default) var(--motion-easing); }
+.motion-demo:hover { transform: translateY(-2px); }
+.motion-fast:hover { transition-duration: var(--motion-duration-fast); }
+.motion-slow { transition-duration: var(--motion-duration-slow); }
+.pulse-demo { width: 12px; height: 12px; border-radius: 50%; background: var(--risk-critical); animation: pulse-opacity 1.6s var(--motion-easing) infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Foundations · 06</div>
+    <h1 class="page-title">Motion</h1>
+    <p class="page-sub">Movimento confirma ação, não chama atenção. Durações curtas (≤200ms) para tudo que é resposta direta. Animação enfática só quando o objeto entra ou sai do espaço.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Durações</h2>
+      <table class="tokens">
+        <thead><tr><th>Token</th><th>Valor</th><th>Uso</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">--motion-duration-fast</td><td class="mono">120ms</td><td>Hover, focus, micro-interação</td></tr>
+          <tr><td class="mono">--motion-duration-default</td><td class="mono">200ms</td><td>Transição de estado, expand/collapse</td></tr>
+          <tr><td class="mono">--motion-duration-slow</td><td class="mono">320ms</td><td>Layout, page transition, modal</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Easing</h2>
+      <table class="tokens">
+        <thead><tr><th>Token</th><th>Curva</th><th>Uso</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">--motion-easing</td><td class="mono">cubic-bezier(0.2, 0.9, 0.3, 1)</td><td>Padrão para tudo</td></tr>
+          <tr><td class="mono">--motion-easing-emphasized</td><td class="mono">cubic-bezier(0.22, 1, 0.36, 1)</td><td>Entrances/exits enfáticos</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Demonstração</h2>
+      <p class="section-desc">Passe o mouse sobre os botões.</p>
+      <div class="preview-row">
+        <span class="motion-demo motion-fast">Fast · 120ms</span>
+        <span class="motion-demo">Default · 200ms</span>
+        <span class="motion-demo motion-slow">Slow · 320ms</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Pulse</h2>
+      <p class="section-desc">A única animação contínua: indica atividade ao vivo. Mantida mesmo com <code style="font-family: var(--font-pulso-mono); font-size: 11px; background: var(--muted); padding: 1px 6px;">prefers-reduced-motion</code> porque é informação, não decoração.</p>
+      <div class="preview-row">
+        <span style="color: var(--fg); font-size: 13px;"><span class="pulse-demo"></span>Caso ativo · monitorando</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Reduced motion</h2>
+      <p class="section-desc">Respeitamos <code style="font-family: var(--font-pulso-mono); font-size: 11px; background: var(--muted); padding: 1px 6px;">prefers-reduced-motion: reduce</code>. Toda animação cai para 0.01ms exceto pulse-opacity (sinal vital de live data).</p>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><div class="rule-tag">DO</div><div>120ms para hover. 200ms para mudança de estado. 320ms para modal/page.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Use translate/opacity. Evite animar width/height (custo de layout).</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use animação como única forma de feedback — sempre acompanhe com mudança de estado visual.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não anime cores de uma para outra atravessando hue ruim. Use color-mix se precisar.</div></div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

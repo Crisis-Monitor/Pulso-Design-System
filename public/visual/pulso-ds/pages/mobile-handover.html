@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Push Handover</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* ── Handover diagram ───── */
+.handover-stage {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+}
+.handover-stage::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 50%, color-mix(in oklab, var(--primary) 4%, transparent), transparent 70%);
+  pointer-events: none;
+}
+.handover-row {
+  display: grid; grid-template-columns: 250px 1fr 1fr;
+  gap: 24px; align-items: center;
+  position: relative; z-index: 1;
+}
+@media (max-width: 900px) { .handover-row { grid-template-columns: 1fr; } }
+
+/* Mini phone */
+.mini-phone {
+  width: 200px; height: 410px;
+  background: #0f0c1a; border-radius: 30px; padding: 7px;
+  position: relative; margin: 0 auto;
+}
+.mini-phone .screen {
+  width: 100%; height: 100%; background: var(--card);
+  border-radius: 22px; position: relative; overflow: hidden;
+}
+.mini-phone .notch {
+  position: absolute; top: 9px; left: 50%; transform: translateX(-50%);
+  width: 56px; height: 14px; background: #0f0c1a; border-radius: 10px; z-index: 4;
+}
+.mini-phone-content {
+  position: absolute; top: 30px; left: 0; right: 0; bottom: 0;
+  padding: 12px; display: flex; flex-direction: column; gap: 6px;
+}
+
+/* Push notification on lock screen */
+.lock-bg {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, #1a1530 0%, #2a1f55 100%);
+  z-index: 0;
+}
+.lock-time {
+  position: absolute; top: 60px; left: 50%; transform: translateX(-50%);
+  font-family: var(--font-pulso-mono); font-size: 38px; font-weight: 700;
+  color: white; letter-spacing: -0.03em; z-index: 1;
+  font-variant-numeric: tabular-nums;
+}
+.lock-date {
+  position: absolute; top: 100px; left: 50%; transform: translateX(-50%);
+  font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 600;
+  color: rgba(255,255,255,0.7); letter-spacing: 0.06em; text-transform: uppercase;
+  z-index: 1;
+}
+.push-notif {
+  position: absolute; left: 8px; right: 8px; top: 140px;
+  background: rgba(20, 16, 35, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 12px;
+  padding: 11px 12px;
+  z-index: 2;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.push-notif .row1 { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.push-notif .app {
+  width: 14px; height: 14px; border-radius: 4px;
+  background: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-pulso-mono); font-size: 8px; font-weight: 700;
+  color: white;
+}
+.push-notif .name {
+  font-family: var(--font-pulso-mono); font-size: 9px; font-weight: 700;
+  color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 0.06em;
+}
+.push-notif .ts { margin-left: auto; font-family: var(--font-pulso-mono); font-size: 9px; color: rgba(255,255,255,0.5); }
+.push-notif .title { font-size: 11px; color: white; font-weight: 700; line-height: 1.3; margin-bottom: 2px; }
+.push-notif .sub { font-size: 10px; color: rgba(255,255,255,0.7); line-height: 1.4; }
+.push-notif.crit { border-left: 2px solid var(--risk-critical-text); }
+.push-notif.crit .name { color: var(--risk-critical-text); }
+.push-notif.crit .title::before { content: '● '; color: var(--risk-critical-text); }
+.push-notif.attn { border-left: 2px solid var(--risk-attention-text); }
+.push-notif.attn .name { color: var(--risk-attention-text); }
+.push-notif.attn .title::before { content: '◆ '; color: var(--risk-attention-text); }
+.push-notif.mon { border-left: 2px solid var(--risk-monitor-text); }
+.push-notif.mon .name { color: var(--risk-monitor-text); }
+.push-notif.mon .title::before { content: '○ '; color: var(--risk-monitor-text); }
+
+/* Browser window for desktop */
+.browser {
+  width: 100%; max-width: 460px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden; box-shadow: 0 8px 28px rgba(15,12,26,0.12);
+}
+.browser-bar {
+  background: var(--surface-2); padding: 8px 12px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border-faint);
+}
+.browser-dots { display: flex; gap: 5px; }
+.browser-dots .d { width: 10px; height: 10px; border-radius: 50%; }
+.browser-dots .d.r { background: #ff5f57; }
+.browser-dots .d.y { background: #febc2e; }
+.browser-dots .d.g { background: #28c840; }
+.browser-url {
+  flex: 1; background: var(--card); border: 1px solid var(--border-faint);
+  border-radius: 6px; padding: 4px 10px;
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  color: var(--fg-muted);
+  display: flex; align-items: center; gap: 6px;
+}
+.browser-url .pre { color: var(--fg-subtle); }
+.browser-url .path { color: var(--fg-strong); font-weight: 600; }
+.browser-url .qs { color: var(--primary); }
+
+.browser-body {
+  padding: 16px 18px;
+  min-height: 280px;
+  background: var(--surface-page);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.brow-header {
+  display: flex; align-items: center; gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-faint);
+}
+.brow-header .lbl {
+  font-family: var(--font-pulso-mono); font-size: 9.5px;
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--fg-subtle);
+}
+.brow-header .case {
+  font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 700;
+  color: var(--fg-strong);
+}
+.brow-header .arrival-badge {
+  margin-left: auto;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 8px;
+  background: color-mix(in oklab, var(--success) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--success) 32%, transparent);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-pulso-mono); font-size: 9.5px; font-weight: 700;
+  color: var(--success); letter-spacing: 0.04em; text-transform: uppercase;
+}
+.brow-card {
+  background: var(--card); border: 1px solid var(--border-faint);
+  border-radius: 6px; padding: 10px 12px;
+}
+.brow-card .h {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--font-pulso-mono); font-size: 9.5px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--fg-subtle); margin-bottom: 4px;
+}
+.brow-card .t { font-size: 11.5px; color: var(--fg-strong); font-weight: 600; }
+.brow-card .s { font-size: 10.5px; color: var(--fg-muted); margin-top: 2px; line-height: 1.5; }
+
+/* Sync line between devices */
+.sync-line {
+  position: relative; height: 4px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  border-radius: 2px;
+  margin: 24px 0;
+  overflow: visible;
+}
+.sync-line .label {
+  position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
+  font-family: var(--font-pulso-mono); font-size: 10.5px; font-weight: 700;
+  color: var(--primary); letter-spacing: 0.04em; text-transform: uppercase;
+  white-space: nowrap;
+}
+.sync-line .pulse-dot {
+  position: absolute; top: -3px; width: 10px; height: 10px;
+  border-radius: 50%; background: var(--primary);
+  box-shadow: 0 0 12px var(--primary);
+  animation: sync-travel 3s linear infinite;
+}
+@keyframes sync-travel {
+  0% { left: 0; opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { left: calc(100% - 10px); opacity: 0; }
+}
+
+/* ── Push tiers ───── */
+.tiers-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+@media (max-width: 900px) { .tiers-grid { grid-template-columns: 1fr; } }
+.tier-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.tier-card.crit { border-left: 3px solid var(--risk-critical-text); }
+.tier-card.high { border-left: 3px solid var(--risk-attention-text); }
+.tier-card.mon  { border-left: 3px solid var(--risk-monitor-text); }
+.tier-head {
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border-faint);
+}
+.tier-head .lbl {
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700;
+}
+.tier-card.crit .tier-head .lbl { color: var(--risk-critical-text); }
+.tier-card.high .tier-head .lbl { color: var(--risk-attention-text); }
+.tier-card.mon  .tier-head .lbl { color: var(--risk-monitor-text); }
+.tier-head h4 { font-size: 17px; font-weight: 700; color: var(--fg-strong); letter-spacing: -0.005em; margin-top: 4px; }
+.tier-head .when { font-size: 12.5px; color: var(--fg-secondary); margin-top: 6px; line-height: 1.55; }
+
+.tier-body { padding: 16px 22px 20px; display: flex; flex-direction: column; gap: 10px; }
+.tier-attr { display: grid; grid-template-columns: 70px 1fr; gap: 12px; padding: 6px 0; align-items: baseline; font-size: 12.5px; }
+.tier-attr .k {
+  font-family: var(--font-pulso-mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--fg-subtle); font-weight: 700;
+}
+.tier-attr .v { color: var(--fg); line-height: 1.5; }
+.tier-attr .v .yes { color: var(--success); font-weight: 700; }
+.tier-attr .v .no { color: var(--destructive); font-weight: 700; }
+.tier-attr .v code {
+  font-family: var(--font-pulso-mono); font-size: 11px;
+  background: var(--surface-2); padding: 1px 5px; border-radius: 3px;
+}
+
+.tier-body .preview {
+  margin-top: 8px;
+  background: rgba(20, 16, 35, 0.95);
+  border-radius: 8px;
+  padding: 9px 11px;
+  position: relative;
+}
+.tier-body .preview::before {
+  content: 'preview';
+  position: absolute; top: -8px; left: 12px;
+  font-family: var(--font-pulso-mono); font-size: 9px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--fg-subtle); background: var(--card); padding: 0 6px;
+}
+.tier-body .preview .name {
+  font-family: var(--font-pulso-mono); font-size: 9px;
+  color: rgba(255,255,255,0.7); margin-bottom: 3px;
+  letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700;
+}
+.tier-body .preview .title { font-size: 11px; color: white; font-weight: 700; line-height: 1.3; margin-bottom: 2px; }
+.tier-body .preview .sub { font-size: 10px; color: rgba(255,255,255,0.7); line-height: 1.4; }
+
+/* ── Deep link parsing ───── */
+.url-parse {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.url-bar {
+  padding: 20px 26px;
+  background: var(--surface-2);
+  font-family: var(--font-pulso-mono); font-size: 15px;
+  font-weight: 600;
+  color: var(--fg-strong);
+  border-bottom: 1px solid var(--border-faint);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.url-bar .seg { padding: 2px 4px; border-radius: 3px; }
+.url-bar .seg.scheme { background: color-mix(in oklab, var(--primary) 15%, transparent); color: var(--primary); }
+.url-bar .seg.host { color: var(--fg); }
+.url-bar .seg.path { background: color-mix(in oklab, var(--success) 15%, transparent); color: var(--success); }
+.url-bar .seg.id { background: color-mix(in oklab, var(--risk-monitor) 18%, transparent); color: var(--risk-monitor-text); }
+.url-bar .seg.q { color: var(--fg-muted); }
+.url-bar .seg.action { background: color-mix(in oklab, var(--risk-attention) 16%, transparent); color: var(--risk-attention-text); }
+
+.url-legend { padding: 22px 26px; }
+.url-leg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 700px) { .url-leg-grid { grid-template-columns: 1fr; } }
+.url-leg-row {
+  display: grid; grid-template-columns: 100px 1fr; gap: 14px;
+  padding: 8px 0; align-items: baseline;
+}
+.url-leg-row .k {
+  font-family: var(--font-pulso-mono); font-size: 11px;
+  font-weight: 700; padding: 2px 6px; border-radius: 3px;
+  text-align: center;
+}
+.url-leg-row .k.scheme { background: color-mix(in oklab, var(--primary) 15%, transparent); color: var(--primary); }
+.url-leg-row .k.host { background: var(--surface-2); color: var(--fg); }
+.url-leg-row .k.path { background: color-mix(in oklab, var(--success) 15%, transparent); color: var(--success); }
+.url-leg-row .k.id { background: color-mix(in oklab, var(--risk-monitor) 18%, transparent); color: var(--risk-monitor-text); }
+.url-leg-row .k.action { background: color-mix(in oklab, var(--risk-attention) 16%, transparent); color: var(--risk-attention-text); }
+.url-leg-row .v { font-size: 13px; color: var(--fg); line-height: 1.55; }
+.url-leg-row .v code { font-family: var(--font-pulso-mono); font-size: 11px; background: var(--surface-2); padding: 1px 5px; border-radius: 3px; }
+
+/* ── Sync targets ───── */
+.targets {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 28px 32px;
+}
+.targets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
+.target-card {
+  background: var(--surface-2); border: 1px solid var(--border-faint);
+  border-radius: var(--radius-sm); padding: 16px;
+  text-align: center;
+}
+.target-card .num {
+  font-family: var(--font-pulso-mono); font-size: 28px; font-weight: 700;
+  color: var(--primary); letter-spacing: -0.01em; line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.target-card .unit {
+  font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 700;
+  color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.08em;
+  margin-top: 4px;
+}
+.target-card .what {
+  font-size: 12.5px; color: var(--fg-secondary); line-height: 1.5;
+  margin-top: 10px;
+}
+
+/* ── Rules ───── */
+.rules { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .rules { grid-template-columns: 1fr; } }
+.rule { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 22px; }
+.rule.do { border-left: 3px solid var(--success); }
+.rule.dont { border-left: 3px solid var(--destructive); }
+.rule .tag { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 8px; }
+.rule.do .tag { color: var(--success); }
+.rule.dont .tag { color: var(--destructive); }
+.rule p { font-size: 13px; color: var(--fg); line-height: 1.55; }
+.rule .note { padding-top: 10px; margin-top: 10px; border-top: 1px solid var(--border-faint); font-size: 12px; color: var(--fg-muted); line-height: 1.55; }
+.rule code { font-family: var(--font-pulso-mono); font-size: 11px; background: var(--surface-2); padding: 1px 5px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Patterns · Mobile · v3 · γ.3 · entregue</div>
+    <h1 class="page-title">Push handover · web ↔ mobile</h1>
+    <p class="page-sub">Push chega no celular · operador continua no desktop. Estado flui em &lt; 2s · deep-link entrega contexto exato · três tiers de push (crítico · alto · monitor) com vibração e som calibrados. Sem isso, mobile vira ilha · com isso, mobile é canal de paridade.</p>
+
+    <!-- Princípio -->
+    <section class="section">
+      <h2 class="section-h1">Princípio · um caso, dois dispositivos</h2>
+      <p class="section-desc">O operador tem uma única caixa de trabalho · que vive em dois dispositivos. Push no celular não cria sessão paralela · entrega contexto + acelera o salto. Ack no mobile reflete no desktop em &lt;2s. Decisão começada no celular pode continuar no desktop sem repetir leitura.</p>
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 26px;">
+        <p style="font-size:15px;color:var(--fg-strong);line-height:1.65;max-width:780px;">A regra é <strong>deep-link entrega contexto · sync mantém estado</strong>. Operador chega na mesma tela onde a Cris pausou, com o mesmo draft em aberto, mesma seleção, mesma posição no audit log.</p>
+      </div>
+    </section>
+
+    <!-- Handover diagram -->
+    <section class="section">
+      <h2 class="section-h1">Anatomia · push → deep-link → desktop</h2>
+      <p class="section-desc">Três momentos: notificação na tela de bloqueio · operador toca · desktop já está na tela correta com contexto resolvido.</p>
+
+      <div class="handover-stage">
+        <div class="handover-row">
+          <!-- Mobile -->
+          <div>
+            <div class="mini-phone">
+              <div class="notch"></div>
+              <div class="screen">
+                <div class="lock-bg"></div>
+                <div class="lock-time">09:42</div>
+                <div class="lock-date">QUA · 21 MAI</div>
+                <div class="push-notif crit">
+                  <div class="row1">
+                    <div class="app">P</div>
+                    <div class="name">Pulso · crítico</div>
+                    <div class="ts">agora</div>
+                  </div>
+                  <div class="title">CASO 248 · escalada</div>
+                  <div class="sub">+62% menções · 14 perfis verificados amplificam. Tier elevado para atenção.</div>
+                </div>
+              </div>
+            </div>
+            <div style="text-align: center; margin-top: 10px; font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700;">01 · push recebido</div>
+          </div>
+
+          <!-- Sync line -->
+          <div style="grid-column: span 1; align-self: center;">
+            <div class="sync-line">
+              <span class="label">sync &lt; 2s</span>
+              <div class="pulse-dot"></div>
+            </div>
+            <div style="text-align: center; font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); letter-spacing: 0.04em; margin-top: 6px;">deep-link · <code style="font-family:inherit;background:var(--surface-2);padding:1px 5px;border-radius:3px;color:var(--primary);">pulso://crisis/248?action=ack</code></div>
+          </div>
+
+          <!-- Desktop -->
+          <div>
+            <div class="browser">
+              <div class="browser-bar">
+                <div class="browser-dots"><span class="d r"></span><span class="d y"></span><span class="d g"></span></div>
+                <div class="browser-url">
+                  <span class="pre">pulso.app</span>
+                  <span class="path">/crisis/248</span>
+                  <span class="qs">?action=ack</span>
+                </div>
+              </div>
+              <div class="browser-body">
+                <div class="brow-header">
+                  <span class="lbl">CASO ATIVO</span>
+                  <span class="case">248</span>
+                  <span class="arrival-badge">chegou via push</span>
+                </div>
+                <div class="brow-card" style="border-left: 2px solid var(--risk-critical-text);">
+                  <div class="h"><span style="color: var(--risk-critical-text); font-weight: 700;">● CRÍTICO</span><span style="margin-left: auto;">há 2 min</span></div>
+                  <div class="t">CASO 248 · escalada coordenada</div>
+                  <div class="s">+62% menções em 4h · 14 contas verificadas · cluster X reincidente do CASO 218.</div>
+                </div>
+                <div class="brow-card" style="background: color-mix(in oklab, var(--primary) 5%, var(--card)); border-color: var(--primary-border);">
+                  <div class="h" style="color: var(--primary);">↳ AÇÃO SUGERIDA PELO PUSH</div>
+                  <div class="t">Confirmar ack do CASO 248</div>
+                  <div class="s">tocou na notificação · operador 4 viu · confirme aqui ou ⌥A.</div>
+                </div>
+              </div>
+            </div>
+            <div style="text-align: center; margin-top: 10px; font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700;">02 · desktop sincronizado</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Deep link schema -->
+    <section class="section">
+      <h2 class="section-h1">Deep-link schema</h2>
+      <p class="section-desc">URL canônica · scheme custom para mobile, https para web. Cada segmento tem responsabilidade clara · operador pode copiar a URL e colar em outro dispositivo · contexto chega intacto.</p>
+
+      <div class="url-parse">
+        <div class="url-bar">
+          <span class="seg scheme">pulso://</span><span class="seg host">crisis</span><span class="seg path">/</span><span class="seg id">248</span><span class="seg q">?</span><span class="seg action">action=ack</span><span class="seg q">&amp;</span><span class="seg action">from=push</span><span class="seg q">&amp;</span><span class="seg action">push_id=p_9b22</span>
+        </div>
+
+        <div class="url-legend">
+          <div class="url-leg-grid">
+            <div>
+              <div class="url-leg-row">
+                <span class="k scheme">scheme</span>
+                <span class="v"><code>pulso://</code> mobile · <code>https://pulso.app</code> web · resolução automática · mesmo deep-link funciona nos dois.</span>
+              </div>
+              <div class="url-leg-row">
+                <span class="k host">host</span>
+                <span class="v">Tipo da entidade · <code>crisis</code>, <code>audit</code>, <code>case-list</code>. Determina rota de destino.</span>
+              </div>
+              <div class="url-leg-row">
+                <span class="k path">path</span>
+                <span class="v">Separador estrutural · path-style. Permite hierarquia (<code>/crisis/248/notes/v3</code>).</span>
+              </div>
+            </div>
+            <div>
+              <div class="url-leg-row">
+                <span class="k id">id</span>
+                <span class="v">ID estável do recurso · <code>248</code> · sem ambiguidade entre clientes.</span>
+              </div>
+              <div class="url-leg-row">
+                <span class="k action">action</span>
+                <span class="v">Intenção pré-resolvida · <code>ack</code>, <code>view</code>, <code>escalate</code>. Desktop abre a tela <em>e</em> destaca a ação.</span>
+              </div>
+              <div class="url-leg-row">
+                <span class="k action">metadata</span>
+                <span class="v"><code>from=push</code> · <code>push_id=...</code> · traça origem no audit log (β.5) · push virou ação.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 tiers -->
+    <section class="section">
+      <h2 class="section-h1">Três tiers de push</h2>
+      <p class="section-desc">Cada tier define som, vibração, persistência e capacidade de bypass do modo silencioso. Operador escolhe nas configurações · default segue tier do caso.</p>
+
+      <div class="tiers-grid">
+        <!-- Crítico -->
+        <div class="tier-card crit">
+          <div class="tier-head">
+            <div class="lbl">Tier 01 · Crítico</div>
+            <h4>Crítico</h4>
+            <div class="when">Caso novo crítico · escalada decisiva · falha bloqueante. Operador on-call <strong>precisa</strong> ver.</div>
+          </div>
+          <div class="tier-body">
+            <div class="tier-attr"><span class="k">som</span><span class="v">áudio distintivo · sobrepõe silenciamento</span></div>
+            <div class="tier-attr"><span class="k">vibração</span><span class="v">padrão longo · 3× pulsos fortes</span></div>
+            <div class="tier-attr"><span class="k">bypass DND</span><span class="v"><span class="yes">sim</span> · contas on-call</span></div>
+            <div class="tier-attr"><span class="k">persistência</span><span class="v">não dismiss automático · 30 min na central</span></div>
+            <div class="tier-attr"><span class="k">apple alert</span><span class="v"><code>time-sensitive</code> · sobrepõe modo Foco</span></div>
+            <div class="preview">
+              <div class="name" style="color: var(--risk-critical-text);">PULSO · CRÍTICO</div>
+              <div class="title">● CASO 248 · escalada coordenada</div>
+              <div class="sub">+62% em 4h · 14 perfis verificados · cluster X reincidente.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alto -->
+        <div class="tier-card high">
+          <div class="tier-head">
+            <div class="lbl">Tier 02 · Alto</div>
+            <h4>Alto</h4>
+            <div class="when">Caso em tier atenção · recomendação decisiva da Cris aguardando · update relevante em caso ativo.</div>
+          </div>
+          <div class="tier-body">
+            <div class="tier-attr"><span class="k">som</span><span class="v">padrão · sistema</span></div>
+            <div class="tier-attr"><span class="k">vibração</span><span class="v">2× pulsos médios</span></div>
+            <div class="tier-attr"><span class="k">bypass DND</span><span class="v"><span class="no">não</span> · respeita silenciamento</span></div>
+            <div class="tier-attr"><span class="k">persistência</span><span class="v">15 min na central</span></div>
+            <div class="tier-attr"><span class="k">apple alert</span><span class="v"><code>active</code> · padrão</span></div>
+            <div class="preview">
+              <div class="name" style="color: var(--risk-attention-text);">PULSO · ALTO</div>
+              <div class="title">◆ CASO 252 · Cris recomenda escalar</div>
+              <div class="sub">decisive (0.88) · 4 fontes · 14 min para expirar.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monitor -->
+        <div class="tier-card mon">
+          <div class="tier-head">
+            <div class="lbl">Tier 03 · Monitor</div>
+            <h4>Monitor</h4>
+            <div class="when">Resumo diário · digest · sugestões de baixa confiança · sinais informativos sem ação imediata.</div>
+          </div>
+          <div class="tier-body">
+            <div class="tier-attr"><span class="k">som</span><span class="v">nenhum</span></div>
+            <div class="tier-attr"><span class="k">vibração</span><span class="v">nenhuma</span></div>
+            <div class="tier-attr"><span class="k">bypass DND</span><span class="v"><span class="no">não</span> · agrupa silenciosamente</span></div>
+            <div class="tier-attr"><span class="k">persistência</span><span class="v">aparece só na central · sem badge</span></div>
+            <div class="tier-attr"><span class="k">apple alert</span><span class="v"><code>passive</code> · não interrompe</span></div>
+            <div class="preview">
+              <div class="name" style="color: var(--risk-monitor-text);">PULSO · MONITOR</div>
+              <div class="title">○ Digest · semana 21 mai</div>
+              <div class="sub">3 casos fechados · 2 abertos · cluster X em monitor.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sync targets -->
+    <section class="section">
+      <h2 class="section-h1">SLA · 4 alvos de sync</h2>
+      <p class="section-desc">Métricas mensuráveis. Se qualquer um desliza, o sistema avisa internamente · drift de mais de 2s entre dispositivos é incidente, não inconveniente.</p>
+
+      <div class="targets">
+        <div class="targets-grid">
+          <div class="target-card">
+            <div class="num">&lt; 2s</div>
+            <div class="unit">push → desktop</div>
+            <p class="what">Tempo entre push entregue e estado refletir no desktop logado.</p>
+          </div>
+          <div class="target-card">
+            <div class="num">&lt; 800ms</div>
+            <div class="unit">ack → outros devices</div>
+            <p class="what">Ack no celular some do desktop · ou vice-versa. Conexão estável.</p>
+          </div>
+          <div class="target-card">
+            <div class="num">100%</div>
+            <div class="unit">deep-link cold-start</div>
+            <p class="what">App fechado · operador toca push · destino correto na primeira tela após auth.</p>
+          </div>
+          <div class="target-card">
+            <div class="num">99.5%</div>
+            <div class="unit">push entrega · crítico</div>
+            <p class="what">Push tier 01 entregue em &lt; 10s em rede normal. Failover de provider em 30s.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Don't / Do -->
+    <section class="section">
+      <h2 class="section-h1">Don't / Do</h2>
+      <p class="section-desc">Push é o canal mais facilmente abusado · regras protegem confiança do operador.</p>
+
+      <div class="rules">
+        <div class="rule dont">
+          <div class="tag">✕ Não usar crítico fora de crítico</div>
+          <p>Tier 01 sobrepõe silenciamento. Usar para update menor queima a credibilidade. Em 3 push falsos críticos, operador desliga · perde a próxima real.</p>
+          <div class="note">Auditoria de uso · tier 01 não pode exceder 5% do volume mensal · alerta interno aciona se passa.</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Deep-link sempre · push sem deep-link não existe</div>
+          <p>Toda notificação carrega <code>pulso://</code> · tap leva exatamente à tela do contexto. Operador nunca abre app e <em>procura</em> o caso que recebeu push.</p>
+          <div class="note">Falhar deep-link parsing &gt; abrir lista de alertas. Sempre ter fallback graceful.</div>
+        </div>
+
+        <div class="rule dont">
+          <div class="tag">✕ Não duplicar push entre devices</div>
+          <p>Operador com celular + tablet + desktop recebe um único push · entregue no dispositivo mais ativo. Tier 01 entrega em todos como fallback · demais escolhem alvo.</p>
+          <div class="note">Backend mantém <code>focus_score</code> por device · push vai para o mais alto.</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ State sync via stream · não polling</div>
+          <p>WebSocket / SSE persistente · cada ação propaga em ms. Polling perde mudanças, atrasa &lt; 2s SLA · sync precisa ser empurrado, não puxado.</p>
+          <div class="note">Em offline (γ.2), stream para · reconecta com diff desde último ack ao voltar.</div>
+        </div>
+
+        <div class="rule dont">
+          <div class="tag">✕ Não fazer push ser único caminho de informação</div>
+          <p>Push é veículo · não fonte. Estado completo vive no servidor · push é convite para olhar. Push perdido nunca leva a estado perdido.</p>
+          <div class="note">Quando push falha entrega, in-app badge no desktop continua mostrando · operador sabe ao abrir.</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Auditoria de push no audit log</div>
+          <p>Push enviado é evento auditável (β.5) · com tier, conteúdo, timestamp de entrega, ação resultante. Pergunta "por que recebi push às 3am?" tem resposta investigável.</p>
+          <div class="note">Evento <code>push_sent</code> com retention class definida pelo tier · crítico vira 24mo · monitor 3mo.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dependencies -->
+    <section class="section">
+      <h2 class="section-h1">Dependências</h2>
+      <p class="section-desc">Como γ.3 conecta o resto.</p>
+
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 26px;">
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">γ.1</span> &nbsp;<a href="mobile-gestures.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Gestures</a> · ações via push usam mesma gramática · swipe-to-ack na notificação reflete swipe-to-ack no app.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">γ.2</span> &nbsp;<a href="mobile-offline.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Offline-first</a> · ack iniciado offline no mobile pode confirmar no desktop ao reconectar.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">1.2</span> &nbsp;<a href="accessibility-risk-redundancy.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Risk redundância</a> · glifo do tier (● ◆ ○) entra no título do push · cor sozinha não basta no lock screen.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">β.4</span> &nbsp;<a href="ai-recommendation.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Recommendation</a> · recomendação <em>decisiva</em> da Cris dispara push tier 02 · operador pode tocar e cair direto no RecommendationCard.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">β.5</span> &nbsp;<a href="ai-audit-trail.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Audit trail</a> · push enviado + ação resultante encadeiam-se no audit log · investigação "do push até a ação" em 1 query.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">4.4</span> &nbsp;<a href="tpl-notifications.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Notifications template</a> · preferences ganha aba "Push" · operador escolhe tier por canal (móvel, desktop, watch).</li>
+        </ul>
+      </div>
+    </section>
+
+    <div style="height:96px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Draft & Regenerate</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* ── Cris mark reusado ─────────────── */
+.cris-mark { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; flex-shrink: 0; }
+.cris-mark svg { width: 100%; height: 100%; }
+.cris-kicker { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-pulso-mono); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--primary); }
+.cris-kicker .dot { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: 0.6; }
+
+/* ── DraftStack ─────────────── */
+.stack-wrap { display: grid; grid-template-columns: 1.4fr 1fr; gap: 32px; align-items: start; }
+@media (max-width: 980px) { .stack-wrap { grid-template-columns: 1fr; } }
+
+.draft-stack {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md);
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.draft-stack-head {
+  padding: 16px 22px; border-bottom: 1px solid var(--border-faint);
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.draft-stack-head h4 { font-size: 15px; font-weight: 600; color: var(--fg-strong); margin: 0; }
+.draft-stack-head .meta { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); letter-spacing: 0.04em; }
+.draft-stack-head .spacer { flex: 1; }
+
+/* Active draft */
+.draft-current {
+  padding: 22px 26px;
+  border-left: 2px solid var(--primary);
+  background: color-mix(in oklab, var(--primary) 4%, transparent);
+  position: relative;
+}
+.draft-current .top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+.draft-current .v-tag {
+  font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 700;
+  padding: 3px 8px; border-radius: var(--radius-xs);
+  background: var(--primary); color: var(--primary-foreground);
+  letter-spacing: 0.04em;
+}
+.draft-current .text { font-size: 14px; color: var(--fg); line-height: 1.65; }
+.draft-current .text strong { color: var(--fg-strong); font-weight: 600; }
+.draft-current .changed { background: color-mix(in oklab, var(--success) 14%, transparent); padding: 1px 4px; border-radius: 3px; }
+
+.draft-actions { display: flex; gap: 8px; align-items: center; padding: 14px 22px; border-top: 1px solid var(--border-faint); background: var(--surface-2); flex-wrap: wrap; }
+.draft-actions .btn {
+  font-family: inherit; font-size: 12.5px; font-weight: 500;
+  padding: 7px 14px; border-radius: var(--radius-xs); cursor: default;
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--border); background: var(--card); color: var(--fg);
+}
+.draft-actions .btn.primary { background: var(--primary); color: var(--primary-foreground); border-color: transparent; font-weight: 600; }
+.draft-actions .btn.ghost { background: transparent; border-color: transparent; color: var(--fg-secondary); }
+.draft-actions .spacer { flex: 1; }
+.draft-actions .undo-link { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); }
+
+/* History (collapsed) */
+.draft-history { border-top: 1px solid var(--border-faint); }
+.draft-history-head { padding: 12px 22px; display: flex; align-items: center; gap: 10px; font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.08em; cursor: default; }
+.draft-history-head .count { color: var(--fg); font-weight: 700; }
+.history-row { padding: 12px 22px; display: grid; grid-template-columns: 40px 1fr 90px 60px; gap: 14px; align-items: center; border-top: 1px solid var(--border-faint); }
+.history-row .v { font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 600; color: var(--fg-muted); padding: 3px 8px; border-radius: var(--radius-xs); border: 1px solid var(--border-faint); text-align: center; }
+.history-row .what { font-size: 12.5px; color: var(--fg); line-height: 1.5; }
+.history-row .what .tag {
+  font-family: var(--font-pulso-mono); font-size: 10px; font-weight: 600;
+  padding: 1px 6px; border-radius: 3px; margin-right: 6px;
+  background: color-mix(in oklab, var(--primary) 12%, transparent); color: var(--primary); letter-spacing: 0.04em;
+}
+.history-row .ts { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); }
+.history-row .action { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--primary); font-weight: 600; text-align: right; }
+
+/* ── Regenerate toolbar ─────────── */
+.regen-panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 26px; }
+.regen-panel h4 { font-size: 14px; font-weight: 600; color: var(--fg-strong); margin-bottom: 4px; }
+.regen-panel .sub { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px; }
+.regen-group { margin-bottom: 18px; }
+.regen-group .gh { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-muted); margin-bottom: 8px; font-weight: 600; }
+.chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.r-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: inherit; font-size: 12px; font-weight: 500;
+  padding: 6px 12px; border-radius: var(--radius-xs);
+  background: var(--card); border: 1px solid var(--border); color: var(--fg-secondary);
+  cursor: default;
+}
+.r-chip.active {
+  background: color-mix(in oklab, var(--primary) 10%, var(--card));
+  border-color: var(--primary-border); color: var(--primary); font-weight: 600;
+}
+.r-chip .x { font-family: var(--font-pulso-mono); font-size: 10px; opacity: 0.7; }
+.regen-foot { display: flex; gap: 10px; align-items: center; padding-top: 14px; border-top: 1px solid var(--border-faint); }
+.regen-foot .btn { font-family: inherit; font-size: 12.5px; font-weight: 600; padding: 8px 16px; border-radius: var(--radius-xs); background: var(--primary); color: var(--primary-foreground); border: 1px solid transparent; cursor: default; display: inline-flex; align-items: center; gap: 6px; }
+.regen-foot .reset { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); }
+
+/* ── Diff panel ─────────── */
+.diff-pane { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.diff-head { padding: 14px 22px; border-bottom: 1px solid var(--border-faint); display: flex; align-items: center; gap: 14px; background: var(--surface-2); flex-wrap: wrap; }
+.diff-head .vs { display: flex; align-items: center; gap: 8px; font-family: var(--font-pulso-mono); font-size: 11.5px; }
+.diff-head .vs .a { color: var(--fg-muted); }
+.diff-head .vs .arr { color: var(--fg-subtle); }
+.diff-head .vs .b { color: var(--primary); font-weight: 700; }
+.diff-head .spacer { flex: 1; }
+.diff-legend { display: flex; gap: 14px; font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); letter-spacing: 0.04em; }
+.diff-legend .sw { display: inline-flex; align-items: center; gap: 6px; }
+.diff-legend .swatch { width: 10px; height: 10px; border-radius: 2px; }
+.diff-legend .swatch.add { background: color-mix(in oklab, var(--success) 30%, transparent); }
+.diff-legend .swatch.rem { background: color-mix(in oklab, var(--destructive) 28%, transparent); }
+
+.diff-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+@media (max-width: 800px) { .diff-cols { grid-template-columns: 1fr; } }
+.diff-col { padding: 22px 26px; }
+.diff-col.before { border-right: 1px solid var(--border-faint); }
+@media (max-width: 800px) { .diff-col.before { border-right: none; border-bottom: 1px solid var(--border-faint); } }
+.diff-col .ch { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); margin-bottom: 12px; display: flex; gap: 8px; align-items: center; }
+.diff-col .ch .v { color: var(--fg-strong); font-weight: 700; }
+.diff-col p { font-size: 13.5px; color: var(--fg); line-height: 1.7; }
+.diff-col p + p { margin-top: 10px; }
+.diff-add { background: color-mix(in oklab, var(--success) 18%, transparent); color: var(--fg-strong); padding: 1px 3px; border-radius: 2px; }
+.diff-rem { background: color-mix(in oklab, var(--destructive) 18%, transparent); color: var(--fg-muted); padding: 1px 3px; border-radius: 2px; text-decoration: line-through; text-decoration-color: var(--destructive); text-decoration-thickness: 1px; }
+
+.diff-summary { padding: 14px 22px; border-top: 1px solid var(--border-faint); background: var(--surface-2); display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 800px) { .diff-summary { grid-template-columns: repeat(2, 1fr); } }
+.diff-summary .cell .k { font-family: var(--font-pulso-mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 600; }
+.diff-summary .cell .v { font-family: var(--font-pulso-mono); font-size: 14px; color: var(--fg-strong); margin-top: 2px; font-variant-numeric: tabular-nums; font-weight: 700; }
+.diff-summary .cell .v.pos { color: var(--success); }
+.diff-summary .cell .v.neg { color: var(--destructive); }
+
+/* ── Undo timeline ─────────── */
+.timeline-pane { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 24px; }
+.timeline-pane h4 { font-size: 14px; font-weight: 600; color: var(--fg-strong); margin-bottom: 4px; }
+.timeline-pane .sub { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 18px; }
+.tl-list { position: relative; padding-left: 24px; }
+.tl-list::before {
+  content: ''; position: absolute; left: 6px; top: 6px; bottom: 6px;
+  width: 1px; background: var(--border);
+}
+.tl-item { position: relative; padding: 8px 0; display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: baseline; }
+.tl-item::before {
+  content: ''; position: absolute; left: -22px; top: 14px;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--card); border: 2px solid var(--border-strong);
+}
+.tl-item.current::before { background: var(--primary); border-color: var(--primary); }
+.tl-item.current .what { color: var(--fg-strong); font-weight: 600; }
+.tl-item.crit::before { border-color: var(--risk-attention-text); }
+.tl-item .what { font-size: 13px; color: var(--fg); line-height: 1.5; }
+.tl-item .what .vtag { font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 700; color: var(--primary); margin-right: 8px; }
+.tl-item .what .badge {
+  font-family: var(--font-pulso-mono); font-size: 9.5px; font-weight: 600;
+  padding: 1px 6px; border-radius: 3px; margin-left: 6px; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.tl-item .what .badge.regen { background: color-mix(in oklab, var(--primary) 14%, transparent); color: var(--primary); }
+.tl-item .what .badge.human { background: color-mix(in oklab, var(--success) 14%, transparent); color: var(--success); }
+.tl-item .what .badge.undo { background: color-mix(in oklab, var(--risk-monitor) 14%, transparent); color: var(--risk-monitor-text); }
+.tl-item .ts { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); white-space: nowrap; }
+.tl-item .action { display: block; margin-top: 4px; font-family: var(--font-pulso-mono); font-size: 11px; color: var(--primary); font-weight: 600; }
+
+/* ── Restrictions table ─────────── */
+.restr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 800px) { .restr-grid { grid-template-columns: 1fr; } }
+.restr-cat { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px 22px; }
+.restr-cat .ch { display: flex; gap: 10px; align-items: baseline; margin-bottom: 10px; }
+.restr-cat .ch .label { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--primary); font-weight: 700; }
+.restr-cat .ch .name { font-size: 14.5px; font-weight: 600; color: var(--fg-strong); }
+.restr-cat .desc { font-size: 12.5px; color: var(--fg-secondary); line-height: 1.55; margin-bottom: 14px; }
+.restr-cat .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.restr-cat .chips .ch-it { font-family: var(--font-pulso-mono); font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: var(--radius-xs); border: 1px solid var(--border); background: var(--surface-2); color: var(--fg); letter-spacing: 0.04em; }
+
+/* ── Do/Don't ─────────── */
+.rules { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .rules { grid-template-columns: 1fr; } }
+.rule { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 22px; }
+.rule.do { border-left: 3px solid var(--success); }
+.rule.dont { border-left: 3px solid var(--destructive); }
+.rule .tag { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 8px; }
+.rule.do .tag { color: var(--success); }
+.rule.dont .tag { color: var(--destructive); }
+.rule p { font-size: 13px; color: var(--fg); line-height: 1.55; }
+.rule .note { padding-top: 10px; margin-top: 10px; border-top: 1px solid var(--border-faint); font-size: 12px; color: var(--fg-muted); line-height: 1.55; }
+
+/* ── Anatomy callouts ─────────── */
+.anat-list { display: flex; flex-direction: column; gap: 16px; }
+.anat-row { display: grid; grid-template-columns: 28px 1fr; gap: 14px; }
+.anat-row .n { font-family: var(--font-pulso-mono); font-size: 12px; font-weight: 700; color: var(--primary); padding-top: 2px; }
+.anat-row h5 { font-size: 13.5px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; margin-bottom: 2px; }
+.anat-row p { font-size: 12.5px; color: var(--fg-secondary); line-height: 1.55; }
+.anat-row code { font-family: var(--font-pulso-mono); font-size: 11px; background: var(--surface-2); padding: 1px 5px; border-radius: 3px; color: var(--fg); }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Patterns · AI · v3 · β.2 · entregue</div>
+    <h1 class="page-title">Draft &amp; regenerate</h1>
+    <p class="page-sub">O operador escreve resposta com a Cris. Versiona, compara, regenera com restrição e desfaz. Hoje é caixa de texto · vira fluxo formal · com schema, atalhos e contrato. β.1 marca a origem; β.2 lida com o que acontece <em>depois</em> que ela escreve.</p>
+
+    <!-- Problema -->
+    <section class="section">
+      <h2 class="section-h1">O fluxo · 4 momentos</h2>
+      <p class="section-desc">Toda nota gerada com a Cris passa por estes quatro momentos. β.2 formaliza cada um — sem isso, cada PM resolve do seu jeito e o histórico vira liability.</p>
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 26px;">
+        <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:18px;" class="moments">
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--primary);font-weight:700;">01 · gerar</div>
+            <div style="font-size:13px;color:var(--fg-strong);font-weight:600;">Cris produz v1</div>
+            <div style="font-size:12px;color:var(--fg-muted);line-height:1.5;">Modo + restrições do template + contexto do caso.</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--primary);font-weight:700;">02 · iterar</div>
+            <div style="font-size:13px;color:var(--fg-strong);font-weight:600;">Regenerate com restrições</div>
+            <div style="font-size:12px;color:var(--fg-muted);line-height:1.5;">"mais curto", "sem jurídico", "mais firme" — chips compõem o pedido.</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--primary);font-weight:700;">03 · comparar</div>
+            <div style="font-size:13px;color:var(--fg-strong);font-weight:600;">Diff v(n−1) → v(n)</div>
+            <div style="font-size:12px;color:var(--fg-muted);line-height:1.5;">O que mudou · contagem de palavras · tom estimado.</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--primary);font-weight:700;">04 · desfazer</div>
+            <div style="font-size:13px;color:var(--fg-strong);font-weight:600;">Voltar para qualquer ponto</div>
+            <div style="font-size:12px;color:var(--fg-muted);line-height:1.5;">Inclui versões geradas e edições humanas · timeline imutável.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DraftStack anatomia -->
+    <section class="section">
+      <h2 class="section-h1">Anatomia · DraftStack</h2>
+      <p class="section-desc">O componente que materializa o fluxo. Versão atual com borda tonal (β.1) · histórico colapsado abaixo · toolbar de ação no rodapé.</p>
+
+      <div class="stack-wrap">
+        <div class="draft-stack">
+          <div class="draft-stack-head">
+            <span class="cris-kicker">
+              <span class="cris-mark"><svg viewBox="0 0 14 14"><path d="M3 7 Q3 3 7 3 Q11 3 11 7" stroke="var(--primary)" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="7" cy="7" r="1.4" fill="var(--primary)"/><path d="M3 11 H11" stroke="var(--primary)" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+              <span>DraftStack</span>
+              <span class="dot"></span>
+              <span style="color:var(--fg-subtle);font-weight:600;">Porta-voz</span>
+            </span>
+            <h4>Nota institucional · CASO 248</h4>
+            <span class="spacer"></span>
+            <span class="meta">3 versões · 12 min</span>
+          </div>
+
+          <div class="draft-current">
+            <div class="top">
+              <span class="v-tag">v3 · atual</span>
+              <span style="font-family:var(--font-pulso-mono);font-size:10.5px;color:var(--fg-muted);">regenerada com · mais firme + sem jurídico</span>
+              <span style="font-family:var(--font-pulso-mono);font-size:10.5px;color:var(--fg-subtle);margin-left:auto;">142 palavras · 11:48</span>
+            </div>
+            <div class="text">
+              <p>Reconhecemos a preocupação levantada pela reportagem e <span class="changed">reafirmamos o compromisso com a transparência operacional</span>. As medidas que tomamos seguem o quadro regulatório vigente e foram <span class="changed">verificadas por auditoria independente em janeiro deste ano</span>.</p>
+              <p>Permanecemos abertos ao diálogo com órgãos competentes e com a sociedade civil. Comunicaremos novos desenvolvimentos pelos canais oficiais à medida que avançam.</p>
+            </div>
+          </div>
+
+          <div class="draft-actions">
+            <button class="btn primary">Usar versão</button>
+            <button class="btn">Editar manualmente</button>
+            <button class="btn ghost">Comparar com v2</button>
+            <span class="spacer"></span>
+            <span class="undo-link">⌘Z · desfaz para v2</span>
+          </div>
+
+          <div class="draft-history">
+            <div class="draft-history-head">
+              <span>histórico</span>
+              <span class="count">2 versões</span>
+              <span style="margin-left:auto;color:var(--fg-muted);text-transform:none;letter-spacing:0;font-size:11px;">expandir ▾</span>
+            </div>
+            <div class="history-row">
+              <div class="v">v2</div>
+              <div class="what"><span class="tag">regenerada</span>Mais curto · ajuste de tom firmeza moderada</div>
+              <div class="ts">11:46</div>
+              <div class="action">Restaurar</div>
+            </div>
+            <div class="history-row">
+              <div class="v">v1</div>
+              <div class="what"><span class="tag">gerada</span>Primeiro draft · Porta-voz · contexto CASO 248</div>
+              <div class="ts">11:44</div>
+              <div class="action">Restaurar</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="anat-list">
+          <div class="anat-row">
+            <div class="n">01</div>
+            <div>
+              <h5>Header · identidade do draft</h5>
+              <p>Kicker Cris + título + meta. A pessoa sempre sabe o que está olhando e qual modo a Cris está usando.</p>
+            </div>
+          </div>
+          <div class="anat-row">
+            <div class="n">02</div>
+            <div>
+              <h5>Versão atual · borda β.1</h5>
+              <p>O draft vivo herda o marcador de origem-IA: borda 2px <code>--primary</code>, fundo 4% mix. Mudanças vs versão anterior podem aparecer em verde sutil.</p>
+            </div>
+          </div>
+          <div class="anat-row">
+            <div class="n">03</div>
+            <div>
+              <h5>Tag de versão + procedência</h5>
+              <p><code>v3 · atual</code> em pill primária. Abaixo, em mono, as restrições que originaram esta versão · "regenerada com · mais firme + sem jurídico".</p>
+            </div>
+          </div>
+          <div class="anat-row">
+            <div class="n">04</div>
+            <div>
+              <h5>Ações · primária + secundária + comparativa</h5>
+              <p><strong>Usar versão</strong> aceita · <strong>Editar</strong> entra em modo humano (depois marca como Co-edição) · <strong>Comparar</strong> abre o diff. <code>⌘Z</code> sempre desfaz uma versão atrás.</p>
+            </div>
+          </div>
+          <div class="anat-row">
+            <div class="n">05</div>
+            <div>
+              <h5>Histórico colapsado</h5>
+              <p>Cada versão antiga em linha · tag (gerada · regenerada · editada · desfeita) · resumo do que mudou · timestamp · botão Restaurar. Não-destrutivo · restaurar uma versão antiga cria v(n+1).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Regenerate toolbar -->
+    <section class="section">
+      <h2 class="section-h1">Regenerate · restrições como chips</h2>
+      <p class="section-desc">A regeneração nunca é "tente de novo". Ela é composta de restrições escolhidas pelo operador. Chips substituem o prompt livre — previsíveis, auditáveis, persistidas no schema.</p>
+
+      <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:24px;align-items:start;" class="regen-layout">
+        <div class="regen-panel">
+          <h4>Regenerar v3 a partir de v2</h4>
+          <div class="sub">selecione restrições · Cris recompõe</div>
+
+          <div class="regen-group">
+            <div class="gh">Tom</div>
+            <div class="chip-row">
+              <span class="r-chip">Mais cauteloso</span>
+              <span class="r-chip active">Mais firme <span class="x">×</span></span>
+              <span class="r-chip">Mais formal</span>
+              <span class="r-chip">Mais conciso</span>
+            </div>
+          </div>
+
+          <div class="regen-group">
+            <div class="gh">Restrições · conteúdo</div>
+            <div class="chip-row">
+              <span class="r-chip active">Sem jurídico <span class="x">×</span></span>
+              <span class="r-chip">Sem números</span>
+              <span class="r-chip">Sem nomes próprios</span>
+              <span class="r-chip">Manter datas</span>
+            </div>
+          </div>
+
+          <div class="regen-group">
+            <div class="gh">Formato</div>
+            <div class="chip-row">
+              <span class="r-chip">Bullet list</span>
+              <span class="r-chip">Parágrafo único</span>
+              <span class="r-chip">Tweet (240)</span>
+              <span class="r-chip">Comunicado oficial</span>
+            </div>
+          </div>
+
+          <div class="regen-group">
+            <div class="gh">Tamanho</div>
+            <div class="chip-row">
+              <span class="r-chip">Mais curto (-30%)</span>
+              <span class="r-chip">Mais longo (+30%)</span>
+              <span class="r-chip">Manter tamanho</span>
+            </div>
+          </div>
+
+          <div class="regen-foot">
+            <button class="btn">Regenerar com 2 restrições</button>
+            <span style="font-family:var(--font-pulso-mono);font-size:10.5px;color:var(--fg-subtle);margin-left:auto;">2/8 ativas</span>
+            <span class="reset">Limpar</span>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div style="background:var(--card);border:1px solid var(--border);border-left:3px solid var(--primary);border-radius:var(--radius-md);padding:18px 22px;">
+            <div style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--primary);font-weight:700;margin-bottom:8px;">Por que chips, não prompt livre</div>
+            <p style="font-size:13px;color:var(--fg);line-height:1.6;">Prompt livre é não-auditável e não-repetível. Chips compõem um pedido que o audit log (β.5) sabe descrever em uma linha: "regenerada com · mais firme + sem jurídico". Reprodutível em qualquer momento.</p>
+          </div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:18px 22px;">
+            <div style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);font-weight:700;margin-bottom:8px;">Catálogo</div>
+            <p style="font-size:13px;color:var(--fg);line-height:1.55;">Cada superfície (briefing, sugestão, draft de nota, draft de tweet) traz seu subset de chips · curados, nomeados, versionados. Operador não inventa restrição · escolhe da paleta.</p>
+          </div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:18px 22px;">
+            <div style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);font-weight:700;margin-bottom:8px;">Combinação</div>
+            <p style="font-size:13px;color:var(--fg);line-height:1.55;">Restrições compõem aditivamente. Se duas se contradizem ("mais formal" + "tweet 240"), a UI mostra um aviso sem bloquear — Cris vai escolher e marcar a tensão na resposta.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Restriction catalogue -->
+    <section class="section">
+      <h2 class="section-h1">Catálogo de restrições · 4 categorias</h2>
+      <p class="section-desc">As 4 dimensões em que o operador pode pedir mudança. Cada uma é exaustiva — não há "outras". Chips novos passam por RFC.</p>
+
+      <div class="restr-grid">
+        <div class="restr-cat">
+          <div class="ch"><span class="label">01</span><span class="name">Tom</span></div>
+          <p class="desc">Postura emocional e institucional. Sempre dentro das diretrizes da v2 · 2.4 (não-jocoso, não-apologético).</p>
+          <div class="chips">
+            <span class="ch-it">Mais cauteloso</span>
+            <span class="ch-it">Mais firme</span>
+            <span class="ch-it">Mais formal</span>
+            <span class="ch-it">Mais conciso</span>
+            <span class="ch-it">Mais empático</span>
+            <span class="ch-it">Menos defensivo</span>
+          </div>
+        </div>
+
+        <div class="restr-cat">
+          <div class="ch"><span class="label">02</span><span class="name">Conteúdo · restrições</span></div>
+          <p class="desc">O que NÃO pode entrar — palavras, tópicos, asserções. Modo de proteção.</p>
+          <div class="chips">
+            <span class="ch-it">Sem jurídico</span>
+            <span class="ch-it">Sem números</span>
+            <span class="ch-it">Sem nomes próprios</span>
+            <span class="ch-it">Sem comparação</span>
+            <span class="ch-it">Sem promessa</span>
+            <span class="ch-it">Sem hipótese</span>
+          </div>
+        </div>
+
+        <div class="restr-cat">
+          <div class="ch"><span class="label">03</span><span class="name">Formato</span></div>
+          <p class="desc">Estrutura da resposta. Define o esqueleto da v(n+1).</p>
+          <div class="chips">
+            <span class="ch-it">Bullet list</span>
+            <span class="ch-it">Parágrafo único</span>
+            <span class="ch-it">Tweet (240)</span>
+            <span class="ch-it">Comunicado oficial</span>
+            <span class="ch-it">FAQ</span>
+            <span class="ch-it">Resposta a jornalista</span>
+          </div>
+        </div>
+
+        <div class="restr-cat">
+          <div class="ch"><span class="label">04</span><span class="name">Tamanho</span></div>
+          <p class="desc">Volume da resposta · em relação à versão atual.</p>
+          <div class="chips">
+            <span class="ch-it">Mais curto (-30%)</span>
+            <span class="ch-it">Mais longo (+30%)</span>
+            <span class="ch-it">Bem mais curto (-60%)</span>
+            <span class="ch-it">Manter tamanho</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Diff -->
+    <section class="section">
+      <h2 class="section-h1">Diff visual · v2 → v3</h2>
+      <p class="section-desc">Quando o operador escolhe <strong>Comparar</strong>, abre painel lado-a-lado. Mudanças tonais usam paleta semântica (add · success / rem · destructive) em modo discreto.</p>
+
+      <div class="diff-pane">
+        <div class="diff-head">
+          <div class="vs"><span class="a">v2</span><span class="arr">→</span><span class="b">v3</span></div>
+          <span style="font-family:var(--font-pulso-mono);font-size:10.5px;color:var(--fg-muted);">regenerada com · mais firme + sem jurídico · 11:48</span>
+          <span class="spacer"></span>
+          <div class="diff-legend">
+            <span class="sw"><span class="swatch add"></span>adição</span>
+            <span class="sw"><span class="swatch rem"></span>remoção</span>
+          </div>
+        </div>
+
+        <div class="diff-cols">
+          <div class="diff-col before">
+            <div class="ch"><span>antes</span><span class="v">v2 · 11:46</span></div>
+            <p>Reconhecemos a preocupação levantada pela reportagem e <span class="diff-rem">lamentamos profundamente qualquer impacto causado</span>. As medidas que tomamos seguem o quadro regulatório vigente <span class="diff-rem">e estão amparadas pelos artigos 12, 14 e 28 da resolução 248/CMN</span>.</p>
+            <p>Permanecemos abertos ao diálogo. Comunicaremos novos desenvolvimentos pelos canais oficiais.</p>
+          </div>
+          <div class="diff-col after">
+            <div class="ch"><span>depois</span><span class="v">v3 · 11:48</span></div>
+            <p>Reconhecemos a preocupação levantada pela reportagem e <span class="diff-add">reafirmamos o compromisso com a transparência operacional</span>. As medidas que tomamos seguem o quadro regulatório vigente <span class="diff-add">e foram verificadas por auditoria independente em janeiro deste ano</span>.</p>
+            <p>Permanecemos abertos ao diálogo <span class="diff-add">com órgãos competentes e com a sociedade civil</span>. Comunicaremos novos desenvolvimentos pelos canais oficiais <span class="diff-add">à medida que avançam</span>.</p>
+          </div>
+        </div>
+
+        <div class="diff-summary">
+          <div class="cell"><div class="k">Palavras</div><div class="v">142 <span style="color:var(--fg-subtle);font-size:11px;font-weight:500;">de 128</span></div></div>
+          <div class="cell"><div class="k">Δ adição</div><div class="v pos">+38</div></div>
+          <div class="cell"><div class="k">Δ remoção</div><div class="v neg">−24</div></div>
+          <div class="cell"><div class="k">Tom estimado</div><div class="v" style="font-size:12px;font-weight:600;color:var(--fg-strong);">cauteloso → firme</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Undo timeline -->
+    <section class="section">
+      <h2 class="section-h1">Undo timeline · todas as ações</h2>
+      <p class="section-desc">Linha cronológica de toda mudança · gerada, regenerada, editada por humano, desfeita. Imutável. Retorno é não-destrutivo — restaurar v(n) cria v(n+1) idêntica a v(n).</p>
+
+      <div class="timeline-pane">
+        <h4>Nota institucional · CASO 248</h4>
+        <div class="sub">5 ações · 12 min</div>
+
+        <div class="tl-list">
+          <div class="tl-item current">
+            <div class="what">
+              <span class="vtag">v3</span>
+              Regenerada · "mais firme + sem jurídico"
+              <span class="badge regen">regen</span>
+            </div>
+            <div class="ts">11:48</div>
+          </div>
+          <div class="tl-item">
+            <div class="what">
+              <span class="vtag">v2</span>
+              Edição humana · ajuste em 3 trechos
+              <span class="badge human">humano</span>
+              <span class="action">Comparar com v3 →</span>
+            </div>
+            <div class="ts">11:47</div>
+          </div>
+          <div class="tl-item">
+            <div class="what">
+              <span class="vtag">v2</span>
+              Regenerada · "mais curto + manter datas"
+              <span class="badge regen">regen</span>
+            </div>
+            <div class="ts">11:46</div>
+          </div>
+          <div class="tl-item">
+            <div class="what">
+              <span class="vtag">—</span>
+              Undo de v1' · operador descartou edição humana
+              <span class="badge undo">undo</span>
+            </div>
+            <div class="ts">11:45</div>
+          </div>
+          <div class="tl-item">
+            <div class="what">
+              <span class="vtag">v1</span>
+              Gerada · Porta-voz · contexto CASO 248
+              <span class="badge regen">gerada</span>
+            </div>
+            <div class="ts">11:44</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Rules -->
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <p class="section-desc">Princípios que o pattern impõe — não são sugestões de UX, são contratos.</p>
+
+      <div class="rules">
+        <div class="rule do">
+          <div class="tag">✓ Versionar sempre</div>
+          <p>Cada ação cria v(n+1) — incluindo edição humana. Versão anterior nunca é sobrescrita.</p>
+          <div class="note">Sem isso, undo é mentira. E audit log da β.5 não tem o que escrever.</div>
+        </div>
+
+        <div class="rule dont">
+          <div class="tag">✕ Não regenerar sem restrição</div>
+          <p>"Regenerar" sem chip selecionado fica desabilitado. Sem critério, vira loteria · audit log não consegue descrever o pedido.</p>
+          <div class="note">Exceção · primeira geração (v1) é livre · usa o template padrão da superfície.</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Restrições persistem no schema</div>
+          <p>Cada v(n) carrega <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">restrictions: ["firmer","no_legal"]</code>. Replicável amanhã, em outro caso, com o mesmo set.</p>
+          <div class="note">Compatível com schema da β.1 · estende com <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">version_chain</code>.</div>
+        </div>
+
+        <div class="rule dont">
+          <div class="tag">✕ Não esconder edição humana</div>
+          <p>Quando o operador edita manualmente, a borda fica · mas o kicker muda para <strong>Co-edição</strong>. Diff mostra qual trecho é humano, qual é Cris.</p>
+          <div class="note">Origem-IA misturada com edição humana é o caso mais comum · não pode virar "ato de magia".</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Atalho consistente</div>
+          <p><code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">⌘Z</code> sempre desfaz uma versão atrás · <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">⌘⇧Z</code> refaz · <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">⌘R</code> abre painel de regenerate.</p>
+          <div class="note">Atalhos vivem em <strong>Foundations · Keyboard map</strong> (v2 · 1.3). DraftStack herda.</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Não-destrutivo</div>
+          <p>Restaurar uma versão antiga não apaga as novas · cria <strong>v(n+1) ≡ v(k)</strong>. Timeline preserva tudo.</p>
+          <div class="note">Garantia para audit log e para o operador que mudou de ideia 3 vezes em 4 minutos.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dependencies -->
+    <section class="section">
+      <h2 class="section-h1">Dependências</h2>
+      <p class="section-desc">O que β.2 herda · o que entrega para o resto da família.</p>
+
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 26px;">
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">β.1</span> &nbsp;<a href="ai-origin-tracking.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Origin tracking</a> · cada versão herda o schema; borda + kicker + monograma no draft atual.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">2.4</span> &nbsp;<a href="ai-voice.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Pulso IA · Voz</a> · catálogo de restrições <em>tom</em> respeita anti-vocabulário institucional.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">1.3</span> &nbsp;<a href="accessibility-focus-keyboard.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Keyboard map</a> · ⌘Z, ⌘⇧Z, ⌘R como atalhos de primeira classe.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">β.4</span> &nbsp;Recommendation cards usam DraftStack ao expandir para edição.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">β.5</span> &nbsp;Audit log consome <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">version_chain</code> + restrições — uma linha por versão por caso.</li>
+        </ul>
+      </div>
+    </section>
+
+    <div style="height:96px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

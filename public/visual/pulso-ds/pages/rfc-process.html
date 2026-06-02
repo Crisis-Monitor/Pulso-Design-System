@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — RFC & Governance</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* Lifecycle diagram */
+.lifecycle { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 28px 24px; }
+.lf-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; position: relative; }
+@media (max-width: 1000px) { .lf-row { grid-template-columns: 1fr; } }
+.lf-stage { background: var(--surface-2); border: 1px solid var(--border-faint); border-radius: var(--radius-sm); padding: 14px 14px; display: flex; flex-direction: column; gap: 6px; position: relative; }
+.lf-stage::after { content: '→'; position: absolute; right: -8px; top: 50%; transform: translateY(-50%); color: var(--primary); font-size: 14px; z-index: 2; background: var(--card); padding: 0 2px; }
+.lf-stage:last-child::after { display: none; }
+@media (max-width: 1000px) { .lf-stage::after { display: none; } }
+.lf-stage .tag { font-family: var(--font-pulso-mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 600; }
+.lf-stage .name { font-size: 13px; font-weight: 600; color: var(--fg-strong); }
+.lf-stage .desc { font-size: 11.5px; color: var(--fg-muted); line-height: 1.5; }
+.lf-stage.draft { border-left: 3px solid var(--fg-subtle); }
+.lf-stage.review { border-left: 3px solid var(--risk-attention); }
+.lf-stage.accepted { border-left: 3px solid var(--info); }
+.lf-stage.shipped { border-left: 3px solid var(--success); }
+.lf-stage.deprecated { border-left: 3px solid var(--risk-attention); }
+.lf-stage.removed { border-left: 3px solid var(--destructive); }
+
+/* RFC template card */
+.rfc-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.rfc-head { padding: 18px 22px; border-bottom: 1px solid var(--border-faint); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.rfc-id { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+.rfc-title { font-size: 18px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; }
+.rfc-status { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; padding: 3px 8px; border-radius: var(--radius-xs); border: 1px solid; font-weight: 600; }
+.rfc-status.review { background: color-mix(in oklab, var(--risk-attention) 14%, transparent); color: var(--risk-attention-text); border-color: color-mix(in oklab, var(--risk-attention) 30%, transparent); }
+.rfc-meta-row { padding: 12px 22px; background: var(--surface-2); border-bottom: 1px solid var(--border-faint); display: flex; gap: 24px; flex-wrap: wrap; font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-secondary); }
+.rfc-meta-row strong { color: var(--fg-strong); font-weight: 600; }
+.rfc-body { padding: 22px; display: flex; flex-direction: column; gap: 18px; }
+.rfc-sec { display: flex; flex-direction: column; gap: 8px; }
+.rfc-sec-h { font-family: var(--font-pulso-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); font-weight: 600; }
+.rfc-sec-p { font-size: 13.5px; color: var(--fg); line-height: 1.6; }
+.rfc-sec-p code { font-family: var(--font-pulso-mono); font-size: 12px; background: var(--surface-2); padding: 1px 5px; border-radius: 3px; }
+.rfc-sec-p ul { margin: 0; padding-left: 20px; }
+.rfc-sec-p ul li { padding: 2px 0; line-height: 1.55; }
+.rfc-sec-p ul li::marker { color: var(--primary); }
+
+/* Semver table */
+.sv-tbl { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.sv-tbl th, .sv-tbl td { padding: 12px 16px; border-bottom: 1px solid var(--border-faint); text-align: left; vertical-align: top; }
+.sv-tbl thead th { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; background: var(--surface-2); }
+.sv-tbl tr:last-child td { border-bottom: none; }
+.sv-tag { font-family: var(--font-pulso-mono); font-size: 11.5px; font-weight: 600; padding: 3px 8px; border-radius: var(--radius-xs); display: inline-block; }
+.sv-tag.patch { background: color-mix(in oklab, var(--success) 14%, transparent); color: var(--success); border: 1px solid color-mix(in oklab, var(--success) 30%, transparent); }
+.sv-tag.minor { background: color-mix(in oklab, var(--info) 14%, transparent); color: var(--info-foreground, var(--info)); border: 1px solid color-mix(in oklab, var(--info) 30%, transparent); }
+.sv-tag.major { background: color-mix(in oklab, var(--destructive) 14%, transparent); color: var(--destructive); border: 1px solid color-mix(in oklab, var(--destructive) 30%, transparent); }
+
+/* Deprecation timeline */
+.dep-timeline { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 24px 28px; }
+.dep-track { position: relative; padding: 30px 0 8px; }
+.dep-line { position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: var(--border-faint); transform: translateY(-50%); }
+.dep-dots { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); }
+.dep-dot { position: relative; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.dep-dot .marker { width: 14px; height: 14px; border-radius: 50%; border: 3px solid var(--card); position: relative; z-index: 2; }
+.dep-dot.active .marker { background: var(--primary); box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 20%, transparent); }
+.dep-dot.warn .marker { background: var(--risk-attention); }
+.dep-dot.danger .marker { background: var(--destructive); }
+.dep-dot.gone .marker { background: var(--fg-subtle); }
+.dep-label { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 600; position: absolute; top: -22px; white-space: nowrap; }
+.dep-info { text-align: center; padding: 0 8px; }
+.dep-info .v { font-family: var(--font-pulso-mono); font-size: 13px; font-weight: 700; color: var(--fg-strong); margin-bottom: 4px; }
+.dep-info .n { font-size: 12px; color: var(--fg-secondary); line-height: 1.5; }
+
+/* Migration timeline example */
+.mig-example { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.mig-example-head { padding: 14px 20px; border-bottom: 1px solid var(--border-faint); display: flex; align-items: center; gap: 10px; }
+.mig-example-head .tk { font-family: var(--font-pulso-mono); font-size: 13px; font-weight: 600; color: var(--fg-strong); }
+.mig-example-head .ar { color: var(--primary); }
+.mig-example-rows { padding: 0; }
+.mig-example-row { padding: 14px 20px; border-bottom: 1px solid var(--border-faint); display: grid; grid-template-columns: 100px 100px 1fr; gap: 16px; align-items: center; }
+.mig-example-row:last-child { border-bottom: none; }
+.mig-example-row .version { font-family: var(--font-pulso-mono); font-size: 12px; color: var(--fg-strong); font-weight: 600; }
+.mig-example-row .state { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; padding: 3px 8px; border-radius: var(--radius-xs); font-weight: 600; text-align: center; }
+.state.active { background: color-mix(in oklab, var(--success) 14%, transparent); color: var(--success); }
+.state.warn { background: color-mix(in oklab, var(--risk-attention) 14%, transparent); color: var(--risk-attention-text); }
+.state.error { background: color-mix(in oklab, var(--destructive) 14%, transparent); color: var(--destructive); }
+.state.gone { background: var(--surface-2); color: var(--fg-subtle); border: 1px solid var(--border); }
+.mig-example-row .what { font-size: 13px; color: var(--fg-secondary); line-height: 1.5; }
+.mig-example-row .what code { font-family: var(--font-pulso-mono); font-size: 11.5px; background: var(--surface-2); padding: 1px 5px; border-radius: 3px; }
+
+/* Changelog */
+.cl-block { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 26px; font-family: var(--font-pulso-mono); font-size: 12.5px; line-height: 1.85; }
+.cl-h { font-size: 16px; font-weight: 700; color: var(--fg-strong); letter-spacing: -0.01em; margin-bottom: 2px; }
+.cl-date { font-size: 11px; color: var(--fg-subtle); margin-bottom: 14px; }
+.cl-section { margin-bottom: 14px; }
+.cl-section:last-child { margin-bottom: 0; }
+.cl-label { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; padding: 2px 7px; border-radius: var(--radius-xs); margin-right: 8px; vertical-align: 1px; }
+.cl-label.added { background: color-mix(in oklab, var(--success) 14%, transparent); color: var(--success); }
+.cl-label.changed { background: color-mix(in oklab, var(--info) 14%, transparent); color: var(--info-foreground, var(--info)); }
+.cl-label.deprecated { background: color-mix(in oklab, var(--risk-attention) 14%, transparent); color: var(--risk-attention-text); }
+.cl-label.fixed { background: var(--surface-2); color: var(--fg-secondary); border: 1px solid var(--border); }
+.cl-label.removed { background: color-mix(in oklab, var(--destructive) 14%, transparent); color: var(--destructive); }
+.cl-line { padding: 3px 0; color: var(--fg); }
+.cl-line .id { color: var(--fg-subtle); font-size: 11px; margin-left: 4px; }
+
+/* Process / who decides */
+.gov-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 800px) { .gov-grid { grid-template-columns: 1fr; } }
+.gov-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 22px; }
+.gov-card .head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.gov-card .icon { width: 28px; height: 28px; border-radius: 7px; background: color-mix(in oklab, var(--primary) 14%, transparent); color: var(--primary); display: flex; align-items: center; justify-content: center; font-family: var(--font-pulso-mono); font-weight: 700; font-size: 13px; }
+.gov-card .name { font-size: 15px; font-weight: 600; color: var(--fg-strong); }
+.gov-card .desc { font-size: 13px; color: var(--fg-secondary); line-height: 1.55; }
+.gov-card ul { margin: 8px 0 0; padding-left: 18px; }
+.gov-card ul li { font-size: 12.5px; color: var(--fg-muted); line-height: 1.5; padding: 2px 0; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Governance · RFC</div>
+    <h1 class="page-title">RFC &amp; Deprecation Policy</h1>
+    <p class="page-sub">Sem processo, qualquer dev adiciona componente. Em 6 meses temos três <code>Button</code>. Com RFC + deprecation, mudanças são discutidas antes do código, depreciações têm prazo, e nenhum consumidor é surpreendido.</p>
+
+    <!-- ── Quando precisa de RFC ──────────── -->
+    <section class="section">
+      <h2 class="section-h1">Quando um RFC é obrigatório</h2>
+      <p class="section-desc">Nem toda mudança vira RFC. Bug fix e ajuste de token interno não precisam. Coisas que mudam o <em>contrato</em> ou a <em>biblioteca</em> sim.</p>
+      <div class="gov-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="gov-card" style="border-left: 3px solid var(--destructive);">
+          <div class="head">
+            <span class="icon" style="background:color-mix(in oklab, var(--destructive) 14%, transparent);color:var(--destructive);">!</span>
+            <div class="name">Exige RFC</div>
+          </div>
+          <ul style="padding-left:18px;">
+            <li>Novo componente, atom ou pattern</li>
+            <li>Mudança breaking em prop existente (rename, remove, type)</li>
+            <li>Nova categoria de token</li>
+            <li>Remoção de qualquer API pública</li>
+            <li>Mudança em comportamento padrão (default, behavior)</li>
+            <li>Política nova (acessibilidade, voice, motion)</li>
+          </ul>
+        </div>
+        <div class="gov-card" style="border-left: 3px solid var(--success);">
+          <div class="head">
+            <span class="icon" style="background:color-mix(in oklab, var(--success) 14%, transparent);color:var(--success);">✓</span>
+            <div class="name">Dispensa RFC</div>
+          </div>
+          <ul style="padding-left:18px;">
+            <li>Bug fix sem mudança de contrato</li>
+            <li>Adicionar prop opcional retrocompatível</li>
+            <li>Ajustar valor de token (cor, espaçamento) dentro da camada semantic</li>
+            <li>Melhoria de performance sem mudança de API</li>
+            <li>Documentação, testes, exemplos</li>
+            <li>Estilização interna (CSS) sem efeito visível</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Lifecycle ───────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Lifecycle de uma proposta</h2>
+      <p class="section-desc">Da ideia ao ship, ou da deprecation à remoção · 6 estágios, com saídas claras.</p>
+      <div class="lifecycle">
+        <div class="lf-row">
+          <div class="lf-stage draft">
+            <div class="tag">01</div>
+            <div class="name">Draft</div>
+            <div class="desc">Autor escreve. Pode ficar parado. Sem prazo. Nenhum compromisso ainda.</div>
+          </div>
+          <div class="lf-stage review">
+            <div class="tag">02</div>
+            <div class="name">Review</div>
+            <div class="desc">PR aberto. Comentário público de 7 dias. DS council nota.</div>
+          </div>
+          <div class="lf-stage accepted">
+            <div class="tag">03</div>
+            <div class="name">Accepted</div>
+            <div class="desc">2/3 do council aprova. Vai para roadmap. Bloqueia ship sem implementação.</div>
+          </div>
+          <div class="lf-stage shipped">
+            <div class="tag">04</div>
+            <div class="name">Shipped</div>
+            <div class="desc">Disponível em minor release. Marcado <code>stable</code> após 1 ciclo.</div>
+          </div>
+          <div class="lf-stage deprecated">
+            <div class="tag">05</div>
+            <div class="name">Deprecated</div>
+            <div class="desc">Marcado nos types + runtime warn. Mantido por 2 minor releases.</div>
+          </div>
+          <div class="lf-stage removed">
+            <div class="tag">06</div>
+            <div class="name">Removed</div>
+            <div class="desc">Sai em próximo major. Codemod cobre a migração.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── RFC template ───────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Template de RFC</h2>
+      <p class="section-desc">Vive em <code>docs/rfcs/0000-template.md</code>. Cada RFC clona, recebe ID sequencial e branch. Exemplo abaixo · real (mas curto).</p>
+      <div class="rfc-card">
+        <div class="rfc-head">
+          <div>
+            <div class="rfc-id">RFC-0027</div>
+            <div class="rfc-title">Novo componente · ResponseDraftPanel</div>
+          </div>
+          <span class="rfc-status review">Em review</span>
+        </div>
+        <div class="rfc-meta-row">
+          <div><strong>Autor</strong> · @marina.s</div>
+          <div><strong>Aberto</strong> · 12 mai 2026</div>
+          <div><strong>Comentário até</strong> · 19 mai 2026</div>
+          <div><strong>Council</strong> · 3 votos · 0/3 · 0/3</div>
+          <div><strong>Roadmap</strong> · v2.5</div>
+        </div>
+        <div class="rfc-body">
+          <div class="rfc-sec">
+            <div class="rfc-sec-h">1. Resumo</div>
+            <div class="rfc-sec-p">Painel lateral que assiste o operador na escrita da resposta institucional, integrado ao Cris. Aparece em <code>Templates · Crisis Detail · Ações</code>.</div>
+          </div>
+          <div class="rfc-sec">
+            <div class="rfc-sec-h">2. Motivação</div>
+            <div class="rfc-sec-p">Operadores escrevem resposta em editor separado, copiam, colam no veículo. Perdemos contexto, tom não casa com o tom de Cris, e não registramos a versão final no audit log. Painel integrado fecha o loop.</div>
+          </div>
+          <div class="rfc-sec">
+            <div class="rfc-sec-h">3. Design proposto</div>
+            <div class="rfc-sec-p">
+              <ul>
+                <li>Sheet lateral direita · largura 480px · invocada por botão "Redigir resposta"</li>
+                <li>Editor rich-text limitado (bold, link, lista) com contagem por canal (Twitter 280, LinkedIn 700)</li>
+                <li>Sugestões de Cris embutidas como variantes seleccionáveis</li>
+                <li>"Enviar para revisão" cria task no audit log + notifica revisor</li>
+              </ul>
+            </div>
+          </div>
+          <div class="rfc-sec">
+            <div class="rfc-sec-h">4. API · contrato</div>
+            <div class="rfc-sec-p"><code>&lt;ResponseDraftPanel caseId channel onSubmit /&gt;</code> · cobertura nos 4 estados (loading, error, empty, success). Tokens novos: <code>--draft-panel-bg</code>, <code>--draft-panel-toolbar-bg</code>.</div>
+          </div>
+          <div class="rfc-sec">
+            <div class="rfc-sec-h">5. Alternativas consideradas</div>
+            <div class="rfc-sec-p">
+              <ul>
+                <li><strong>Editor separado, embed externo</strong> · rejeitado por quebrar audit + tom</li>
+                <li><strong>Modal full-screen</strong> · rejeitado por bloquear consulta ao briefing</li>
+                <li><strong>Inline no card de menção</strong> · rejeitado por não suportar multi-canal</li>
+              </ul>
+            </div>
+          </div>
+          <div class="rfc-sec">
+            <div class="rfc-sec-h">6. A11y · keyboard</div>
+            <div class="rfc-sec-p">Esc fecha · Cmd+Enter envia para revisão · Tab loop limitado ao painel · <code>aria-live="polite"</code> nas sugestões de Cris.</div>
+          </div>
+          <div class="rfc-sec">
+            <div class="rfc-sec-h">7. Impacto em performance</div>
+            <div class="rfc-sec-p">Bundle estimado +6.4 KB gzip (editor + helpers). Dentro do budget · LCP do crisis detail não afetado (sheet lazy).</div>
+          </div>
+          <div class="rfc-sec">
+            <div class="rfc-sec-h">8. Riscos &amp; questões abertas</div>
+            <div class="rfc-sec-p">
+              <ul>
+                <li>Como tratar draft autosave em conexão flutuante? Resolver antes de ship.</li>
+                <li>Permissão · operador pode enviar direto? Pendente decisão do produto.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Semver ─────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Semver · regras explícitas</h2>
+      <p class="section-desc">Cada release segue MAJOR.MINOR.PATCH. Regra simples: se o consumidor precisa editar código, é major.</p>
+      <table class="sv-tbl">
+        <thead>
+          <tr><th style="width:14%;">Tipo</th><th style="width:30%;">Quando</th><th>Exemplos · v2.x</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="sv-tag patch">PATCH · 2.4.x</span></td>
+            <td>Bug fix · sem mudança de contrato.</td>
+            <td>Corrigir cálculo de contraste no <code>Badge</code> · ajustar foco visível do <code>Switch</code> · resolver flicker no <code>Tooltip</code>.</td>
+          </tr>
+          <tr>
+            <td><span class="sv-tag minor">MINOR · 2.x.0</span></td>
+            <td>Funcionalidade nova, retrocompatível · prop opcional, componente novo, depreciação anunciada.</td>
+            <td>Adicionar <code>ResponseDraftPanel</code> · expor prop <code>size="hero"</code> no <code>Button</code> · marcar <code>--primary</code> como deprecated em favor de <code>--color-action-primary</code>.</td>
+          </tr>
+          <tr>
+            <td><span class="sv-tag major">MAJOR · 3.0.0</span></td>
+            <td>Breaking · rename, remove, mudança de tipo, mudança de default.</td>
+            <td>Remover tokens v1 já deprecated · renomear <code>variant="ghost"</code> → <code>"subtle"</code> · trocar default de densidade.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Deprecation timeline ───────────── -->
+    <section class="section">
+      <h2 class="section-h1">Política de deprecation · 2 minor releases</h2>
+      <p class="section-desc">Nada some sem aviso. Marcar como deprecated em v2.x, manter funcionando por 2 minors, remover em v3.0. Total: ~6 meses entre "vai sair" e "saiu".</p>
+      <div class="dep-timeline">
+        <div class="dep-track">
+          <div class="dep-line"></div>
+          <div class="dep-dots">
+            <div class="dep-dot active">
+              <div class="dep-label">v2.5</div>
+              <div class="marker"></div>
+              <div class="dep-info">
+                <div class="v">DEPRECATED</div>
+                <div class="n">Marca @deprecated nos types · runtime warn · changelog destaca · codemod publicado.</div>
+              </div>
+            </div>
+            <div class="dep-dot warn">
+              <div class="dep-label">v2.6</div>
+              <div class="marker"></div>
+              <div class="dep-info">
+                <div class="v">STILL WORKING</div>
+                <div class="n">Continua funcionando. Lint rule passa de warn → error em consumidores que optaram in.</div>
+              </div>
+            </div>
+            <div class="dep-dot danger">
+              <div class="dep-label">v2.7</div>
+              <div class="marker"></div>
+              <div class="dep-info">
+                <div class="v">LAST CALL</div>
+                <div class="n">Último minor antes da remoção. Banner em cada PR que ainda usa o símbolo.</div>
+              </div>
+            </div>
+            <div class="dep-dot gone">
+              <div class="dep-label">v3.0</div>
+              <div class="marker"></div>
+              <div class="dep-info">
+                <div class="v">REMOVED</div>
+                <div class="n">Símbolo sai. Codemod ainda funciona em consumidores presos em v2.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Exemplo: --primary → --color-action-primary ─────── -->
+    <section class="section">
+      <h2 class="section-h1">Exemplo real · <code style="font-size:16px;background:var(--surface-2);padding:2px 8px;border-radius:4px;">--primary</code> → <code style="font-size:16px;background:var(--surface-2);padding:2px 8px;border-radius:4px;">--color-action-primary</code></h2>
+      <p class="section-desc">Como a iniciativa 5.1 (Token Architecture) está sendo entregue sem quebrar ninguém.</p>
+      <div class="mig-example">
+        <div class="mig-example-head">
+          <span class="tk">--primary</span>
+          <span class="ar">→</span>
+          <span class="tk">--color-action-primary</span>
+        </div>
+        <div class="mig-example-rows">
+          <div class="mig-example-row">
+            <div class="version">v2.5</div>
+            <div class="state active">vivo</div>
+            <div class="what">Adiciona <code>--color-action-primary</code> apontando para o mesmo valor. <code>--primary</code> recebe alias e marca <code>@deprecated</code> no <code>.d.ts</code>. CHANGELOG: <em>"prefer --color-action-primary"</em>.</div>
+          </div>
+          <div class="mig-example-row">
+            <div class="version">v2.6</div>
+            <div class="state warn">deprecated</div>
+            <div class="what">Lint rule <code>pulso/no-deprecated-token</code> sobe para <strong>warn</strong>. Codemod <code>tokens-v2</code> publicado · dry-run mostra ~340 ocorrências no produto.</div>
+          </div>
+          <div class="mig-example-row">
+            <div class="version">v2.7</div>
+            <div class="state error">last call</div>
+            <div class="what">Lint passa para <strong>error</strong>. Banner no PR: <em>"--primary será removido em v3.0 (~6 semanas). Rode npx pulso-codemod tokens-v2."</em></div>
+          </div>
+          <div class="mig-example-row">
+            <div class="version">v3.0</div>
+            <div class="state gone">removido</div>
+            <div class="what"><code>--primary</code> sai do <code>globals.css</code>. Quem ainda usa fica preso em v2.7 (suportada por mais 3 meses para fix crítico).</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Changelog ─────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">CHANGELOG · um por release</h2>
+      <p class="section-desc">Formato Keep-a-Changelog. Cada minor/major destaca <strong>Breaking</strong> e <strong>Deprecated</strong> no topo. Nenhum dev precisa ler PR para saber o que mudou.</p>
+      <div class="cl-block">
+        <div class="cl-h">Pulso DS · v2.5.0</div>
+        <div class="cl-date">17 mai 2026 · minor release</div>
+
+        <div class="cl-section">
+          <span class="cl-label deprecated">Deprecated</span>
+          <div class="cl-line">Token <code>--primary</code> → use <code>--color-action-primary</code><span class="id">RFC-0019</span></div>
+          <div class="cl-line">Token <code>--card</code> → use <code>--color-surface-elevated</code><span class="id">RFC-0019</span></div>
+          <div class="cl-line">Prop <code>variant="ghost"</code> no <code>Button</code> → use <code>variant="subtle"</code><span class="id">RFC-0023</span></div>
+        </div>
+
+        <div class="cl-section">
+          <span class="cl-label added">Added</span>
+          <div class="cl-line"><code>ResponseDraftPanel</code> · sheet de redação de resposta<span class="id">RFC-0027</span></div>
+          <div class="cl-line">Codemod <code>tokens-v2</code> · npm i -D @pulso/codemods<span class="id">RFC-0019</span></div>
+          <div class="cl-line">Token <code>--touch-target</code> · 44px contrato hit-target<span class="id">RFC-0014</span></div>
+          <div class="cl-line">Página <strong>Foundations · Token Architecture</strong></div>
+          <div class="cl-line">Página <strong>Tooling · Figma ↔ Code</strong></div>
+        </div>
+
+        <div class="cl-section">
+          <span class="cl-label changed">Changed</span>
+          <div class="cl-line">Densidade default agora persistida em <code>localStorage</code> por usuário<span class="id">RFC-0024</span></div>
+          <div class="cl-line">Cris voice agora obedece dois modos (Executivo, Porta-voz) com tom distinto<span class="id">RFC-0021</span></div>
+        </div>
+
+        <div class="cl-section">
+          <span class="cl-label fixed">Fixed</span>
+          <div class="cl-line">Focus ring invisível no <code>Switch</code> em dark mode</div>
+          <div class="cl-line"><code>Tooltip</code> piscava em alto DPI</div>
+          <div class="cl-line">Contraste do <code>fg-subtle</code> sobre <code>surface-2</code> de AA fail → AA pass</div>
+        </div>
+
+        <div class="cl-section">
+          <span class="cl-label removed">Removed</span>
+          <div class="cl-line" style="color:var(--fg-muted);">— nada removido nesta release —</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Council ───────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">DS Council · quem aprova o quê</h2>
+      <p class="section-desc">3 cadeiras rotativas. Quórum mínimo de 2/3 para accept. Empate → re-vote com proposta refinada.</p>
+      <div class="gov-grid">
+        <div class="gov-card">
+          <div class="head">
+            <span class="icon">D</span>
+            <div class="name">Design Lead</div>
+          </div>
+          <div class="desc">Aprova mudanças com impacto visual, hierarquia, tom. Veto em mudança que quebra brand.</div>
+        </div>
+        <div class="gov-card">
+          <div class="head">
+            <span class="icon">E</span>
+            <div class="name">Eng Lead · DS</div>
+          </div>
+          <div class="desc">Aprova mudanças de API, bundle size, dependências, performance. Veto em mudança que quebra ergonomia de uso.</div>
+        </div>
+        <div class="gov-card">
+          <div class="head">
+            <span class="icon">P</span>
+            <div class="name">Product Lead</div>
+          </div>
+          <div class="desc">Aprova mudanças que afetam fluxo do operador, copy, comportamento padrão. Veto em mudança que sabota uso real.</div>
+        </div>
+        <div class="gov-card">
+          <div class="head">
+            <span class="icon" style="background:color-mix(in oklab, var(--info) 14%, transparent);color:var(--info-foreground, var(--info));">A</span>
+            <div class="name">A11y Reviewer · convidado</div>
+          </div>
+          <div class="desc">Voto opcional em RFCs com impacto em a11y. Pode pedir bloqueio se contrato ARIA não estiver descrito.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Entregas ─────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Entregas · 5.3</h2>
+      <table class="sv-tbl">
+        <tbody>
+          <tr><td>Template RFC em <code>docs/rfcs/0000-template.md</code></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Política de deprecation · 2 minor releases antes de remover</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Semver definido (patch / minor / major) · regras públicas</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td><code>CHANGELOG.md</code> mantido por release · Keep-a-Changelog</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>DS Council formalizado · 3 cadeiras + a11y reviewer</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Página <strong>Governance · RFC</strong></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

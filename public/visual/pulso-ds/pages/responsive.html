@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Responsive</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* Breakpoint cards */
+.bp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 900px) { .bp-grid { grid-template-columns: 1fr; } }
+.bp-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 24px; display: flex; flex-direction: column; gap: 10px; }
+.bp-card::before { content: ''; display: block; width: 36px; height: 2px; background: var(--primary); margin-bottom: 6px; }
+.bp-tag { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 600; }
+.bp-name { font-size: 18px; font-weight: 700; color: var(--fg-strong); letter-spacing: -0.005em; }
+.bp-range { font-family: var(--font-pulso-mono); font-size: 13px; color: var(--primary); font-weight: 600; }
+.bp-desc { font-size: 13px; color: var(--fg-secondary); line-height: 1.55; }
+.bp-list { font-size: 12.5px; color: var(--fg); padding-left: 14px; line-height: 1.65; margin-top: 4px; }
+.bp-list li { padding: 2px 0; }
+.bp-list li::marker { color: var(--fg-subtle); }
+
+/* Viewport mockups */
+.vp-row { display: grid; grid-template-columns: 280px 1fr 1.5fr; gap: 16px; align-items: flex-start; }
+@media (max-width: 1100px) { .vp-row { grid-template-columns: 1fr; } }
+.vp-frame { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.vp-frame-title { padding: 10px 14px; background: var(--surface-2); border-bottom: 1px solid var(--border-faint); display: flex; align-items: center; justify-content: space-between; font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 600; }
+.vp-frame-w { color: var(--primary); }
+.vp-content { padding: 14px; min-height: 340px; background: var(--surface-page); display: flex; flex-direction: column; gap: 10px; }
+
+/* Mobile mockup */
+.mb-bar { display: flex; align-items: center; justify-content: space-between; padding: 8px 4px; border-bottom: 1px solid var(--border-faint); }
+.mb-bar .h { font-size: 13px; font-weight: 600; color: var(--fg-strong); }
+.mb-bar .ico { width: 26px; height: 26px; border-radius: 50%; background: var(--muted); display: inline-flex; align-items: center; justify-content: center; color: var(--fg-muted); }
+.mb-alert { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--risk-critical); border-radius: var(--radius-sm); padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.mb-alert-h { display: flex; gap: 8px; align-items: center; }
+.mb-tag { font-family: var(--font-pulso-mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 6px; border-radius: 3px; background: var(--risk-critical-bg); color: var(--risk-critical-text); border: 1px solid var(--risk-critical-border); font-weight: 600; }
+.mb-alert-id { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); }
+.mb-alert-title { font-size: 12.5px; font-weight: 600; color: var(--fg-strong); line-height: 1.4; }
+.mb-alert-sub { font-size: 11.5px; color: var(--fg-secondary); line-height: 1.5; }
+.mb-actions { display: flex; gap: 6px; margin-top: 4px; }
+.mb-btn { flex: 1; height: 34px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; font-size: 11.5px; font-weight: 500; border-radius: var(--radius-sm); border: 1px solid; }
+.mb-btn-primary { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+.mb-btn-secondary { background: var(--card); color: var(--fg); border-color: var(--border-strong); }
+.mb-btn-ghost { background: transparent; color: var(--fg-muted); border-color: transparent; }
+.mb-card-mini { background: var(--card); border: 1px solid var(--border-faint); border-radius: var(--radius-sm); padding: 10px 12px; display: flex; align-items: center; gap: 8px; }
+.mb-tier { font-family: var(--font-pulso-mono); font-size: 9px; text-transform: uppercase; padding: 1px 5px; border-radius: 3px; font-weight: 600; border: 1px solid; }
+.mb-tier-high { background: color-mix(in oklab, var(--risk-high) 12%, transparent); color: var(--risk-high); border-color: color-mix(in oklab, var(--risk-high) 25%, transparent); }
+.mb-tier-attn { background: var(--risk-attention-bg); color: var(--risk-attention-text); border-color: var(--risk-attention-border); }
+
+/* Tablet mockup */
+.tb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tb-card { background: var(--card); border: 1px solid var(--border-faint); border-radius: var(--radius-sm); padding: 10px 12px; }
+.tb-kicker { font-family: var(--font-pulso-mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 600; }
+.tb-val { font-family: var(--font-pulso-mono); font-size: 18px; font-weight: 700; color: var(--fg-strong); margin-top: 4px; }
+.tb-list-h { font-size: 12px; font-weight: 600; color: var(--fg-strong); padding: 6px 4px; border-bottom: 1px solid var(--border-faint); }
+.tb-row { display: grid; grid-template-columns: 60px 1fr 60px; gap: 8px; padding: 8px 4px; border-bottom: 1px solid var(--border-faint); font-size: 11.5px; align-items: center; }
+.tb-row:last-child { border-bottom: none; }
+.tb-row .id { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-strong); font-weight: 600; }
+.tb-row .ti { color: var(--fg); }
+.tb-row .ta { font-family: var(--font-pulso-mono); font-size: 9px; text-align: center; padding: 1px 4px; border-radius: 3px; }
+
+/* Desktop mockup */
+.dt-sidebar { width: 50px; background: #0F0C1A; border-radius: var(--radius-xs); display: flex; flex-direction: column; gap: 6px; padding: 10px 8px; align-items: center; }
+.dt-sidebar > div { width: 26px; height: 26px; border-radius: 5px; background: rgba(255,255,255,0.06); }
+.dt-sidebar > div.active { background: rgba(138, 99, 255, 0.3); }
+.dt-row { display: grid; grid-template-columns: 50px 1fr; gap: 12px; min-height: 100%; }
+.dt-main { display: flex; flex-direction: column; gap: 10px; }
+.dt-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.dt-metric { background: var(--card); border: 1px solid var(--border-faint); border-radius: var(--radius-xs); padding: 8px 10px; }
+.dt-mk { font-family: var(--font-pulso-mono); font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 600; }
+.dt-mv { font-family: var(--font-pulso-mono); font-size: 14px; font-weight: 700; color: var(--fg-strong); margin-top: 2px; }
+.dt-main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; flex: 1; }
+.dt-table { background: var(--card); border: 1px solid var(--border-faint); border-radius: var(--radius-xs); padding: 8px 10px; }
+.dt-aside { background: var(--card); border: 1px solid var(--border-faint); border-radius: var(--radius-xs); padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; }
+.dt-aside-h { font-family: var(--font-pulso-mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 600; }
+.dt-aside-item { font-size: 10.5px; padding: 4px 0; color: var(--fg); border-bottom: 1px solid var(--border-faint); }
+.dt-aside-item:last-child { border: none; }
+
+/* Reflow rules */
+.rf-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.rf-tbl th, .rf-tbl td { padding: 12px 14px; border-bottom: 1px solid var(--border-faint); text-align: left; vertical-align: top; }
+.rf-tbl th { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.rf-tbl td:first-child { font-weight: 500; color: var(--fg-strong); }
+
+/* Mobile priorities highlight */
+.mob-prio { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 24px 28px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+@media (max-width: 800px) { .mob-prio { grid-template-columns: 1fr; } }
+.mob-prio-item { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.mob-prio-num { font-family: var(--font-pulso-mono); font-size: 32px; font-weight: 700; color: var(--primary); letter-spacing: -0.02em; line-height: 1; }
+.mob-prio h4 { font-size: 16px; font-weight: 600; color: var(--fg-strong); }
+.mob-prio p { font-size: 13px; color: var(--fg-secondary); line-height: 1.55; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Foundations · Responsive</div>
+    <h1 class="page-title">Responsive contract</h1>
+    <p class="page-sub">Crisis Monitor é desktop-first · mas operador no Uber abre pelo celular. Sem padrão, mobile vira "tem que existir" sem direção. Mobile não é paridade · é <strong>resgate</strong>: o operador chega na crise, executa 3 ações e segue para o desktop quando puder.</p>
+
+    <!-- ── Princípio ─────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Princípio</h2>
+      <div style="background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: var(--radius-md); padding: 22px 26px;">
+        <p style="font-size: 16px; color: var(--fg-strong); line-height: 1.6; font-weight: 500; max-width: 720px;">Mobile entrega o crítico em 3 toques. Desktop é a ferramenta operacional completa. Tablet é desktop responsivo, não mobile dilatado.</p>
+        <p style="font-size: 13.5px; color: var(--fg-secondary); margin-top: 12px; line-height: 1.6; max-width: 720px;">Desktop primeiro porque é onde operador passa 95% do tempo. Mobile não é reduced-feature desktop — é uma <em>jornada diferente</em>: alerta chega → operador entende → ack/escala/comenta → segue para o desktop em 30 min. Filtros, analytics, comparativos? Ficam fora.</p>
+      </div>
+    </section>
+
+    <!-- ── Breakpoints ──────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Breakpoints · 3 ranges</h2>
+
+      <div class="bp-grid">
+        <div class="bp-card">
+          <div class="bp-tag">01 · mobile</div>
+          <div class="bp-name">Mobile</div>
+          <div class="bp-range">0 — 640px</div>
+          <div class="bp-desc">Resgate. Operador fora do plantão recebendo crítico. 3 ações por tela max.</div>
+          <ul class="bp-list">
+            <li>Single column · sem sidebar</li>
+            <li>Bottom sheet em vez de modal</li>
+            <li>FAB para ação primária</li>
+            <li>Filtros colapsados em ⋯</li>
+          </ul>
+        </div>
+        <div class="bp-card">
+          <div class="bp-tag">02 · tablet</div>
+          <div class="bp-name">Tablet</div>
+          <div class="bp-range">641 — 1024px</div>
+          <div class="bp-desc">Desktop responsivo. Sidebar colapsa para icon-only. Layouts 2-coluna viram 1.</div>
+          <ul class="bp-list">
+            <li>Sidebar icon-only · expande on hover</li>
+            <li>2 colunas viram 1 em listas</li>
+            <li>Dialog full-height · não bottom sheet</li>
+            <li>Tabs viram dropdown se &gt; 4</li>
+          </ul>
+        </div>
+        <div class="bp-card">
+          <div class="bp-tag">03 · desktop</div>
+          <div class="bp-name">Desktop</div>
+          <div class="bp-range">1025px +</div>
+          <div class="bp-desc">Ferramenta operacional canônica. Sidebar expandida · multi-coluna · todas as features.</div>
+          <ul class="bp-list">
+            <li>Sidebar 220–260px expandida</li>
+            <li>Grids de 3–4 colunas</li>
+            <li>Side panels (IA, evidência)</li>
+            <li>Modal centralizado padrão</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Viewport mockups ────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Reflow · Dashboard nas 3 viewports</h2>
+      <p class="section-desc">Mesmo conteúdo · 3 reflow distintos. Mobile prioriza o que faltava ser ack'd · desktop espalha tudo.</p>
+
+      <div class="vp-row">
+
+        <!-- Mobile -->
+        <div class="vp-frame">
+          <div class="vp-frame-title">
+            <span>Mobile · iPhone 13</span>
+            <span class="vp-frame-w">375 × 812</span>
+          </div>
+          <div class="vp-content">
+            <div class="mb-bar">
+              <span class="ico">←</span>
+              <span class="h">PLS-012</span>
+              <span class="ico">⋯</span>
+            </div>
+            <div class="mb-alert">
+              <div class="mb-alert-h">
+                <span class="mb-tag">crítico</span>
+                <span class="mb-alert-id">há 4 min</span>
+              </div>
+              <div class="mb-alert-title">Threshold rompido · score 67</div>
+              <div class="mb-alert-sub">Velocity acelerando · narrativa T1 dominante.</div>
+              <div class="mb-actions">
+                <button class="mb-btn mb-btn-primary">Escalar</button>
+                <button class="mb-btn mb-btn-secondary">Ack</button>
+                <button class="mb-btn mb-btn-ghost">···</button>
+              </div>
+            </div>
+            <div style="font-family:var(--font-pulso-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--fg-subtle);font-weight:600;padding:6px 4px 4px;">Outros casos abertos</div>
+            <div class="mb-card-mini">
+              <span class="mb-tier mb-tier-high">high</span>
+              <span style="flex:1;font-size:11.5px;color:var(--fg-strong);font-weight:500;">PLS-014</span>
+              <span style="font-family:var(--font-pulso-mono);font-size:10.5px;color:var(--fg-muted);">22m</span>
+            </div>
+            <div class="mb-card-mini">
+              <span class="mb-tier mb-tier-attn">attn</span>
+              <span style="flex:1;font-size:11.5px;color:var(--fg-strong);font-weight:500;">PLS-018</span>
+              <span style="font-family:var(--font-pulso-mono);font-size:10.5px;color:var(--fg-muted);">1h</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tablet -->
+        <div class="vp-frame">
+          <div class="vp-frame-title">
+            <span>Tablet · iPad portrait</span>
+            <span class="vp-frame-w">810 × 1080</span>
+          </div>
+          <div class="vp-content">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:6px;border-bottom:1px solid var(--border-faint);">
+              <div>
+                <div style="font-size:14px;font-weight:600;color:var(--fg-strong);">Casos abertos</div>
+                <div style="font-family:var(--font-pulso-mono);font-size:10px;color:var(--fg-subtle);">3 · agora</div>
+              </div>
+              <button style="height:30px;padding:0 12px;background:var(--primary);color:var(--primary-foreground);border:none;border-radius:var(--radius-sm);font-size:11.5px;font-weight:500;">Criar caso</button>
+            </div>
+            <div class="tb-grid">
+              <div class="tb-card"><div class="tb-kicker">MENÇÕES 24H</div><div class="tb-val">1.247</div></div>
+              <div class="tb-card"><div class="tb-kicker">CRÍTICOS</div><div class="tb-val">03</div></div>
+              <div class="tb-card"><div class="tb-kicker">SENTIMENTO</div><div class="tb-val">+0,38</div></div>
+              <div class="tb-card"><div class="tb-kicker">SLA</div><div class="tb-val">2h 14m</div></div>
+            </div>
+            <div style="background:var(--card);border:1px solid var(--border-faint);border-radius:var(--radius-sm);overflow:hidden;">
+              <div class="tb-list-h" style="padding-left:14px;">Casos por risco</div>
+              <div class="tb-row" style="padding-left:14px;padding-right:14px;"><span class="id">PLS-012</span><span class="ti">Vazamento APP</span><span class="ta" style="background:var(--risk-critical-bg);color:var(--risk-critical-text);">crit</span></div>
+              <div class="tb-row" style="padding-left:14px;padding-right:14px;"><span class="id">PLS-014</span><span class="ti">Operação Água</span><span class="ta" style="background:color-mix(in oklab, var(--risk-high) 12%, transparent);color:var(--risk-high);">high</span></div>
+              <div class="tb-row" style="padding-left:14px;padding-right:14px;"><span class="id">PLS-018</span><span class="ti">Regulação CVM</span><span class="ta" style="background:var(--risk-attention-bg);color:var(--risk-attention-text);">attn</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desktop -->
+        <div class="vp-frame">
+          <div class="vp-frame-title">
+            <span>Desktop · MacBook 14</span>
+            <span class="vp-frame-w">1512 × 982</span>
+          </div>
+          <div class="vp-content">
+            <div class="dt-row">
+              <div class="dt-sidebar">
+                <div class="active"></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
+              <div class="dt-main">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:6px;border-bottom:1px solid var(--border-faint);">
+                  <div style="font-size:14px;font-weight:600;color:var(--fg-strong);">Operação · Hoje · 09:42</div>
+                  <div style="display:flex;gap:6px;">
+                    <button style="height:26px;padding:0 10px;background:var(--card);border:1px solid var(--border-strong);border-radius:var(--radius-sm);font-size:11px;">Exportar</button>
+                    <button style="height:26px;padding:0 10px;background:var(--primary);color:var(--primary-foreground);border:none;border-radius:var(--radius-sm);font-size:11px;">Criar caso</button>
+                  </div>
+                </div>
+                <div class="dt-metrics">
+                  <div class="dt-metric"><div class="dt-mk">MENÇÕES</div><div class="dt-mv">1.247</div></div>
+                  <div class="dt-metric"><div class="dt-mk">CRÍTICOS</div><div class="dt-mv">03</div></div>
+                  <div class="dt-metric"><div class="dt-mk">SENT</div><div class="dt-mv">+0,38</div></div>
+                  <div class="dt-metric"><div class="dt-mk">SLA</div><div class="dt-mv">2h14</div></div>
+                </div>
+                <div class="dt-main-grid">
+                  <div class="dt-table" style="padding:6px 10px;display:flex;flex-direction:column;gap:4px;">
+                    <div class="dt-aside-h" style="padding-bottom:4px;border-bottom:1px solid var(--border-faint);margin-bottom:2px;">Casos abertos</div>
+                    <div style="display:grid;grid-template-columns:50px 1fr 40px;gap:6px;font-size:10.5px;align-items:center;padding:4px 0;">
+                      <span style="font-family:var(--font-pulso-mono);font-weight:600;color:var(--fg-strong);">PLS-012</span>
+                      <span style="color:var(--fg);">Vazamento APP</span>
+                      <span style="font-family:var(--font-pulso-mono);font-size:8px;padding:1px 4px;border-radius:3px;background:var(--risk-critical-bg);color:var(--risk-critical-text);text-align:center;">crit</span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:50px 1fr 40px;gap:6px;font-size:10.5px;align-items:center;padding:4px 0;border-top:1px solid var(--border-faint);">
+                      <span style="font-family:var(--font-pulso-mono);font-weight:600;color:var(--fg-strong);">PLS-014</span>
+                      <span style="color:var(--fg);">Operação Água</span>
+                      <span style="font-family:var(--font-pulso-mono);font-size:8px;padding:1px 4px;border-radius:3px;background:color-mix(in oklab, var(--risk-high) 12%, transparent);color:var(--risk-high);text-align:center;">high</span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:50px 1fr 40px;gap:6px;font-size:10.5px;align-items:center;padding:4px 0;border-top:1px solid var(--border-faint);">
+                      <span style="font-family:var(--font-pulso-mono);font-weight:600;color:var(--fg-strong);">PLS-018</span>
+                      <span style="color:var(--fg);">Regulação CVM</span>
+                      <span style="font-family:var(--font-pulso-mono);font-size:8px;padding:1px 4px;border-radius:3px;background:var(--risk-attention-bg);color:var(--risk-attention-text);text-align:center;">attn</span>
+                    </div>
+                  </div>
+                  <div class="dt-aside">
+                    <div class="dt-aside-h">Cris · Pulso IA</div>
+                    <div class="dt-aside-item">Score 67 · velocity acelerando</div>
+                    <div class="dt-aside-item">Recomenda escalar</div>
+                    <div class="dt-aside-item">Pico previsto 18h</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Mobile prioridades ──────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Mobile · 3 ações que existem</h2>
+      <p class="section-desc">Operador no Uber tem 4 minutos e uma mão. Mobile entrega 3 ações · nada mais. Filtros, analytics, comparativos e configurações ficam ocultos sob "⋯ mais".</p>
+
+      <div class="mob-prio">
+        <div class="mob-prio-item">
+          <div class="mob-prio-num">01</div>
+          <h4>Ack</h4>
+          <p>Reconhecer o alerta para parar de receber push. Single tap · não exige reflexão. Reverte com undo 8s.</p>
+        </div>
+        <div class="mob-prio-item">
+          <div class="mob-prio-num">02</div>
+          <h4>Escalar</h4>
+          <p>Subir para o próximo tier. Triggers automáticos de notificação ao analista de plantão. Não exige texto · justificativa pode ser adicionada depois.</p>
+        </div>
+        <div class="mob-prio-item">
+          <div class="mob-prio-num">03</div>
+          <h4>Comentar</h4>
+          <p>Texto curto. "Estou a caminho do escritório". Vai para o log do caso · todos veem.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Reflow por surface ────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Reflow por surface</h2>
+
+      <table class="rf-tbl">
+        <thead><tr><th>Surface</th><th>Desktop</th><th>Tablet</th><th>Mobile</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Dashboard</td>
+            <td>Sidebar + 4 metric cards + tabela 3-col + side panel</td>
+            <td>Sidebar icon-only · 2×2 metric cards · tabela 2-col · panel some</td>
+            <td>Sem sidebar · 1 alerta destacado em topo · lista resumida de casos · ações na FAB</td>
+          </tr>
+          <tr>
+            <td>Crisis Detail</td>
+            <td>Tabs horizontais (7) · header sticky · side panel IA</td>
+            <td>Tabs viram dropdown · panel IA empilha embaixo</td>
+            <td>Tabs viram bottom-tabs (3 principais: Resumo · Cobertura · Ações) · panel IA é sheet acionável</td>
+          </tr>
+          <tr>
+            <td>Cobertura · feed</td>
+            <td>Filter bar à esquerda + grid de mention cards 3-col</td>
+            <td>Filtros em drawer · cards 2-col</td>
+            <td>Filtros em sheet · cards 1-col · scroll infinito + sticky top "ordem"</td>
+          </tr>
+          <tr>
+            <td>Settings</td>
+            <td>Nav lateral + form 2-col</td>
+            <td>Nav lateral colapsada · form 1-col</td>
+            <td>Settings vira lista 1-col · cada seção em página própria · drilldown</td>
+          </tr>
+          <tr>
+            <td>Audit Log</td>
+            <td>Grid 6-col · filtros inline</td>
+            <td>Grid 4-col + drawer de detalhe full</td>
+            <td><strong>Não disponível</strong> · banner "Acessar audit log no desktop" · acesso direto via deep link só desktop</td>
+          </tr>
+          <tr>
+            <td>Compare</td>
+            <td>Multi-line + tabela de deltas</td>
+            <td>Empilhado · chart depois tabela</td>
+            <td><strong>Não disponível</strong> · comparação exige espaço · banner com link.</td>
+          </tr>
+          <tr>
+            <td>Pulso IA chat</td>
+            <td>Painel lateral · 320px largura</td>
+            <td>Sheet bottom · 60% altura</td>
+            <td>Fullscreen sheet · chat ocupa toda viewport</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Containers vs viewport ────────── -->
+    <section class="section">
+      <h2 class="section-h1">Container queries &gt; media queries</h2>
+      <p class="section-desc">Sempre que possível, o componente decide layout por <strong>tamanho do container</strong>, não por viewport. Card de métrica colapsa baseado no espaço que tem · não em "é tablet".</p>
+
+      <pre style="background:var(--muted);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;font-family:var(--font-pulso-mono);font-size:12px;color:var(--fg-strong);white-space:pre;overflow-x:auto;line-height:1.65;">/* ✓ component-level reflow · independente da viewport */
+.metric-card {
+  container-type: <span style="color:var(--success);">inline-size</span>;
+}
+@container (width &lt; 200px) {
+  .metric-card .delta { display: none; }
+}
+
+/* ✗ apenas viewport-based · ignorra layouts compostos */
+@media (max-width: 640px) {
+  .metric-card .delta { display: none; }
+}</pre>
+
+      <p class="section-desc" style="margin-top:14px;">Viewport queries ficam reservadas para decisões de navegação (sidebar/topbar/FAB) e composição global (1-col vs 3-col). Tudo dentro de um card decide pelo container.</p>
+    </section>
+
+    <!-- ── Mobile-only patterns ──────────── -->
+    <section class="section">
+      <h2 class="section-h1">Padrões exclusivos · mobile</h2>
+      <table class="rf-tbl">
+        <thead><tr><th>Padrão</th><th>Quando aparece</th><th>Spec</th></tr></thead>
+        <tbody>
+          <tr><td>FAB · Floating Action Button</td><td>Mobile · &lt; 640px</td><td>Ação primária da tela · canto inferior direito · 56×56 · sombra elevada · max 1 por viewport</td></tr>
+          <tr><td>Bottom sheet</td><td>Substitui modal centralizado · &lt; 640px</td><td>Slide-up de baixo · handle visível para dismiss · max 80% da altura</td></tr>
+          <tr><td>Pull to refresh</td><td>Listas com dados real-time</td><td>Gesto nativo iOS/Android · feedback de 80ms · não em scroll horizontal</td></tr>
+          <tr><td>Swipe actions</td><td>Linhas em lista (mention, alerta)</td><td>Swipe esquerda: ack · swipe direita: marcar · sempre revela sob ícone, não esconde a linha</td></tr>
+          <tr><td>Bottom tab nav</td><td>Crisis Detail em mobile</td><td>3 abas principais · ícones com label · sticky bottom</td></tr>
+          <tr><td>Long-press menu</td><td>Card de menção</td><td>Long press &gt; 400ms abre menu contextual · alternativa para hover</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Regras ──────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Faça</div>
+          <ul>
+            <li>Desktop primeiro. Mobile é jornada paralela · não versão reduzida.</li>
+            <li>Mobile entrega 3 ações: ack · escalar · comentar. Tudo o mais fica em "⋯ mais".</li>
+            <li>Use container queries para decisões internas de componente · viewport queries só para chrome global.</li>
+            <li>Em mobile, hit target ≥ 44px sempre (mesmo em compact).</li>
+            <li>Audit log e Compare são desktop-only · banner amigável no mobile.</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Evite</div>
+          <ul>
+            <li>Não tente paridade. Mobile tentando ser desktop fica pior em ambos.</li>
+            <li>Não use hover em mobile. Substitua por tap · long-press · ou revele inline.</li>
+            <li>Não use modal centralizado em mobile. Bottom sheet sempre.</li>
+            <li>Não esconda navegação primária em mobile. Bottom tabs ou hamburger persistente.</li>
+            <li>Não use scroll horizontal exceto em tabelas com indicadores claros.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Status ──────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Status da iniciativa · 4.4</h2>
+      <table class="rf-tbl">
+        <thead><tr><th>Deliverable</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Breakpoints documentados · mobile 0–640 · tablet 641–1024 · desktop 1025+</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Padrão de reflow para Dashboard · Crisis Detail · Settings</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Mobile entrega 3 ações: ack · escalar · comentar</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Container queries como default · viewport queries para chrome global</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Padrões exclusivos de mobile · FAB · bottom sheet · swipe · long-press</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Página <strong>Foundations · Responsive</strong></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Implementação mobile do Crisis Detail no app</td><td><span style="color:var(--warning);font-family:var(--font-pulso-mono);font-size:11px;">⏳ PLS-CM-MOBILE-091 (rolling)</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

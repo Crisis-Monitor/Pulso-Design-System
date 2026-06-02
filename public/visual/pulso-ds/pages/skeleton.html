@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Skeleton</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* Skeleton base */
+.psk {
+  display: block;
+  background: linear-gradient(90deg,
+    var(--muted) 0%,
+    color-mix(in oklab, var(--muted) 50%, var(--card)) 50%,
+    var(--muted) 100%);
+  background-size: 200% 100%;
+  animation: psk-shimmer 1.4s var(--motion-easing) infinite;
+  border-radius: var(--radius-xs);
+}
+html.dark .psk { background: linear-gradient(90deg, color-mix(in oklab, var(--muted) 90%, transparent) 0%, color-mix(in oklab, var(--muted) 60%, var(--fg-strong)) 50%, color-mix(in oklab, var(--muted) 90%, transparent) 100%); background-size: 200% 100%; }
+@keyframes psk-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+/* Variants */
+.psk-text { height: 14px; border-radius: 3px; }
+.psk-title { height: 22px; border-radius: var(--radius-xs); }
+.psk-display { height: 36px; border-radius: var(--radius-sm); }
+.psk-circle { border-radius: 999px; }
+.psk-block { border-radius: var(--radius-md); }
+.psk-pill { height: 22px; border-radius: 999px; }
+
+/* Width helpers */
+.psk-w-25 { width: 25%; } .psk-w-40 { width: 40%; } .psk-w-50 { width: 50%; }
+.psk-w-60 { width: 60%; } .psk-w-75 { width: 75%; } .psk-w-100 { width: 100%; }
+
+/* Static (reduced motion) */
+@media (prefers-reduced-motion: reduce) {
+  .psk { animation: none; background: var(--muted); }
+}
+
+/* Showcase containers */
+.demo-card {
+  border: 1px solid var(--border);
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  width: 100%;
+  max-width: 520px;
+}
+.row { display: flex; align-items: center; gap: 12px; }
+.col { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0; }
+.metric-skel { padding: 18px 20px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--card); }
+.metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 520px; }
+
+.row-skel { display: grid; grid-template-columns: 24px 1fr 80px 60px; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-faint); }
+.row-skel:last-child { border-bottom: 0; }
+.table-shell { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0 16px; max-width: 720px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Atoms · Onda 2 · 02</div>
+    <h1 class="page-title">Skeleton</h1>
+    <p class="page-sub">Placeholder com a forma do conteúdo final. Substitui Spinner em loadings &gt; 1s — preserva layout e reduz percepção de espera.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Primitivos</h2>
+      <p class="section-desc">Cinco shapes — text, title, display, circle, block. Cada um tem altura padrão e raio coerente com o token correspondente.</p>
+      <div class="preview-row" style="flex-direction: column; align-items: stretch; gap: 14px; max-width: 520px;">
+        <div><div class="psk psk-display psk-w-50" style="margin-bottom: 6px;"></div><div style="font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted);">DISPLAY · 36px · radius-sm</div></div>
+        <div><div class="psk psk-title psk-w-75" style="margin-bottom: 6px;"></div><div style="font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted);">TITLE · 22px · radius-xs</div></div>
+        <div><div class="psk psk-text psk-w-100" style="margin-bottom: 6px;"></div><div style="font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted);">TEXT · 14px · radius 3px</div></div>
+        <div style="display: flex; gap: 12px; align-items: center;"><div class="psk psk-circle" style="width: 36px; height: 36px;"></div><div style="font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted);">CIRCLE · avatar</div></div>
+        <div><div class="psk psk-block" style="height: 80px;"></div><div style="font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); margin-top: 6px;">BLOCK · arbitrário · radius-md</div></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Padrão · linhas de texto</h2>
+      <p class="section-desc">Para parágrafos, alterne larguras (100% → 100% → 75% → 50%) — cria ritmo natural de quebra de linha.</p>
+      <div style="max-width: 520px; display: flex; flex-direction: column; gap: 10px;">
+        <div class="psk psk-text psk-w-100"></div>
+        <div class="psk psk-text psk-w-100"></div>
+        <div class="psk psk-text psk-w-75"></div>
+        <div class="psk psk-text psk-w-50"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Padrão · Card de menção</h2>
+      <p class="section-desc">Anatomia composta. Avatar circular, kicker pill, título e linhas de excerto.</p>
+      <div class="demo-card">
+        <div class="row" style="margin-bottom: 14px;">
+          <div class="psk psk-circle" style="width: 36px; height: 36px; flex-shrink: 0;"></div>
+          <div class="col">
+            <div class="psk psk-text psk-w-40"></div>
+            <div class="psk psk-text psk-w-25" style="height: 10px;"></div>
+          </div>
+          <div class="psk psk-pill" style="width: 80px;"></div>
+        </div>
+        <div class="psk psk-title psk-w-75" style="margin-bottom: 10px;"></div>
+        <div class="psk psk-text psk-w-100" style="margin-bottom: 6px;"></div>
+        <div class="psk psk-text psk-w-100" style="margin-bottom: 6px;"></div>
+        <div class="psk psk-text psk-w-60"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Padrão · Métrica</h2>
+      <p class="section-desc">Skeleton que respeita a anatomia do MetricCard — kicker → display → delta.</p>
+      <div class="metric-grid">
+        <div class="metric-skel">
+          <div class="psk psk-text psk-w-50" style="height: 11px; margin-bottom: 12px;"></div>
+          <div class="psk psk-display psk-w-60" style="margin-bottom: 10px;"></div>
+          <div class="psk psk-pill" style="width: 60px;"></div>
+        </div>
+        <div class="metric-skel">
+          <div class="psk psk-text psk-w-40" style="height: 11px; margin-bottom: 12px;"></div>
+          <div class="psk psk-display psk-w-50" style="margin-bottom: 10px;"></div>
+          <div class="psk psk-pill" style="width: 60px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Padrão · Linhas de tabela</h2>
+      <p class="section-desc">5 linhas é o sweet spot — usuário identifica o padrão sem o skeleton dominar a tela.</p>
+      <div class="table-shell">
+        <div class="row-skel"><div class="psk psk-circle" style="width: 24px; height: 24px;"></div><div class="psk psk-text psk-w-75"></div><div class="psk psk-pill"></div><div class="psk psk-text psk-w-100"></div></div>
+        <div class="row-skel"><div class="psk psk-circle" style="width: 24px; height: 24px;"></div><div class="psk psk-text psk-w-60"></div><div class="psk psk-pill"></div><div class="psk psk-text psk-w-75"></div></div>
+        <div class="row-skel"><div class="psk psk-circle" style="width: 24px; height: 24px;"></div><div class="psk psk-text psk-w-100"></div><div class="psk psk-pill"></div><div class="psk psk-text psk-w-100"></div></div>
+        <div class="row-skel"><div class="psk psk-circle" style="width: 24px; height: 24px;"></div><div class="psk psk-text psk-w-75"></div><div class="psk psk-pill"></div><div class="psk psk-text psk-w-50"></div></div>
+        <div class="row-skel"><div class="psk psk-circle" style="width: 24px; height: 24px;"></div><div class="psk psk-text psk-w-60"></div><div class="psk psk-pill"></div><div class="psk psk-text psk-w-75"></div></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Anatomia</h2>
+      <table class="tokens">
+        <thead><tr><th>Variante</th><th>Altura</th><th>Border-radius</th><th>Uso</th></tr></thead>
+        <tbody>
+          <tr><td>text</td><td class="mono">14px</td><td class="mono">3px</td><td>Body, parágrafos, labels</td></tr>
+          <tr><td>title</td><td class="mono">22px</td><td class="mono">--radius-xs</td><td>Heading, card title</td></tr>
+          <tr><td>display</td><td class="mono">36px</td><td class="mono">--radius-sm</td><td>Score, métricas grandes</td></tr>
+          <tr><td>circle</td><td class="mono">arbitrário</td><td class="mono">999px</td><td>Avatar, ícone, dot</td></tr>
+          <tr><td>block</td><td class="mono">arbitrário</td><td class="mono">--radius-md</td><td>Imagens, charts, blocos</td></tr>
+          <tr><td>pill</td><td class="mono">22px</td><td class="mono">999px</td><td>Badge, chip, tag</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><div class="rule-tag">DO</div><div>Skeleton deve ter <strong>a forma do conteúdo final</strong>. Se o card tem avatar circular, o skeleton tem círculo.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Use 3–5 itens de skeleton, não 20. O usuário só precisa entender o padrão.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Anime o shimmer da esquerda para a direita. Em prefers-reduced-motion, mostre estático.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Nunca use Skeleton para erros ou estados vazios. Skeleton significa "está vindo".</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não troque por Spinner depois — escolha um para a duração toda. Trocar visual no meio do load piora a percepção.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use Skeleton para load &lt; 300ms. Vai aparecer e sumir, criando flash.</div></div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

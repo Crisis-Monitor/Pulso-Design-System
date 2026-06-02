@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Identity Audit</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* ── Methodology ─────────────────────── */
+.method-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; }
+@media (max-width: 900px) { .method-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .method-grid { grid-template-columns: 1fr; } }
+.method-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px 18px; }
+.method-card .ic { width: 28px; height: 28px; border-radius: 7px; background: color-mix(in oklab, var(--primary) 14%, transparent); color: var(--primary); display: flex; align-items: center; justify-content: center; font-family: var(--font-pulso-mono); font-weight: 700; font-size: 13px; margin-bottom: 10px; }
+.method-card .h { font-size: 14px; font-weight: 600; color: var(--fg-strong); margin-bottom: 4px; letter-spacing: -0.005em; }
+.method-card .p { font-size: 12.5px; color: var(--fg-muted); line-height: 1.55; }
+
+/* ── Scoring legend ─────────────────────── */
+.legend { display: flex; gap: 12px; flex-wrap: wrap; padding: 12px 18px; background: var(--surface-2); border: 1px solid var(--border-faint); border-radius: var(--radius-md); margin-top: 14px; align-items: center; }
+.legend .l { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 600; }
+.legend .pip { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--fg); }
+.legend .pip .d { width: 10px; height: 10px; border-radius: 50%; }
+.legend .pip .d.strong { background: var(--success); }
+.legend .pip .d.present { background: var(--risk-attention); }
+.legend .pip .d.absent { background: var(--destructive); }
+
+/* ── Pair frame ─────────────────────── */
+.pair { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; margin-top: 24px; }
+.pair-head { padding: 16px 22px; border-bottom: 1px solid var(--border-faint); display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.pair-num { font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 700; color: var(--primary); background: color-mix(in oklab, var(--primary) 14%, transparent); padding: 3px 9px; border-radius: var(--radius-xs); letter-spacing: 0.06em; }
+.pair-title { font-size: 16px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; }
+.pair-sub { font-size: 12.5px; color: var(--fg-muted); margin-left: auto; font-family: var(--font-pulso-mono); }
+
+.pair-mocks { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-bottom: 1px solid var(--border-faint); }
+@media (max-width: 900px) { .pair-mocks { grid-template-columns: 1fr; } }
+.mock-wrap { padding: 24px; background: var(--surface-page); position: relative; min-height: 320px; display: flex; align-items: center; justify-content: center; }
+.mock-wrap.mono { filter: grayscale(1) contrast(1.02); border-left: 1px solid var(--border-faint); }
+@media (max-width: 900px) { .mock-wrap.mono { border-left: none; border-top: 1px solid var(--border-faint); } }
+.mock-wrap .label { position: absolute; top: 10px; left: 14px; font-family: var(--font-pulso-mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 600; padding: 2px 7px; background: var(--card); border: 1px solid var(--border-faint); border-radius: var(--radius-xs); }
+
+.pair-anno { padding: 18px 22px; background: var(--surface-2); }
+.anno-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 900px) { .anno-grid { grid-template-columns: 1fr 1fr; } }
+.anno-cell { background: var(--card); border: 1px solid var(--border-faint); border-radius: var(--radius-sm); padding: 10px 12px; }
+.anno-cell .row { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
+.anno-cell .row .d { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.anno-cell .row .d.strong { background: var(--success); }
+.anno-cell .row .d.present { background: var(--risk-attention); }
+.anno-cell .row .d.absent { background: var(--destructive); }
+.anno-cell .row .l { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 600; }
+.anno-cell .n { font-size: 12.5px; color: var(--fg); line-height: 1.45; }
+
+/* ── Specific mock styles ─────────────────────── */
+/* Common dashboard fragment */
+.mk-dash { width: 100%; max-width: 380px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; }
+.mk-kicker { font-family: var(--font-pulso-mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--primary); font-weight: 600; }
+.mk-h { font-size: 15px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; margin-top: 4px; }
+.mk-sub { font-size: 11.5px; color: var(--fg-muted); margin-top: 3px; }
+.mk-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-faint); }
+.mk-metric .l { font-family: var(--font-pulso-mono); font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); }
+.mk-metric .v { font-family: var(--font-pulso-mono); font-size: 18px; font-weight: 700; color: var(--fg-strong); letter-spacing: -0.02em; margin-top: 2px; line-height: 1; }
+.mk-metric .d { font-family: var(--font-pulso-mono); font-size: 9.5px; margin-top: 2px; }
+.mk-metric .d.up { color: var(--destructive); }
+.mk-metric .d.dn { color: var(--success); }
+.mk-list { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-faint); display: flex; flex-direction: column; gap: 8px; }
+.mk-row { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.mk-chip { font-family: var(--font-pulso-mono); font-size: 9.5px; padding: 2px 6px; border-radius: var(--radius-xs); font-weight: 600; flex-shrink: 0; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid; }
+.mk-chip.crit { background: var(--risk-critical-bg); color: var(--risk-critical-text); border-color: var(--risk-critical-border); }
+.mk-chip.high { background: color-mix(in oklab, var(--risk-high) 14%, transparent); color: var(--risk-high); border-color: color-mix(in oklab, var(--risk-high) 25%, transparent); }
+.mk-chip.att { background: var(--risk-attention-bg); color: var(--risk-attention-text); border-color: var(--risk-attention-border); }
+.mk-chip.mon { background: var(--risk-monitor-bg); color: var(--risk-monitor-text); border-color: var(--risk-monitor-border); }
+.mk-row .t { font-size: 12px; color: var(--fg-strong); font-weight: 500; flex: 1; }
+.mk-row .m { font-family: var(--font-pulso-mono); font-size: 10px; color: var(--fg-muted); }
+
+/* Crisis detail header */
+.mk-cd { width: 100%; max-width: 420px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.mk-cd-head { padding: 14px 16px; border-bottom: 1px solid var(--border-faint); }
+.mk-cd-title { font-size: 15px; font-weight: 700; color: var(--fg-strong); letter-spacing: -0.005em; margin-top: 4px; }
+.mk-cd-meta { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+.mk-cd-tab-row { display: flex; gap: 4px; padding: 0 14px; border-bottom: 1px solid var(--border-faint); }
+.mk-cd-tab { font-size: 11px; padding: 8px 10px; color: var(--fg-muted); border-bottom: 2px solid transparent; font-weight: 500; }
+.mk-cd-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+.mk-cd-body { padding: 12px 16px; }
+.mk-cd-line { font-size: 11.5px; color: var(--fg-secondary); line-height: 1.55; }
+.mk-cd-line + .mk-cd-line { margin-top: 6px; }
+.mk-cd-line .mono { font-family: var(--font-pulso-mono); color: var(--fg-strong); }
+
+/* Score Ring */
+.mk-sr-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.mk-sr svg { width: 180px; height: 180px; }
+.mk-sr .ring-bg { stroke: var(--border); }
+.mk-sr .ring-fg { stroke: var(--primary); }
+.mk-sr .center { font-family: var(--font-pulso-mono); }
+.mk-sr-meta { text-align: center; }
+.mk-sr-meta .kk { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--primary); font-weight: 600; }
+.mk-sr-meta .n { font-size: 14px; font-weight: 600; color: var(--fg-strong); margin-top: 4px; }
+.mk-sr-meta .m { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); margin-top: 2px; }
+
+/* Mention Card */
+.mk-mc { width: 100%; max-width: 360px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; border-left: 3px solid var(--risk-attention); }
+.mk-mc-head { display: flex; align-items: center; gap: 8px; }
+.mk-mc-av { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, #c4ccd6 0%, #8b96a3 100%); }
+.mk-mc-handle { font-size: 12.5px; font-weight: 600; color: var(--fg-strong); }
+.mk-mc-meta { font-family: var(--font-pulso-mono); font-size: 10px; color: var(--fg-subtle); }
+.mk-mc-tier { font-family: var(--font-pulso-mono); font-size: 9.5px; padding: 2px 6px; border-radius: var(--radius-xs); background: color-mix(in oklab, var(--primary) 14%, transparent); color: var(--primary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-left: auto; }
+.mk-mc-quote { font-size: 13px; color: var(--fg); line-height: 1.5; margin-top: 10px; font-style: italic; padding-left: 10px; border-left: 2px solid var(--border-strong); }
+.mk-mc-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-faint); font-family: var(--font-pulso-mono); font-size: 10px; color: var(--fg-muted); }
+
+/* Sentiment chart */
+.mk-sb { width: 100%; max-width: 380px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px 18px; }
+.mk-sb-h { display: flex; justify-content: space-between; align-items: baseline; }
+.mk-sb-h .t { font-size: 13.5px; font-weight: 600; color: var(--fg-strong); }
+.mk-sb-h .v { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); }
+.mk-sb-bar { display: flex; height: 14px; border-radius: var(--radius-xs); overflow: hidden; margin-top: 12px; }
+.mk-sb-pos { background: var(--success); flex: 28; }
+.mk-sb-neu { background: var(--fg-subtle); flex: 42; opacity: 0.45; }
+.mk-sb-neg { background: var(--destructive); flex: 30; }
+.mk-sb-legend { display: flex; justify-content: space-between; margin-top: 8px; font-family: var(--font-pulso-mono); font-size: 9.5px; color: var(--fg-secondary); }
+.mk-sb-legend span b { color: var(--fg-strong); font-weight: 700; }
+.mk-sb-chart { margin-top: 14px; }
+.mk-sb-chart svg { width: 100%; height: 64px; }
+
+/* Auth login */
+.mk-au { width: 100%; max-width: 300px; padding: 20px 20px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.mk-au-mark { width: 32px; height: 32px; border-radius: 7px; background: var(--primary); color: var(--primary-foreground); display: flex; align-items: center; justify-content: center; font-family: var(--font-pulso-mono); font-weight: 700; font-size: 14px; margin-bottom: 16px; }
+.mk-au-k { font-family: var(--font-pulso-mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--primary); font-weight: 600; }
+.mk-au-h { font-size: 17px; font-weight: 700; color: var(--fg-strong); margin-top: 4px; letter-spacing: -0.01em; }
+.mk-au-p { font-size: 12px; color: var(--fg-muted); margin-top: 6px; line-height: 1.5; }
+.mk-au-input { margin-top: 14px; height: 32px; border: 1px solid var(--input); border-radius: var(--radius-sm); background: var(--background); padding: 0 10px; display: flex; align-items: center; font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); }
+.mk-au-btn { margin-top: 8px; height: 34px; background: var(--primary); color: var(--primary-foreground); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 500; }
+
+/* ── Findings ─────────────────────── */
+.findings { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.finding-row { display: grid; grid-template-columns: 130px 1fr 100px; gap: 18px; padding: 16px 20px; border-bottom: 1px solid var(--border-faint); align-items: center; }
+.finding-row:last-child { border-bottom: none; }
+.finding-row .dim { font-family: var(--font-pulso-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 600; }
+.finding-row .desc { font-size: 13px; color: var(--fg); line-height: 1.55; }
+.finding-row .desc strong { color: var(--fg-strong); }
+.finding-row .score { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; padding: 4px 10px; border-radius: var(--radius-xs); text-align: center; }
+.finding-row .score.strong { background: color-mix(in oklab, var(--success) 14%, transparent); color: var(--success); }
+.finding-row .score.present { background: color-mix(in oklab, var(--risk-attention) 14%, transparent); color: var(--risk-attention-text); }
+.finding-row .score.absent { background: color-mix(in oklab, var(--destructive) 14%, transparent); color: var(--destructive); }
+
+/* ── Gap list ─────────────────────── */
+.gap-list { display: flex; flex-direction: column; gap: 12px; }
+.gap { display: grid; grid-template-columns: 48px 1fr 140px; gap: 18px; padding: 16px 20px; background: var(--card); border: 1px solid var(--border); border-left: 3px solid; border-radius: var(--radius-md); align-items: start; }
+.gap.p0 { border-left-color: var(--destructive); }
+.gap.p1 { border-left-color: var(--risk-attention); }
+.gap.p2 { border-left-color: var(--info); }
+.gap .id { font-family: var(--font-pulso-mono); font-size: 18px; font-weight: 700; color: var(--fg-strong); letter-spacing: -0.02em; line-height: 1; }
+.gap .body .h { font-size: 14.5px; font-weight: 600; color: var(--fg-strong); margin-bottom: 4px; letter-spacing: -0.005em; }
+.gap .body .p { font-size: 12.5px; color: var(--fg-secondary); line-height: 1.55; }
+.gap .meta { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); text-align: right; line-height: 1.7; }
+.gap .meta strong { color: var(--fg-strong); }
+.gap .meta .pri { display: inline-block; padding: 2px 7px; border-radius: var(--radius-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 9.5px; }
+.gap.p0 .meta .pri { background: color-mix(in oklab, var(--destructive) 14%, transparent); color: var(--destructive); }
+.gap.p1 .meta .pri { background: color-mix(in oklab, var(--risk-attention) 14%, transparent); color: var(--risk-attention-text); }
+.gap.p2 .meta .pri { background: color-mix(in oklab, var(--info) 14%, transparent); color: var(--info-foreground, var(--info)); }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Foundations · Identity Audit · v3 · α.1</div>
+    <h1 class="page-title">Auditoria de identidade sem-cor</h1>
+    <p class="page-sub">Se trocássemos o roxo amanhã, o Pulso ainda pareceria <em>do Pulso</em>? Esta página testa essa pergunta em 6 telas. Cada uma colorida ao lado da versão monocromática — com anotações por dimensão de identidade.</p>
+
+    <!-- ── Método ─────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Método</h2>
+      <p class="section-desc">Identidade é avaliada em quatro dimensões. A mesma tela é renderizada em cor e em monocromático (CSS <code>filter: grayscale(1)</code>) — sem outros ajustes, para isolar a contribuição da cor.</p>
+      <div class="method-grid">
+        <div class="method-card">
+          <div class="ic">T</div>
+          <div class="h">Tipografia</div>
+          <div class="p">Hierarquia, peso, contraste de escala. Uso de mono como assinatura.</div>
+        </div>
+        <div class="method-card">
+          <div class="ic">R</div>
+          <div class="h">Ritmo</div>
+          <div class="p">Cadência vertical, hairlines, separação por espaço vs por borda.</div>
+        </div>
+        <div class="method-card">
+          <div class="ic">S</div>
+          <div class="h">Signature shapes</div>
+          <div class="p">Formas que carregam o Pulso fora da cor — kicker, Score Ring, glifos.</div>
+        </div>
+        <div class="method-card">
+          <div class="ic">D</div>
+          <div class="h">Densidade</div>
+          <div class="p">Confiança da composição. Distância entre elementos. Hierarquia clara à distância.</div>
+        </div>
+      </div>
+      <div class="legend">
+        <span class="l">Escala de pontuação ·</span>
+        <span class="pip"><span class="d strong"></span> Forte · carrega Pulso sem cor</span>
+        <span class="pip"><span class="d present"></span> Presente · funciona mas perde força</span>
+        <span class="pip"><span class="d absent"></span> Ausente · sem a cor, o sinal colapsa</span>
+      </div>
+    </section>
+
+    <!-- ── PAR 01 · Dashboard ─────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Os pares</h2>
+      <p class="section-desc">6 telas representativas. Comparativo colorida ↔ monocromática, com anotações nas 4 dimensões.</p>
+
+      <div class="pair">
+        <div class="pair-head">
+          <span class="pair-num">01</span>
+          <span class="pair-title">Dashboard · card de caso ativo</span>
+          <span class="pair-sub">tela de entrada · alta hierarquia</span>
+        </div>
+        <div class="pair-mocks">
+          <div class="mock-wrap">
+            <div class="label">cor</div>
+            <div class="mk-dash">
+              <div class="mk-kicker">CASO ATIVO · TIER 1</div>
+              <div class="mk-h">Vazamento de dados — Operadora</div>
+              <div class="mk-sub">Briefing pendente · 14 veículos cobrindo</div>
+              <div class="mk-metrics">
+                <div class="mk-metric"><div class="l">Score</div><div class="v">68</div><div class="d up">+12</div></div>
+                <div class="mk-metric"><div class="l">Menções</div><div class="v">2.4k</div><div class="d up">+340</div></div>
+                <div class="mk-metric"><div class="l">Sentimento</div><div class="v">−42</div><div class="d up">+18</div></div>
+              </div>
+              <div class="mk-list">
+                <div class="mk-row"><span class="mk-chip crit">CRIT</span><span class="t">G1 — capa</span><span class="m">12min</span></div>
+                <div class="mk-row"><span class="mk-chip high">HIGH</span><span class="t">UOL — destaque</span><span class="m">28min</span></div>
+                <div class="mk-row"><span class="mk-chip att">ATT</span><span class="t">Folha — coluna</span><span class="m">42min</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="mock-wrap mono">
+            <div class="label">monocromático</div>
+            <div class="mk-dash">
+              <div class="mk-kicker">CASO ATIVO · TIER 1</div>
+              <div class="mk-h">Vazamento de dados — Operadora</div>
+              <div class="mk-sub">Briefing pendente · 14 veículos cobrindo</div>
+              <div class="mk-metrics">
+                <div class="mk-metric"><div class="l">Score</div><div class="v">68</div><div class="d up">+12</div></div>
+                <div class="mk-metric"><div class="l">Menções</div><div class="v">2.4k</div><div class="d up">+340</div></div>
+                <div class="mk-metric"><div class="l">Sentimento</div><div class="v">−42</div><div class="d up">+18</div></div>
+              </div>
+              <div class="mk-list">
+                <div class="mk-row"><span class="mk-chip crit">CRIT</span><span class="t">G1 — capa</span><span class="m">12min</span></div>
+                <div class="mk-row"><span class="mk-chip high">HIGH</span><span class="t">UOL — destaque</span><span class="m">28min</span></div>
+                <div class="mk-row"><span class="mk-chip att">ATT</span><span class="t">Folha — coluna</span><span class="m">42min</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pair-anno">
+          <div class="anno-grid">
+            <div class="anno-cell"><div class="row"><span class="d strong"></span><span class="l">Tipografia</span></div><div class="n">Kicker mono + display sans + numerais grandes carregam hierarquia sem ajuda da cor.</div></div>
+            <div class="anno-cell"><div class="row"><span class="d present"></span><span class="l">Ritmo</span></div><div class="n">Hairlines internas separam blocos · funcionam, mas perdem peso quando todo o card vira cinza claro.</div></div>
+            <div class="anno-cell"><div class="row"><span class="d strong"></span><span class="l">Signature</span></div><div class="n">Kicker em uppercase com tracking é assinatura clara. Mantém Pulso reconhecível.</div></div>
+            <div class="anno-cell"><div class="row"><span class="d absent"></span><span class="l">Risco</span></div><div class="n">Chips <code>CRIT/HIGH/ATT</code> colapsam visualmente · cinza vs cinza vs cinza. Glifo + texto resolvem (v2 · 1.2), mas faltam aqui.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAR 02 · Crisis Detail header -->
+      <div class="pair">
+        <div class="pair-head">
+          <span class="pair-num">02</span>
+          <span class="pair-title">Crisis Detail · header + tabs</span>
+          <span class="pair-sub">workhorse · navegação tabular</span>
+        </div>
+        <div class="pair-mocks">
+          <div class="mock-wrap">
+            <div class="label">cor</div>
+            <div class="mk-cd">
+              <div class="mk-cd-head">
+                <div class="mk-kicker">CRISE · DECLARADA</div>
+                <div class="mk-cd-title">Vazamento de dados — Operadora Beta</div>
+                <div class="mk-cd-meta">
+                  <span class="mk-chip crit">P1 · CRÍTICO</span>
+                  <span class="mk-chip att">SCORE 68</span>
+                  <span style="font-family:var(--font-pulso-mono);font-size:10px;color:var(--fg-subtle);align-self:center;">aberto há 4h · 14 fontes</span>
+                </div>
+              </div>
+              <div class="mk-cd-tab-row">
+                <div class="mk-cd-tab">Resumo</div>
+                <div class="mk-cd-tab active">Briefing</div>
+                <div class="mk-cd-tab">Cobertura</div>
+                <div class="mk-cd-tab">Histórico</div>
+                <div class="mk-cd-tab">Ações</div>
+              </div>
+              <div class="mk-cd-body">
+                <div class="mk-cd-line"><span class="mono">[Inferência]</span> Origem provável · vazamento de credenciais via parceiro.</div>
+                <div class="mk-cd-line"><span class="mono">[Fato]</span> Comunicado interno deve sair até <span class="mono">14:30</span>.</div>
+                <div class="mk-cd-line"><span class="mono">[Recomendação]</span> Ativar protocolo dispatch tier-1 · Cris pode redigir.</div>
+              </div>
+            </div>
+          </div>
+          <div class="mock-wrap mono">
+            <div class="label">monocromático</div>
+            <div class="mk-cd">
+              <div class="mk-cd-head">
+                <div class="mk-kicker">CRISE · DECLARADA</div>
+                <div class="mk-cd-title">Vazamento de dados — Operadora Beta</div>
+                <div class="mk-cd-meta">
+                  <span class="mk-chip crit">P1 · CRÍTICO</span>
+                  <span class="mk-chip att">SCORE 68</span>
+                  <span style="font-family:var(--font-pulso-mono);font-size:10px;color:var(--fg-subtle);align-self:center;">aberto há 4h · 14 fontes</span>
+                </div>
+              </div>
+              <div class="mk-cd-tab-row">
+                <div class="mk-cd-tab">Resumo</div>
+                <div class="mk-cd-tab active">Briefing</div>
+                <div class="mk-cd-tab">Cobertura</div>
+                <div class="mk-cd-tab">Histórico</div>
+                <div class="mk-cd-tab">Ações</div>
+              </div>
+              <div class="mk-cd-body">
+                <div class="mk-cd-line"><span class="mono">[Inferência]</span> Origem provável · vazamento de credenciais via parceiro.</div>
+                <div class="mk-cd-line"><span class="mono">[Fato]</span> Comunicado interno deve sair até <span class="mono">14:30</span>.</div>
+                <div class="mk-cd-line"><span class="mono">[Recomendação]</span> Ativar protocolo dispatch tier-1 · Cris pode redigir.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pair-anno">
+          <div class="anno-grid">
+            <div class="anno-cell"><div class="row"><span class="d strong"></span><span class="l">Tipografia</span></div><div class="n">Marcadores <code>[Inferência]</code>, <code>[Fato]</code>, <code>[Recomendação]</code> em mono são forte assinatura — vêm da v2 · 2.4 (voz Cris).</div></div>
+            <div class="anno-cell"><div class="row"><span class="d present"></span><span class="l">Ritmo</span></div><div class="n">Tabs com border-bottom funcionam, mas o accent da tab ativa é puramente colorido. Sem cor, a active state quase desaparece.</div></div>
+            <div class="anno-cell"><div class="row"><span class="d strong"></span><span class="l">Signature</span></div><div class="n">A linha "aberto há 4h · 14 fontes" em mono com separador <code>·</code> é Pulso puro — sobrevive sem cor.</div></div>
+            <div class="anno-cell"><div class="row"><span class="d absent"></span><span class="l">Tab ativa</span></div><div class="n">Border-bottom roxo é o único sinal de tab ativa. Resolver: peso da label + indicador estrutural (não só cor).</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAR 03 · Score Ring -->
+      <div class="pair">
+        <div class="pair-head">
+          <span class="pair-num">03</span>
+          <span class="pair-title">Score Ring · forma-assinatura isolada</span>
+          <span class="pair-sub">pattern · candidato a signature shape</span>
+        </div>
+        <div class="pair-mocks">
+          <div class="mock-wrap">
+            <div class="label">cor</div>
+            <div class="mk-sr-wrap">
+              <div class="mk-sr">
+                <svg viewBox="0 0 100 100">
+                  <circle class="ring-bg" cx="50" cy="50" r="42" stroke-width="6" fill="none"></circle>
+                  <circle class="ring-fg" cx="50" cy="50" r="42" stroke-width="6" fill="none" stroke-dasharray="263.9" stroke-dashoffset="84" stroke-linecap="round" transform="rotate(-90 50 50)"></circle>
+                  <text x="50" y="48" text-anchor="middle" font-size="22" font-weight="700" fill="var(--fg-strong)" class="center">68</text>
+                  <text x="50" y="62" text-anchor="middle" font-size="7" font-weight="600" fill="var(--fg-subtle)" letter-spacing="1" class="center">SCORE</text>
+                </svg>
+              </div>
+              <div class="mk-sr-meta">
+                <div class="kk">ATENÇÃO · +12 EM 4H</div>
+                <div class="n">Movimento ascendente</div>
+                <div class="m">limite alerta · 75</div>
+              </div>
+            </div>
+          </div>
+          <div class="mock-wrap mono">
+            <div class="label">monocromático</div>
+            <div class="mk-sr-wrap">
+              <div class="mk-sr">
+                <svg viewBox="0 0 100 100">
+                  <circle class="ring-bg" cx="50" cy="50" r="42" stroke-width="6" fill="none"></circle>
+                  <circle class="ring-fg" cx="50" cy="50" r="42" stroke-width="6" fill="none" stroke-dasharray="263.9" stroke-dashoffset="84" stroke-linecap="round" transform="rotate(-90 50 50)"></circle>
+                  <text x="50" y="48" text-anchor="middle" font-size="22" font-weight="700" fill="var(--fg-strong)" class="center">68</text>
+                  <text x="50" y="62" text-anchor="middle" font-size="7" font-weight="600" fill="var(--fg-subtle)" letter-spacing="1" class="center">SCORE</text>
+                </svg>
+              </div>
+              <div class="mk-sr-meta">
+                <div class="kk">ATENÇÃO · +12 EM 4H</div>
+                <div class="n">Movimento ascendente</div>
+                <div class="m">limite alerta · 75</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pair-anno">
+          <div class="anno-grid">
+            <div class="anno-cell"><div class="row"><span class="d strong"></span><span class="l">Tipografia</span></div><div class="n">Numeral grande em sans + label mono pequeno embaixo = assinatura limpa. Sobrevive em qualquer cor.</div></div>
+            <div class="anno-cell"><div class="row"><span class="d strong"></span><span class="l">Ritmo</span></div><div class="n">Ring + número + meta empilhados. Cadência clara. Sem ruído estrutural.</div></div>
+            <div class="anno-cell"><div class="row"><span class="d strong"></span><span class="l">Signature</span></div><div class="n">Esta é <strong>a forma-assinatura mais forte do Pulso hoje</strong>. Ring concêntrico, número grande, kicker mono. Promove para Foundations · Signature Shapes.</div></div>
+            <div class="anno-cell"><div class="row"><span class="d present"></span><span class="l">Direção</span></div><div class="n">"Atenção · +12" sugere ascensão · mas se 68 fosse 25, o ring teria mesma aparência sem o número. Considerar arc com direction-of-travel.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAR 04 · Mention Card -->
+      <div class="pair">
+        <div class="pair-head">
+          <span class="pair-num">04</span>
+          <span class="pair-title">Mention Card · evidência citável</span>
+          <span class="pair-sub">pattern · consumo intensivo</span>
+        </div>
+        <div class="pair-mocks">
+          <div class="mock-wrap">
+            <div class="label">cor</div>
+            <div class="mk-mc">
+              <div class="mk-mc-head">
+                <div class="mk-mc-av"></div>
+                <div>
+                  <div class="mk-mc-handle">@g1noticias</div>
+                  <div class="mk-mc-meta">G1 · 12min · 142k seguidores</div>
+                </div>
+                <span class="mk-mc-tier">TIER 1</span>
+              </div>
+              <div class="mk-mc-quote">Operadora Beta confirma vazamento que pode ter exposto dados de 2 milhões de clientes desde fevereiro.</div>
+              <div class="mk-mc-foot">
+                <span>2.4k engajamento</span>
+                <span>sentimento −68</span>
+              </div>
+            </div>
+          </div>
+          <div class="mock-wrap mono">
+            <div class="label">monocromático</div>
+            <div class="mk-mc">
+              <div class="mk-mc-head">
+                <div class="mk-mc-av"></div>
+                <div>
+                  <div class="mk-mc-handle">@g1noticias</div>
+                  <div class="mk-mc-meta">G1 · 12min · 142k seguidores</div>
+                </div>
+                <span class="mk-mc-tier">TIER 1</span>
+              </div>
+              <div class="mk-mc-quote">Operadora Beta confirma vazamento que pode ter exposto dados de 2 milhões de clientes desde fevereiro.</div>
+              <div class="mk-mc-foot">
+                <span>2.4k engajamento</span>
+                <span>sentimento −68</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pair-anno">
+          <div class="anno-grid">
+            <div class="anno-cell"><div class="row"><span class="d strong"></span><span class="l">Tipografia</span></div><div class="n">Handle bold + meta mono + quote italic com border-left. Hierarquia ainda lê sem cor.</div></div>
+            <div class="anno-cell"><div class="row"><span class="d strong"></span><span class="l">Ritmo</span></div><div class="n">Border-left de 3px no card é <strong>signature</strong> · marca evidência. Sobrevive monocromático.</div></div>
+            <div class="anno-cell"><div class="row"><span class="d present"></span><span class="l">Tier badge</span></div><div class="n">Pill "TIER 1" depende de cor para destacar. Em mono, ainda lê, mas perde a urgência de "fonte primária".</div></div>
+            <div class="anno-cell"><div class="row"><span class="d absent"></span><span class="l">Sentimento</span></div><div class="n">"sentimento −68" como texto é só número. Sem sparkline ou ícone direcional, identidade do dado se perde.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAR 05 · Sentiment Bar -->
+      <div class="pair">
+        <div class="pair-head">
+          <span class="pair-num">05</span>
+          <span class="pair-title">Sentiment Bar · data viz pura</span>
+          <span class="pair-sub">teste mais duro · cor é o sinal</span>
+        </div>
+        <div class="pair-mocks">
+          <div class="mock-wrap">
+            <div class="label">cor</div>
+            <div class="mk-sb">
+              <div class="mk-sb-h">
+                <span class="t">Sentimento das menções</span>
+                <span class="v">2.4k · 4h</span>
+              </div>
+              <div class="mk-sb-bar">
+                <div class="mk-sb-pos"></div>
+                <div class="mk-sb-neu"></div>
+                <div class="mk-sb-neg"></div>
+              </div>
+              <div class="mk-sb-legend">
+                <span>positivo <b>28%</b></span>
+                <span>neutro <b>42%</b></span>
+                <span>negativo <b>30%</b></span>
+              </div>
+              <div class="mk-sb-chart">
+                <svg viewBox="0 0 280 64">
+                  <path d="M0 50 L40 48 L80 42 L120 30 L160 24 L200 18 L240 22 L280 14" stroke="var(--destructive)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M0 50 L40 48 L80 42 L120 30 L160 24 L200 18 L240 22 L280 14 L280 64 L0 64 Z" fill="var(--destructive)" opacity="0.12"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="mock-wrap mono">
+            <div class="label">monocromático</div>
+            <div class="mk-sb">
+              <div class="mk-sb-h">
+                <span class="t">Sentimento das menções</span>
+                <span class="v">2.4k · 4h</span>
+              </div>
+              <div class="mk-sb-bar">
+                <div class="mk-sb-pos"></div>
+                <div class="mk-sb-neu"></div>
+                <div class="mk-sb-neg"></div>
+              </div>
+              <div class="mk-sb-legend">
+                <span>positivo <b>28%</b></span>
+                <span>neutro <b>42%</b></span>
+                <span>negativo <b>30%</b></span>
+              </div>
+              <div class="mk-sb-chart">
+                <svg viewBox="0 0 280 64">
+                  <path d="M0 50 L40 48 L80 42 L120 30 L160 24 L200 18 L240 22 L280 14" stroke="var(--destructive)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M0 50 L40 48 L80 42 L120 30 L160 24 L200 18 L240 22 L280 14 L280 64 L0 64 Z" fill="var(--destructive)" opacity="0.12"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pair-anno">
+          <div class="anno-grid">
+            <div class="anno-cell"><div class="row"><span class="d strong"></span><span class="l">Tipografia</span></div><div class="n">Header + legenda numérica em mono mantêm Pulso. Os <b>%</b> bold são leitura forte.</div></div>
+            <div class="anno-cell"><div class="row"><span class="d absent"></span><span class="l">Encoding</span></div><div class="n">A barra empilhada vira 3 cinzas indistinguíveis. <strong>Pattern crítico</strong> — sentiment exige redundância: texturização (linhas, hachuras) ou separação espacial.</div></div>
+            <div class="anno-cell"><div class="row"><span class="d absent"></span><span class="l">Sparkline</span></div><div class="n">Linha vermelha indica "negativo subindo". Em mono, perde a polaridade. Considerar marcador de zero + label de direção.</div></div>
+            <div class="anno-cell"><div class="row"><span class="d present"></span><span class="l">Ritmo</span></div><div class="n">Composição header → bar → legend → sparkline funciona. O esqueleto sobrevive · só o encoding semântico falha.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAR 06 · Auth Login -->
+      <div class="pair">
+        <div class="pair-head">
+          <span class="pair-num">06</span>
+          <span class="pair-title">Auth · login minimal</span>
+          <span class="pair-sub">teste do mínimo · só tipografia e espaço</span>
+        </div>
+        <div class="pair-mocks">
+          <div class="mock-wrap">
+            <div class="label">cor</div>
+            <div class="mk-au">
+              <div class="mk-au-mark">P</div>
+              <div class="mk-au-k">PULSO · ENTRAR</div>
+              <div class="mk-au-h">Acessar workspace</div>
+              <div class="mk-au-p">Use seu email institucional. SSO disponível para Dotcase.</div>
+              <div class="mk-au-input">você@empresa.com</div>
+              <div class="mk-au-btn">Continuar →</div>
+            </div>
+          </div>
+          <div class="mock-wrap mono">
+            <div class="label">monocromático</div>
+            <div class="mk-au">
+              <div class="mk-au-mark">P</div>
+              <div class="mk-au-k">PULSO · ENTRAR</div>
+              <div class="mk-au-h">Acessar workspace</div>
+              <div class="mk-au-p">Use seu email institucional. SSO disponível para Dotcase.</div>
+              <div class="mk-au-input">você@empresa.com</div>
+              <div class="mk-au-btn">Continuar →</div>
+            </div>
+          </div>
+        </div>
+        <div class="pair-anno">
+          <div class="anno-grid">
+            <div class="anno-cell"><div class="row"><span class="d strong"></span><span class="l">Tipografia</span></div><div class="n">Kicker + display + body + mono no input. Quatro camadas claras. Lê limpo sem cor.</div></div>
+            <div class="anno-cell"><div class="row"><span class="d strong"></span><span class="l">Ritmo</span></div><div class="n">Mark → kicker → título → descrição → input → CTA. Cadência confiante. Funciona.</div></div>
+            <div class="anno-cell"><div class="row"><span class="d strong"></span><span class="l">Mark</span></div><div class="n">Logomark quadrada com letra mono é assinatura forte. Sem cor, ainda é Pulso.</div></div>
+            <div class="anno-cell"><div class="row"><span class="d present"></span><span class="l">CTA</span></div><div class="n">Botão sólido vira preto sólido em mono. Funciona, mas a única "presença de cor" do flow some · pode ser intencional ou aviso.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Cross-screen findings ─────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Achados cross-screen</h2>
+      <p class="section-desc">Síntese das anotações nas 6 telas, organizadas por dimensão.</p>
+      <div class="findings">
+        <div class="finding-row">
+          <div class="dim">Tipografia</div>
+          <div class="desc"><strong>Forte em todas as 6 telas.</strong> Manrope display + mono em metadados forma uma assinatura consistente. Marcadores <code>[Fato]</code>, <code>[Inferência]</code> e numerais grandes mono são Pulso puro · sobrevivem sem cor sem perda.</div>
+          <div class="score strong">forte · 6/6</div>
+        </div>
+        <div class="finding-row">
+          <div class="dim">Kicker</div>
+          <div class="desc"><strong>Forte.</strong> Uppercase com tracking <code>0.08em</code>, mono, sempre tonal · é a marca registrada visual do Pulso. Mantém identidade mesmo sem o roxo.</div>
+          <div class="score strong">forte · 6/6</div>
+        </div>
+        <div class="finding-row">
+          <div class="dim">Score Ring</div>
+          <div class="desc"><strong>Forte.</strong> Ring concêntrico + numeral grande + kicker pequeno é a forma-assinatura mais reconhecível do Pulso. Candidato direto a "signature shape" promovido em α.4.</div>
+          <div class="score strong">forte · isolado</div>
+        </div>
+        <div class="finding-row">
+          <div class="dim">Hairlines</div>
+          <div class="desc"><strong>Presente, mas frágil.</strong> Bordas 1px funcionam, mas o contraste entre fundo e borda colapsa em monocromático. Em ritmo · ok; em definição de bloco · perde força.</div>
+          <div class="score present">presente · 4/6</div>
+        </div>
+        <div class="finding-row">
+          <div class="dim">Risk encoding</div>
+          <div class="desc"><strong>Ausente sem texto.</strong> Os chips <code>CRIT/HIGH/ATT</code> dependem 100% da cor. v2 · 1.2 (redundância de risco) entregou glifos · mas não foram aplicados nessas 6 telas. <strong>Aplicar glifos é a ação mais imediata da α.</strong></div>
+          <div class="score absent">ausente · 2/6</div>
+        </div>
+        <div class="finding-row">
+          <div class="dim">Tab ativa</div>
+          <div class="desc"><strong>Ausente.</strong> Border-bottom colorido é o único sinal de seleção. Resolver com peso de label + indicador estrutural (ponto, sublinhado mais grosso).</div>
+          <div class="score absent">ausente · 1/6</div>
+        </div>
+        <div class="finding-row">
+          <div class="dim">Sentimento</div>
+          <div class="desc"><strong>Ausente.</strong> Barra empilhada e linha de sentimento são encoding puramente colorido. Sem polaridade visual fora da cor, identidade colapsa para "barra cinza". Crítico para data viz.</div>
+          <div class="score absent">ausente · 1/6</div>
+        </div>
+        <div class="finding-row">
+          <div class="dim">Direção / movimento</div>
+          <div class="desc"><strong>Presente apenas via texto.</strong> "+12", "−42", "subindo" carregam direção verbalmente. Falta encoding visual neutro à cor · setas, marcadores de zero, hachura para downward.</div>
+          <div class="score present">presente · 3/6</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Gap list priorizado ─────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Lista de gaps · priorizada</h2>
+      <p class="section-desc">Cada gap vira input concreto para uma iniciativa subsequente da fase α. Ordenada por impacto visual e dependências.</p>
+      <div class="gap-list">
+        <div class="gap p0">
+          <div class="id">01</div>
+          <div class="body">
+            <div class="h">Aplicar glifos de risco em todas as superfícies</div>
+            <div class="p">v2 · 1.2 entregou o sistema de glifos (●○◐◆■) mas só Crisis Status e Risk Levels os usam. Cards de caso, chips em headers, listas de cobertura ainda dependem só da cor. Refator de RiskChip + auditoria de uso resolvem.</div>
+          </div>
+          <div class="meta">
+            <div><span class="pri">P0 · bloqueia α</span></div>
+            <div>esforço · <strong>3 d</strong></div>
+            <div>vira · <strong>α.4</strong></div>
+          </div>
+        </div>
+
+        <div class="gap p0">
+          <div class="id">02</div>
+          <div class="body">
+            <div class="h">Encoding redundante em data viz de sentimento</div>
+            <div class="p">Barra empilhada e linha de sentimento são monocromáticas perdidas. Soluções a testar · texturização (positivo lined, negativo solid, neutro empty), separação espacial (3 barras pequenas em vez de 1 empilhada), marker de zero em sparklines com gradiente de divergência.</div>
+          </div>
+          <div class="meta">
+            <div><span class="pri">P0 · α + Data Viz</span></div>
+            <div>esforço · <strong>5 d</strong></div>
+            <div>vira · <strong>α.4 + revisão v2 · 3.x</strong></div>
+          </div>
+        </div>
+
+        <div class="gap p1">
+          <div class="id">03</div>
+          <div class="body">
+            <div class="h">Tab ativa com indicador estrutural</div>
+            <div class="p">Hoje só o border-bottom colorido marca tab ativa. Adicionar peso da label (de 500 para 600) e indicador estrutural · ponto à esquerda do label ou underline 3px com offset interno. Decisão em α.4.</div>
+          </div>
+          <div class="meta">
+            <div><span class="pri">P1</span></div>
+            <div>esforço · <strong>2 d</strong></div>
+            <div>vira · <strong>α.4</strong></div>
+          </div>
+        </div>
+
+        <div class="gap p1">
+          <div class="id">04</div>
+          <div class="body">
+            <div class="h">Hairlines com ritmo · não com presença permanente</div>
+            <div class="p">Borda 1px em todo card vira ruído quando o card já está sobre fundo distinto. v3 · α.3 reformula hairlines como sinal contextual · presentes onde separam contexto, ausentes onde o espaço já o faz. Reduz "box-inside-box" sem perder hierarquia.</div>
+          </div>
+          <div class="meta">
+            <div><span class="pri">P1</span></div>
+            <div>esforço · <strong>4 d</strong></div>
+            <div>vira · <strong>α.3</strong></div>
+          </div>
+        </div>
+
+        <div class="gap p1">
+          <div class="id">05</div>
+          <div class="body">
+            <div class="h">Numerais display · weight 700 com optical adjustment</div>
+            <div class="p">Os numerais grandes (68, 2.4k, −42) são onde mais Pulso aparece. Hoje usam weight 700 padrão. v3 · α.2 testará optical size, narrow numerals e tabular alignment como assinatura tipográfica reforçada.</div>
+          </div>
+          <div class="meta">
+            <div><span class="pri">P1</span></div>
+            <div>esforço · <strong>3 d</strong></div>
+            <div>vira · <strong>α.2</strong></div>
+          </div>
+        </div>
+
+        <div class="gap p2">
+          <div class="id">06</div>
+          <div class="body">
+            <div class="h">Direção de movimento explícita em deltas</div>
+            <div class="p">"+12" e "−42" carregam direção · mas dependem do sinal lido. Considerar setas direcionais sutis (↑ ↓) que pareiam com o sinal sem duplicar informação. Critério · não inflacionar visualmente; setas só onde o delta importa estrategicamente.</div>
+          </div>
+          <div class="meta">
+            <div><span class="pri">P2</span></div>
+            <div>esforço · <strong>2 d</strong></div>
+            <div>vira · <strong>α.4 + delta-chip refactor</strong></div>
+          </div>
+        </div>
+
+        <div class="gap p2">
+          <div class="id">07</div>
+          <div class="body">
+            <div class="h">Score Ring · indicar arc-of-travel</div>
+            <div class="p">O ring mostra valor estático. Para um sistema de monitoramento, valor + direção fazem sentido. Testar arc duplo (passado em tom mais leve, presente cheio) ou marker da última posição. Não bloqueante · refinamento.</div>
+          </div>
+          <div class="meta">
+            <div><span class="pri">P2</span></div>
+            <div>esforço · <strong>2 d</strong></div>
+            <div>vira · <strong>α.4 · signature shapes</strong></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Conclusão ─────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Conclusão · resposta à pergunta</h2>
+      <div style="background:var(--card);border:1px solid var(--border);border-left:3px solid var(--success);border-radius:var(--radius-md);padding:22px 26px;">
+        <p style="font-size:15px;color:var(--fg-strong);line-height:1.65;font-weight:500;max-width:760px;">Se trocássemos o roxo amanhã, o Pulso <strong>parcialmente</strong> continuaria reconhecível.</p>
+        <p style="font-size:13.5px;color:var(--fg-secondary);line-height:1.65;margin-top:10px;max-width:760px;">O que carrega Pulso fora da cor: <strong style="color:var(--fg-strong);">kicker mono uppercase</strong>, <strong style="color:var(--fg-strong);">Score Ring</strong>, <strong style="color:var(--fg-strong);">tipografia display + mono em metadados</strong>, <strong style="color:var(--fg-strong);">border-left de 3px em evidência</strong>, <strong style="color:var(--fg-strong);">marcadores [Fato]/[Inferência]/[Recomendação]</strong>. Esses 5 elementos sobrevivem ao teste.</p>
+        <p style="font-size:13.5px;color:var(--fg-secondary);line-height:1.65;margin-top:10px;max-width:760px;">O que <em>não</em> carrega: <strong style="color:var(--destructive);">risco</strong> (depende de chip colorido), <strong style="color:var(--destructive);">sentimento</strong> (encoding puramente colorido), <strong style="color:var(--destructive);">tab ativa</strong> (border-bottom colorido), <strong style="color:var(--destructive);">CTA primário</strong> (vira preto, perde acento).</p>
+        <p style="font-size:13.5px;color:var(--fg-secondary);line-height:1.65;margin-top:10px;max-width:760px;"><strong style="color:var(--fg-strong);">Direção da fase α:</strong> formalizar e reforçar os 5 elementos que sobrevivem (α.2, α.4), e construir encoding redundante onde a cor é hoje o único sinal (α.3, α.4). Brand toolkit (α.5) testa essas decisões fora do produto.</p>
+      </div>
+    </section>
+
+    <!-- ── Entregas ─────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Entregas · α.1</h2>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;">
+        <tbody>
+          <tr><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);">6 telas em monocromático lado a lado da versão final</td><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);text-align:right;"><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);">Anotações por região: ritmo, type, hairlines, signature shapes</td><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);text-align:right;"><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);">Lista de gaps · 7 itens priorizados (2 P0, 3 P1, 2 P2)</td><td style="padding:11px 14px;border-bottom:1px solid var(--border-faint);text-align:right;"><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td style="padding:11px 14px;">Página <strong>Foundations · Identity Audit</strong></td><td style="padding:11px 14px;text-align:right;"><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

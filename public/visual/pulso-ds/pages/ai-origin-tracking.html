@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — AI Origin Tracking</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* ── Cris monogram ─────────────────────────── */
+.cris-mark { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; flex-shrink: 0; }
+.cris-mark svg { width: 100%; height: 100%; }
+.cris-mark .stroke { stroke: var(--primary); }
+.cris-kicker {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-pulso-mono); font-size: 10.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.12em; color: var(--primary);
+}
+.cris-kicker .dot { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: 0.6; }
+
+/* ── Hero · anatomy ────────────────────────── */
+.anatomy { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 32px; display: grid; grid-template-columns: 1.4fr 1fr; gap: 32px; align-items: start; }
+@media (max-width: 880px) { .anatomy { grid-template-columns: 1fr; } }
+
+.ai-text {
+  position: relative; padding: 14px 18px 16px;
+  border-left: 2px solid var(--primary);
+  background: color-mix(in oklab, var(--primary) 4%, transparent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+.ai-text .ai-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+.ai-text .ai-head .meta { font-family: var(--font-pulso-mono); font-size: 10px; color: var(--fg-subtle); letter-spacing: 0.04em; }
+.ai-text p { font-size: 13.5px; color: var(--fg); line-height: 1.6; margin: 0; }
+.ai-text p + p { margin-top: 8px; }
+.ai-text .src-toggle {
+  position: absolute; top: 12px; right: 12px;
+  font-family: var(--font-pulso-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.06em;
+  color: var(--primary); background: var(--card); border: 1px solid var(--primary-border);
+  padding: 2px 8px; border-radius: var(--radius-xs); cursor: pointer; text-transform: uppercase;
+}
+.ai-text .src-toggle::after { content: ' ↗'; font-family: inherit; }
+
+.anatomy-call-list { display: flex; flex-direction: column; gap: 16px; padding-top: 6px; }
+.anatomy-call { display: grid; grid-template-columns: 24px 1fr; gap: 12px; }
+.anatomy-call .n { font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 700; color: var(--primary); padding-top: 2px; }
+.anatomy-call h5 { font-size: 13.5px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; margin-bottom: 2px; }
+.anatomy-call p { font-size: 12.5px; color: var(--fg-secondary); line-height: 1.55; }
+.anatomy-call code { font-family: var(--font-pulso-mono); font-size: 11px; background: var(--surface-2); padding: 1px 5px; border-radius: 3px; color: var(--fg); }
+
+/* ── 4 marcadores ────────────────────────── */
+.marker-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 800px) { .marker-grid { grid-template-columns: 1fr; } }
+.marker-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+.marker-card .mh { display: flex; gap: 12px; align-items: flex-start; }
+.marker-card .mh .num { font-family: var(--font-pulso-mono); font-size: 18px; font-weight: 700; color: var(--primary); line-height: 1; padding-top: 2px; }
+.marker-card .mh .info h4 { font-size: 15px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; margin-bottom: 2px; }
+.marker-card .mh .info .desc { font-size: 12.5px; color: var(--fg-secondary); line-height: 1.55; }
+.marker-spec { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); line-height: 1.65; padding-top: 12px; border-top: 1px solid var(--border-faint); }
+.marker-spec code { background: var(--surface-2); padding: 1px 5px; border-radius: 3px; color: var(--fg); }
+
+/* ── Surfaces grid ────────────────────────── */
+.surf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 880px) { .surf-grid { grid-template-columns: 1fr; } }
+.surf { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px 22px; }
+.surf > .label { font-family: var(--font-pulso-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-subtle); margin-bottom: 14px; }
+
+/* Alert mock */
+.s-alert { background: color-mix(in oklab, var(--risk-attention) 8%, var(--card)); border: 1px solid var(--risk-attention-border); border-radius: var(--radius-sm); padding: 14px 16px; display: grid; grid-template-columns: 22px 1fr auto; gap: 12px; }
+.s-alert .glyph { font-family: var(--font-pulso-mono); font-size: 16px; font-weight: 700; color: var(--risk-attention-text); line-height: 1; padding-top: 2px; }
+.s-alert .body h6 { font-size: 13.5px; font-weight: 600; color: var(--fg-strong); margin-bottom: 4px; }
+.s-alert .body .ai-quote { padding: 10px 12px; margin-top: 8px; border-left: 2px solid var(--primary); background: color-mix(in oklab, var(--primary) 5%, transparent); border-radius: 0 var(--radius-xs) var(--radius-xs) 0; }
+.s-alert .body .ai-quote .qhead { display: flex; gap: 8px; align-items: center; margin-bottom: 4px; }
+.s-alert .body .ai-quote p { font-size: 12.5px; color: var(--fg); line-height: 1.55; }
+.s-alert .ts { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); text-align: right; flex-shrink: 0; }
+
+/* Briefing mock */
+.s-briefing h6 { font-size: 14px; font-weight: 600; color: var(--fg-strong); margin-bottom: 4px; }
+.s-briefing .sub { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); letter-spacing: 0.06em; margin-bottom: 14px; }
+.s-briefing .ai-text { font-size: 12.5px; }
+.s-briefing .ai-text p { font-size: 12.5px; }
+
+/* Suggestion chip / draft */
+.s-suggestion .ai-text { padding: 14px 16px; }
+.s-suggestion .ai-text p { font-size: 13px; }
+.s-suggestion .chip-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.s-suggestion .chip { font-family: var(--font-pulso-mono); font-size: 10.5px; padding: 4px 10px; border-radius: var(--radius-xs); border: 1px solid var(--border); background: var(--card); color: var(--fg-secondary); cursor: default; }
+.s-suggestion .chip.primary { border-color: var(--primary-border); background: color-mix(in oklab, var(--primary) 10%, var(--card)); color: var(--primary); font-weight: 600; }
+
+/* Draft mock with versions */
+.s-draft .draft-line { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; padding: 6px 10px; border-radius: var(--radius-xs); border: 1px solid transparent; }
+.s-draft .draft-line.current { border-color: var(--primary-border); background: color-mix(in oklab, var(--primary) 6%, transparent); }
+.s-draft .draft-line .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border-strong); flex-shrink: 0; }
+.s-draft .draft-line.current .dot { background: var(--primary); }
+.s-draft .draft-line .v { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); width: 32px; flex-shrink: 0; font-weight: 600; }
+.s-draft .draft-line .summary { font-size: 12.5px; color: var(--fg); flex: 1; line-height: 1.45; }
+.s-draft .draft-line.current .summary { color: var(--fg-strong); font-weight: 500; }
+.s-draft .draft-line .ts { font-family: var(--font-pulso-mono); font-size: 10px; color: var(--fg-subtle); flex-shrink: 0; }
+
+/* ── Popover spec ────────────────────────── */
+.popover-spec { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+@media (max-width: 800px) { .popover-spec { grid-template-columns: 1fr; } }
+.popover-mock { padding: 32px; background: var(--surface-page); display: flex; align-items: center; justify-content: center; position: relative; border-right: 1px solid var(--border-faint); min-height: 360px; }
+@media (max-width: 800px) { .popover-mock { border-right: none; border-bottom: 1px solid var(--border-faint); } }
+.popover { width: 100%; max-width: 320px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); overflow: hidden; }
+.popover-head { padding: 14px 16px; border-bottom: 1px solid var(--border-faint); display: flex; gap: 10px; align-items: center; }
+.popover-head .icon { width: 28px; height: 28px; border-radius: 50%; background: color-mix(in oklab, var(--primary) 15%, transparent); border: 1px solid var(--primary-border); display: flex; align-items: center; justify-content: center; }
+.popover-head .label { flex: 1; }
+.popover-head .label .who { font-size: 12.5px; font-weight: 600; color: var(--fg-strong); }
+.popover-head .label .sub { font-family: var(--font-pulso-mono); font-size: 10px; color: var(--fg-subtle); letter-spacing: 0.04em; }
+.popover-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.pop-row { display: grid; grid-template-columns: 90px 1fr; gap: 10px; align-items: baseline; font-size: 12px; }
+.pop-row .k { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 600; }
+.pop-row .v { color: var(--fg); line-height: 1.5; }
+.pop-row .v code { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-strong); }
+.pop-sources { padding-top: 10px; margin-top: 4px; border-top: 1px dashed var(--border-faint); }
+.pop-sources .k { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 600; margin-bottom: 8px; }
+.pop-src-item { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; padding: 4px 0; font-size: 12px; align-items: center; }
+.pop-src-item .glyph { font-family: var(--font-pulso-mono); font-size: 12px; color: var(--primary); font-weight: 700; }
+.pop-src-item .name { color: var(--fg); }
+.pop-src-item .ts { font-family: var(--font-pulso-mono); font-size: 10px; color: var(--fg-subtle); }
+.popover-foot { padding: 10px 16px; border-top: 1px solid var(--border-faint); background: var(--surface-2); display: flex; justify-content: space-between; align-items: center; }
+.popover-foot .left { font-family: var(--font-pulso-mono); font-size: 10px; color: var(--fg-subtle); letter-spacing: 0.04em; }
+.popover-foot .right { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--primary); font-weight: 600; cursor: default; }
+
+.popover-notes { padding: 26px 28px; display: flex; flex-direction: column; gap: 14px; }
+.popover-notes h4 { font-size: 14px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; margin-bottom: 4px; }
+.popover-notes p { font-size: 12.5px; color: var(--fg-secondary); line-height: 1.55; }
+.popover-notes ul { list-style: none; padding: 0; margin: 4px 0 0; }
+.popover-notes ul li { font-size: 12.5px; color: var(--fg); padding: 4px 0 4px 14px; position: relative; line-height: 1.5; }
+.popover-notes ul li::before { content: '→'; position: absolute; left: 0; color: var(--primary); }
+
+/* ── Don't / Do ────────────────────────── */
+.dd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .dd-grid { grid-template-columns: 1fr; } }
+.dd { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 20px; }
+.dd-good { border-left: 3px solid var(--success); }
+.dd-bad { border-left: 3px solid var(--destructive); }
+.dd-tag { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 8px; }
+.dd-good .dd-tag { color: var(--success); }
+.dd-bad .dd-tag { color: var(--destructive); }
+.dd p { font-size: 13px; color: var(--fg); line-height: 1.55; margin-bottom: 10px; }
+.dd-note { font-size: 12px; color: var(--fg-muted); padding-top: 10px; border-top: 1px solid var(--border-faint); line-height: 1.5; }
+
+/* ── Density variants ────────────────────────── */
+.density-variants { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+@media (max-width: 900px) { .density-variants { grid-template-columns: 1fr; } }
+.dv { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+.dv .label { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 600; }
+.dv .name { font-size: 14px; font-weight: 600; color: var(--fg-strong); }
+.dv .when { font-size: 12px; color: var(--fg-muted); line-height: 1.55; }
+.dv-demo { padding: 14px 0 4px; border-top: 1px solid var(--border-faint); }
+
+.dv-prom .ai-text { padding: 14px 18px; }
+.dv-prom p { font-size: 13px; }
+
+.dv-inline { font-size: 13px; line-height: 1.6; color: var(--fg); }
+.dv-inline .seg-ai {
+  background: color-mix(in oklab, var(--primary) 5%, transparent);
+  border-bottom: 1px dotted var(--primary);
+  padding: 1px 2px;
+  cursor: help;
+}
+
+.dv-ambient { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg); }
+.dv-ambient .indicator {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;
+  background: color-mix(in oklab, var(--primary) 8%, transparent);
+  border: 1px solid var(--primary-border); border-radius: var(--radius-xs);
+  font-family: var(--font-pulso-mono); font-size: 10.5px; font-weight: 600;
+  color: var(--primary); letter-spacing: 0.08em; text-transform: uppercase;
+}
+
+/* ── Tabela de contrato ────────────────────────── */
+.contract-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.contract-table th, .contract-table td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--border-faint); vertical-align: top; }
+.contract-table thead th { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 700; }
+.contract-table tbody td { color: var(--fg); line-height: 1.55; }
+.contract-table tbody td.surf { font-weight: 600; color: var(--fg-strong); }
+.contract-table tbody td.use { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--primary); font-weight: 600; }
+.contract-table tbody td code { font-family: var(--font-pulso-mono); font-size: 11px; background: var(--surface-2); padding: 1px 5px; border-radius: 3px; }
+
+/* ── Schema callout ────────────────────────── */
+.schema { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.schema-head { padding: 16px 22px; background: var(--surface-2); border-bottom: 1px solid var(--border-faint); display: flex; gap: 12px; align-items: center; }
+.schema-head .kicker { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); font-weight: 700; }
+.schema-head .name { font-size: 14px; font-weight: 600; color: var(--fg-strong); }
+.schema-body { padding: 18px 22px 22px; }
+.schema-body pre { font-family: var(--font-pulso-mono); font-size: 12px; line-height: 1.7; color: var(--fg); margin: 0; white-space: pre; overflow-x: auto; }
+.schema-body .k { color: var(--primary); }
+.schema-body .s { color: var(--success); }
+.schema-body .n { color: var(--risk-attention-text); }
+.schema-body .c { color: var(--fg-subtle); font-style: italic; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Patterns · AI · v3 · β.1 · entregue</div>
+    <h1 class="page-title">AI-content origin tracking</h1>
+    <p class="page-sub">Toda palavra escrita pela Cris precisa ser <em>reconhecível</em> sem ser ruidosa. Quatro marcadores tonais — borda, kicker, monograma e popover — formam a gramática visual da origem-IA. Quando o operador olha, ele sabe. Quando precisa auditar, ele clica.</p>
+
+    <!-- Resumo do problema -->
+    <section class="section">
+      <h2 class="section-h1">Por que existir</h2>
+      <p class="section-desc">Texto assistido por IA hoje vira parágrafo neutro. O operador pode reproduzir uma sugestão como se fosse análise própria — risco de credibilidade. Pode também duvidar de um trecho humano achando que é IA — atrito desnecessário. A gramática de origem fecha esse loop.</p>
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 26px;">
+        <p style="font-size:15px;color:var(--fg-strong);line-height:1.65;max-width:780px;">A origem é <strong>passiva mas auditável</strong>. Nunca interrompe a leitura. Nunca alarma. Sempre permite drill-down quando o operador precisa de proveniência — fontes, modelo, prompt, timestamp.</p>
+      </div>
+    </section>
+
+    <!-- Anatomy -->
+    <section class="section">
+      <h2 class="section-h1">Anatomia</h2>
+      <p class="section-desc">Quatro elementos compõem o marcador padrão. Cada um pode aparecer isolado em densidades diferentes — todos juntos só na superfície prominente.</p>
+
+      <div class="anatomy">
+        <div class="ai-text">
+          <div class="ai-head">
+            <span class="cris-kicker">
+              <span class="cris-mark"><svg viewBox="0 0 14 14"><path class="stroke" d="M3 7 Q3 3 7 3 Q11 3 11 7" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="7" cy="7" r="1.4" fill="var(--primary)"/><path class="stroke" d="M3 11 H11" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+              <span>Escrito com Cris</span>
+              <span class="dot"></span>
+              <span style="color:var(--fg-subtle);font-weight:600;">Executivo</span>
+            </span>
+            <span class="meta">há 4 min · 3 fontes</span>
+          </div>
+          <p>O volume de menções cresceu <strong>+62%</strong> nas últimas 4 horas. A inflexão começou às 11:42 com a publicação no Estadão, seguida por replicação em 14 contas verificadas com afinidade ideológica próxima.</p>
+          <p><span style="font-family:var(--font-pulso-mono);font-size:11px;font-weight:700;background:color-mix(in oklab, var(--risk-monitor) 16%, transparent);color:var(--risk-monitor-text);padding:1px 6px;border-radius:3px;">[Inferência]</span> Padrão consistente com escalada coordenada · não com indignação orgânica.</p>
+          <button class="src-toggle" type="button">Fontes</button>
+        </div>
+
+        <div class="anatomy-call-list">
+          <div class="anatomy-call">
+            <div class="n">01</div>
+            <div>
+              <h5>Borda tonal · 2px à esquerda</h5>
+              <p>O sinal mais discreto. <code>var(--primary)</code> com 4% de mix no fundo. Marca a coluna inteira sem competir com risk-glyphs.</p>
+            </div>
+          </div>
+          <div class="anatomy-call">
+            <div class="n">02</div>
+            <div>
+              <h5>Kicker · "Escrito com Cris"</h5>
+              <p>Mono uppercase tracking <code>0.12em</code> — usa a signature shape <strong>01</strong>. Inclui modo (Executivo ou Porta-voz) e nunca o nome do modelo.</p>
+            </div>
+          </div>
+          <div class="anatomy-call">
+            <div class="n">03</div>
+            <div>
+              <h5>Monograma · 14px</h5>
+              <p>Glifo Cris (arco + ponto + linha) à esquerda do kicker. Carrega a identidade fora da cor — sobrevive ao teste mono.</p>
+            </div>
+          </div>
+          <div class="anatomy-call">
+            <div class="n">04</div>
+            <div>
+              <h5>Trigger de fontes</h5>
+              <p>Botão <code>Fontes</code> no canto superior direito · não-interrompe, hover-discreto. Abre o popover de proveniência (ver abaixo).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 marcadores -->
+    <section class="section">
+      <h2 class="section-h1">Os 4 marcadores</h2>
+      <p class="section-desc">Cada um tem peso visual próprio. A escolha não é estilística — é definida pela superfície e pela densidade local.</p>
+
+      <div class="marker-grid">
+        <div class="marker-card">
+          <div class="mh">
+            <div class="num">01</div>
+            <div class="info">
+              <h4>Borda tonal</h4>
+              <div class="desc">Coluna inteira marcada por <code>border-left: 2px solid var(--primary)</code> + 4% mix de fundo. Reservada à <strong>superfície prominente</strong> (alerta, briefing, draft).</div>
+            </div>
+          </div>
+          <div class="marker-spec">
+            <code>border-left</code> · 2px · <code>--primary</code><br>
+            <code>background</code> · <code>color-mix(in oklab, var(--primary) 4%, transparent)</code><br>
+            <code>radius</code> · 0 / sm / sm / 0<br>
+            usado em · alerta, briefing, draft
+          </div>
+        </div>
+
+        <div class="marker-card">
+          <div class="mh">
+            <div class="num">02</div>
+            <div class="info">
+              <h4>Kicker mono</h4>
+              <div class="desc">"Escrito com Cris · Executivo" em mono uppercase. Único sinal textual de origem. Nunca diz "powered by AI", "GPT", "modelo" — só o nome da Cris e o modo de voz.</div>
+            </div>
+          </div>
+          <div class="marker-spec">
+            <code>font</code> · IBM Plex Mono 10.5px<br>
+            <code>tracking</code> · <code>0.12em</code><br>
+            <code>weight</code> · 700<br>
+            <code>color</code> · <code>--primary</code>
+          </div>
+        </div>
+
+        <div class="marker-card">
+          <div class="mh">
+            <div class="num">03</div>
+            <div class="info">
+              <h4>Monograma Cris</h4>
+              <div class="desc">Glifo geométrico de 14px — arco superior, ponto central, linha inferior. Representa "Cris escuta · sintetiza · entrega". Sobrevive sem cor: ele é a forma, não o stroke.</div>
+            </div>
+          </div>
+          <div class="marker-spec">
+            <code>size</code> · 14px (kicker), 18px (popover)<br>
+            <code>stroke</code> · 1.6, <code>--primary</code><br>
+            <code>uso</code> · sempre antes do kicker<br>
+            registrado em · signature shapes
+          </div>
+        </div>
+
+        <div class="marker-card">
+          <div class="mh">
+            <div class="num">04</div>
+            <div class="info">
+              <h4>Underline pontilhado</h4>
+              <div class="desc">Para uso <em>inline</em> — quando um trecho dentro de parágrafo humano foi gerado pela Cris. Underline dotted + background 5% mix. Cursor <code>help</code> · revela popover no hover.</div>
+            </div>
+          </div>
+          <div class="marker-spec">
+            <code>border-bottom</code> · 1px dotted <code>--primary</code><br>
+            <code>background</code> · 5% mix transparent<br>
+            <code>cursor</code> · help<br>
+            usado em · resumo híbrido humano+IA
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Surfaces -->
+    <section class="section">
+      <h2 class="section-h1">Aplicação por superfície</h2>
+      <p class="section-desc">Quatro contextos do Crisis Monitor onde a Cris escreve hoje · cada um com o marcador apropriado.</p>
+
+      <div class="surf-grid">
+        <!-- Alert -->
+        <div class="surf">
+          <div class="label">Alerta · superfície atenção</div>
+          <div class="s-alert">
+            <div class="glyph">◆</div>
+            <div class="body">
+              <h6>Inflexão de menções · CASO 248</h6>
+              <div style="font-family:var(--font-pulso-mono);font-size:10.5px;color:var(--fg-muted);letter-spacing:0.04em;">+62% nas últimas 4h · 14 contas verificadas</div>
+              <div class="ai-quote">
+                <div class="qhead">
+                  <span class="cris-kicker">
+                    <span class="cris-mark"><svg viewBox="0 0 14 14"><path class="stroke" d="M3 7 Q3 3 7 3 Q11 3 11 7" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="7" cy="7" r="1.4" fill="var(--primary)"/><path class="stroke" d="M3 11 H11" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+                    <span>Síntese Cris</span>
+                  </span>
+                </div>
+                <p>Padrão consistente com escalada coordenada. Recomendo elevar para tier <strong>atenção</strong> e preparar nota de posicionamento.</p>
+              </div>
+            </div>
+            <div class="ts">11:46</div>
+          </div>
+        </div>
+
+        <!-- Briefing -->
+        <div class="surf">
+          <div class="label">Briefing · superfície leitura</div>
+          <div class="s-briefing">
+            <h6>Briefing inicial · CASO 248</h6>
+            <div class="sub">Atualizado 11:42 · v3</div>
+            <div class="ai-text">
+              <div class="ai-head">
+                <span class="cris-kicker">
+                  <span class="cris-mark"><svg viewBox="0 0 14 14"><path class="stroke" d="M3 7 Q3 3 7 3 Q11 3 11 7" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="7" cy="7" r="1.4" fill="var(--primary)"/><path class="stroke" d="M3 11 H11" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+                  <span>Escrito com Cris</span>
+                  <span class="dot"></span>
+                  <span style="color:var(--fg-subtle);font-weight:600;">Executivo</span>
+                </span>
+                <span class="meta" style="font-family:var(--font-pulso-mono);font-size:10px;color:var(--fg-subtle);">7 fontes</span>
+              </div>
+              <p>O caso começou às 11:42 com publicação no Estadão sobre a decisão regulatória da última quinta. Em 4 horas, 14 contas verificadas com afinidade ideológica próxima replicaram a tese central.</p>
+              <p>A reação é mais coordenada que orgânica — assinatura de redes específicas detectada em 6 das 14 amplificações.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Suggestion -->
+        <div class="surf">
+          <div class="label">Sugestão · superfície ação</div>
+          <div class="s-suggestion">
+            <div class="ai-text">
+              <div class="ai-head">
+                <span class="cris-kicker">
+                  <span class="cris-mark"><svg viewBox="0 0 14 14"><path class="stroke" d="M3 7 Q3 3 7 3 Q11 3 11 7" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="7" cy="7" r="1.4" fill="var(--primary)"/><path class="stroke" d="M3 11 H11" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+                  <span>Sugestão Cris</span>
+                  <span class="dot"></span>
+                  <span style="color:var(--fg-subtle);font-weight:600;">Porta-voz</span>
+                </span>
+              </div>
+              <p>Nota de posicionamento institucional, tom firme · evita confronto direto · reconhece preocupação sem assumir culpa.</p>
+              <div class="chip-row">
+                <span class="chip primary">Usar como base</span>
+                <span class="chip">Regenerar</span>
+                <span class="chip">Descartar</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Draft history -->
+        <div class="surf">
+          <div class="label">Draft com versões · superfície edição</div>
+          <div class="s-draft">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <h6 style="font-size:14px;font-weight:600;color:var(--fg-strong);">Nota institucional · v3</h6>
+              <span class="cris-kicker"><span class="cris-mark"><svg viewBox="0 0 14 14"><path class="stroke" d="M3 7 Q3 3 7 3 Q11 3 11 7" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="7" cy="7" r="1.4" fill="var(--primary)"/><path class="stroke" d="M3 11 H11" stroke-width="1.6" stroke-linecap="round"/></svg></span><span>Co-edição</span></span>
+            </div>
+            <div class="draft-line current">
+              <div class="dot"></div>
+              <div class="v">v3</div>
+              <div class="summary">Tom firme · sem assumir culpa · 142 palavras</div>
+              <div class="ts">11:48</div>
+            </div>
+            <div class="draft-line">
+              <div class="dot"></div>
+              <div class="v">v2</div>
+              <div class="summary">Regenerar · mais curto, menos jurídico</div>
+              <div class="ts">11:46</div>
+            </div>
+            <div class="draft-line">
+              <div class="dot"></div>
+              <div class="v">v1</div>
+              <div class="summary">Primeira versão gerada pela Cris</div>
+              <div class="ts">11:44</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Popover de proveniência -->
+    <section class="section">
+      <h2 class="section-h1">Popover de proveniência</h2>
+      <p class="section-desc">O drill-down de auditoria. Chamado pelo botão <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">Fontes</code> ou pelo hover do underline pontilhado. Resposta em &lt;120ms · render local · sem chamada remota adicional.</p>
+
+      <div class="popover-spec">
+        <div class="popover-mock">
+          <div class="popover">
+            <div class="popover-head">
+              <div class="icon">
+                <svg width="16" height="16" viewBox="0 0 16 16"><path d="M3.5 8 Q3.5 4 8 4 Q12.5 4 12.5 8" stroke="var(--primary)" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="8" cy="8" r="1.6" fill="var(--primary)"/><path d="M3.5 12.5 H12.5" stroke="var(--primary)" stroke-width="1.6" stroke-linecap="round"/></svg>
+              </div>
+              <div class="label">
+                <div class="who">Síntese Cris · Executivo</div>
+                <div class="sub">CASO 248 · briefing v3</div>
+              </div>
+            </div>
+            <div class="popover-body">
+              <div class="pop-row"><div class="k">gerado</div><div class="v">21 mai 2026 · 11:42:18</div></div>
+              <div class="pop-row"><div class="k">modelo</div><div class="v"><code>cris-9 · executive-tone-v4</code></div></div>
+              <div class="pop-row"><div class="k">prompt</div><div class="v"><code>brief-synth/2.7.1</code></div></div>
+              <div class="pop-row"><div class="k">confiança</div><div class="v"><code>0.91</code> · alta</div></div>
+
+              <div class="pop-sources">
+                <div class="k">3 fontes citadas</div>
+                <div class="pop-src-item"><span class="glyph">▣</span><span class="name">Estadão · matéria base</span><span class="ts">11:42</span></div>
+                <div class="pop-src-item"><span class="glyph">▣</span><span class="name">14 perfis · cluster X</span><span class="ts">11:43–46</span></div>
+                <div class="pop-src-item"><span class="glyph">▣</span><span class="name">Histórico · CASO 218</span><span class="ts">ref. 18 abr</span></div>
+              </div>
+            </div>
+            <div class="popover-foot">
+              <div class="left">audit_id · 248-b-7c2f</div>
+              <div class="right">Ver no audit log →</div>
+            </div>
+          </div>
+        </div>
+        <div class="popover-notes">
+          <div>
+            <h4>Estrutura · 5 blocos</h4>
+            <ul>
+              <li><strong>Identidade</strong> · monograma + nome da Cris + modo</li>
+              <li><strong>Contexto</strong> · onde a síntese vive (caso + versão)</li>
+              <li><strong>Origem técnica</strong> · timestamp · modelo · prompt · confiança</li>
+              <li><strong>Fontes</strong> · 3–7 referências citáveis com timestamp</li>
+              <li><strong>Audit ID</strong> · link para registro completo no log (β.5)</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Regras</h4>
+            <ul>
+              <li>Render local — popover não dispara chamada remota</li>
+              <li>Sem score numérico bruto — confiança é label (baixa · média · alta · decisivo)</li>
+              <li>Modelo aparece como apelido, nunca versão SHA</li>
+              <li>Link para audit log preserva contexto (caso + versão)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Density variants -->
+    <section class="section">
+      <h2 class="section-h1">Densidade da marca</h2>
+      <p class="section-desc">A intensidade do marcador adapta-se à superfície. Três níveis · prominente, inline, ambiente.</p>
+
+      <div class="density-variants">
+        <div class="dv dv-prom">
+          <div class="label">Prominente</div>
+          <div class="name">Bloco completo</div>
+          <div class="when">Quando o trecho é inteiramente da Cris e ocupa coluna própria. Briefing, sugestão, draft.</div>
+          <div class="dv-demo">
+            <div class="ai-text">
+              <div class="ai-head">
+                <span class="cris-kicker">
+                  <span class="cris-mark"><svg viewBox="0 0 14 14"><path class="stroke" d="M3 7 Q3 3 7 3 Q11 3 11 7" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="7" cy="7" r="1.4" fill="var(--primary)"/><path class="stroke" d="M3 11 H11" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+                  <span>Escrito com Cris</span>
+                </span>
+              </div>
+              <p>Padrão de escalada coordenada detectado em 6 das 14 amplificações.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="dv">
+          <div class="label">Inline</div>
+          <div class="name">Trecho dentro de parágrafo</div>
+          <div class="when">Quando humano e Cris co-escrevem. Underline pontilhado marca só o trecho assistido. Hover revela popover.</div>
+          <div class="dv-demo">
+            <p class="dv-inline">Análise da Comms: o caso começou após a publicação do Estadão. <span class="seg-ai">A inflexão é compatível com amplificação coordenada · não com indignação orgânica.</span> Decisão: elevar para atenção.</p>
+          </div>
+        </div>
+
+        <div class="dv">
+          <div class="label">Ambiente</div>
+          <div class="name">Indicador de superfície</div>
+          <div class="when">Quando a tela inteira é mediada pela Cris (chat, console, modo Cris). Chip ambiente no header · sem borda em cada bloco.</div>
+          <div class="dv-demo">
+            <div class="dv-ambient">
+              <span class="indicator">
+                <span class="cris-mark"><svg viewBox="0 0 14 14"><path class="stroke" d="M3 7 Q3 3 7 3 Q11 3 11 7" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="7" cy="7" r="1.4" fill="var(--primary)"/><path class="stroke" d="M3 11 H11" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+                Modo Cris
+              </span>
+              <span style="color:var(--fg-muted);font-size:12.5px;">— marcas individuais desligadas</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Schema -->
+    <section class="section">
+      <h2 class="section-h1">Schema do bloco AI</h2>
+      <p class="section-desc">Os metadados que cada superfície precisa carregar para renderizar marcador + popover. Compatível com o schema do audit log (β.5).</p>
+
+      <div class="schema">
+        <div class="schema-head">
+          <span class="kicker">SCHEMA · ai-content-block</span>
+          <span class="name">v1 · estável a partir de β.1</span>
+        </div>
+        <div class="schema-body">
+<pre>{
+  <span class="k">"author"</span>: <span class="s">"cris"</span>,
+  <span class="k">"mode"</span>: <span class="s">"executive"</span>,           <span class="c">// executive | spokesperson | unset</span>
+  <span class="k">"generated_at"</span>: <span class="s">"2026-05-21T11:42:18Z"</span>,
+  <span class="k">"model"</span>: <span class="s">"cris-9"</span>,             <span class="c">// nome apelidado · nunca SHA</span>
+  <span class="k">"prompt_version"</span>: <span class="s">"brief-synth/2.7.1"</span>,
+  <span class="k">"confidence"</span>: {
+    <span class="k">"score"</span>: <span class="n">0.91</span>,
+    <span class="k">"label"</span>: <span class="s">"high"</span>              <span class="c">// low | medium | high | decisive</span>
+  },
+  <span class="k">"sources"</span>: [
+    { <span class="k">"id"</span>: <span class="s">"src_a4"</span>, <span class="k">"label"</span>: <span class="s">"Estadão · matéria base"</span>, <span class="k">"ts"</span>: <span class="s">"2026-05-21T11:42:00Z"</span> },
+    { <span class="k">"id"</span>: <span class="s">"src_a5"</span>, <span class="k">"label"</span>: <span class="s">"14 perfis · cluster X"</span>,    <span class="k">"ts"</span>: <span class="s">"2026-05-21T11:43:00Z"</span> }
+  ],
+  <span class="k">"audit_id"</span>: <span class="s">"248-b-7c2f"</span>,
+  <span class="k">"density"</span>: <span class="s">"prominent"</span>          <span class="c">// prominent | inline | ambient</span>
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contract table -->
+    <section class="section">
+      <h2 class="section-h1">Contrato por superfície</h2>
+      <p class="section-desc">Qual densidade aplicar em cada lugar do Crisis Monitor. Esta tabela é binding · alterações exigem RFC do council.</p>
+
+      <table class="contract-table">
+        <thead>
+          <tr>
+            <th>Superfície</th>
+            <th>Densidade</th>
+            <th>Marcadores</th>
+            <th>Popover</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="surf">Alerta</td><td class="use">Prominente</td><td>Borda + kicker + monograma</td><td>Sim · canto direito</td></tr>
+          <tr><td class="surf">Briefing</td><td class="use">Prominente</td><td>Borda + kicker + monograma + meta (fontes, idade)</td><td>Sim · canto direito</td></tr>
+          <tr><td class="surf">Sugestão (chip card)</td><td class="use">Prominente</td><td>Borda + kicker + monograma</td><td>Sim · pelo kicker</td></tr>
+          <tr><td class="surf">Draft com versões (β.2)</td><td class="use">Prominente + ambiente</td><td>Borda na versão atual · timeline implícita</td><td>Sim · por versão</td></tr>
+          <tr><td class="surf">Resumo híbrido</td><td class="use">Inline</td><td>Underline dotted nos trechos da Cris</td><td>Sim · hover</td></tr>
+          <tr><td class="surf">Recomendação (β.4)</td><td class="use">Prominente</td><td>Borda + kicker + monograma + confidence ring</td><td>Sim · obrigatório</td></tr>
+          <tr><td class="surf">Console Cris</td><td class="use">Ambiente</td><td>Indicador "Modo Cris" no header · sem marca por bloco</td><td>Disponível na header</td></tr>
+          <tr><td class="surf">Audit log (β.5)</td><td class="use">—</td><td>Linha com tag <code>assisted</code> · ícone Cris</td><td>Drill-down completo</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Don't / Do -->
+    <section class="section">
+      <h2 class="section-h1">Don't / Do</h2>
+      <p class="section-desc">As armadilhas que esperamos ver — e como o pattern responde.</p>
+
+      <div class="dd-grid">
+        <div class="dd dd-bad">
+          <div class="dd-tag">✕ Não fazer</div>
+          <p>Esconder a origem porque "o operador já sabe" — em 6 meses o turnover ou um audit externo descobre conteúdo IA sem marcação. Vira incidente regulatório.</p>
+          <div class="dd-note">O marcador é tonal, não invasivo. Borda 2px + kicker 10.5px não disputa atenção com risk glyphs ou conteúdo de crise. Custo perceptual é &lt;5% · benefício de proveniência é total.</div>
+        </div>
+
+        <div class="dd dd-good">
+          <div class="dd-tag">✓ Fazer</div>
+          <p>Manter o marcador mesmo quando o operador editou o texto. Borda permanece · kicker muda para "Co-edição" · popover mostra diff entre original Cris e final humano.</p>
+          <div class="dd-note">Edição humana não apaga origem. O diff fica visível no popover e no audit log (β.5). Auditável é melhor que oculto.</div>
+        </div>
+
+        <div class="dd dd-bad">
+          <div class="dd-tag">✕ Não fazer</div>
+          <p>Tratar IA como alerta — borda vermelha, ícone de aviso, banner. Vira fadiga. Operador desliga o cérebro · todo trecho da Cris parece um problema.</p>
+          <div class="dd-note">A cor primária do Pulso (roxo) já carrega "atenção sem alarme". Borda 2px é discrição, não advertência. Reservamos vermelho para risk crítico.</div>
+        </div>
+
+        <div class="dd dd-good">
+          <div class="dd-tag">✓ Fazer</div>
+          <p>Tornar o popover render-local. O operador clica em "Fontes" e o popover abre em &lt;120ms — sem chamada remota. Os metadados já vieram com o bloco.</p>
+          <div class="dd-note">A proveniência é payload, não API. Render &lt;120ms preserva o ritmo do operador em crise · sem isso, o marcador vira atrito.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Links cruzados -->
+    <section class="section">
+      <h2 class="section-h1">Dependências e adoção</h2>
+      <p class="section-desc">Onde o origin tracking encaixa no resto do sistema.</p>
+
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 26px;">
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">α.4</span> &nbsp;Monograma Cris registrado como signature shape · alteração exige RFC com 2/3 do council.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">2.4</span> &nbsp;Tom da Cris (Executivo / Porta-voz) já documentado em v2 · Pulso IA · Voz.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">β.2</span> &nbsp;<a href="ai-draft-regenerate.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Draft &amp; regenerate</a> herda este schema · adiciona <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">version_chain</code>.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">β.3</span> &nbsp;<a href="ai-embedding.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Embedding pattern</a> usa <strong>densidade ambiente</strong> no formato console.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">β.5</span> &nbsp;Audit log consome <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">audit_id</code> · retenção mínima 12 meses para ação crítica.</li>
+        </ul>
+      </div>
+    </section>
+
+    <div style="height:96px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

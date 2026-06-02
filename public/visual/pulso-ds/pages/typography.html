@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Tipografia</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Foundations · 02</div>
+    <h1 class="page-title">Tipografia</h1>
+    <p class="page-sub">Uma família para tudo (Manrope), uma exceção (IBM Plex Mono) — só para números, IDs, hashes, timestamps e código. A escala é confiante: oito tamanhos, sem improviso.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Famílias</h2>
+      <div class="preview-row" style="display: block;">
+        <div style="font-family: var(--font-pulso-sans); font-size: 28px; font-weight: 700; color: var(--fg-strong);">Manrope · Operação Água Nova</div>
+        <div style="font-family: var(--font-pulso-sans); font-size: 13px; color: var(--fg-muted); margin-top: 4px;">Sans-serif primária. Cobre 100% da UI: títulos, corpo, labels.</div>
+        <div style="font-family: var(--font-pulso-mono); font-size: 22px; color: var(--fg-strong); margin-top: 20px;">IBM Plex Mono · 47 menções · 2026-04-23T14:32</div>
+        <div style="font-family: var(--font-pulso-sans); font-size: 13px; color: var(--fg-muted); margin-top: 4px;">Mono para dados técnicos: scores, IDs, timestamps, código.</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Escala</h2>
+      <p class="section-desc">Tracking apertado nos display, normal no corpo. Line-height 1.45 para corpo, 1.2 para display.</p>
+      <div class="type-row"><div class="type-name">Display LG</div><div class="type-sample" style="font-size: var(--text-display-lg); font-weight: 700; letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); color: var(--fg-strong);">Bom dia, Neviton.</div><div class="type-meta">34 / 700 / -0.02em</div></div>
+      <div class="type-row"><div class="type-name">Display</div><div class="type-sample" style="font-size: var(--text-display); font-weight: 700; letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); color: var(--fg-strong);">Casos que pedem atenção</div><div class="type-meta">24 / 700 / -0.02em</div></div>
+      <div class="type-row"><div class="type-name">H1</div><div class="type-sample" style="font-size: var(--text-h1); font-weight: 600; color: var(--fg-strong);">Tendência das menções</div><div class="type-meta">18 / 600</div></div>
+      <div class="type-row"><div class="type-name">H2</div><div class="type-sample" style="font-size: var(--text-h2); font-weight: 600; color: var(--fg-strong);">Score do caso</div><div class="type-meta">15 / 600</div></div>
+      <div class="type-row"><div class="type-name">Body</div><div class="type-sample" style="font-size: var(--text-body); color: var(--fg);">5 casos ativos. 3 com atividade significativa nas últimas 6 horas — um exige revisão manual.</div><div class="type-meta">14 / 400 / 1.45</div></div>
+      <div class="type-row"><div class="type-name">Support</div><div class="type-sample" style="font-size: var(--text-support); color: var(--fg-muted);">Texto de apoio para descrições e contexto secundário.</div><div class="type-meta">13 / 400</div></div>
+      <div class="type-row"><div class="type-name">Label</div><div class="type-sample" style="font-size: var(--text-label); font-weight: 500; color: var(--fg);">Email do operador</div><div class="type-meta">12 / 500</div></div>
+      <div class="type-row"><div class="type-name">Micro</div><div class="type-sample" style="font-size: var(--text-micro); font-family: var(--font-pulso-mono); text-transform: uppercase; letter-spacing: var(--tracking-kicker); color: var(--fg-subtle);">23 ABR 2026 · QUI</div><div class="type-meta">11 / mono / 0.08em</div></div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Pesos</h2>
+      <p class="section-desc">Manrope: 400, 500, 600, 700, 800. Use 800 só em display hero. <strong>Nunca</strong> em corpo.</p>
+      <div class="preview-row" style="display: block;">
+        <div style="font-size: 18px; color: var(--fg); font-weight: 400;">400 · Regular — texto de corpo padrão</div>
+        <div style="font-size: 18px; color: var(--fg); font-weight: 500; margin-top: 6px;">500 · Medium — labels, ênfase sutil, números mono</div>
+        <div style="font-size: 18px; color: var(--fg); font-weight: 600; margin-top: 6px;">600 · Semibold — títulos de seção</div>
+        <div style="font-size: 18px; color: var(--fg); font-weight: 700; margin-top: 6px;">700 · Bold — títulos de página, display</div>
+        <div style="font-size: 18px; color: var(--fg); font-weight: 800; margin-top: 6px;">800 · Extrabold — apenas hero, marketing</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><div class="rule-tag">DO</div><div>Use mono para qualquer número técnico — score, contagem, timestamp, ID. Dá ritmo e ancora a leitura.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Use a escala definida. Se algo "pede" um tamanho intermediário, é sintoma de outro problema (provavelmente layout).</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use opacity para criar hierarquia. Use os tokens fg/fg-secondary/fg-muted/fg-subtle.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não misture sans e mono em uma mesma frase. Mono é para tokens isolados (números, IDs).</div></div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

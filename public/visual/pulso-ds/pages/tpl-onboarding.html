@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Template · Onboarding</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.ob-screen { background: var(--surface-page); border: 1px solid var(--border); border-radius: var(--radius); padding: 0; overflow: hidden; }
+.ob-topbar { background: var(--card); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-faint); }
+.ob-brand { display: flex; align-items: center; gap: 10px; }
+.ob-mark { width: 26px; height: 26px; border-radius: 6px; background: var(--primary); display:flex;align-items:center;justify-content:center;color:var(--primary-foreground);font-family:var(--font-pulso-mono);font-weight:700;font-size:12px; }
+.ob-brand-name { font-size: 14px; font-weight: 700; color: var(--fg-strong); letter-spacing:-0.01em; }
+.ob-stepper { display: flex; gap: 24px; }
+.ob-step { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; }
+.ob-step-num { width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 600; border: 1px solid var(--border-strong); color: var(--fg-muted); background: var(--card); }
+.ob-step.active .ob-step-num { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+.ob-step.done .ob-step-num { background: var(--success); color: white; border-color: var(--success); }
+.ob-step-label { color: var(--fg-muted); }
+.ob-step.active .ob-step-label, .ob-step.done .ob-step-label { color: var(--fg-strong); font-weight: 500; }
+.ob-body { padding: 56px 32px; background: var(--background); min-height: 460px; display: flex; align-items: center; justify-content: center; }
+.ob-card { max-width: 540px; width: 100%; display: flex; flex-direction: column; gap: 22px; }
+.ob-progress { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); font-weight: 600; }
+.ob-title { font-size: 26px; font-weight: 700; color: var(--fg-strong); letter-spacing: -0.01em; line-height: 1.2; }
+.ob-sub { font-size: 14px; color: var(--fg-muted); line-height: 1.6; max-width: 480px; }
+.ob-form { display: flex; flex-direction: column; gap: 14px; }
+.ob-field { display: flex; flex-direction: column; gap: 6px; }
+.ob-label { font-size: 12.5px; font-weight: 500; color: var(--fg-strong); }
+.ob-input { height: 38px; padding: 0 14px; border: 1px solid var(--input); border-radius: var(--radius-sm); background: var(--background); color: var(--fg); font-size: 13.5px; font-family: inherit; }
+.ob-helper { font-size: 11.5px; color: var(--fg-muted); line-height: 1.5; }
+.ob-row { display: flex; gap: 10px; justify-content: flex-end; padding-top: 8px; border-top: 1px solid var(--border-faint); margin-top: 8px; }
+.ob-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 38px; padding: 0 18px; border-radius: var(--radius-sm); font-size: 13.5px; font-weight: 500; font-family: inherit; border: 1px solid; cursor: pointer; }
+.ob-btn-primary { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+.ob-btn-ghost { background: transparent; color: var(--fg-muted); border-color: transparent; }
+
+.invite-row { display: grid; grid-template-columns: 1fr 200px 36px; gap: 10px; padding: 8px 0; align-items: center; }
+.invite-tag { font-family: var(--font-pulso-mono); font-size: 11px; padding: 3px 8px; border-radius: var(--radius-sm); background: var(--muted); color: var(--fg-secondary); text-align: center; border: 1px solid var(--border); }
+
+.steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 14px; }
+@media (max-width: 1000px) { .steps-grid { grid-template-columns: 1fr; } }
+.step-mini { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 20px; }
+.step-num { font-family: var(--font-pulso-mono); font-size: 26px; font-weight: 600; color: var(--primary); letter-spacing: -0.02em; line-height: 1; }
+.step-mini h4 { font-size: 14px; font-weight: 600; color: var(--fg-strong); margin-top: 6px; }
+.step-mini p { font-size: 12.5px; color: var(--fg-secondary); line-height: 1.55; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Templates · Onboarding · 05</div>
+    <h1 class="page-title">Onboarding · primeiro workspace</h1>
+    <p class="page-sub">Após cadastro inicial, três etapas até começar a monitorar: nomear workspace + convidar membros + conectar primeira fonte. Sequencial, não pulável, mas honesto sobre o tempo (≈ 4 min).</p>
+
+    <!-- ── Etapa 1 ──────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Etapa 2 de 3 · Convidar equipe</h2>
+      <div class="ob-screen">
+        <div class="ob-topbar">
+          <div class="ob-brand">
+            <div class="ob-mark">P</div>
+            <div class="ob-brand-name">Pulso · Crisis Monitor</div>
+          </div>
+          <div class="ob-stepper">
+            <div class="ob-step done"><span class="ob-step-num">✓</span><span class="ob-step-label">Workspace</span></div>
+            <div class="ob-step active"><span class="ob-step-num">2</span><span class="ob-step-label">Equipe</span></div>
+            <div class="ob-step"><span class="ob-step-num">3</span><span class="ob-step-label">Fontes</span></div>
+          </div>
+          <div style="font-family:var(--font-pulso-mono);font-size:11px;color:var(--fg-muted);">≈ 2 min restantes</div>
+        </div>
+        <div class="ob-body">
+          <div class="ob-card">
+            <div class="ob-progress">02 · convidar equipe</div>
+            <div class="ob-title">Quem mais opera com você?</div>
+            <div class="ob-sub">Convide analistas e operadores agora. Você pode adicionar mais depois em <code style="font-family:var(--font-pulso-mono);background:var(--muted);padding:1px 6px;border-radius:3px;font-size:11.5px;">Settings · Equipe</code>. Cada convite expira em 72h.</div>
+
+            <div class="ob-form">
+              <div class="invite-row">
+                <input class="ob-input" value="ana.lima@empresa.com" readonly>
+                <span class="invite-tag">analista</span>
+                <button class="ob-btn ob-btn-ghost" style="height:30px;padding:0;font-size:18px;color:var(--fg-muted);">×</button>
+              </div>
+              <div class="invite-row">
+                <input class="ob-input" value="rodrigo.melo@empresa.com" readonly>
+                <span class="invite-tag">operador</span>
+                <button class="ob-btn ob-btn-ghost" style="height:30px;padding:0;font-size:18px;color:var(--fg-muted);">×</button>
+              </div>
+              <div class="invite-row">
+                <input class="ob-input" placeholder="email@empresa.com">
+                <span class="invite-tag" style="color:var(--fg-muted);">selecionar papel</span>
+                <button class="ob-btn ob-btn-ghost" style="height:30px;padding:0;font-size:18px;color:var(--primary);">+</button>
+              </div>
+              <div class="ob-helper">Você convidou <strong style="color:var(--fg);">2 pessoas</strong>. Convites são enviados após a etapa 3.</div>
+            </div>
+
+            <div class="ob-row">
+              <button class="ob-btn ob-btn-ghost">Pular esta etapa</button>
+              <button class="ob-btn ob-btn-primary">Continuar →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Resumo das 3 etapas ──────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">As três etapas</h2>
+      <div class="steps-grid">
+        <div class="step-mini">
+          <div class="step-num">01</div>
+          <h4>Workspace</h4>
+          <p>Nome do workspace · ID curto (<code style="font-family:var(--font-pulso-mono);background:var(--muted);padding:1px 5px;border-radius:3px;font-size:11.5px;">pulso.app/w/seu-id</code>) · domínio corporativo. Validado em tempo real.</p>
+        </div>
+        <div class="step-mini">
+          <div class="step-num">02</div>
+          <h4>Equipe</h4>
+          <p>Convite por email · papel obrigatório (operador/analista/gestor) · pular permitido. Convites disparam após etapa 3.</p>
+        </div>
+        <div class="step-mini">
+          <div class="step-num">03</div>
+          <h4>Fontes</h4>
+          <p>Conexões base: Twitter/X, monitoramento de imprensa (Knewin/Boomerang), webhooks. Mínimo 1 fonte para concluir.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Composição ──────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Composição</h2>
+      <table class="tokens">
+        <thead><tr><th>Elemento</th><th>Componente</th><th>Spec</th></tr></thead>
+        <tbody>
+          <tr><td>Topbar persistente</td><td class="mono">.ob-topbar</td><td>Brand + stepper + tempo restante · não navegável (foco em concluir)</td></tr>
+          <tr><td>Stepper</td><td class="mono">Steps · 1/2/3</td><td>Done · active · pending · ícones discretos</td></tr>
+          <tr><td>Card central</td><td class="mono">.ob-card</td><td>max-width <code>540px</code> · 1 ação primária por etapa</td></tr>
+          <tr><td>Pular etapa</td><td class="mono">Button · ghost</td><td>Disponível em 2 e 3 · não em 1 (workspace é obrigatório)</td></tr>
+          <tr><td>Validação</td><td class="mono">Form · inline</td><td>Erro abaixo do campo · helper sempre visível</td></tr>
+          <tr><td>Persistência</td><td>—</td><td>Sai e volta sem perder · estado salvo a cada blur</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Edge cases ──────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Edge cases</h2>
+      <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:10px;">
+        <li style="font-size:13px;color:var(--fg);line-height:1.55;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);"><strong style="color:var(--fg-strong);">Usuário convidado para workspace existente</strong> · skip do onboarding · cai direto no dashboard com tour de 3 cards inline.</li>
+          <li style="font-size:13px;color:var(--fg);line-height:1.55;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);"><strong style="color:var(--fg-strong);">Email de domínio público</strong> (gmail.com, hotmail.com) · permite, mas avisa "Workspace corporativo recomendado — peça acesso pelo seu email da empresa".</li>
+          <li style="font-size:13px;color:var(--fg);line-height:1.55;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);"><strong style="color:var(--fg-strong);">Nenhuma fonte conectada</strong> · "Sem fonte, sem monitoramento — mas você pode continuar e configurar depois. Crisis Monitor fica em modo demo até a primeira fonte real."</li>
+          <li style="font-size:13px;color:var(--fg);line-height:1.55;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);"><strong style="color:var(--fg-strong);">Workspace ID já existe</strong> · sugestão automática (<code style="font-family:var(--font-pulso-mono);background:var(--muted);padding:1px 5px;border-radius:3px;font-size:11.5px;">acme-2</code>) com 3 alternativas.</li>
+      </ul>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Alert</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.palert {
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--card);
+  align-items: start;
+  font-family: var(--font-pulso-sans);
+  max-width: 720px;
+}
+.palert-icon { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; color: var(--fg-secondary); }
+.palert-body { min-width: 0; }
+.palert-title { font-size: 13.5px; font-weight: 600; color: var(--fg-strong); line-height: 1.4; }
+.palert-desc { font-size: 13px; color: var(--fg-secondary); line-height: 1.55; margin-top: 4px; }
+.palert-actions { display: flex; gap: 6px; margin-top: 10px; }
+.palert-act { font-size: 12.5px; font-weight: 500; color: var(--fg-strong); background: transparent; border: 1px solid var(--border-strong); padding: 5px 10px; border-radius: var(--radius-md); cursor: pointer; }
+.palert-act-primary { background: var(--fg-strong); color: var(--background); border-color: var(--fg-strong); }
+.palert-close { background: transparent; border: 0; color: var(--fg-muted); cursor: pointer; padding: 2px; border-radius: 4px; line-height: 0; }
+.palert-close:hover { color: var(--fg); background: var(--muted); }
+
+/* Variants */
+.palert-info        { background: var(--info-bg);        border-color: var(--info-border); }
+.palert-info        .palert-icon { color: var(--info); }
+.palert-info        .palert-title { color: var(--info); }
+
+.palert-success     { background: var(--success-bg);     border-color: var(--success-border); }
+.palert-success     .palert-icon { color: var(--success); }
+.palert-success     .palert-title { color: var(--success); }
+
+.palert-warning     { background: var(--warning-bg);     border-color: var(--warning-border); }
+.palert-warning     .palert-icon { color: var(--warning); }
+.palert-warning     .palert-title { color: var(--warning); }
+
+.palert-destructive { background: var(--destructive-bg); border-color: var(--destructive-border); }
+.palert-destructive .palert-icon { color: var(--destructive); }
+.palert-destructive .palert-title { color: var(--destructive); }
+
+.palert-evidence    { background: var(--evidence-bg);    border-color: var(--evidence-border); }
+.palert-evidence    .palert-icon { color: var(--evidence); }
+.palert-evidence    .palert-title { color: var(--evidence); }
+
+/* Solid (high attention) */
+.palert-solid {
+  background: var(--destructive);
+  border-color: var(--destructive);
+  color: #fff;
+}
+.palert-solid .palert-icon, .palert-solid .palert-title, .palert-solid .palert-desc { color: #fff; }
+.palert-solid .palert-act { background: transparent; color: #fff; border-color: rgba(255,255,255,0.4); }
+.palert-solid .palert-act-primary { background: #fff; color: var(--destructive); border-color: #fff; }
+.palert-solid .palert-close { color: rgba(255,255,255,0.7); }
+.palert-solid .palert-close:hover { color: #fff; background: rgba(255,255,255,0.15); }
+
+/* Inline (no icon, slim) */
+.palert-inline { padding: 8px 12px; grid-template-columns: 1fr auto; }
+.palert-inline .palert-title { font-size: 12.5px; }
+.palert-inline .palert-icon { display: none; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Atoms · Onda 2 · 05</div>
+    <h1 class="page-title">Alert</h1>
+    <p class="page-sub">Mensagem persistente com peso semântico. Diferente de Toast (efêmero) e Dialog (bloqueante). Vive na página até ser dismissed ou resolvido.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Variantes semânticas</h2>
+      <p class="section-desc">Cinco variantes — info, success, warning, destructive, evidence. Cada uma tem ícone canônico que <strong>não muda</strong>. Cor sozinha não comunica.</p>
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+
+        <div class="palert palert-info">
+          <svg class="palert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <div class="palert-body">
+            <div class="palert-title">Nova fonte conectada</div>
+            <div class="palert-desc">G1 e Folha foram adicionados ao monitoramento "Operação Água Nova". Primeira ingestão prevista em 5 min.</div>
+          </div>
+          <button class="palert-close" aria-label="Fechar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        </div>
+
+        <div class="palert palert-success">
+          <svg class="palert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>
+          <div class="palert-body">
+            <div class="palert-title">Briefing aprovado</div>
+            <div class="palert-desc">A equipe jurídica liberou o disclosure para a imprensa interna. Disponível em Decisões.</div>
+          </div>
+        </div>
+
+        <div class="palert palert-warning">
+          <svg class="palert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+          <div class="palert-body">
+            <div class="palert-title">Score próximo do limiar de escalada</div>
+            <div class="palert-desc">A crise está em 64. Limiar de "Alto" é 66. Considere revisar a estratégia de resposta nas próximas 2h.</div>
+            <div class="palert-actions">
+              <button class="palert-act palert-act-primary">Ver fatores</button>
+              <button class="palert-act">Ajustar limiar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="palert palert-destructive">
+          <svg class="palert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+          <div class="palert-body">
+            <div class="palert-title">Falha na ingestão de Folha de S.Paulo</div>
+            <div class="palert-desc">3 tentativas falharam nas últimas 30 min. O feed pode estar defasado. Suporte foi notificado automaticamente.</div>
+            <div class="palert-actions">
+              <button class="palert-act palert-act-primary">Reconectar</button>
+              <button class="palert-act">Ver log</button>
+            </div>
+          </div>
+          <button class="palert-close" aria-label="Fechar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        </div>
+
+        <div class="palert palert-evidence">
+          <svg class="palert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg>
+          <div class="palert-body">
+            <div class="palert-title">Evidência verificada</div>
+            <div class="palert-desc">3 fontes Tier 1 confirmam a narrativa. Briefing tem suporte editorial sólido.</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Sólido · alta atenção</h2>
+      <p class="section-desc">Use <strong>somente</strong> quando o usuário precisa parar e ler. Banner de crise crítica no topo da tela. Um por página, no máximo.</p>
+      <div class="palert palert-solid">
+        <svg class="palert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+        <div class="palert-body">
+          <div class="palert-title">Crise escalou para nível crítico — score 87</div>
+          <div class="palert-desc" style="opacity: 0.92;">Volume saltou 340% nas últimas 2h. 3 veículos Tier 1 publicaram. Cris recomenda acionar protocolo de resposta executiva.</div>
+          <div class="palert-actions">
+            <button class="palert-act palert-act-primary">Ativar protocolo</button>
+            <button class="palert-act">Ver evidências</button>
+          </div>
+        </div>
+        <button class="palert-close" aria-label="Fechar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Inline · sem ícone</h2>
+      <p class="section-desc">Para alerts contextuais dentro de formulários ou seções de Card. Mais discretos, sem ícone, sem ações.</p>
+      <div style="display: flex; flex-direction: column; gap: 8px; max-width: 520px;">
+        <div class="palert palert-info palert-inline"><div class="palert-body"><div class="palert-title">Estes filtros são salvos automaticamente.</div></div></div>
+        <div class="palert palert-warning palert-inline"><div class="palert-body"><div class="palert-title">Mudanças não salvas serão perdidas ao sair desta página.</div></div></div>
+        <div class="palert palert-destructive palert-inline"><div class="palert-body"><div class="palert-title">3 campos obrigatórios estão em branco.</div></div></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Anatomia</h2>
+      <table class="tokens">
+        <thead><tr><th>Variante</th><th>Ícone canônico</th><th>Token bg / border / fg</th><th>Quando usar</th></tr></thead>
+        <tbody>
+          <tr><td>Info</td><td>circle + i</td><td class="mono">--info-*</td><td>Mudança de estado neutra, contexto</td></tr>
+          <tr><td>Success</td><td>circle + check</td><td class="mono">--success-*</td><td>Conclusão, ação aprovada</td></tr>
+          <tr><td>Warning</td><td>triangle + !</td><td class="mono">--warning-*</td><td>Atenção, próximo de limiar</td></tr>
+          <tr><td>Destructive</td><td>circle + x</td><td class="mono">--destructive-*</td><td>Falha, erro de operação</td></tr>
+          <tr><td>Evidence</td><td>document</td><td class="mono">--evidence-*</td><td>Evidência verificada (Pulso-specific)</td></tr>
+          <tr><td>Solid</td><td>triangle + !</td><td class="mono">--destructive (fundo)</td><td>Banner crítico topo de página</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><div class="rule-tag">DO</div><div>Sempre tenha um título — mesmo curto. "Falha." é melhor que descrição flutuante.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Ações no Alert devem ser <strong>resolutórias</strong>. Se o usuário não tem nada a fazer, remova as ações.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Ícone + cor + texto. Cor sozinha falha em alta carga cognitiva e em acessibilidade.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use Solid para qualquer alerta. Reserve para crises críticas que exigem leitura imediata.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não acumule mais de 2 Alerts visíveis ao mesmo tempo. Vira ruído e nenhum é lido.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use Alert para feedback de ação curta — use Toast. Alert é persistente, Toast some.</div></div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

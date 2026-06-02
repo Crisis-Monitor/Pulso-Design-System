@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Pulso Design System — Preview</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="globals.css">
+<style>
+/* ── Preview shell ──────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body { background: var(--background); color: var(--foreground); display: flex; }
+
+.shell { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; width: 100%; }
+
+/* Sidebar */
+.sb { background: var(--sidebar); color: var(--sidebar-foreground); border-right: 1px solid var(--sidebar-border); display: flex; flex-direction: column; padding: 20px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sb-brand { padding: 0 20px 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--sidebar-border); }
+.sb-brand-mark { width: 28px; height: 28px; border-radius: 6px; background: var(--sidebar-primary); display: flex; align-items: center; justify-content: center; font-family: var(--font-pulso-mono); font-weight: 600; font-size: 12px; color: var(--sidebar-primary-foreground); }
+.sb-brand-name { font-weight: 700; font-size: 14px; letter-spacing: -0.01em; }
+.sb-brand-sub { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: #7E78A0; margin-top: 2px; }
+
+.sb-section { padding: 16px 20px 4px; font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: #7E78A0; }
+.sb-link { display: block; padding: 6px 20px; font-size: 13px; color: var(--sidebar-foreground); text-decoration: none; opacity: 0.75; }
+.sb-link:hover { background: var(--sidebar-accent); opacity: 1; }
+.sb-link.active { background: var(--sidebar-accent); opacity: 1; box-shadow: inset 2px 0 0 var(--sidebar-primary); }
+
+.sb-foot { margin-top: auto; padding: 16px 20px; border-top: 1px solid var(--sidebar-border); display: flex; gap: 8px; }
+.theme-btn { flex: 1; padding: 6px 10px; background: transparent; border: 1px solid var(--sidebar-border); color: var(--sidebar-foreground); border-radius: var(--radius-sm); font-size: 11px; font-family: inherit; cursor: pointer; opacity: 0.7; }
+.theme-btn:hover { opacity: 1; }
+.theme-btn.active { opacity: 1; background: var(--sidebar-accent); border-color: var(--sidebar-primary); }
+
+/* Main */
+.main { padding: var(--density-pad-page); overflow-x: hidden; }
+.page-kicker { font-family: var(--font-pulso-mono); font-size: var(--text-micro); text-transform: uppercase; letter-spacing: var(--tracking-kicker); color: var(--fg-subtle); margin-bottom: 8px; }
+.page-title { font-size: var(--text-display-lg); font-weight: 700; letter-spacing: var(--tracking-tight); color: var(--fg-strong); line-height: var(--leading-tight); }
+.page-sub { font-size: var(--text-body); color: var(--fg-muted); margin-top: 8px; max-width: 640px; line-height: var(--leading-normal); }
+
+.section { margin-top: var(--rhythm-comfort); }
+.section-h1 { font-size: var(--text-h1); font-weight: 600; color: var(--fg-strong); letter-spacing: var(--tracking-tight); margin-bottom: 4px; }
+.section-h2 { font-size: var(--text-h2); font-weight: 600; color: var(--fg-strong); margin-top: var(--space-6); margin-bottom: 4px; }
+.section-desc { font-size: var(--text-support); color: var(--fg-muted); margin-bottom: var(--space-4); max-width: 640px; }
+
+/* Tweaks panel */
+.tweaks { position: fixed; right: 24px; top: 24px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; display: flex; gap: 16px; align-items: center; box-shadow: var(--shadow); z-index: var(--z-popover); }
+.tw-group { display: flex; gap: 4px; align-items: center; }
+.tw-label { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); margin-right: 4px; }
+.tw-btn { padding: 4px 8px; background: transparent; border: 1px solid var(--border); color: var(--fg-muted); border-radius: var(--radius-xs); font-size: 11px; cursor: pointer; font-family: inherit; }
+.tw-btn.active { background: var(--primary-soft); border-color: var(--primary-border); color: var(--primary); }
+
+/* Color cards */
+.swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: var(--space-6); }
+.swatch { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.swatch-chip { height: 64px; border-bottom: 1px solid var(--border); }
+.swatch-meta { padding: 10px 12px; }
+.swatch-name { font-size: var(--text-support); font-weight: 500; color: var(--fg-strong); }
+.swatch-token { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); margin-top: 2px; }
+.swatch-value { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); margin-top: 4px; }
+
+/* Type spec */
+.type-row { display: grid; grid-template-columns: 140px 1fr 220px; gap: 24px; padding: var(--space-4) 0; border-top: 1px solid var(--border); align-items: baseline; }
+.type-row:last-child { border-bottom: 1px solid var(--border); }
+.type-name { font-family: var(--font-pulso-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); }
+.type-sample { color: var(--fg-strong); }
+.type-meta { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); text-align: right; }
+
+/* Spacing */
+.space-row { display: grid; grid-template-columns: 100px 1fr 80px; gap: 16px; padding: 8px 0; align-items: center; border-top: 1px solid var(--border); }
+.space-row:last-child { border-bottom: 1px solid var(--border); }
+.space-bar { height: 8px; background: var(--primary-soft); border: 1px solid var(--primary-border); border-radius: var(--radius-xs); }
+.space-token { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-strong); }
+.space-value { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); text-align: right; }
+
+/* Radii */
+.radii-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.radius-card { background: var(--card); border: 1px solid var(--border); padding: 16px; text-align: center; }
+.radius-shape { width: 56px; height: 56px; background: var(--primary-soft); border: 1px solid var(--primary-border); margin: 0 auto 10px; }
+.radius-name { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-strong); }
+.radius-value { font-family: var(--font-pulso-mono); font-size: 10px; color: var(--fg-muted); margin-top: 2px; }
+
+/* Shadows */
+.shadows-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+.shadow-card { background: var(--card); border: 1px solid transparent; border-radius: var(--radius-md); padding: 24px; text-align: center; }
+.shadow-name { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-strong); margin-bottom: 4px; }
+.shadow-value { font-family: var(--font-pulso-mono); font-size: 10px; color: var(--fg-muted); }
+
+/* Code block */
+.code { background: var(--muted); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-family: var(--font-pulso-mono); font-size: 12px; color: var(--fg-strong); white-space: pre; overflow-x: auto; line-height: 1.6; }
+
+/* Tabular */
+table.tokens { width: 100%; border-collapse: collapse; font-size: var(--text-support); }
+table.tokens th { text-align: left; font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+table.tokens td { padding: 10px 12px; border-bottom: 1px solid var(--border-faint); color: var(--fg); vertical-align: middle; }
+table.tokens td.mono { font-family: var(--font-pulso-mono); font-size: 11.5px; color: var(--fg-muted); }
+.dot { width: 14px; height: 14px; border-radius: 4px; display: inline-block; vertical-align: middle; margin-right: 8px; border: 1px solid var(--border); }
+
+/* Buttons (preview) */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 14px; height: var(--control-h-default); border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; font-family: inherit; border: 1px solid transparent; cursor: pointer; transition: all var(--motion-duration-fast) var(--motion-easing); }
+.btn-primary { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+.btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+.btn-secondary { background: var(--card); color: var(--fg); border-color: var(--border-strong); }
+.btn-secondary:hover { background: var(--muted); }
+.btn-ghost { background: transparent; color: var(--fg-muted); }
+.btn-ghost:hover { background: var(--muted); color: var(--fg); }
+
+.preview-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 16px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); margin-bottom: 8px; }
+
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ── Sidebar (injected by _nav.js) ────────────────── -->
+  <aside class="sb" id="sb"></aside>
+
+  <!-- ── Main ─────────────────────────────────────────── -->
+  <main class="main">
+
+    <div class="page-kicker">Foundations · 01</div>
+    <h1 class="page-title">Cores</h1>
+    <p class="page-sub">O Pulso v2 trata cor como sinal, não como decoração. Fundo neutro frio, marca apenas em acento, hairlines no lugar de sombras pesadas. Cinco tons de risco calibrados em modo matte para legibilidade contínua.</p>
+
+    <!-- Foundation surfaces -->
+    <section class="section" id="colors">
+      <h2 class="section-h1">Superfícies</h2>
+      <p class="section-desc">Hierarquia de fundo. Da camada mais distante (page) à mais próxima do usuário (popover). No premium, raramente usamos mais que 2 camadas — densidade vem de bordas, não de elevação.</p>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-chip" style="background: var(--background);"></div><div class="swatch-meta"><div class="swatch-name">Background</div><div class="swatch-token">--background</div><div class="swatch-value" data-token="--background">—</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background: var(--card);"></div><div class="swatch-meta"><div class="swatch-name">Card</div><div class="swatch-token">--card</div><div class="swatch-value" data-token="--card">—</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background: var(--muted);"></div><div class="swatch-meta"><div class="swatch-name">Muted</div><div class="swatch-token">--muted</div><div class="swatch-value" data-token="--muted">—</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background: var(--popover);"></div><div class="swatch-meta"><div class="swatch-name">Popover</div><div class="swatch-token">--popover</div><div class="swatch-value" data-token="--popover">—</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background: var(--surface-2);"></div><div class="swatch-meta"><div class="swatch-name">Surface 2</div><div class="swatch-token">--surface-2</div><div class="swatch-value" data-token="--surface-2">—</div></div></div>
+      </div>
+    </section>
+
+    <!-- Foreground hierarchy -->
+    <section class="section">
+      <h2 class="section-h1">Texto</h2>
+      <p class="section-desc">Cinco níveis de hierarquia. <strong>Nunca</strong> use opacidade para criar hierarquia — sempre os tokens.</p>
+      <div class="preview-row" style="display: block;">
+        <div style="font-size: 22px; color: var(--fg-strong); font-weight: 600;">fg-strong · Operação Água Nova</div>
+        <div style="font-size: 16px; color: var(--fg); margin-top: 8px;">fg · Texto principal de parágrafo, leitura confortável.</div>
+        <div style="font-size: 14px; color: var(--fg-secondary); margin-top: 6px;">fg-secondary · Texto de apoio, contexto adicional.</div>
+        <div style="font-size: 13px; color: var(--fg-muted); margin-top: 6px;">fg-muted · Descrições, labels de campos.</div>
+        <div style="font-size: 12px; color: var(--fg-subtle); margin-top: 6px;">fg-subtle · Metadados, placeholders, timestamps.</div>
+        <div style="font-size: 12px; color: var(--fg-disabled); margin-top: 6px;">fg-disabled · Estados desabilitados.</div>
+      </div>
+    </section>
+
+    <!-- Brand -->
+    <section class="section">
+      <h2 class="section-h1">Marca</h2>
+      <p class="section-desc">Acento operacional — só aparece em ação primária, foco e métricas-chave. <strong>Nunca</strong> como tinta de fundo geral (era o erro do v1).</p>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-chip" style="background: var(--primary);"></div><div class="swatch-meta"><div class="swatch-name">Primary</div><div class="swatch-token">--primary</div><div class="swatch-value" data-token="--primary">—</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background: var(--primary-hover);"></div><div class="swatch-meta"><div class="swatch-name">Hover</div><div class="swatch-token">--primary-hover</div><div class="swatch-value" data-token="--primary-hover">—</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background: var(--primary-pressed);"></div><div class="swatch-meta"><div class="swatch-name">Pressed</div><div class="swatch-token">--primary-pressed</div><div class="swatch-value" data-token="--primary-pressed">—</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background: var(--primary-soft); border: 1px solid var(--primary-border);"></div><div class="swatch-meta"><div class="swatch-name">Soft</div><div class="swatch-token">--primary-soft</div><div class="swatch-value">10% accent</div></div></div>
+      </div>
+    </section>
+
+    <!-- Risk levels -->
+    <section class="section">
+      <h2 class="section-h1">Níveis de Risco</h2>
+      <p class="section-desc">Cinco níveis. Cada um com <code style="font-family: var(--font-pulso-mono); background: var(--muted); padding: 1px 6px; border-radius: 3px; font-size: 11px;">bg / border / text</code>. Cores calibradas em matte — não confiamos só em cor: sempre acompanhamos com texto e ícone.</p>
+      <table class="tokens">
+        <thead><tr><th>Nível</th><th>Token</th><th>Preview</th><th>Uso</th></tr></thead>
+        <tbody>
+          <tr><td><span class="dot" style="background: var(--risk-stable);"></span>Stable</td><td class="mono">--risk-stable</td><td><span style="display: inline-flex; padding: 2px 8px; background: var(--risk-stable-bg); color: var(--risk-stable); border: 1px solid var(--risk-stable-border); border-radius: var(--radius-xs); font-family: var(--font-pulso-mono); font-size: 11px;">Estável</span></td><td>Sem atividade relevante</td></tr>
+          <tr><td><span class="dot" style="background: var(--risk-monitor);"></span>Monitor</td><td class="mono">--risk-monitor</td><td><span style="display: inline-flex; padding: 2px 8px; background: var(--risk-monitor-bg); color: var(--risk-monitor); border: 1px solid var(--risk-monitor-border); border-radius: var(--radius-xs); font-family: var(--font-pulso-mono); font-size: 11px;">Monitorar</span></td><td>Atividade abaixo do limiar</td></tr>
+          <tr><td><span class="dot" style="background: var(--risk-medium);"></span>Médio</td><td class="mono">--risk-medium</td><td><span style="display: inline-flex; padding: 2px 8px; background: var(--risk-medium-bg); color: var(--risk-medium); border: 1px solid var(--risk-medium-border); border-radius: var(--radius-xs); font-family: var(--font-pulso-mono); font-size: 11px;">Médio</span></td><td>Alerta moderado</td></tr>
+          <tr><td><span class="dot" style="background: var(--risk-high);"></span>Alto</td><td class="mono">--risk-high</td><td><span style="display: inline-flex; padding: 2px 8px; background: var(--risk-high-bg); color: var(--risk-high); border: 1px solid var(--risk-high-border); border-radius: var(--radius-xs); font-family: var(--font-pulso-mono); font-size: 11px;">Alto</span></td><td>Alerta significativo</td></tr>
+          <tr><td><span class="dot" style="background: var(--risk-critical);"></span>Crítico</td><td class="mono">--risk-critical</td><td><span style="display: inline-flex; padding: 2px 8px; background: var(--risk-critical-bg); color: var(--risk-critical); border: 1px solid var(--risk-critical-border); border-radius: var(--radius-xs); font-family: var(--font-pulso-mono); font-size: 11px;">Crítico</span></td><td>Crise ativa</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Semantic -->
+    <section class="section">
+      <h2 class="section-h1">Semânticas</h2>
+      <p class="section-desc">Feedback de ação. Cada cor traz seu par <code style="font-family: var(--font-pulso-mono); font-size: 11px;">*-bg</code> e <code style="font-family: var(--font-pulso-mono); font-size: 11px;">*-border</code>.</p>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-chip" style="background: var(--success);"></div><div class="swatch-meta"><div class="swatch-name">Success</div><div class="swatch-token">--success</div><div class="swatch-value" data-token="--success">—</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background: var(--warning);"></div><div class="swatch-meta"><div class="swatch-name">Warning</div><div class="swatch-token">--warning</div><div class="swatch-value" data-token="--warning">—</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background: var(--destructive);"></div><div class="swatch-meta"><div class="swatch-name">Destructive</div><div class="swatch-token">--destructive</div><div class="swatch-value" data-token="--destructive">—</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background: var(--info);"></div><div class="swatch-meta"><div class="swatch-name">Info</div><div class="swatch-token">--info</div><div class="swatch-value" data-token="--info">—</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background: var(--evidence);"></div><div class="swatch-meta"><div class="swatch-name">Evidence</div><div class="swatch-token">--evidence</div><div class="swatch-value" data-token="--evidence">—</div></div></div>
+      </div>
+    </section>
+
+    <!-- Chart palette -->
+    <section class="section">
+      <h2 class="section-h1">Paleta de Charts</h2>
+      <p class="section-desc">Oito tons calibrados para visualização de dados — começam em marca e se distanciam em hue de forma perceptualmente linear.</p>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-chip" style="background: var(--chart-1);"></div><div class="swatch-meta"><div class="swatch-name">Chart 1</div><div class="swatch-token">--chart-1</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background: var(--chart-2);"></div><div class="swatch-meta"><div class="swatch-name">Chart 2</div><div class="swatch-token">--chart-2</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background: var(--chart-3);"></div><div class="swatch-meta"><div class="swatch-name">Chart 3</div><div class="swatch-token">--chart-3</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background: var(--chart-4);"></div><div class="swatch-meta"><div class="swatch-name">Chart 4</div><div class="swatch-token">--chart-4</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background: var(--chart-5);"></div><div class="swatch-meta"><div class="swatch-name">Chart 5</div><div class="swatch-token">--chart-5</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background: var(--chart-6);"></div><div class="swatch-meta"><div class="swatch-name">Chart 6</div><div class="swatch-token">--chart-6</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background: var(--chart-7);"></div><div class="swatch-meta"><div class="swatch-name">Chart 7</div><div class="swatch-token">--chart-7</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background: var(--chart-8);"></div><div class="swatch-meta"><div class="swatch-name">Chart 8</div><div class="swatch-token">--chart-8</div></div></div>
+      </div>
+    </section>
+
+    <!-- Use code -->
+    <section class="section">
+      <h2 class="section-h1">Como usar</h2>
+      <p class="section-desc">Em CSS direto, via Tailwind 4, ou em componente.</p>
+      <pre class="code">/* CSS direto */
+.btn-primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* Tailwind 4 — todas as classes derivam dos @theme tokens */
+&lt;button class="bg-primary text-primary-foreground"&gt;Action&lt;/button&gt;</pre>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+
+</div>
+
+<script>
+function refreshTokenValues() {
+  document.querySelectorAll('[data-token]').forEach(el => {
+    const v = getComputedStyle(document.documentElement).getPropertyValue(el.dataset.token).trim();
+    el.textContent = v || '—';
+  });
+}
+// Refresh swatch values whenever theme flips (theme buttons are wired by _nav.js)
+const observer = new MutationObserver(refreshTokenValues);
+observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+setTimeout(refreshTokenValues, 80);
+</script>
+<script src="_nav.js"></script>
+
+</body>
+</html>

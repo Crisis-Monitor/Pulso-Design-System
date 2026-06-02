@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Microcopy</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* ── Tone wheel ─────────────────────────────────── */
+.tone-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+@media (max-width: 1000px) { .tone-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .tone-grid { grid-template-columns: 1fr; } }
+.tone { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px; display: flex; flex-direction: column; gap: 6px; }
+.tone-num { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); font-weight: 600; }
+.tone h4 { font-size: 17px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; }
+.tone-desc { font-size: 13px; color: var(--fg-secondary); line-height: 1.55; }
+.tone-axis { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); padding-top: 10px; border-top: 1px solid var(--border-faint); margin-top: 6px; line-height: 1.5; }
+.tone-axis span { color: var(--fg); }
+.tone-axis .left { color: var(--success); font-weight: 600; }
+.tone-axis .right { color: var(--destructive); text-decoration: line-through; opacity: 0.85; }
+
+/* ── Pattern cards ─────────────────────────────── */
+.pattern { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0; overflow: hidden; margin-bottom: 14px; }
+.pattern-head { padding: 16px 22px; border-bottom: 1px solid var(--border-faint); display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.pattern-tier { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 8px; border-radius: var(--radius-xs); border: 1px solid; font-weight: 600; }
+.tier-info       { background: var(--info-bg);        color: var(--info-foreground);    border-color: var(--info-border); }
+.tier-warning    { background: var(--warning-bg);     color: var(--warning-foreground); border-color: var(--warning-border); }
+.tier-error      { background: var(--destructive-bg); color: var(--destructive);        border-color: var(--destructive-border); }
+.tier-success    { background: var(--success-bg);     color: var(--success);            border-color: var(--success-border); }
+.tier-fatal      { background: var(--risk-critical-bg); color: var(--risk-critical-text); border-color: var(--risk-critical-border); }
+.pattern-name { font-size: 15px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; }
+.pattern-when { font-size: 12.5px; color: var(--fg-muted); flex: 1; line-height: 1.4; }
+.pattern-body { padding: 18px 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 760px) { .pattern-body { grid-template-columns: 1fr; } }
+.pattern-side h5 { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); margin-bottom: 10px; font-weight: 500; }
+.pattern-bad h5 { color: var(--destructive); }
+.pattern-good h5 { color: var(--success); }
+.copy-eg { background: var(--surface-2); border: 1px solid var(--border-faint); border-radius: var(--radius-sm); padding: 14px 16px; font-size: 13.5px; color: var(--fg); line-height: 1.55; }
+.copy-eg .title-line { font-weight: 600; color: var(--fg-strong); display: block; margin-bottom: 4px; }
+.copy-eg .body-line { color: var(--fg-secondary); font-size: 13px; display: block; }
+.copy-eg .cta-line { margin-top: 10px; display: inline-block; padding: 4px 10px; background: var(--primary); color: var(--primary-foreground); font-size: 12px; border-radius: var(--radius-sm); font-weight: 500; }
+.pattern-bad .copy-eg { background: color-mix(in oklab, var(--destructive-bg) 35%, var(--card)); border-color: color-mix(in oklab, var(--destructive) 22%, var(--border)); }
+.pattern-good .copy-eg { background: color-mix(in oklab, var(--success-bg) 35%, var(--card)); border-color: color-mix(in oklab, var(--success) 22%, var(--border)); }
+.pattern-note { padding: 12px 22px 18px; font-size: 12.5px; color: var(--fg-muted); line-height: 1.55; background: var(--surface-2); border-top: 1px solid var(--border-faint); }
+.pattern-note strong { color: var(--fg-secondary); font-weight: 500; }
+
+/* ── Formula block ─────────────────────────────── */
+.formula { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: var(--radius-md); padding: 18px 22px; margin-top: 12px; }
+.formula-h { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); margin-bottom: 6px; font-weight: 600; }
+.formula-row { font-family: var(--font-pulso-mono); font-size: 13px; color: var(--fg-strong); line-height: 1.7; }
+.formula-row .slot { background: color-mix(in oklab, var(--primary) 16%, transparent); padding: 1px 6px; border-radius: 3px; color: var(--primary); }
+.formula-eg { font-size: 13px; color: var(--fg-secondary); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-faint); line-height: 1.55; }
+
+/* ── Length table ──────────────────────────────── */
+.len-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.len-tbl th, .len-tbl td { padding: 10px 12px; border-bottom: 1px solid var(--border-faint); text-align: left; vertical-align: top; }
+.len-tbl th { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.len-tbl td:first-child { font-weight: 500; color: var(--fg-strong); }
+.len-tbl td.mono { font-family: var(--font-pulso-mono); font-size: 11.5px; color: var(--fg-muted); }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+
+    <div class="page-kicker">Foundations · Voice · 02</div>
+    <h1 class="page-title">Microcopy patterns</h1>
+    <p class="page-sub">"Algo deu errado" é hostil. "Oops!" é infantil. Erro de rede, erro de validação, alerta crítico e empty state têm tons distintos — e cada um deles tem uma fórmula canônica. Esta página fixa a voz do produto em cada momento sensível.</p>
+
+    <!-- ── Tom ───────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Quatro princípios de tom</h2>
+      <p class="section-desc">Cada peça de copy é checada contra estes quatro eixos. Falhar em qualquer um derruba a peça.</p>
+
+      <div class="tone-grid">
+        <div class="tone">
+          <div class="tone-num">01</div>
+          <h4>Direto</h4>
+          <div class="tone-desc">O que aconteceu, com qual escopo, o que fazer. Sem rodeios. Operador em pico de crise não tem 3 segundos para parsear sua frase elegante.</div>
+          <div class="tone-axis"><span class="left">"Conexão perdida. Retentando em 3s."</span><br><span class="right">"Houve um problema ao conectar."</span></div>
+        </div>
+        <div class="tone">
+          <div class="tone-num">02</div>
+          <h4>Calmo</h4>
+          <div class="tone-desc">Nem alarmista nem joco. Crise real já carrega adrenalina; a UI segura o tom. Sem exclamações, sem "Atenção!", sem caps.</div>
+          <div class="tone-axis"><span class="left">"Threshold rompido em PLS-012."</span><br><span class="right">"⚠️ ATENÇÃO! Crise crítica!"</span></div>
+        </div>
+        <div class="tone">
+          <div class="tone-num">03</div>
+          <h4>Sem desculpa</h4>
+          <div class="tone-desc">"Desculpe", "infelizmente", "lamentavelmente" não aparecem. Pedem perdão sem oferecer caminho. Substitua por nomeação do estado.</div>
+          <div class="tone-axis"><span class="left">"Não foi possível salvar. Tente em 30s."</span><br><span class="right">"Desculpe, algo deu errado ao salvar."</span></div>
+        </div>
+        <div class="tone">
+          <div class="tone-num">04</div>
+          <h4>Sem joco</h4>
+          <div class="tone-desc">Sem "Ops!", "Eita!", emoji, mascote, exclamação fofa. O produto opera em domínio sensível. Humor irrita quando há perda real.</div>
+          <div class="tone-axis"><span class="left">"Nenhum caso bate com esses filtros."</span><br><span class="right">"Nada por aqui! 🦗"</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Comprimento ─────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Comprimento canônico</h2>
+      <p class="section-desc">Cada superfície tem um teto. Acima do teto, o operador não lê.</p>
+
+      <table class="len-tbl">
+        <thead><tr><th>Superfície</th><th>Título</th><th>Body</th><th>CTA</th><th>Observação</th></tr></thead>
+        <tbody>
+          <tr><td>Botão / CTA</td><td class="mono">—</td><td class="mono">—</td><td class="mono">2–4 palavras</td><td>Sempre verbo imperativo. "Aprovar", "Encerrar", "Pular para conteúdo"</td></tr>
+          <tr><td>Tooltip</td><td class="mono">—</td><td class="mono">≤ 80 char</td><td class="mono">—</td><td>Sem ponto final. Sem "Clique aqui"</td></tr>
+          <tr><td>Toast / snackbar</td><td class="mono">≤ 50 char</td><td class="mono">≤ 90 char</td><td class="mono">opcional · 2 palavras</td><td>4s no ar. Um fato, opcionalmente um undo</td></tr>
+          <tr><td>Alert inline</td><td class="mono">≤ 60 char</td><td class="mono">≤ 200 char</td><td class="mono">2–3 palavras</td><td>1 linha de título, no máximo 2 linhas de body</td></tr>
+          <tr><td>Empty state</td><td class="mono">≤ 50 char</td><td class="mono">≤ 140 char</td><td class="mono">2–4 palavras</td><td>1 ação primária. Nunca 2</td></tr>
+          <tr><td>Dialog de confirmação</td><td class="mono">≤ 60 char</td><td class="mono">≤ 220 char</td><td class="mono">2–4 palavras</td><td>Title nomeia a ação · body lista a consequência</td></tr>
+          <tr><td>Erro fatal · página inteira</td><td class="mono">≤ 60 char</td><td class="mono">≤ 280 char</td><td class="mono">2–4 palavras</td><td>Incluir <em>request ID</em> ou referência de incidente</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         ERRORS
+    ═══════════════════════════════════════════════════════ -->
+    <section class="section">
+      <h2 class="section-h1">Erros · quatro tipos</h2>
+      <p class="section-desc">Cada classe de erro tem propósito distinto. O operador precisa saber, em &lt; 1 segundo, se a falha é dele (validation), da rede (network), do sistema (fatal) ou da política (permission).</p>
+
+      <!-- Network -->
+      <div class="pattern">
+        <div class="pattern-head">
+          <span class="pattern-tier tier-error">Erro · Network</span>
+          <div class="pattern-name">Conexão / timeout / 5xx</div>
+          <div class="pattern-when">Falha transiente · provavelmente passa em segundos · ação é esperar ou retry</div>
+        </div>
+        <div class="pattern-body">
+          <div class="pattern-side pattern-bad">
+            <h5>✗ Hostil</h5>
+            <div class="copy-eg">
+              <span class="title-line">Algo deu errado!</span>
+              <span class="body-line">Não foi possível processar a requisição. Por favor, tente novamente mais tarde.</span>
+            </div>
+          </div>
+          <div class="pattern-side pattern-good">
+            <h5>✓ Canônico</h5>
+            <div class="copy-eg">
+              <span class="title-line">Conexão perdida</span>
+              <span class="body-line">Retentando em 3s · automático até reconectar.</span>
+              <span class="cta-line">Tentar agora</span>
+            </div>
+          </div>
+        </div>
+        <div class="pattern-note">
+          <strong>Fórmula:</strong> &nbsp;[Estado factual] · [Próximo passo automático] + [CTA opcional manual]. &nbsp;Nunca pede desculpa por algo que vai resolver sozinho.
+        </div>
+      </div>
+
+      <!-- Validation -->
+      <div class="pattern">
+        <div class="pattern-head">
+          <span class="pattern-tier tier-warning">Erro · Validation</span>
+          <div class="pattern-name">Input inválido</div>
+          <div class="pattern-when">Usuário precisa corrigir · falha local · ação clara e imediata</div>
+        </div>
+        <div class="pattern-body">
+          <div class="pattern-side pattern-bad">
+            <h5>✗ Vago</h5>
+            <div class="copy-eg">
+              <span class="title-line">Valor inválido</span>
+              <span class="body-line">Por favor, insira um valor válido.</span>
+            </div>
+          </div>
+          <div class="pattern-side pattern-good">
+            <h5>✓ Específico</h5>
+            <div class="copy-eg">
+              <span class="title-line">Threshold precisa ser entre 0 e 100</span>
+              <span class="body-line">Valor atual: <code style="font-family:var(--font-pulso-mono);background:var(--muted);padding:1px 5px;border-radius:3px;font-size:11.5px;">−15</code>. Default é 75.</span>
+            </div>
+          </div>
+        </div>
+        <div class="pattern-note">
+          <strong>Fórmula:</strong> &nbsp;[Constraint nomeado] · [Valor atual + valor esperado/default]. &nbsp;Nunca "por favor" — operador não está pedindo desculpa, está corrigindo.
+        </div>
+      </div>
+
+      <!-- Permission -->
+      <div class="pattern">
+        <div class="pattern-head">
+          <span class="pattern-tier tier-error">Erro · Permission</span>
+          <div class="pattern-name">Não autorizado · 401 / 403</div>
+          <div class="pattern-when">Política do produto · não é bug · operador deve saber a quem pedir</div>
+        </div>
+        <div class="pattern-body">
+          <div class="pattern-side pattern-bad">
+            <h5>✗ Misterioso</h5>
+            <div class="copy-eg">
+              <span class="title-line">Acesso negado</span>
+              <span class="body-line">Você não tem permissão para acessar este recurso.</span>
+            </div>
+          </div>
+          <div class="pattern-side pattern-good">
+            <h5>✓ Nomeia o caminho</h5>
+            <div class="copy-eg">
+              <span class="title-line">Apenas analistas declaram crise</span>
+              <span class="body-line">Encaminhe para o analista de plantão ou peça promoção temporária ao gestor do workspace.</span>
+              <span class="cta-line">Notificar analista</span>
+            </div>
+          </div>
+        </div>
+        <div class="pattern-note">
+          <strong>Fórmula:</strong> &nbsp;[Qual papel pode] · [Caminho para escalonar]. &nbsp;Nunca apenas "negado" — sempre nomeia quem é autorizado e como pedir.
+        </div>
+      </div>
+
+      <!-- Fatal -->
+      <div class="pattern">
+        <div class="pattern-head">
+          <span class="pattern-tier tier-fatal">Erro · Fatal</span>
+          <div class="pattern-name">Sistema fora · 500 persistente · estado corrompido</div>
+          <div class="pattern-when">Algo está mesmo quebrado · operador precisa de plano B · suporte é envolvido</div>
+        </div>
+        <div class="pattern-body">
+          <div class="pattern-side pattern-bad">
+            <h5>✗ Sem caminho</h5>
+            <div class="copy-eg">
+              <span class="title-line">Erro inesperado :(</span>
+              <span class="body-line">Algo de errado não está certo. Recarregue a página e tente novamente.</span>
+            </div>
+          </div>
+          <div class="pattern-side pattern-good">
+            <h5>✓ Plano B nomeado</h5>
+            <div class="copy-eg">
+              <span class="title-line">Caso indisponível agora</span>
+              <span class="body-line">Persistimos seu rascunho · reabrirá automático quando o sistema voltar. Tempo médio: 4 min. Acompanhe em <code style="font-family:var(--font-pulso-mono);background:var(--muted);padding:1px 5px;border-radius:3px;font-size:11.5px;">status.pulso.app</code>.</span>
+              <span class="body-line" style="margin-top:6px;font-family:var(--font-pulso-mono);font-size:11.5px;color:var(--fg-muted);">ref: incident-2026-05-17-022</span>
+            </div>
+          </div>
+        </div>
+        <div class="pattern-note">
+          <strong>Fórmula:</strong> &nbsp;[Estado] · [O que foi preservado] · [Plano B + onde acompanhar] · [Ref técnica]. &nbsp;Reference number sempre — é o que o operador cola no Slack do suporte.
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         WARNING / INFO / SUCCESS
+    ═══════════════════════════════════════════════════════ -->
+    <section class="section">
+      <h2 class="section-h1">Warning · Info · Success</h2>
+
+      <!-- Warning -->
+      <div class="pattern">
+        <div class="pattern-head">
+          <span class="pattern-tier tier-warning">Warning</span>
+          <div class="pattern-name">Ação possível mas com consequência</div>
+          <div class="pattern-when">Usuário pode prosseguir; precisa entender o trade-off antes</div>
+        </div>
+        <div class="pattern-body">
+          <div class="pattern-side pattern-bad">
+            <h5>✗ Alarmista</h5>
+            <div class="copy-eg">
+              <span class="title-line">⚠️ ATENÇÃO!</span>
+              <span class="body-line">Esta ação é IRREVERSÍVEL! Tem certeza?</span>
+            </div>
+          </div>
+          <div class="pattern-side pattern-good">
+            <h5>✓ Trade-off nomeado</h5>
+            <div class="copy-eg">
+              <span class="title-line">Encerrar PLS-012 fecha o caso para todos</span>
+              <span class="body-line">Operadores perdem acesso ao feed em tempo real. Relatório permanece visível. Não dá para reverter sem reabrir o caso (audit logged).</span>
+              <span class="cta-line">Encerrar caso</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div class="pattern">
+        <div class="pattern-head">
+          <span class="pattern-tier tier-info">Info</span>
+          <div class="pattern-name">Comunicação neutra · contexto</div>
+          <div class="pattern-when">Operador precisa saber, mas não precisa agir agora</div>
+        </div>
+        <div class="pattern-body">
+          <div class="pattern-side pattern-bad">
+            <h5>✗ Trivial</h5>
+            <div class="copy-eg">
+              <span class="title-line">FYI 😊</span>
+              <span class="body-line">A gente migrou pra um novo sistema de notificações!</span>
+            </div>
+          </div>
+          <div class="pattern-side pattern-good">
+            <h5>✓ Fato + contexto</h5>
+            <div class="copy-eg">
+              <span class="title-line">Nova versão do radar disponível</span>
+              <span class="body-line">Score agora inclui velocidade de cobertura. Casos abertos foram reavaliados — 3 mudaram de nível.</span>
+              <span class="cta-line">Ver mudanças</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success -->
+      <div class="pattern">
+        <div class="pattern-head">
+          <span class="pattern-tier tier-success">Success</span>
+          <div class="pattern-name">Ação concluída</div>
+          <div class="pattern-when">Confirma o que aconteceu · oferece undo quando aplicável</div>
+        </div>
+        <div class="pattern-body">
+          <div class="pattern-side pattern-bad">
+            <h5>✗ Celebra demais</h5>
+            <div class="copy-eg">
+              <span class="title-line">🎉 Sucesso!</span>
+              <span class="body-line">Sua resposta foi enviada com sucesso! Parabéns!</span>
+            </div>
+          </div>
+          <div class="pattern-side pattern-good">
+            <h5>✓ Fato + escopo + undo</h5>
+            <div class="copy-eg">
+              <span class="title-line">Resposta enviada · 42 menções marcadas</span>
+              <span class="body-line">Visível para o cliente em <code style="font-family:var(--font-pulso-mono);background:var(--muted);padding:1px 5px;border-radius:3px;font-size:11.5px;">PLS-012 · Cobertura</code>.</span>
+              <span class="cta-line" style="background:transparent;color:var(--primary);border:1px solid var(--primary-border);">Desfazer · 8s</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         EMPTY STATES
+    ═══════════════════════════════════════════════════════ -->
+    <section class="section">
+      <h2 class="section-h1">Empty states · três tipos</h2>
+      <p class="section-desc">Vazio não é falha. Cada tipo tem tom próprio: primeira vez (orientação), após filtro (ajuste), fim do feed (encerramento).</p>
+
+      <!-- First time -->
+      <div class="pattern">
+        <div class="pattern-head">
+          <span class="pattern-tier tier-info">Empty · First time</span>
+          <div class="pattern-name">Workspace ainda sem caso</div>
+          <div class="pattern-when">Onboarding · explica o que vai aparecer aqui</div>
+        </div>
+        <div class="pattern-body">
+          <div class="pattern-side pattern-bad">
+            <h5>✗ Desculpa</h5>
+            <div class="copy-eg">
+              <span class="title-line">Nada por aqui ainda :(</span>
+              <span class="body-line">Você ainda não criou nenhum caso. Que tal começar agora?</span>
+              <span class="cta-line">Começar agora</span>
+            </div>
+          </div>
+          <div class="pattern-side pattern-good">
+            <h5>✓ Orientação</h5>
+            <div class="copy-eg">
+              <span class="title-line">Nenhum caso aberto</span>
+              <span class="body-line">Casos aparecem aqui quando o radar dispara um alerta ou um analista cria manualmente. Conecte fontes em <code style="font-family:var(--font-pulso-mono);background:var(--muted);padding:1px 5px;border-radius:3px;font-size:11.5px;">Settings · Fontes</code> para começar a monitorar.</span>
+              <span class="cta-line">Conectar fontes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No results -->
+      <div class="pattern">
+        <div class="pattern-head">
+          <span class="pattern-tier tier-info">Empty · No results</span>
+          <div class="pattern-name">Filtro não encontrou</div>
+          <div class="pattern-when">Operador filtrou demais · ação é afrouxar</div>
+        </div>
+        <div class="pattern-body">
+          <div class="pattern-side pattern-bad">
+            <h5>✗ Inútil</h5>
+            <div class="copy-eg">
+              <span class="title-line">Nenhum resultado encontrado</span>
+              <span class="body-line">Tente outra busca.</span>
+            </div>
+          </div>
+          <div class="pattern-side pattern-good">
+            <h5>✓ Sugestão concreta</h5>
+            <div class="copy-eg">
+              <span class="title-line">Nenhum caso bate com esses filtros</span>
+              <span class="body-line">Tente afrouxar o intervalo (atual: últimas 6h) ou remover o filtro de <em>critical</em>.</span>
+              <span class="cta-line" style="background:transparent;color:var(--primary);border:1px solid var(--primary-border);">Limpar filtros</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- End of feed -->
+      <div class="pattern">
+        <div class="pattern-head">
+          <span class="pattern-tier tier-success">Empty · Fim do feed</span>
+          <div class="pattern-name">Estado pretendido · nada pede ação</div>
+          <div class="pattern-when">Vazio aqui é bom · não é problema a resolver</div>
+        </div>
+        <div class="pattern-body">
+          <div class="pattern-side pattern-bad">
+            <h5>✗ Pessimista</h5>
+            <div class="copy-eg">
+              <span class="title-line">Lista vazia</span>
+              <span class="body-line">Não há itens para mostrar.</span>
+            </div>
+          </div>
+          <div class="pattern-side pattern-good">
+            <h5>✓ Valida o estado</h5>
+            <div class="copy-eg">
+              <span class="title-line">Nada pede atenção agora</span>
+              <span class="body-line">3 casos estão em <em>stable</em>. Próxima varredura do radar em 8 min.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         CONFIRMATION
+    ═══════════════════════════════════════════════════════ -->
+    <section class="section">
+      <h2 class="section-h1">Confirmações destrutivas</h2>
+      <p class="section-desc">Toda ação irreversível tem confirmação. Título nomeia a ação no imperativo; body lista a consequência; CTA repete o verbo. Não usar "Tem certeza?" — vago, infantil, frequentemente respondido sem ler.</p>
+
+      <div class="formula">
+        <div class="formula-h">Fórmula</div>
+        <div class="formula-row"><strong>Título</strong> &nbsp;= &nbsp;<span class="slot">[Verbo no imperativo]</span> &nbsp;<span class="slot">[Alvo específico]</span></div>
+        <div class="formula-row"><strong>Body</strong> &nbsp; = &nbsp;<span class="slot">[Consequência concreta]</span>. &nbsp;<span class="slot">[O que é preservado]</span>. &nbsp;<span class="slot">[Reversibilidade]</span>.</div>
+        <div class="formula-row"><strong>CTA</strong>&nbsp;&nbsp;&nbsp;= &nbsp;<span class="slot">[Mesmo verbo do título]</span></div>
+        <div class="formula-eg">
+          <strong>Bom:</strong> &nbsp;"Encerrar PLS-012" · "Todos os operadores perdem acesso ao feed em tempo real. Relatório permanece visível. Não pode ser revertido sem reabrir o caso (audit logged)." · CTA "Encerrar"<br>
+          <strong>Ruim:</strong> "Tem certeza?" · "Esta ação não pode ser desfeita." · CTA "OK"
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         LOADING
+    ═══════════════════════════════════════════════════════ -->
+    <section class="section">
+      <h2 class="section-h1">Loading · três tiers</h2>
+      <p class="section-desc">Tempo de espera muda o tom. Quanto mais demora, mais o operador precisa saber o que está acontecendo e quanto falta.</p>
+
+      <table class="len-tbl">
+        <thead><tr><th>Tier</th><th>Quando</th><th>Microcopy canônica</th></tr></thead>
+        <tbody>
+          <tr><td>Instant<br><span class="mono" style="font-family:var(--font-pulso-mono);font-size:11px;color:var(--fg-muted);">&lt; 100ms</span></td><td>Resposta imediata</td><td><em>Nenhuma copy</em>. Skeleton ou direct render.</td></tr>
+          <tr><td>Fast<br><span class="mono" style="font-family:var(--font-pulso-mono);font-size:11px;color:var(--fg-muted);">&lt; 1s</span></td><td>Operação rotineira</td><td>Spinner discreto, sem texto. Ou skeleton matching.</td></tr>
+          <tr><td>Slow<br><span class="mono" style="font-family:var(--font-pulso-mono);font-size:11px;color:var(--fg-muted);">1–3s</span></td><td>Geração de relatório, busca grande</td><td>"Buscando em 240 menções…" · nomeia o escopo</td></tr>
+          <tr><td>Very slow<br><span class="mono" style="font-family:var(--font-pulso-mono);font-size:11px;color:var(--fg-muted);">&gt; 3s</span></td><td>Pulso IA gerando briefing</td><td>"Lendo 42 menções · sintetizando narrativa · sugerindo resposta" · 3 estágios visíveis · progress real</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Regras ─────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Faça</div>
+          <ul>
+            <li>Nomeie o estado (rede caiu, valor inválido, sistema fora). Sem nome, sem ação.</li>
+            <li>Em erro fatal, sempre incluir <em>request id</em> ou <em>incident ref</em> — é o que o operador cola no chat do suporte.</li>
+            <li>Em CTA, mesmo verbo do título. "Encerrar caso" / "Encerrar". Não "OK".</li>
+            <li>Em destrutiva, nomear o que se perde <strong>e</strong> o que se preserva. Operador precisa do trade-off completo.</li>
+            <li>Em vazio bom (fim do feed), valide o estado. "Nada pede atenção" é melhor que "Lista vazia".</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Evite</div>
+          <ul>
+            <li>Não use "Desculpe", "Infelizmente", "Por favor". Pedem perdão sem ajudar.</li>
+            <li>Não use exclamação. Operador em pico não precisa de mais energia na tela.</li>
+            <li>Não use emoji. O produto é institucional.</li>
+            <li>Não use "Algo deu errado", "Tem certeza?", "Erro inesperado". Vagos por construção.</li>
+            <li>Não inicie copy com a marca ("Pulso encontrou…", "O Crisis Monitor diz…"). O operador sabe onde está.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Status ─────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Status da iniciativa · 2.2</h2>
+      <table class="tokens">
+        <thead><tr><th>Deliverable</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Padrões de erro · network · validation · permission · fatal</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Padrões de warning · info · success</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Padrões de empty state · first-time · no-results · fim do feed</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Fórmula de confirmação destrutiva</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Tabela de comprimentos por superfície</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Página <strong>Foundations · Voice · Microcopy</strong></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Refator de copy do Crisis Monitor (todas as superfícies)</td><td><span style="color:var(--warning);font-family:var(--font-pulso-mono);font-size:11px;">⏳ PLS-CM-COPY-024 (rolling)</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

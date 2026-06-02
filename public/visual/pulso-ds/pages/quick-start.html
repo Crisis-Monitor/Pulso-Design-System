@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Quick Start</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Getting Started · 02</div>
+    <h1 class="page-title">Quick Start</h1>
+    <p class="page-sub">Primeira tela em 5 minutos: page header + metric cards + tabela. Os imports já assumem que a instalação foi concluída.</p>
+    <section class="section">
+      <h2 class="section-h1">Esqueleto de uma página</h2>
+      <pre class="code">import { PageHeader } from '@pulso-ds/core/page-header';
+import { MetricCard } from '@pulso-ds/core/metric-card';
+import { Table } from '@pulso-ds/core/table';
+
+export default function DashboardPage() {
+  return (
+    &lt;div className="px-8 py-10 space-y-8"&gt;
+      &lt;PageHeader
+        kicker="Operação · Hoje"
+        title="Bom dia, Neviton."
+        sub="3 casos pedem revisão antes das 10h."
+      /&gt;
+
+      &lt;div className="grid grid-cols-4 gap-4"&gt;
+        &lt;MetricCard tone="violet" label="Menções 24h" value="1.247" delta="+12%" /&gt;
+        &lt;MetricCard tone="emerald" label="Sentimento" value="+0.38" delta="+0.04" /&gt;
+        &lt;MetricCard tone="rose" label="Críticos" value="3" delta="+1" /&gt;
+        &lt;MetricCard tone="amber" label="SLA médio" value="2h 14m" delta="-18m" /&gt;
+      &lt;/div&gt;
+
+      &lt;Table data={cases} columns={columns} /&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">Convenções essenciais</h2>
+      <ul style="list-style:none;padding:0;margin-top:12px;">
+        <li style="font-size:14px;color:var(--fg);line-height:1.65;padding:6px 0 6px 18px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">→</span> Use tokens semânticos (<code>--risk-attention</code>), nunca hex direto.</li>
+        <li style="font-size:14px;color:var(--fg);line-height:1.65;padding:6px 0 6px 18px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">→</span> Números/IDs/timestamps em <code>font-mono</code> (IBM Plex Mono).</li>
+        <li style="font-size:14px;color:var(--fg);line-height:1.65;padding:6px 0 6px 18px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">→</span> Density: <code>data-density="compact|comfortable|spacious"</code> no <code>html</code>.</li>
+        <li style="font-size:14px;color:var(--fg);line-height:1.65;padding:6px 0 6px 18px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">→</span> Cor primária só em ação primária, foco e métricas-chave.</li>
+      </ul>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

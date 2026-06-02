@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Select</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.psl { position: relative; display: inline-flex; flex-direction: column; min-width: 240px; }
+.psl-trigger {
+  display: inline-flex; align-items: center; justify-content: space-between; gap: 8px;
+  height: 36px; padding: 0 12px;
+  background: var(--card); border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  font-size: 13px; color: var(--fg);
+  font-family: var(--font-pulso-sans);
+  cursor: pointer; user-select: none;
+  transition: background 140ms var(--motion-easing), border-color 140ms var(--motion-easing);
+  width: 100%;
+}
+.psl-trigger:hover { border-color: var(--fg-muted); background: var(--muted); }
+.psl-trigger:focus-visible { outline: var(--ring-width) solid var(--ring); outline-offset: var(--ring-offset); }
+.psl-trigger.is-placeholder { color: var(--fg-subtle); }
+.psl-trigger svg.chev {
+  width: 14px; height: 14px; color: var(--fg-muted);
+  transition: transform 200ms var(--motion-easing);
+}
+.psl[data-open="true"] .psl-trigger { border-color: var(--primary); background: var(--card); }
+.psl[data-open="true"] .psl-trigger svg.chev { transform: rotate(180deg); }
+
+.psl-trigger-value { display: inline-flex; align-items: center; gap: 8px; min-width: 0; flex: 1; overflow: hidden; }
+.psl-trigger-value > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.psl-trigger-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 2px 8px;
+  background: var(--primary-soft); color: var(--primary);
+  border: 1px solid var(--primary-border);
+  border-radius: var(--radius-xs);
+  font-size: 11.5px; font-weight: 500;
+}
+.psl-trigger-tag-x { width: 12px; height: 12px; opacity: 0.7; cursor: pointer; }
+.psl-trigger-tag-x:hover { opacity: 1; }
+
+.psl-panel {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+  background: var(--popover);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 6px;
+  z-index: 30;
+  max-height: 280px; overflow: auto;
+  opacity: 0; visibility: hidden;
+  transform: translateY(-4px) scale(0.98);
+  transform-origin: top center;
+  transition: opacity 160ms var(--motion-easing), transform 180ms var(--motion-easing), visibility 160ms;
+}
+.psl[data-open="true"] .psl-panel { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+
+.psl-search {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 10px; margin: -6px -6px 6px;
+  border-bottom: 1px solid var(--border);
+}
+.psl-search svg { width: 14px; height: 14px; color: var(--fg-subtle); flex-shrink: 0; }
+.psl-search input {
+  border: 0; background: transparent; outline: none;
+  flex: 1; font-size: 13px; color: var(--fg-strong);
+  font-family: inherit;
+}
+.psl-search input::placeholder { color: var(--fg-subtle); }
+
+.psl-opt {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 10px;
+  font-size: 13px;
+  color: var(--fg);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+.psl-opt:hover { background: var(--muted); }
+.psl-opt[aria-selected="true"] { background: var(--primary-soft); color: var(--primary); font-weight: 500; }
+.psl-opt[aria-selected="true"]::after {
+  content: ""; position: absolute; right: 12px;
+  width: 12px; height: 12px;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%237B61E8' stroke-width='2.5'><path d='M3 8.5l3 3 7-7'/></svg>") center/contain no-repeat;
+}
+.psl-opt-meta {
+  margin-left: auto;
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  color: var(--fg-subtle);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.psl-opt[aria-selected="true"] .psl-opt-meta { color: var(--primary); opacity: 0.7; }
+
+.psl-group-h {
+  padding: 8px 10px 4px;
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle);
+}
+.psl-empty { padding: 24px 10px; text-align: center; color: var(--fg-subtle); font-size: 12.5px; }
+
+/* Dot avatar for level options */
+.psl-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* Field wrapper */
+.psl-field { display: flex; flex-direction: column; gap: 6px; }
+.psl-field-label { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); }
+
+/* Multi tags row */
+.psl-tags { display: inline-flex; align-items: center; gap: 4px; flex: 1; flex-wrap: nowrap; overflow: hidden; }
+
+/* Sizes */
+.psl-sm .psl-trigger { height: 30px; padding: 0 10px; font-size: 12px; }
+.psl-lg .psl-trigger { height: 42px; padding: 0 14px; font-size: 14px; }
+
+/* Disabled */
+.psl[aria-disabled="true"] .psl-trigger { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Atoms · Onda 3 · Form 04</div>
+    <h1 class="page-title">Select</h1>
+    <p class="page-sub">Trigger no estilo Input com painel de opções via popover. Quatro variantes: single, single agrupado, multi com tags, e searchable. Painel sempre 6px abaixo do trigger e abre com leve scale-up.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Single</h2>
+      <p class="section-desc">Selecionar uma opção. Trigger mostra o valor escolhido; chevron rotaciona 180° quando aberto.</p>
+      <div class="preview-row" style="gap: 24px;">
+        <div class="psl-field" style="min-width: 220px;">
+          <div class="psl-field-label">Período</div>
+          <div class="psl psl-single" data-open="false">
+            <button type="button" class="psl-trigger">
+              <span class="psl-trigger-value"><span data-value>Últimos 7 dias</span></span>
+              <svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>
+            </button>
+            <div class="psl-panel" role="listbox">
+              <div class="psl-opt" data-val="24h">Últimas 24 horas<span class="psl-opt-meta">Ctrl 1</span></div>
+              <div class="psl-opt" data-val="7d" aria-selected="true">Últimos 7 dias<span class="psl-opt-meta">Ctrl 2</span></div>
+              <div class="psl-opt" data-val="30d">Últimos 30 dias<span class="psl-opt-meta">Ctrl 3</span></div>
+              <div class="psl-opt" data-val="90d">Últimos 90 dias<span class="psl-opt-meta">Ctrl 4</span></div>
+              <div class="psl-opt" data-val="custom">Personalizado…</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="psl-field" style="min-width: 220px;">
+          <div class="psl-field-label">Placeholder</div>
+          <div class="psl psl-single" data-open="false">
+            <button type="button" class="psl-trigger is-placeholder">
+              <span class="psl-trigger-value"><span data-value>Selecione um time…</span></span>
+              <svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>
+            </button>
+            <div class="psl-panel" role="listbox">
+              <div class="psl-opt" data-val="comm">Comunicação Corporativa</div>
+              <div class="psl-opt" data-val="legal">Jurídico</div>
+              <div class="psl-opt" data-val="ops">Operações</div>
+              <div class="psl-opt" data-val="exec">C-Level</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="psl-field" style="min-width: 220px;">
+          <div class="psl-field-label">Disabled</div>
+          <div class="psl psl-single" aria-disabled="true">
+            <button type="button" class="psl-trigger">
+              <span class="psl-trigger-value"><span data-value>Acesso restrito</span></span>
+              <svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Com agrupamento + ícones</h2>
+      <p class="section-desc">Headers monoespaçados separam grupos. Ícone à esquerda quando faz parte da identidade da opção (nível, fonte, tier).</p>
+      <div class="preview-row">
+        <div class="psl-field" style="min-width: 280px;">
+          <div class="psl-field-label">Nível mínimo de risco</div>
+          <div class="psl psl-single" data-open="true">
+            <button type="button" class="psl-trigger">
+              <span class="psl-trigger-value">
+                <span class="psl-dot" style="background: var(--risk-medium);"></span>
+                <span data-value>Médio</span>
+              </span>
+              <svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>
+            </button>
+            <div class="psl-panel" role="listbox">
+              <div class="psl-group-h">Risco</div>
+              <div class="psl-opt" data-val="stable"><span class="psl-dot" style="background: var(--risk-stable);"></span>Estável<span class="psl-opt-meta">0–19</span></div>
+              <div class="psl-opt" data-val="monitor"><span class="psl-dot" style="background: var(--risk-monitor);"></span>Monitorar<span class="psl-opt-meta">20–39</span></div>
+              <div class="psl-opt" data-val="medium" aria-selected="true"><span class="psl-dot" style="background: var(--risk-medium);"></span>Médio<span class="psl-opt-meta">40–59</span></div>
+              <div class="psl-opt" data-val="high"><span class="psl-dot" style="background: var(--risk-high);"></span>Alto<span class="psl-opt-meta">60–79</span></div>
+              <div class="psl-opt" data-val="critical"><span class="psl-dot" style="background: var(--risk-critical);"></span>Crítico<span class="psl-opt-meta">80–100</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Multi-select com tags</h2>
+      <p class="section-desc">Itens selecionados aparecem como tags removíveis no trigger. Quando excedem largura, mostra "+N" — clique abre o painel completo.</p>
+      <div class="preview-row">
+        <div class="psl-field" style="min-width: 380px;">
+          <div class="psl-field-label">Fontes monitoradas</div>
+          <div class="psl psl-multi" data-open="false">
+            <button type="button" class="psl-trigger">
+              <span class="psl-tags">
+                <span class="psl-trigger-tag">Folha<span class="psl-trigger-tag-x">×</span></span>
+                <span class="psl-trigger-tag">G1<span class="psl-trigger-tag-x">×</span></span>
+                <span class="psl-trigger-tag">UOL<span class="psl-trigger-tag-x">×</span></span>
+                <span class="psl-trigger-tag" style="background: var(--muted); color: var(--fg-secondary); border-color: var(--border);">+4</span>
+              </span>
+              <svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Searchable</h2>
+      <p class="section-desc">Para listas &gt; 8 opções. Input no topo do painel filtra instantaneamente. Estado vazio quando nenhum match.</p>
+      <div class="preview-row">
+        <div class="psl-field" style="min-width: 320px;">
+          <div class="psl-field-label">Atribuir a</div>
+          <div class="psl psl-search" data-open="true">
+            <button type="button" class="psl-trigger">
+              <span class="psl-trigger-value"><span data-value>Mariana Costa</span></span>
+              <svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>
+            </button>
+            <div class="psl-panel" role="listbox">
+              <div class="psl-search">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="7" r="4"/><path d="M14 14l-4-4"/></svg>
+                <input type="text" placeholder="Buscar pessoa…" value="">
+              </div>
+              <div class="psl-group-h">Comunicação</div>
+              <div class="psl-opt" aria-selected="true">Mariana Costa<span class="psl-opt-meta">PM</span></div>
+              <div class="psl-opt">Rafael Lima<span class="psl-opt-meta">Lead</span></div>
+              <div class="psl-opt">Beatriz Ferraz<span class="psl-opt-meta">Sr.</span></div>
+              <div class="psl-group-h">Jurídico</div>
+              <div class="psl-opt">Carolina Andrade<span class="psl-opt-meta">Lead</span></div>
+              <div class="psl-opt">Diego Tavares<span class="psl-opt-meta">Sr.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Tamanhos</h2>
+      <div class="preview-row" style="gap: 16px; flex-wrap: wrap;">
+        <div class="psl psl-single psl-sm" style="min-width: 180px;">
+          <button type="button" class="psl-trigger"><span class="psl-trigger-value"><span data-value>Small</span></span><svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg></button>
+        </div>
+        <div class="psl psl-single" style="min-width: 200px;">
+          <button type="button" class="psl-trigger"><span class="psl-trigger-value"><span data-value>Default · 36px</span></span><svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg></button>
+        </div>
+        <div class="psl psl-single psl-lg" style="min-width: 220px;">
+          <button type="button" class="psl-trigger"><span class="psl-trigger-value"><span data-value>Large · 42px</span></span><svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Quando usar</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Use Select</div>
+          <ul>
+            <li>5+ opções mutuamente exclusivas</li>
+            <li>Lista longa de fontes, autores, times</li>
+            <li>Multi: filtros aplicados em tabelas/listas</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Considere alternativas</div>
+          <ul>
+            <li>2–4 opções curtas → Segmented Radio</li>
+            <li>Toggle → Switch</li>
+            <li>Busca livre + ações → Command palette</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+
+<script>
+// Toggle open state on triggers (demo only — closes on outside click)
+document.querySelectorAll('.psl-trigger').forEach(t => {
+  t.addEventListener('click', e => {
+    e.stopPropagation();
+    const psl = t.closest('.psl');
+    const wasOpen = psl.dataset.open === 'true';
+    document.querySelectorAll('.psl').forEach(p => p.dataset.open = 'false');
+    psl.dataset.open = wasOpen ? 'false' : 'true';
+  });
+});
+document.addEventListener('click', () => {
+  document.querySelectorAll('.psl').forEach(p => p.dataset.open = 'false');
+});
+// Selecting an option (single)
+document.querySelectorAll('.psl-single .psl-opt').forEach(opt => {
+  opt.addEventListener('click', e => {
+    e.stopPropagation();
+    const panel = opt.closest('.psl-panel');
+    const psl = opt.closest('.psl');
+    panel.querySelectorAll('.psl-opt').forEach(o => o.removeAttribute('aria-selected'));
+    opt.setAttribute('aria-selected', 'true');
+    const trigger = psl.querySelector('.psl-trigger');
+    const val = psl.querySelector('[data-value]');
+    if (val) {
+      // Use first text node for label
+      val.textContent = opt.textContent.replace(/\s+(Ctrl|0–19|20–39|40–59|60–79|80–100|PM|Lead|Sr\.).*$/, '').trim();
+      trigger.classList.remove('is-placeholder');
+    }
+    psl.dataset.open = 'false';
+  });
+});
+</script>
+<script src="../_nav.js"></script>
+</body>
+</html>

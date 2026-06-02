@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Progress</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* Linear progress */
+.pprog {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  background: var(--muted);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.pprog-fill {
+  position: absolute; inset: 0 auto 0 0;
+  background: var(--primary);
+  border-radius: 999px;
+  transition: width 0.3s var(--motion-easing);
+}
+.pprog-md { height: 6px; }
+.pprog-lg { height: 8px; }
+
+.pprog.success .pprog-fill { background: var(--success); }
+.pprog.warning .pprog-fill { background: var(--warning); }
+.pprog.destructive .pprog-fill { background: var(--destructive); }
+.pprog.evidence .pprog-fill { background: var(--evidence); }
+
+/* Indeterminate */
+.pprog.indet .pprog-fill { width: 30% !important; animation: pprog-slide 1.4s var(--motion-easing) infinite; }
+@keyframes pprog-slide { 0% { left: -30%; } 100% { left: 100%; } }
+
+/* Striped (active) */
+.pprog.striped .pprog-fill {
+  background-image: linear-gradient(45deg, rgba(255,255,255,0.18) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.18) 75%, transparent 75%, transparent);
+  background-size: 12px 12px;
+  animation: pprog-stripes 0.8s linear infinite;
+}
+@keyframes pprog-stripes { from { background-position: 0 0; } to { background-position: 12px 0; } }
+
+/* Segmented (steps) */
+.pprog-seg { display: flex; gap: 4px; width: 100%; }
+.pprog-seg-step { flex: 1; height: 4px; background: var(--muted); border-radius: 999px; transition: background 0.3s; }
+.pprog-seg-step.done { background: var(--primary); }
+.pprog-seg-step.current { background: var(--primary); animation: pprog-pulse 1.6s ease-in-out infinite; }
+@keyframes pprog-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+/* Circular */
+.pprog-circ { position: relative; width: var(--circ-size, 64px); height: var(--circ-size, 64px); }
+.pprog-circ svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.pprog-circ .track { stroke: var(--muted); fill: none; }
+.pprog-circ .fill { stroke: var(--primary); fill: none; transition: stroke-dashoffset 0.4s var(--motion-easing); stroke-linecap: round; }
+.pprog-circ.success .fill { stroke: var(--success); }
+.pprog-circ.warning .fill { stroke: var(--warning); }
+.pprog-circ.destructive .fill { stroke: var(--destructive); }
+.pprog-circ-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; font-family: var(--font-pulso-mono); }
+.pprog-circ-label .num { font-size: 16px; font-weight: 600; color: var(--fg-strong); font-variant-numeric: tabular-nums; }
+.pprog-circ-label .unit { font-size: 9px; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* Score ring (Pulso-specific, big) */
+.pscore { position: relative; width: 144px; height: 144px; --circ-size: 144px; }
+.pscore svg .track { stroke-width: 8; }
+.pscore svg .fill { stroke-width: 8; }
+.pscore .pprog-circ-label .num { font-family: var(--font-pulso-display); font-size: 44px; font-weight: 700; letter-spacing: -0.02em; line-height: 1; }
+.pscore .pprog-circ-label .unit { margin-top: 6px; font-family: var(--font-pulso-mono); font-size: 10px; }
+.pscore .level-tag { font-family: var(--font-pulso-mono); font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--risk-critical); padding: 3px 8px; background: var(--risk-critical-bg); border: 1px solid var(--risk-critical-border); border-radius: 999px; margin-top: 4px; }
+
+.demo-row { display: flex; flex-direction: column; gap: 18px; max-width: 520px; }
+.demo-row .lbl-row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); margin-bottom: 8px; }
+.demo-row .lbl-row > span:first-child { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.demo-row .lbl-row .pct { flex: 0 0 auto; color: var(--fg-strong); font-weight: 600; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Atoms · Onda 2 · 07</div>
+    <h1 class="page-title">Progress</h1>
+    <p class="page-sub">Indica progresso de uma operação com duração conhecida. Diferente de Spinner — Progress comunica <strong>quanto</strong> falta, não apenas que está acontecendo.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Linear · 3 alturas</h2>
+      <p class="section-desc">SM (4px) é o default. MD em uploads e ingestões. LG só em primeiro plano (onboarding, setup).</p>
+      <div class="demo-row">
+        <div>
+          <div class="lbl-row"><span>Sincronizando feed</span><span class="pct">28%</span></div>
+          <div class="pprog"><div class="pprog-fill" style="width: 28%;"></div></div>
+          <div style="font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); margin-top: 6px;">SM · 4px</div>
+        </div>
+        <div>
+          <div class="lbl-row"><span>Importando arquivo</span><span class="pct">62%</span></div>
+          <div class="pprog pprog-md"><div class="pprog-fill" style="width: 62%;"></div></div>
+          <div style="font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); margin-top: 6px;">MD · 6px</div>
+        </div>
+        <div>
+          <div class="lbl-row"><span>Configuração inicial</span><span class="pct">85%</span></div>
+          <div class="pprog pprog-lg"><div class="pprog-fill" style="width: 85%;"></div></div>
+          <div style="font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); margin-top: 6px;">LG · 8px</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Variantes semânticas</h2>
+      <p class="section-desc">Quando o progresso é por si um sinal — capacidade, nível de risco, score de saúde.</p>
+      <div class="demo-row">
+        <div><div class="lbl-row"><span style="color: var(--fg);">Cobertura editorial · 92%</span><span class="pct" style="color: var(--success);">SAUDÁVEL</span></div><div class="pprog pprog-md success"><div class="pprog-fill" style="width: 92%;"></div></div></div>
+        <div><div class="lbl-row"><span style="color: var(--fg);">Quota de fontes · 74%</span><span class="pct" style="color: var(--warning);">ATENÇÃO</span></div><div class="pprog pprog-md warning"><div class="pprog-fill" style="width: 74%;"></div></div></div>
+        <div><div class="lbl-row"><span style="color: var(--fg);">Latência média · 87%</span><span class="pct" style="color: var(--destructive);">CRÍTICO</span></div><div class="pprog pprog-md destructive"><div class="pprog-fill" style="width: 87%;"></div></div></div>
+        <div><div class="lbl-row"><span style="color: var(--fg);">Verificação de evidências · 100%</span><span class="pct" style="color: var(--evidence);">VERIFICADO</span></div><div class="pprog pprog-md evidence"><div class="pprog-fill" style="width: 100%;"></div></div></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Indeterminado</h2>
+      <p class="section-desc">Quando o tempo é desconhecido. Use no topo da página em transições de rota e sobre tabelas durante recarga.</p>
+      <div class="demo-row">
+        <div><div class="pprog indet"><div class="pprog-fill"></div></div></div>
+        <div><div class="pprog pprog-md indet"><div class="pprog-fill"></div></div></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Listrado · em movimento</h2>
+      <p class="section-desc">Padrão diagonal animado sobre o fill. Útil para indicar atividade durante operação longa com porcentagem conhecida.</p>
+      <div class="demo-row">
+        <div>
+          <div class="lbl-row"><span>Calculando score · processando 2.847 menções</span><span class="pct">47%</span></div>
+          <div class="pprog pprog-md striped"><div class="pprog-fill" style="width: 47%;"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Segmentado · etapas conhecidas</h2>
+      <p class="section-desc">Para wizards e setups onde o número de passos é pequeno e conhecido. Cada segmento = 1 etapa.</p>
+      <div class="demo-row">
+        <div>
+          <div style="display: flex; justify-content: space-between; font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); margin-bottom: 8px;">
+            <span style="color: var(--fg-strong);">Etapa 3 de 5 · Conectar fontes</span>
+            <span>60%</span>
+          </div>
+          <div class="pprog-seg">
+            <div class="pprog-seg-step done"></div>
+            <div class="pprog-seg-step done"></div>
+            <div class="pprog-seg-step current"></div>
+            <div class="pprog-seg-step"></div>
+            <div class="pprog-seg-step"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display: flex; justify-content: space-between; font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); margin-bottom: 8px;">
+            <span style="color: var(--fg-strong);">Onboarding</span>
+            <span>2 de 4</span>
+          </div>
+          <div class="pprog-seg">
+            <div class="pprog-seg-step done"></div>
+            <div class="pprog-seg-step done"></div>
+            <div class="pprog-seg-step"></div>
+            <div class="pprog-seg-step"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Circular</h2>
+      <p class="section-desc">Para espaços confinados — botões, ícones, tabelas. Tamanhos de 24px a 64px.</p>
+      <div class="preview-row" style="gap: 32px; align-items: center;">
+        <div class="pprog-circ" style="--circ-size: 24px;">
+          <svg viewBox="0 0 36 36"><circle class="track" cx="18" cy="18" r="15.9" stroke-width="3"/><circle class="fill" cx="18" cy="18" r="15.9" stroke-width="3" stroke-dasharray="100" stroke-dashoffset="75"/></svg>
+        </div>
+        <div class="pprog-circ" style="--circ-size: 40px;">
+          <svg viewBox="0 0 36 36"><circle class="track" cx="18" cy="18" r="15.9" stroke-width="3"/><circle class="fill" cx="18" cy="18" r="15.9" stroke-width="3" stroke-dasharray="100" stroke-dashoffset="55"/></svg>
+        </div>
+        <div class="pprog-circ" style="--circ-size: 64px;">
+          <svg viewBox="0 0 36 36"><circle class="track" cx="18" cy="18" r="15.9" stroke-width="3"/><circle class="fill" cx="18" cy="18" r="15.9" stroke-width="3" stroke-dasharray="100" stroke-dashoffset="32"/></svg>
+          <div class="pprog-circ-label"><span class="num">68%</span></div>
+        </div>
+        <div class="pprog-circ success" style="--circ-size: 64px;">
+          <svg viewBox="0 0 36 36"><circle class="track" cx="18" cy="18" r="15.9" stroke-width="3"/><circle class="fill" cx="18" cy="18" r="15.9" stroke-width="3" stroke-dasharray="100" stroke-dashoffset="0"/></svg>
+          <div class="pprog-circ-label"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Score de Risco · ring grande</h2>
+      <p class="section-desc">Composição canônica do produto. Score 0–100 mapeado em 5 cores de risco.</p>
+      <div class="preview-row" style="gap: 28px;">
+        <div style="display: flex; flex-direction: column; align-items: center;">
+          <div class="pscore">
+            <svg viewBox="0 0 36 36"><circle class="track" cx="18" cy="18" r="15.9"/><circle class="fill" cx="18" cy="18" r="15.9" stroke-dasharray="100" stroke-dashoffset="13" style="stroke: var(--risk-critical);"/></svg>
+            <div class="pprog-circ-label"><span class="num" style="color: var(--risk-critical);">87</span><span class="unit">SCORE</span></div>
+          </div>
+          <span class="level-tag">Crítico</span>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center;">
+          <div class="pscore">
+            <svg viewBox="0 0 36 36"><circle class="track" cx="18" cy="18" r="15.9"/><circle class="fill" cx="18" cy="18" r="15.9" stroke-dasharray="100" stroke-dashoffset="36" style="stroke: var(--risk-high);"/></svg>
+            <div class="pprog-circ-label"><span class="num" style="color: var(--risk-high);">64</span><span class="unit">SCORE</span></div>
+          </div>
+          <span class="level-tag" style="color: var(--risk-high); background: var(--risk-high-bg); border-color: var(--risk-high-border);">Alto</span>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center;">
+          <div class="pscore">
+            <svg viewBox="0 0 36 36"><circle class="track" cx="18" cy="18" r="15.9"/><circle class="fill" cx="18" cy="18" r="15.9" stroke-dasharray="100" stroke-dashoffset="58" style="stroke: var(--risk-medium);"/></svg>
+            <div class="pprog-circ-label"><span class="num" style="color: var(--risk-medium);">42</span><span class="unit">SCORE</span></div>
+          </div>
+          <span class="level-tag" style="color: var(--risk-medium); background: var(--risk-medium-bg); border-color: var(--risk-medium-border);">Médio</span>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center;">
+          <div class="pscore">
+            <svg viewBox="0 0 36 36"><circle class="track" cx="18" cy="18" r="15.9"/><circle class="fill" cx="18" cy="18" r="15.9" stroke-dasharray="100" stroke-dashoffset="82" style="stroke: var(--risk-stable);"/></svg>
+            <div class="pprog-circ-label"><span class="num" style="color: var(--risk-stable);">18</span><span class="unit">SCORE</span></div>
+          </div>
+          <span class="level-tag" style="color: var(--risk-stable); background: var(--risk-stable-bg); border-color: var(--risk-stable-border);">Monitorar</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Anatomia</h2>
+      <table class="tokens">
+        <thead><tr><th>Variante</th><th>Tamanho</th><th>Quando usar</th></tr></thead>
+        <tbody>
+          <tr><td>Linear SM</td><td class="mono">4px</td><td>Default — embutido em listas, cards</td></tr>
+          <tr><td>Linear MD</td><td class="mono">6px</td><td>Uploads, ingestões, cargas longas</td></tr>
+          <tr><td>Linear LG</td><td class="mono">8px</td><td>Onboarding, setup em primeiro plano</td></tr>
+          <tr><td>Indeterminate</td><td class="mono">qualquer</td><td>Tempo desconhecido, transições</td></tr>
+          <tr><td>Striped</td><td class="mono">MD/LG</td><td>Atividade longa com % conhecida</td></tr>
+          <tr><td>Segmented</td><td class="mono">4px</td><td>Wizards, etapas finitas</td></tr>
+          <tr><td>Circular SM</td><td class="mono">24px</td><td>Inline em botões, tabelas</td></tr>
+          <tr><td>Circular MD</td><td class="mono">40–64px</td><td>Métrica em card</td></tr>
+          <tr><td>Score Ring</td><td class="mono">144px</td><td>Header de página de crise</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><div class="rule-tag">DO</div><div>Sempre que houver progresso conhecido, prefira Progress sobre Spinner. É mais informativo.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Mostre <strong>porcentagem</strong> ou <strong>etapa atual</strong> ao lado do bar. Bar sem número falha em comunicar.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Use cor semântica quando o nível em si é a leitura — capacidade alta = warning, etc.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use Progress determinado quando você não sabe a duração — vai parecer travado em 80%. Use indeterminado.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não anime regressão. Progress só vai para frente. Se reverter, transicione para indeterminado.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não combine Progress + Spinner para mesma operação. Pick one.</div></div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

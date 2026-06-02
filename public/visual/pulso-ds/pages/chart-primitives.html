@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Chart Primitives</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* ── Chart shell ─────────────────────────────────── */
+.chart-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+@media (max-width: 900px) { .chart-grid { grid-template-columns: 1fr; } }
+.chart-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; }
+.chart-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.chart-name { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); font-weight: 600; }
+.chart-title { font-size: 15px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; margin-top: 4px; }
+.chart-meta { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); text-align: right; }
+.chart-svg { width: 100%; display: block; background: transparent; border-radius: var(--radius-sm); }
+.chart-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11.5px; color: var(--fg-secondary); padding-top: 12px; border-top: 1px solid var(--border-faint); }
+.chart-legend .item { display: inline-flex; align-items: center; gap: 6px; }
+.chart-legend .dot { width: 9px; height: 9px; border-radius: 50%; }
+.chart-note { font-size: 12px; color: var(--fg-muted); line-height: 1.5; padding-top: 12px; border-top: 1px solid var(--border-faint); }
+.chart-note code { font-family: var(--font-pulso-mono); font-size: 11.5px; background: var(--muted); padding: 1px 5px; border-radius: 3px; }
+
+/* ── Sparkline inline ─────────────────────────────── */
+.spark-row { display: flex; gap: 14px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border-faint); flex-wrap: wrap; }
+.spark-row:last-child { border-bottom: none; }
+.spark-label { font-size: 13px; color: var(--fg); min-width: 140px; flex-shrink: 0; }
+.spark-svg { height: 28px; width: 120px; }
+.spark-val { font-family: var(--font-pulso-mono); font-size: 13px; color: var(--fg-strong); font-weight: 600; min-width: 60px; text-align: right; font-variant-numeric: tabular-nums; }
+.spark-delta { font-family: var(--font-pulso-mono); font-size: 11.5px; padding: 2px 7px; border-radius: var(--radius-sm); font-weight: 600; }
+.spark-pos { background: var(--delta-success-bg); color: var(--delta-success); border: 1px solid var(--delta-success-border); }
+.spark-neg { background: var(--delta-error-bg); color: var(--delta-error); border: 1px solid var(--delta-error-border); }
+
+/* ── States ──────────────────────────────────────── */
+.states-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 900px) { .states-grid { grid-template-columns: 1fr; } }
+.state-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 160px; gap: 10px; text-align: center; }
+.state-kicker { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); align-self: flex-start; }
+.state-title { font-size: 14px; font-weight: 600; color: var(--fg-strong); }
+.state-msg { font-size: 12.5px; color: var(--fg-secondary); line-height: 1.5; max-width: 220px; }
+.state-skeleton { width: 100%; display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
+.state-skeleton .sk-bar { height: 8px; background: var(--muted); border-radius: 999px; }
+.state-skeleton .sk-bar:nth-child(1) { width: 100%; }
+.state-skeleton .sk-bar:nth-child(2) { width: 88%; }
+.state-skeleton .sk-bar:nth-child(3) { width: 72%; }
+.state-skeleton .sk-bar:nth-child(4) { width: 90%; }
+
+/* ── Spec rows ──────────────────────────────────── */
+.spec-row { display: grid; grid-template-columns: 180px 1fr; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--border-faint); align-items: baseline; }
+.spec-row:last-child { border-bottom: none; }
+.spec-key { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.06em; }
+.spec-val { font-size: 13px; color: var(--fg); line-height: 1.55; }
+.spec-val code { font-family: var(--font-pulso-mono); background: var(--muted); padding: 1px 6px; border-radius: 3px; font-size: 11.5px; }
+
+/* ── Code blocks ─────────────────────────────────── */
+.code-block { background: var(--muted); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; font-family: var(--font-pulso-mono); font-size: 12px; color: var(--fg-strong); white-space: pre; overflow-x: auto; line-height: 1.65; margin-top: 12px; }
+.code-block .c-tag { color: var(--primary); }
+.code-block .c-attr { color: var(--risk-attention-text); }
+.code-block .c-str { color: var(--success); }
+.code-block .c-com { color: var(--fg-muted); font-style: italic; }
+.code-block .c-num { color: var(--risk-monitor-text); }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+
+    <div class="page-kicker">Components · Charts · 01</div>
+    <h1 class="page-title">Chart primitives</h1>
+    <p class="page-sub">Seis tipos. Cada um envolvendo Recharts (ou Visx) com tokens Pulso aplicados automaticamente. Wrappers finos, ergonomia consistente, estados loading/error/empty internos. Sem isso, cada tela de monitoramento renderiza um chart diferente de uma biblioteca diferente.</p>
+
+    <!-- ── Princípio ────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Princípio</h2>
+      <div style="background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: var(--radius-md); padding: 22px 26px;">
+        <p style="font-size: 16px; color: var(--fg-strong); line-height: 1.6; font-weight: 500; max-width: 720px;">Chart é leitura, não decoração. Eixo legível antes de hue elegante. Operador identifica tendência em 1 segundo ou o chart falhou.</p>
+        <p style="font-size: 13.5px; color: var(--fg-secondary); margin-top: 12px; line-height: 1.6; max-width: 720px;">Padrões inegociáveis: tokens semânticos, grid pálido (não preto), labels mono tabular-nums, tooltip à distância de hover sem cobrir o ponto, animação que conta a história em vez de roubar o foco. Estados loading/empty/error dentro do componente — não responsabilidade do consumer.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         CHART PRIMITIVES
+    ═══════════════════════════════════════════════════════ -->
+    <section class="section">
+      <h2 class="section-h1">Os seis componentes</h2>
+      <p class="section-desc">Cobertura mínima e suficiente. Compostos (recipes) ficam na <a href="chart-recipes.html" style="color:var(--primary);">3.5</a>.</p>
+
+      <div class="chart-grid">
+
+        <!-- ── LineChart ───────────────────────────────── -->
+        <div class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-name">01 · LineChart</div>
+              <div class="chart-title">Score ao longo de 24h · PLS-012</div>
+            </div>
+            <div class="chart-meta">12 pts · 1h step</div>
+          </div>
+          <svg class="chart-svg" viewBox="0 0 400 180" aria-label="Score do caso ao longo das últimas 24 horas">
+            <!-- Grid -->
+            <g stroke="var(--chart-grid)" stroke-width="1">
+              <line x1="40" y1="20"  x2="380" y2="20"/>
+              <line x1="40" y1="60"  x2="380" y2="60"/>
+              <line x1="40" y1="100" x2="380" y2="100"/>
+              <line x1="40" y1="140" x2="380" y2="140"/>
+            </g>
+            <!-- Y labels -->
+            <g font-family="var(--font-pulso-mono)" font-size="9" fill="var(--fg-subtle)" text-anchor="end">
+              <text x="34" y="24">100</text>
+              <text x="34" y="64">75</text>
+              <text x="34" y="104">50</text>
+              <text x="34" y="144">25</text>
+            </g>
+            <!-- X labels -->
+            <g font-family="var(--font-pulso-mono)" font-size="9" fill="var(--fg-subtle)" text-anchor="middle">
+              <text x="40"  y="160">−24h</text>
+              <text x="125" y="160">−18h</text>
+              <text x="210" y="160">−12h</text>
+              <text x="295" y="160">−6h</text>
+              <text x="380" y="160">agora</text>
+            </g>
+            <!-- Threshold line at 75 -->
+            <line x1="40" y1="60" x2="380" y2="60" stroke="var(--risk-attention)" stroke-width="1" stroke-dasharray="3 4" opacity="0.6"/>
+            <text x="378" y="56" font-family="var(--font-pulso-mono)" font-size="9" fill="var(--risk-attention)" text-anchor="end">threshold 75</text>
+            <!-- Line path -->
+            <path d="M 40 124 L 96 116 L 152 120 L 208 108 L 264 92 L 295 78 L 322 70 L 350 56 L 380 48" fill="none" stroke="var(--chart-1)" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- Endpoint dot -->
+            <circle cx="380" cy="48" r="4" fill="var(--chart-1)" stroke="var(--card)" stroke-width="2"/>
+            <!-- Annotation -->
+            <g>
+              <line x1="380" y1="48" x2="370" y2="20" stroke="var(--fg-subtle)" stroke-width="0.5"/>
+              <text x="368" y="16" font-family="var(--font-pulso-mono)" font-size="10" fill="var(--fg-strong)" text-anchor="end" font-weight="600">67</text>
+            </g>
+          </svg>
+          <div class="chart-legend">
+            <span class="item"><span class="dot" style="background:var(--chart-1);"></span>Score</span>
+            <span class="item"><span class="dot" style="background:var(--risk-attention);border:1px dashed var(--risk-attention);background:transparent;"></span>Threshold escalonamento</span>
+          </div>
+          <div class="chart-note"><strong>Quando usar:</strong> uma série numérica ao longo do tempo · até 3 séries em comparação. <strong>Stroke:</strong> <code>2.25px</code> · <strong>linecap</strong> round. Endpoint sempre marcado.</div>
+        </div>
+
+        <!-- ── BarChart ────────────────────────────────── -->
+        <div class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-name">02 · BarChart</div>
+              <div class="chart-title">Menções por tier · últimas 6h</div>
+            </div>
+            <div class="chart-meta">3 categorias</div>
+          </div>
+          <svg class="chart-svg" viewBox="0 0 400 180" aria-label="Distribuição de menções por tier nas últimas 6 horas">
+            <g stroke="var(--chart-grid)" stroke-width="1">
+              <line x1="60" y1="20" x2="380" y2="20"/>
+              <line x1="60" y1="60" x2="380" y2="60"/>
+              <line x1="60" y1="100" x2="380" y2="100"/>
+              <line x1="60" y1="140" x2="380" y2="140"/>
+            </g>
+            <g font-family="var(--font-pulso-mono)" font-size="9" fill="var(--fg-subtle)" text-anchor="end">
+              <text x="54" y="24">120</text>
+              <text x="54" y="64">90</text>
+              <text x="54" y="104">60</text>
+              <text x="54" y="144">30</text>
+            </g>
+            <!-- Bars -->
+            <g>
+              <rect x="90"  y="36"  width="80" height="124" rx="3" fill="var(--chart-1)"/>
+              <rect x="180" y="78"  width="80" height="82"  rx="3" fill="var(--chart-2)"/>
+              <rect x="270" y="116" width="80" height="44"  rx="3" fill="var(--chart-3)"/>
+            </g>
+            <!-- Value labels on top of bars -->
+            <g font-family="var(--font-pulso-mono)" font-size="10" fill="var(--fg-strong)" text-anchor="middle" font-weight="600">
+              <text x="130" y="30">92</text>
+              <text x="220" y="72">61</text>
+              <text x="310" y="110">33</text>
+            </g>
+            <!-- X labels -->
+            <g font-family="var(--font-pulso-mono)" font-size="10" fill="var(--fg-secondary)" text-anchor="middle">
+              <text x="130" y="174">T1</text>
+              <text x="220" y="174">T2</text>
+              <text x="310" y="174">T3</text>
+            </g>
+          </svg>
+          <div class="chart-legend">
+            <span class="item"><span class="dot" style="background:var(--chart-1);"></span>T1 · referência</span>
+            <span class="item"><span class="dot" style="background:var(--chart-2);"></span>T2 · relevante</span>
+            <span class="item"><span class="dot" style="background:var(--chart-3);"></span>T3 · eco</span>
+          </div>
+          <div class="chart-note"><strong>Quando usar:</strong> comparar quantidades entre categorias (≤ 10). Vertical bars para tempo/ranking; horizontal para listas longas. <code>border-radius: 3</code> no topo.</div>
+        </div>
+
+        <!-- ── AreaChart ───────────────────────────────── -->
+        <div class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-name">03 · AreaChart</div>
+              <div class="chart-title">Volume de menções · 24h</div>
+            </div>
+            <div class="chart-meta">240 menções</div>
+          </div>
+          <svg class="chart-svg" viewBox="0 0 400 180" aria-label="Volume agregado de menções nas últimas 24 horas">
+            <defs>
+              <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="var(--chart-1)" stop-opacity="0.42"/>
+                <stop offset="100%" stop-color="var(--chart-1)" stop-opacity="0.02"/>
+              </linearGradient>
+            </defs>
+            <g stroke="var(--chart-grid)" stroke-width="1">
+              <line x1="40" y1="20" x2="380" y2="20"/>
+              <line x1="40" y1="60" x2="380" y2="60"/>
+              <line x1="40" y1="100" x2="380" y2="100"/>
+              <line x1="40" y1="140" x2="380" y2="140"/>
+            </g>
+            <g font-family="var(--font-pulso-mono)" font-size="9" fill="var(--fg-subtle)" text-anchor="end">
+              <text x="34" y="24">40</text>
+              <text x="34" y="64">30</text>
+              <text x="34" y="104">20</text>
+              <text x="34" y="144">10</text>
+            </g>
+            <g font-family="var(--font-pulso-mono)" font-size="9" fill="var(--fg-subtle)" text-anchor="middle">
+              <text x="40"  y="160">−24h</text>
+              <text x="125" y="160">−18h</text>
+              <text x="210" y="160">−12h</text>
+              <text x="295" y="160">−6h</text>
+              <text x="380" y="160">agora</text>
+            </g>
+            <!-- Filled area -->
+            <path d="M 40 138 C 70 132, 90 128, 125 124 C 160 120, 180 112, 210 100 C 240 88, 260 78, 295 66 C 320 60, 350 48, 380 40 L 380 150 L 40 150 Z" fill="url(#areaGrad)" stroke="none"/>
+            <!-- Stroke -->
+            <path d="M 40 138 C 70 132, 90 128, 125 124 C 160 120, 180 112, 210 100 C 240 88, 260 78, 295 66 C 320 60, 350 48, 380 40" fill="none" stroke="var(--chart-1)" stroke-width="2.25" stroke-linecap="round"/>
+          </svg>
+          <div class="chart-legend">
+            <span class="item"><span class="dot" style="background:var(--chart-1);"></span>Menções/hora</span>
+          </div>
+          <div class="chart-note"><strong>Quando usar:</strong> volume cumulativo · 1 série · ênfase em "quanto". Stack quando &gt; 1 série (com cuidado de leitura). Gradient soft + stroke matching cor.</div>
+        </div>
+
+        <!-- ── Sparkline ───────────────────────────────── -->
+        <div class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-name">04 · Sparkline</div>
+              <div class="chart-title">Mini-chart para metric cards</div>
+            </div>
+            <div class="chart-meta">120 × 28</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0;">
+            <div class="spark-row">
+              <span class="spark-label">PLS-012 · Score</span>
+              <svg class="spark-svg" viewBox="0 0 120 28">
+                <path d="M 0 20 L 10 18 L 20 16 L 30 17 L 40 15 L 50 12 L 60 13 L 70 10 L 80 8 L 90 6 L 100 5 L 110 4 L 120 3" fill="none" stroke="var(--chart-1)" stroke-width="1.8" stroke-linecap="round"/>
+                <circle cx="120" cy="3" r="2.5" fill="var(--chart-1)"/>
+              </svg>
+              <span class="spark-val">67</span>
+              <span class="spark-delta spark-neg">+12</span>
+            </div>
+            <div class="spark-row">
+              <span class="spark-label">PLS-014 · Score</span>
+              <svg class="spark-svg" viewBox="0 0 120 28">
+                <path d="M 0 8 L 10 9 L 20 10 L 30 12 L 40 14 L 50 13 L 60 15 L 70 18 L 80 17 L 90 19 L 100 20 L 110 21 L 120 22" fill="none" stroke="var(--chart-2)" stroke-width="1.8" stroke-linecap="round"/>
+                <circle cx="120" cy="22" r="2.5" fill="var(--chart-2)"/>
+              </svg>
+              <span class="spark-val">42</span>
+              <span class="spark-delta spark-pos">−8</span>
+            </div>
+            <div class="spark-row">
+              <span class="spark-label">PLS-018 · Score</span>
+              <svg class="spark-svg" viewBox="0 0 120 28">
+                <path d="M 0 14 L 10 13 L 20 14 L 30 14 L 40 13 L 50 14 L 60 14 L 70 13 L 80 14 L 90 14 L 100 13 L 110 14 L 120 14" fill="none" stroke="var(--chart-neutral)" stroke-width="1.8" stroke-linecap="round"/>
+                <circle cx="120" cy="14" r="2.5" fill="var(--chart-neutral)"/>
+              </svg>
+              <span class="spark-val">38</span>
+              <span class="spark-delta" style="background:var(--delta-neutral-bg);color:var(--delta-neutral);border:1px solid var(--delta-neutral-border);">+0</span>
+            </div>
+          </div>
+          <div class="chart-note"><strong>Quando usar:</strong> tendência embutida em texto ou metric card. Sem eixos, sem grid. Cor segue semântica do delta (queda do score = melhora em domínio de crise).</div>
+        </div>
+
+        <!-- ── Donut ───────────────────────────────────── -->
+        <div class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-name">05 · Donut</div>
+              <div class="chart-title">Sentimento · PLS-012</div>
+            </div>
+            <div class="chart-meta">240 menções</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:28px;justify-content:center;padding:8px 0;">
+            <svg width="160" height="160" viewBox="0 0 160 160" aria-label="Distribuição de sentimento das menções">
+              <!-- Donut segments using stroke-dasharray on circle r=60, circumference = 376.99 -->
+              <!-- Negative 62% = 233.73 -->
+              <circle cx="80" cy="80" r="60" fill="none" stroke="var(--chart-negative)" stroke-width="22" stroke-dasharray="233.73 376.99" transform="rotate(-90 80 80)"/>
+              <!-- Neutral 28% = 105.56, start offset = -233.73 -->
+              <circle cx="80" cy="80" r="60" fill="none" stroke="var(--chart-neutral)" stroke-width="22" stroke-dasharray="105.56 376.99" stroke-dashoffset="-233.73" transform="rotate(-90 80 80)"/>
+              <!-- Positive 10% = 37.7, start offset = -339.29 -->
+              <circle cx="80" cy="80" r="60" fill="none" stroke="var(--chart-positive)" stroke-width="22" stroke-dasharray="37.70 376.99" stroke-dashoffset="-339.29" transform="rotate(-90 80 80)"/>
+              <!-- Center label -->
+              <text x="80" y="76" font-family="var(--font-pulso-mono)" font-size="22" fill="var(--fg-strong)" text-anchor="middle" font-weight="700">62%</text>
+              <text x="80" y="94" font-family="var(--font-pulso-mono)" font-size="9" fill="var(--fg-subtle)" text-anchor="middle" letter-spacing="0.08em">NEGATIVO</text>
+            </svg>
+            <div style="display:flex;flex-direction:column;gap:8px;font-size:12.5px;">
+              <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;background:var(--chart-negative);border-radius:2px;"></span><span style="color:var(--fg);">Negativo</span><span style="font-family:var(--font-pulso-mono);color:var(--fg-strong);font-weight:600;margin-left:auto;">149</span></div>
+              <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;background:var(--chart-neutral);border-radius:2px;"></span><span style="color:var(--fg);">Neutro</span><span style="font-family:var(--font-pulso-mono);color:var(--fg-strong);font-weight:600;margin-left:auto;">67</span></div>
+              <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;background:var(--chart-positive);border-radius:2px;"></span><span style="color:var(--fg);">Positivo</span><span style="font-family:var(--font-pulso-mono);color:var(--fg-strong);font-weight:600;margin-left:auto;">24</span></div>
+            </div>
+          </div>
+          <div class="chart-note"><strong>Quando usar:</strong> proporção entre 3–5 categorias mutualmente exclusivas. Donut (não pie) — espaço central para a métrica primária. Acima de 5 fatias, use BarChart horizontal.</div>
+        </div>
+
+        <!-- ── Heatmap ─────────────────────────────────── -->
+        <div class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-name">06 · Heatmap</div>
+              <div class="chart-title">Cobertura por hora × dia · semana</div>
+            </div>
+            <div class="chart-meta">7 × 24</div>
+          </div>
+          <svg class="chart-svg" viewBox="0 0 400 180" aria-label="Heatmap de menções por hora e dia da semana">
+            <g font-family="var(--font-pulso-mono)" font-size="8" fill="var(--fg-subtle)" text-anchor="end">
+              <text x="32" y="29">Seg</text>
+              <text x="32" y="49">Ter</text>
+              <text x="32" y="69">Qua</text>
+              <text x="32" y="89">Qui</text>
+              <text x="32" y="109">Sex</text>
+              <text x="32" y="129">Sáb</text>
+              <text x="32" y="149">Dom</text>
+            </g>
+            <g font-family="var(--font-pulso-mono)" font-size="8" fill="var(--fg-subtle)" text-anchor="middle">
+              <text x="50"  y="166">0h</text>
+              <text x="113" y="166">6h</text>
+              <text x="176" y="166">12h</text>
+              <text x="239" y="166">18h</text>
+              <text x="302" y="166">23h</text>
+            </g>
+            <!-- Heatmap cells: 24 cols × 7 rows -->
+            <g id="hmcells"></g>
+          </svg>
+          <div class="chart-legend">
+            <span style="font-size:11.5px;color:var(--fg-secondary);">Intensidade</span>
+            <span class="item"><span class="dot" style="background:color-mix(in oklab, var(--chart-1) 8%, var(--card));border:1px solid var(--border-faint);border-radius:2px;"></span>baixo</span>
+            <span class="item"><span class="dot" style="background:color-mix(in oklab, var(--chart-1) 36%, var(--card));border-radius:2px;"></span>médio</span>
+            <span class="item"><span class="dot" style="background:color-mix(in oklab, var(--chart-1) 72%, var(--card));border-radius:2px;"></span>alto</span>
+            <span class="item"><span class="dot" style="background:var(--chart-1);border-radius:2px;"></span>pico</span>
+          </div>
+          <div class="chart-note"><strong>Quando usar:</strong> 2 dimensões discretas + 1 contínua (intensidade). Cells 9–12px com gap 2px. Escala sequencial single-hue da cor principal.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── API canônica ─────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">API canônica</h2>
+      <p class="section-desc">Todos os 6 componentes compartilham props · ergonomia idêntica reduz drift entre telas.</p>
+
+      <pre class="code-block"><span class="c-com">// @pulso/charts</span>
+<span class="c-com">// Props compartilhadas por todos os 6 componentes</span>
+<span class="c-attr">type</span> <span class="c-tag">CommonChartProps</span> = {
+  <span class="c-attr">data</span>: <span class="c-tag">DataPoint</span>[];
+  <span class="c-attr">loading</span>?: boolean;          <span class="c-com">// renderiza skeleton matching</span>
+  <span class="c-attr">error</span>?: <span class="c-tag">Error</span>;             <span class="c-com">// renderiza state de erro</span>
+  <span class="c-attr">emptyMessage</span>?: string;      <span class="c-com">// custom empty copy</span>
+  <span class="c-attr">tooltip</span>?: <span class="c-tag">TooltipConfig</span>;     <span class="c-com">// shape · format · trigger · ver 3.3</span>
+  <span class="c-attr">legend</span>?: <span class="c-str">'top'</span> | <span class="c-str">'bottom'</span> | <span class="c-str">'right'</span> | <span class="c-str">false</span>;
+  <span class="c-attr">animation</span>?: <span class="c-tag">'morph'</span> | <span class="c-tag">'append'</span> | <span class="c-tag">'none'</span>;
+  <span class="c-attr">'aria-label'</span>: string;       <span class="c-com">// obrigatório · alt-text do chart</span>
+};
+
+<span class="c-com">// LineChart</span>
+&lt;<span class="c-tag">LineChart</span>
+  <span class="c-attr">data</span>={scoreSeries}
+  <span class="c-attr">xKey</span>=<span class="c-str">"timestamp"</span>
+  <span class="c-attr">yKey</span>=<span class="c-str">"score"</span>
+  <span class="c-attr">series</span>={[{ name: <span class="c-str">"PLS-012"</span>, color: <span class="c-str">"chart-1"</span> }]}
+  <span class="c-attr">threshold</span>={{ value: <span class="c-num">75</span>, label: <span class="c-str">"escalonamento"</span> }}
+  <span class="c-attr">aria-label</span>=<span class="c-str">"Score de PLS-012 nas últimas 24h"</span>
+/&gt;
+
+<span class="c-com">// Sparkline · sem eixos, sem grid, sem legend</span>
+&lt;<span class="c-tag">Sparkline</span> <span class="c-attr">data</span>={values} <span class="c-attr">color</span>=<span class="c-str">"chart-1"</span> <span class="c-attr">width</span>={<span class="c-num">120</span>} <span class="c-attr">height</span>={<span class="c-num">28</span>} /&gt;
+
+<span class="c-com">// Heatmap · escala sequencial automática a partir da cor base</span>
+&lt;<span class="c-tag">Heatmap</span>
+  <span class="c-attr">data</span>={cells}
+  <span class="c-attr">xAxis</span>={hours}
+  <span class="c-attr">yAxis</span>={days}
+  <span class="c-attr">colorScale</span>={[<span class="c-str">"chart-fill-soft"</span>, <span class="c-str">"chart-1"</span>]}
+  <span class="c-attr">aria-label</span>=<span class="c-str">"Cobertura por hora e dia"</span>
+/&gt;</pre>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         STATES
+    ═══════════════════════════════════════════════════════ -->
+    <section class="section">
+      <h2 class="section-h1">Estados · loading · empty · error</h2>
+      <p class="section-desc">Cada primitive entrega os três estados internamente. Consumer passa <code>loading</code>, <code>error</code> ou data vazio — chart resolve o resto.</p>
+
+      <div class="states-grid">
+        <div class="state-card">
+          <div class="state-kicker">Loading</div>
+          <div class="state-skeleton">
+            <div class="sk-bar"></div>
+            <div class="sk-bar"></div>
+            <div class="sk-bar"></div>
+            <div class="sk-bar"></div>
+          </div>
+          <div class="state-msg" style="margin-top:6px;">Skeleton matching · barras horizontais respeitando reduced-motion</div>
+        </div>
+        <div class="state-card">
+          <div class="state-kicker">Empty</div>
+          <div style="width:64px;height:64px;border-radius:50%;background:var(--muted);display:flex;align-items:center;justify-content:center;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--fg-subtle)" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>
+          </div>
+          <div class="state-title">Sem dados na janela</div>
+          <div class="state-msg">Tente afrouxar o intervalo ou aguardar próxima varredura do radar (≈ 8 min).</div>
+        </div>
+        <div class="state-card">
+          <div class="state-kicker">Error</div>
+          <div style="width:64px;height:64px;border-radius:50%;background:var(--destructive-bg);display:flex;align-items:center;justify-content:center;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--destructive)" stroke-width="1.6"><path d="M12 8v5M12 16v.5M12 3l10 18H2z"/></svg>
+          </div>
+          <div class="state-title">Falha ao carregar série</div>
+          <div class="state-msg">Conexão perdida · retentando em 3s. <code style="font-family:var(--font-pulso-mono);background:var(--muted);padding:1px 5px;border-radius:3px;font-size:11px;">ref: chart-req-742</code></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         CONTRATOS COMUNS
+    ═══════════════════════════════════════════════════════ -->
+    <section class="section">
+      <h2 class="section-h1">Contratos comuns</h2>
+      <p class="section-desc">Decisões que valem para os 6 componentes.</p>
+
+      <div class="spec-row">
+        <div class="spec-key">Tipografia</div>
+        <div class="spec-val">Labels e ticks em <code>var(--font-pulso-mono)</code> · 9–11px · <code>tabular-nums</code> para alinhamento. Nunca sans em valor numérico.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Grid</div>
+        <div class="spec-val"><code>--chart-grid</code> · linhas horizontais apenas (verticais só em heatmap). Alpha baixo (6%) — sugere, não compete.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Cores</div>
+        <div class="spec-val">Paleta categórica (<code>chart-1..8</code>) ou semântica (<code>chart-positive/negative/neutral/attention/critical</code>). Detalhe em <a href="data-color.html" style="color:var(--primary);">3.2 Data Color</a>.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Stroke</div>
+        <div class="spec-val">Line e área: <code>2.25px</code> · round caps. Hairlines (separadores no grid): <code>1px</code>. Endpoint do line: sempre marcado.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Padding</div>
+        <div class="spec-val">Eixo Y label width: 40px · eixo X label height: 20px · padding interno: 12–16px. Charts pequenos podem reduzir; sparkline elimina.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">A11y</div>
+        <div class="spec-val"><code>aria-label</code> obrigatório · alternativa de tabela disponível via <code>describedBy</code> · ver <a href="accessibility-screen-readers.html" style="color:var(--primary);">1.4 Screen Readers</a>.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Tooltip e legend</div>
+        <div class="spec-val">Componentes auxiliares dedicados · padrão único · ver <a href="chart-axes.html" style="color:var(--primary);">3.3 Axes &amp; auxiliaries</a>.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">Animação</div>
+        <div class="spec-val">Detalhe em <a href="chart-realtime.html" style="color:var(--primary);">3.4 Real-time motion</a>. Reduced-motion: ver <a href="accessibility-reduced-motion.html" style="color:var(--primary);">1.5</a>.</div>
+      </div>
+    </section>
+
+    <!-- ── Regras ─────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Faça</div>
+          <ul>
+            <li>Use os 6 primitives. Necessidade nova exige RFC, não fork.</li>
+            <li>Passe <code>aria-label</code> em todo chart. Sem isso, falha o build.</li>
+            <li>Use o componente apropriado: linha para tempo, barra para categoria, donut para 3–5 fatias, heatmap para 2D categórica.</li>
+            <li>Confie nos estados internos (<code>loading</code>, <code>error</code>, vazio) — não envolva o chart em wrapper próprio.</li>
+            <li>Ticks numéricos sempre em mono tabular-nums.</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Evite</div>
+          <ul>
+            <li>Não invente um chart custom porque o existente "não fica bem". Mude o dado, não o componente.</li>
+            <li>Não use Pie acima de 5 fatias. Vire BarChart horizontal.</li>
+            <li>Não use linhas verticais no grid (exceto heatmap). Polui leitura.</li>
+            <li>Não escolha cores fora da paleta. Categórica <code>chart-1..8</code> ou semântica <code>chart-positive</code> etc.</li>
+            <li>Não anime tudo. Update real-time tem padrão próprio (3.4).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Status ─────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Status da iniciativa · 3.1</h2>
+      <table class="tokens">
+        <thead><tr><th>Deliverable</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>6 componentes · LineChart · BarChart · AreaChart · Sparkline · Donut · Heatmap</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>API canônica compartilhada · <code>@pulso/charts</code></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Estados internos · loading · empty · error</td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Página <strong>Components · Charts</strong></td><td><span style="color:var(--success);font-family:var(--font-pulso-mono);font-size:11px;">✓ entregue</span></td></tr>
+          <tr><td>Migração de charts do Crisis Monitor para wrappers Pulso</td><td><span style="color:var(--warning);font-family:var(--font-pulso-mono);font-size:11px;">⏳ PLS-CM-CHART-051</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+
+<script>
+// Generate heatmap cells programmatically
+(function(){
+  const cells = document.getElementById('hmcells');
+  if (!cells) return;
+  const cols = 24, rows = 7;
+  const cellW = 13, cellH = 14, gap = 2;
+  const x0 = 40, y0 = 20;
+  // Realistic-ish weekly pattern: weekday hours peak around 9–18, lower at night, weekend quieter
+  function intensity(d, h){
+    const weekday = d < 5;
+    const peakHour = h >= 9 && h <= 18;
+    const base = weekday ? (peakHour ? 0.55 + Math.random()*0.4 : 0.1 + Math.random()*0.25) : (peakHour ? 0.25 + Math.random()*0.3 : 0.05 + Math.random()*0.18);
+    // Add a "crisis spike" on Wednesday 14–16
+    if (d === 2 && h >= 14 && h <= 16) return Math.min(1, base + 0.4);
+    return base;
+  }
+  for (let d = 0; d < rows; d++) {
+    for (let h = 0; h < cols; h++) {
+      const i = intensity(d, h);
+      const x = x0 + h * (cellW + gap);
+      const y = y0 + d * (cellH + gap);
+      const pct = Math.round(8 + i * 92); // 8% to 100%
+      cells.insertAdjacentHTML('beforeend',
+        `<rect x="${x}" y="${y}" width="${cellW}" height="${cellH}" rx="2" fill="color-mix(in oklab, var(--chart-1) ${pct}%, var(--card))"/>`);
+    }
+  }
+})();
+</script>
+<script src="../_nav.js"></script>
+</body>
+</html>

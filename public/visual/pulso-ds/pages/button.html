@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Button</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* ── Pulso Button (canonical) ─────────────────────────────── */
+.pb {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px;
+  font-family: var(--font-pulso-sans);
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: -0.005em;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  height: var(--control-h-default);
+  padding: 0 14px;
+  white-space: nowrap;
+  user-select: none;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-easing),
+    border-color var(--motion-duration-fast) var(--motion-easing),
+    color var(--motion-duration-fast) var(--motion-easing),
+    transform var(--motion-duration-fast) var(--motion-easing);
+}
+.pb:focus-visible { outline: var(--ring-width) solid var(--ring); outline-offset: var(--ring-offset); }
+.pb[disabled], .pb.disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Sizes */
+.pb-sm { height: var(--control-h-compact); padding: 0 10px; font-size: 12px; }
+.pb-md { height: var(--control-h-default); padding: 0 14px; font-size: 13px; }
+.pb-lg { height: var(--control-h-prominent); padding: 0 16px; font-size: 13.5px; }
+.pb-hero { height: var(--control-h-hero); padding: 0 22px; font-size: 14px; font-weight: 600; }
+
+/* Variants */
+.pb-primary { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+.pb-primary:hover:not([disabled]) { background: var(--primary-hover); border-color: var(--primary-hover); }
+.pb-primary:active:not([disabled]) { background: var(--primary-pressed); border-color: var(--primary-pressed); transform: translateY(0.5px); }
+
+.pb-secondary { background: var(--card); color: var(--fg); border-color: var(--border-strong); }
+.pb-secondary:hover:not([disabled]) { background: var(--muted); border-color: var(--border-strong); }
+.pb-secondary:active:not([disabled]) { background: var(--surface-2); }
+
+.pb-ghost { background: transparent; color: var(--fg-muted); border-color: transparent; }
+.pb-ghost:hover:not([disabled]) { background: var(--muted); color: var(--fg); }
+
+.pb-link { background: transparent; color: var(--primary); border-color: transparent; padding-left: 0; padding-right: 0; height: auto; }
+.pb-link:hover:not([disabled]) { color: var(--primary-hover); text-decoration: underline; text-underline-offset: 3px; }
+
+.pb-destructive { background: var(--destructive); color: #fff; border-color: var(--destructive); }
+.pb-destructive:hover:not([disabled]) { background: color-mix(in oklab, var(--destructive) 90%, black); }
+
+.pb-outline-destructive { background: transparent; color: var(--destructive); border-color: var(--destructive-border); }
+.pb-outline-destructive:hover:not([disabled]) { background: var(--destructive-bg); }
+
+/* Icon-only */
+.pb-icon { padding: 0; width: var(--control-h-default); }
+.pb-icon.pb-sm { width: var(--control-h-compact); }
+.pb-icon.pb-lg { width: var(--control-h-prominent); }
+
+/* Spec helpers */
+.spec-grid { display: grid; grid-template-columns: 160px 1fr; gap: 16px 24px; align-items: center; padding: 16px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); margin-bottom: 8px; }
+.spec-label { font-family: var(--font-pulso-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); }
+.spec-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+.svg-i { width: 14px; height: 14px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Atoms · Onda 1 · 01</div>
+    <h1 class="page-title">Button</h1>
+    <p class="page-sub">Cinco variantes, quatro tamanhos. Primary só uma vez por superfície — é a ação mais importante daquela tela. Ghost para tudo que é navegação, secondary para o resto.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Variantes</h2>
+      <p class="section-desc">Cada variante tem um papel único. <strong>Não duplique</strong> primary numa mesma área — quebra a hierarquia visual.</p>
+      <div class="spec-grid">
+        <div class="spec-label">Primary</div>
+        <div class="spec-row">
+          <button class="pb pb-primary">Declarar crise</button>
+          <button class="pb pb-primary">Continuar
+            <svg class="svg-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+          <button class="pb pb-primary" disabled>Disabled</button>
+        </div>
+        <div class="spec-label">Secondary</div>
+        <div class="spec-row">
+          <button class="pb pb-secondary">Exportar</button>
+          <button class="pb pb-secondary">
+            <svg class="svg-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            Adicionar fonte
+          </button>
+          <button class="pb pb-secondary" disabled>Disabled</button>
+        </div>
+        <div class="spec-label">Ghost</div>
+        <div class="spec-row">
+          <button class="pb pb-ghost">Cancelar</button>
+          <button class="pb pb-ghost">
+            <svg class="svg-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
+            Última hora
+          </button>
+        </div>
+        <div class="spec-label">Link</div>
+        <div class="spec-row">
+          <button class="pb pb-link">Ver todos os casos</button>
+          <button class="pb pb-link">Documentação</button>
+        </div>
+        <div class="spec-label">Destructive</div>
+        <div class="spec-row">
+          <button class="pb pb-destructive">Encerrar caso</button>
+          <button class="pb pb-outline-destructive">Excluir fonte</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Tamanhos</h2>
+      <p class="section-desc">Default em quase tudo. Hero apenas em CTA principal de landing. Compact em toolbars densas e tabelas.</p>
+      <div class="preview-row">
+        <button class="pb pb-primary pb-sm">Compact 28</button>
+        <button class="pb pb-primary pb-md">Default 32</button>
+        <button class="pb pb-primary pb-lg">Prominent 36</button>
+        <button class="pb pb-primary pb-hero">Solicitar acesso</button>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Com ícone</h2>
+      <p class="section-desc">Ícone Lucide à esquerda do label, gap 6px. Ícone-only deve ter <code style="font-family: var(--font-pulso-mono); font-size: 11px; background: var(--muted); padding: 1px 6px;">aria-label</code>.</p>
+      <div class="preview-row">
+        <button class="pb pb-secondary pb-icon" aria-label="Atualizar">
+          <svg class="svg-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-3-6.7L21 8M21 3v5h-5"/></svg>
+        </button>
+        <button class="pb pb-secondary pb-icon" aria-label="Mais opções">
+          <svg class="svg-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+        </button>
+        <button class="pb pb-ghost pb-icon" aria-label="Buscar">
+          <svg class="svg-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </button>
+        <button class="pb pb-primary">
+          <svg class="svg-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Novo monitoramento
+        </button>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Estados</h2>
+      <p class="section-desc">Hover, active, focus, disabled. Loading com spinner inline.</p>
+      <div class="preview-row">
+        <button class="pb pb-primary">Default</button>
+        <button class="pb pb-primary" style="background: var(--primary-hover); border-color: var(--primary-hover);">Hover</button>
+        <button class="pb pb-primary" style="background: var(--primary-pressed); border-color: var(--primary-pressed);">Active</button>
+        <button class="pb pb-primary" style="outline: var(--ring-width) solid var(--ring); outline-offset: var(--ring-offset);">Focus</button>
+        <button class="pb pb-primary" disabled>Disabled</button>
+        <button class="pb pb-primary">
+          <svg class="svg-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="animation: spin 0.9s linear infinite;"><path d="M21 12a9 9 0 11-3-6.7" stroke-linecap="round"/></svg>
+          Carregando
+        </button>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Anatomia</h2>
+      <p class="section-desc">Especificação canônica. Toda variant usa a mesma escala.</p>
+      <table class="tokens">
+        <thead><tr><th>Token</th><th>Compact</th><th>Default</th><th>Prominent</th><th>Hero</th></tr></thead>
+        <tbody>
+          <tr><td>Altura</td><td class="mono">28px</td><td class="mono">32px</td><td class="mono">36px</td><td class="mono">44px</td></tr>
+          <tr><td>Padding-x</td><td class="mono">10px</td><td class="mono">14px</td><td class="mono">16px</td><td class="mono">22px</td></tr>
+          <tr><td>Font-size</td><td class="mono">12px</td><td class="mono">13px</td><td class="mono">13.5px</td><td class="mono">14px</td></tr>
+          <tr><td>Font-weight</td><td class="mono">500</td><td class="mono">500</td><td class="mono">500</td><td class="mono">600</td></tr>
+          <tr><td>Border-radius</td><td class="mono">--radius-sm · 6px</td><td class="mono">--radius-sm · 6px</td><td class="mono">--radius-sm · 6px</td><td class="mono">--radius-sm · 6px</td></tr>
+          <tr><td>Gap (com ícone)</td><td class="mono">6px</td><td class="mono">6px</td><td class="mono">6px</td><td class="mono">8px</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><div class="rule-tag">DO</div><div>Uma única ação primary por superfície. Ela é a ação mais importante daquela tela.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Use <strong>destructive</strong> apenas para ações irreversíveis — encerrar caso, excluir fonte, revogar acesso.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Em modais de confirmação, primary é a confirmação; ghost é o cancelar.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use primary para "Cancelar" ou navegação. Cancelar é ghost; navegar é secondary ou link.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não duplique primary numa toolbar. Se há duas ações importantes, escolha uma — a outra vira secondary.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use destructive para "Limpar filtros" — isso é ghost.</div></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Como usar</h2>
+      <pre class="code">&lt;button class="pb pb-primary"&gt;Declarar crise&lt;/button&gt;
+&lt;button class="pb pb-secondary pb-sm"&gt;Exportar&lt;/button&gt;
+&lt;button class="pb pb-ghost pb-icon" aria-label="Atualizar"&gt;
+  &lt;RefreshIcon size={14} /&gt;
+&lt;/button&gt;</pre>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+<script src="../_nav.js"></script>
+</body>
+</html>

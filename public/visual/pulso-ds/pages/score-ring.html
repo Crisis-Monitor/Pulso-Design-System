@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Score Ring</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.sr {
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-direction: column;
+  font-family: var(--font-pulso-mono);
+}
+.sr svg { display: block; transform: rotate(-90deg); }
+.sr-track { stroke: var(--border); }
+.sr-fill { transition: stroke-dashoffset 600ms var(--motion-easing); }
+.sr-num {
+  position: absolute;
+  display: flex; flex-direction: column; align-items: center;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.sr-value { font-weight: 700; letter-spacing: -0.02em; color: var(--fg-strong); }
+.sr-label {
+  font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--fg-subtle); margin-top: 4px;
+}
+
+/* Sizes */
+.sr-xs { width: 28px; height: 28px; }
+.sr-xs .sr-value { font-size: 11px; }
+.sr-xs .sr-label { display: none; }
+
+.sr-sm { width: 44px; height: 44px; }
+.sr-sm .sr-value { font-size: 14px; }
+.sr-sm .sr-label { display: none; }
+
+.sr-md { width: 72px; height: 72px; }
+.sr-md .sr-value { font-size: 22px; }
+.sr-md .sr-label { font-size: 9px; }
+
+.sr-lg { width: 120px; height: 120px; }
+.sr-lg .sr-value { font-size: 36px; }
+.sr-lg .sr-label { font-size: 10px; margin-top: 6px; }
+
+.sr-xl { width: 180px; height: 180px; }
+.sr-xl .sr-value { font-size: 56px; }
+.sr-xl .sr-label { font-size: 11px; margin-top: 8px; }
+
+/* Color by band */
+.sr.b-monitor  .sr-fill { stroke: var(--risk-monitor); }
+.sr.b-medium   .sr-fill { stroke: var(--risk-medium); }
+.sr.b-high     .sr-fill { stroke: var(--risk-high); }
+.sr.b-critical .sr-fill { stroke: var(--risk-critical); }
+
+.sr.b-monitor  .sr-value { color: var(--risk-monitor); }
+.sr.b-medium   .sr-value { color: var(--risk-medium); }
+.sr.b-high     .sr-value { color: var(--risk-high); }
+.sr.b-critical .sr-value { color: var(--risk-critical); }
+
+/* Demo grid */
+.size-row {
+  display: flex; gap: 32px; align-items: center;
+  padding: 24px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.size-row .lab { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); margin-top: 8px; text-align: center; }
+.size-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+
+/* Bands legend */
+.bands {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.band {
+  padding: 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8px;
+}
+.band-name {
+  font-family: var(--font-pulso-mono); font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-weight: 600;
+}
+.band-range {
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  color: var(--fg-muted); font-variant-numeric: tabular-nums;
+}
+.band-desc { font-size: 12px; color: var(--fg-secondary); text-align: center; line-height: 1.4; }
+
+/* Stack — many rings as they would appear in a list */
+.list-stack {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.list-stack-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  border-right: 1px solid var(--border-faint);
+  border-bottom: 1px solid var(--border-faint);
+}
+.list-stack-item .info { font-size: 12px; line-height: 1.35; }
+.list-stack-item .src { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.06em; }
+.list-stack-item .name { color: var(--fg-strong); font-weight: 500; }
+
+/* Hero example */
+.hero {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 32px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 32px;
+  align-items: center;
+}
+.hero-side { display: flex; flex-direction: column; gap: 8px; }
+.hero-kicker { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); }
+.hero-title { font-size: 22px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.01em; line-height: 1.25; }
+.hero-trend { font-family: var(--font-pulso-mono); font-size: 12px; color: var(--risk-critical); font-weight: 500; }
+.hero-trend .arr { display: inline-block; transform: translateY(-1px); }
+.hero-meta {
+  display: flex; gap: 24px; margin-top: 8px;
+  font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted);
+}
+.hero-meta b { color: var(--fg-strong); font-weight: 600; display: block; font-size: 16px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Patterns · Crisis Domain</div>
+    <h1 class="page-title">Score Ring</h1>
+    <p class="page-sub">Indicador circular para o Pulso Score (0-100) — métrica composta de risco reputacional. Cor da banda comunica nível antes do número. Cinco tamanhos para hierarquia: do hero da Crisis Room ao chip 28px no rodapé de uma tabela.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Bandas</h2>
+      <p class="section-desc">Score 0-100 mapeado para 4 bandas. A cor do anel sempre reflete a banda atual — mesmo padrão usado em rails de cards, badges e timelines.</p>
+      <div class="bands">
+        <div class="band">
+          <div class="sr sr-md b-monitor">
+            <svg viewBox="0 0 80 80" width="72" height="72">
+              <circle class="sr-track" cx="40" cy="40" r="33" fill="none" stroke-width="6"/>
+              <circle class="sr-fill" cx="40" cy="40" r="33" fill="none" stroke-width="6" stroke-linecap="round"
+                stroke-dasharray="207.34" stroke-dashoffset="161.72"/>
+            </svg>
+            <div class="sr-num"><span class="sr-value">22</span><span class="sr-label">Pulso</span></div>
+          </div>
+          <div class="band-name" style="color: var(--risk-monitor)">Monitorar</div>
+          <div class="band-range">0 — 39</div>
+          <div class="band-desc">Volume normal, sentimento neutro/positivo. Acompanhe.</div>
+        </div>
+        <div class="band">
+          <div class="sr sr-md b-medium">
+            <svg viewBox="0 0 80 80" width="72" height="72">
+              <circle class="sr-track" cx="40" cy="40" r="33" fill="none" stroke-width="6"/>
+              <circle class="sr-fill" cx="40" cy="40" r="33" fill="none" stroke-width="6" stroke-linecap="round"
+                stroke-dasharray="207.34" stroke-dashoffset="106.74"/>
+            </svg>
+            <div class="sr-num"><span class="sr-value">48</span><span class="sr-label">Pulso</span></div>
+          </div>
+          <div class="band-name" style="color: var(--risk-medium)">Médio</div>
+          <div class="band-range">40 — 59</div>
+          <div class="band-desc">Sinais de instabilidade. Atenção da equipe.</div>
+        </div>
+        <div class="band">
+          <div class="sr sr-md b-high">
+            <svg viewBox="0 0 80 80" width="72" height="72">
+              <circle class="sr-track" cx="40" cy="40" r="33" fill="none" stroke-width="6"/>
+              <circle class="sr-fill" cx="40" cy="40" r="33" fill="none" stroke-width="6" stroke-linecap="round"
+                stroke-dasharray="207.34" stroke-dashoffset="68.42"/>
+            </svg>
+            <div class="sr-num"><span class="sr-value">67</span><span class="sr-label">Pulso</span></div>
+          </div>
+          <div class="band-name" style="color: var(--risk-high)">Alto</div>
+          <div class="band-range">60 — 79</div>
+          <div class="band-desc">Crise iminente. Ação imediata recomendada.</div>
+        </div>
+        <div class="band">
+          <div class="sr sr-md b-critical">
+            <svg viewBox="0 0 80 80" width="72" height="72">
+              <circle class="sr-track" cx="40" cy="40" r="33" fill="none" stroke-width="6"/>
+              <circle class="sr-fill" cx="40" cy="40" r="33" fill="none" stroke-width="6" stroke-linecap="round"
+                stroke-dasharray="207.34" stroke-dashoffset="22.81"/>
+            </svg>
+            <div class="sr-num"><span class="sr-value">89</span><span class="sr-label">Pulso</span></div>
+          </div>
+          <div class="band-name" style="color: var(--risk-critical)">Crítico</div>
+          <div class="band-range">80 — 100</div>
+          <div class="band-desc">Crise ativa. Sala de guerra.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Tamanhos</h2>
+      <p class="section-desc">Cinco tamanhos discretos: <code>xs</code> (28px) para chips em tabelas · <code>sm</code> (44px) para listas · <code>md</code> (72px) para cards · <code>lg</code> (120px) para painéis · <code>xl</code> (180px) para hero da Crisis Room.</p>
+
+      <div class="size-row">
+        <div class="size-cell">
+          <div class="sr sr-xs b-critical">
+            <svg viewBox="0 0 28 28" width="28" height="28">
+              <circle class="sr-track" cx="14" cy="14" r="11" fill="none" stroke-width="2.5"/>
+              <circle class="sr-fill" cx="14" cy="14" r="11" fill="none" stroke-width="2.5" stroke-linecap="round"
+                stroke-dasharray="69.12" stroke-dashoffset="7.6"/>
+            </svg>
+            <div class="sr-num"><span class="sr-value">89</span></div>
+          </div>
+          <div class="lab">xs · 28</div>
+        </div>
+        <div class="size-cell">
+          <div class="sr sr-sm b-high">
+            <svg viewBox="0 0 44 44" width="44" height="44">
+              <circle class="sr-track" cx="22" cy="22" r="18" fill="none" stroke-width="3.5"/>
+              <circle class="sr-fill" cx="22" cy="22" r="18" fill="none" stroke-width="3.5" stroke-linecap="round"
+                stroke-dasharray="113.10" stroke-dashoffset="37.32"/>
+            </svg>
+            <div class="sr-num"><span class="sr-value">67</span></div>
+          </div>
+          <div class="lab">sm · 44</div>
+        </div>
+        <div class="size-cell">
+          <div class="sr sr-md b-medium">
+            <svg viewBox="0 0 72 72" width="72" height="72">
+              <circle class="sr-track" cx="36" cy="36" r="29" fill="none" stroke-width="5"/>
+              <circle class="sr-fill" cx="36" cy="36" r="29" fill="none" stroke-width="5" stroke-linecap="round"
+                stroke-dasharray="182.21" stroke-dashoffset="93.93"/>
+            </svg>
+            <div class="sr-num"><span class="sr-value">48</span><span class="sr-label">Pulso</span></div>
+          </div>
+          <div class="lab">md · 72</div>
+        </div>
+        <div class="size-cell">
+          <div class="sr sr-lg b-critical">
+            <svg viewBox="0 0 120 120" width="120" height="120">
+              <circle class="sr-track" cx="60" cy="60" r="50" fill="none" stroke-width="8"/>
+              <circle class="sr-fill" cx="60" cy="60" r="50" fill="none" stroke-width="8" stroke-linecap="round"
+                stroke-dasharray="314.16" stroke-dashoffset="34.56"/>
+            </svg>
+            <div class="sr-num"><span class="sr-value">89</span><span class="sr-label">Pulso</span></div>
+          </div>
+          <div class="lab">lg · 120</div>
+        </div>
+        <div class="size-cell">
+          <div class="sr sr-xl b-critical">
+            <svg viewBox="0 0 180 180" width="180" height="180">
+              <circle class="sr-track" cx="90" cy="90" r="76" fill="none" stroke-width="10"/>
+              <circle class="sr-fill" cx="90" cy="90" r="76" fill="none" stroke-width="10" stroke-linecap="round"
+                stroke-dasharray="477.52" stroke-dashoffset="52.53"/>
+            </svg>
+            <div class="sr-num"><span class="sr-value">89</span><span class="sr-label">Pulso · agora</span></div>
+          </div>
+          <div class="lab">xl · 180</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">No contexto · Hero da Crisis Room</h2>
+      <div class="hero">
+        <div class="sr sr-xl b-critical">
+          <svg viewBox="0 0 180 180" width="180" height="180">
+            <circle class="sr-track" cx="90" cy="90" r="76" fill="none" stroke-width="10"/>
+            <circle class="sr-fill" cx="90" cy="90" r="76" fill="none" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="477.52" stroke-dashoffset="52.53"/>
+          </svg>
+          <div class="sr-num"><span class="sr-value">89</span><span class="sr-label">Pulso · agora</span></div>
+        </div>
+        <div class="hero-side">
+          <span class="hero-kicker">Pulso Score · Acme Bank · em tempo real</span>
+          <h2 class="hero-title">Crítico — crise ativa, recomendada sala de guerra</h2>
+          <span class="hero-trend"><span class="arr">↑</span> +18 nas últimas 2h · acelerando</span>
+          <div class="hero-meta">
+            <span><b>2.4M</b>alcance acumulado</span>
+            <span><b>47</b>menções tier 1</span>
+            <span><b>14 min</b>desde último sinal</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">No contexto · Lista de marcas monitoradas</h2>
+      <div class="list-stack">
+        <div class="list-stack-item">
+          <div class="sr sr-sm b-critical">
+            <svg viewBox="0 0 44 44" width="44" height="44">
+              <circle class="sr-track" cx="22" cy="22" r="18" fill="none" stroke-width="3.5"/>
+              <circle class="sr-fill" cx="22" cy="22" r="18" fill="none" stroke-width="3.5" stroke-linecap="round"
+                stroke-dasharray="113.10" stroke-dashoffset="12.44"/>
+            </svg>
+            <div class="sr-num"><span class="sr-value">89</span></div>
+          </div>
+          <div class="info">
+            <div class="src">Banking</div>
+            <div class="name">Acme Bank</div>
+          </div>
+        </div>
+        <div class="list-stack-item">
+          <div class="sr sr-sm b-high">
+            <svg viewBox="0 0 44 44" width="44" height="44">
+              <circle class="sr-track" cx="22" cy="22" r="18" fill="none" stroke-width="3.5"/>
+              <circle class="sr-fill" cx="22" cy="22" r="18" fill="none" stroke-width="3.5" stroke-linecap="round"
+                stroke-dasharray="113.10" stroke-dashoffset="37.32"/>
+            </svg>
+            <div class="sr-num"><span class="sr-value">67</span></div>
+          </div>
+          <div class="info">
+            <div class="src">Retail</div>
+            <div class="name">Vento Sul Varejo</div>
+          </div>
+        </div>
+        <div class="list-stack-item">
+          <div class="sr sr-sm b-medium">
+            <svg viewBox="0 0 44 44" width="44" height="44">
+              <circle class="sr-track" cx="22" cy="22" r="18" fill="none" stroke-width="3.5"/>
+              <circle class="sr-fill" cx="22" cy="22" r="18" fill="none" stroke-width="3.5" stroke-linecap="round"
+                stroke-dasharray="113.10" stroke-dashoffset="58.81"/>
+            </svg>
+            <div class="sr-num"><span class="sr-value">48</span></div>
+          </div>
+          <div class="info">
+            <div class="src">Telecom</div>
+            <div class="name">Norte Telecom</div>
+          </div>
+        </div>
+        <div class="list-stack-item">
+          <div class="sr sr-sm b-monitor">
+            <svg viewBox="0 0 44 44" width="44" height="44">
+              <circle class="sr-track" cx="22" cy="22" r="18" fill="none" stroke-width="3.5"/>
+              <circle class="sr-fill" cx="22" cy="22" r="18" fill="none" stroke-width="3.5" stroke-linecap="round"
+                stroke-dasharray="113.10" stroke-dashoffset="88.22"/>
+            </svg>
+            <div class="sr-num"><span class="sr-value">22</span></div>
+          </div>
+          <div class="info">
+            <div class="src">Energia</div>
+            <div class="name">Sol Energia</div>
+          </div>
+        </div>
+        <div class="list-stack-item">
+          <div class="sr sr-sm b-monitor">
+            <svg viewBox="0 0 44 44" width="44" height="44">
+              <circle class="sr-track" cx="22" cy="22" r="18" fill="none" stroke-width="3.5"/>
+              <circle class="sr-fill" cx="22" cy="22" r="18" fill="none" stroke-width="3.5" stroke-linecap="round"
+                stroke-dasharray="113.10" stroke-dashoffset="100.66"/>
+            </svg>
+            <div class="sr-num"><span class="sr-value">11</span></div>
+          </div>
+          <div class="info">
+            <div class="src">Aviação</div>
+            <div class="name">VoeBR</div>
+          </div>
+        </div>
+        <div class="list-stack-item">
+          <div class="sr sr-sm b-medium">
+            <svg viewBox="0 0 44 44" width="44" height="44">
+              <circle class="sr-track" cx="22" cy="22" r="18" fill="none" stroke-width="3.5"/>
+              <circle class="sr-fill" cx="22" cy="22" r="18" fill="none" stroke-width="3.5" stroke-linecap="round"
+                stroke-dasharray="113.10" stroke-dashoffset="50.90"/>
+            </svg>
+            <div class="sr-num"><span class="sr-value">55</span></div>
+          </div>
+          <div class="info">
+            <div class="src">Saúde</div>
+            <div class="name">Vital Saúde</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Diretrizes</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Faça</div>
+          <ul>
+            <li>Cor do anel = banda do score · sempre · em qualquer tamanho</li>
+            <li>Use tabular-nums para o valor — alinhamento em listas</li>
+            <li>Anime mudanças de score com transition (600ms ease)</li>
+            <li>Em xs/sm omita o label "Pulso" — só o número</li>
+            <li>Hero (xl) deve mostrar trend (Δ últimas 2h) ao lado</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Evite</div>
+          <ul>
+            <li>Usar score sem banda · número solto não é informação</li>
+            <li>Tamanhos fora dos 5 definidos · use o mais próximo</li>
+            <li>Gradientes ou efeitos no anel · cor sólida, sempre</li>
+            <li>Score &gt; 100 ou &lt; 0 · clamp e mostre &gt;100 ou &lt;0 se necessário</li>
+            <li>Mostrar score como "porcentagem" — não é</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

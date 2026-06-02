@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Roadmap v2</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="globals.css">
+<link rel="stylesheet" href="pages/_page.css">
+<style>
+/* ── Roadmap-specific styles ──────────────────────────────── */
+.roadmap-main { padding: 56px 64px 96px; max-width: 1180px; margin: 0 auto; }
+@media (max-width: 900px) { .roadmap-main { padding: 32px 24px 64px; } }
+
+.lead-block { max-width: 760px; margin-top: 16px; }
+.lead-block p { font-size: 16px; line-height: 1.65; color: var(--fg-secondary); margin-top: 14px; }
+.lead-block strong { color: var(--fg-strong); font-weight: 600; }
+
+/* North star */
+.north-star { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 28px; }
+@media (max-width: 900px) { .north-star { grid-template-columns: 1fr; } }
+.ns-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px 22px; }
+.ns-card-kicker { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--primary); margin-bottom: 8px; }
+.ns-card h3 { font-size: 17px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; margin-bottom: 6px; }
+.ns-card p { font-size: 13.5px; color: var(--fg-secondary); line-height: 1.6; }
+
+/* Phase header */
+.phase { margin-top: 64px; }
+.phase-header { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 24px; }
+.phase-title-block { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+.phase-num { font-family: var(--font-pulso-mono); font-size: 36px; font-weight: 600; color: var(--primary); letter-spacing: -0.02em; line-height: 1; }
+.phase-title { font-size: 26px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.01em; }
+.phase-tagline { font-size: 14px; color: var(--fg-muted); margin-top: 4px; }
+.phase-meta { font-family: var(--font-pulso-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); text-align: right; line-height: 1.7; flex-shrink: 0; }
+.phase-meta strong { color: var(--fg); font-weight: 600; }
+
+/* Initiative cards */
+.initiatives { display: flex; flex-direction: column; gap: 14px; }
+.init { display: grid; grid-template-columns: 56px 1fr 180px; gap: 24px; padding: 22px 24px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); }
+@media (max-width: 900px) { .init { grid-template-columns: 56px 1fr; } .init-meta { grid-column: 2; padding-top: 8px; border-top: 1px solid var(--border-faint); margin-top: 8px; } }
+
+.init-pri { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.init-status { font-family: var(--font-pulso-mono); font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding: 3px 7px; border-radius: var(--radius-xs); margin-top: 4px; }
+.status-done    { background: color-mix(in oklab, var(--success) 14%, transparent); color: var(--success); border: 1px solid color-mix(in oklab, var(--success) 30%, transparent); }
+.status-progress{ background: color-mix(in oklab, var(--warning) 14%, transparent); color: var(--warning); border: 1px solid color-mix(in oklab, var(--warning) 30%, transparent); }
+.status-todo    { background: var(--muted); color: var(--fg-subtle); border: 1px solid var(--border); }
+.init-done .init-body h4::after { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--success); border-radius: 50%; margin-left: 8px; vertical-align: middle; }
+.phase-progress-bar { height: 4px; background: var(--muted); border-radius: 999px; overflow: hidden; margin-top: 8px; min-width: 120px; }
+.phase-progress-bar > div { height: 100%; background: var(--success); border-radius: 999px; }
+.pri-tag { font-family: var(--font-pulso-mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 8px; border-radius: var(--radius-xs); border: 1px solid; }
+.pri-p0 { background: var(--risk-critical-bg); color: var(--risk-critical-text); border-color: var(--risk-critical-border); }
+.pri-p1 { background: var(--risk-attention-bg); color: var(--risk-attention-text); border-color: var(--risk-attention-border); }
+.pri-p2 { background: var(--risk-monitor-bg); color: var(--risk-monitor-text); border-color: var(--risk-monitor-border); }
+.init-num { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); }
+
+.init-body h4 { font-size: 16px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; margin-bottom: 4px; }
+.init-why { font-size: 13.5px; color: var(--fg-secondary); line-height: 1.55; margin-bottom: 12px; }
+.init-deliverables { list-style: none; padding: 0; margin: 0; }
+.init-deliverables li { font-size: 13px; color: var(--fg); line-height: 1.55; padding: 3px 0 3px 16px; position: relative; }
+.init-deliverables li::before { content: '→'; position: absolute; left: 0; color: var(--primary); }
+.init-meta { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+.init-meta-row { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); }
+.init-meta-row strong { color: var(--fg); font-weight: 500; }
+
+/* Premises section */
+.premises-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 720px) { .premises-grid { grid-template-columns: 1fr; } }
+.premise { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 20px; }
+.premise-claim { font-family: var(--font-pulso-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--destructive); margin-bottom: 4px; }
+.premise-claim-strike { text-decoration: line-through; }
+.premise-h4 { font-size: 14.5px; font-weight: 600; color: var(--fg-strong); margin-bottom: 6px; }
+.premise-body { font-size: 13px; color: var(--fg-secondary); line-height: 1.55; }
+
+/* Metrics card */
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.metric { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px 18px; }
+.metric-label { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); }
+.metric-target { font-family: var(--font-pulso-mono); font-size: 24px; font-weight: 600; color: var(--fg-strong); margin-top: 4px; letter-spacing: -0.01em; }
+.metric-sub { font-size: 12px; color: var(--fg-muted); margin-top: 4px; line-height: 1.4; }
+
+/* Timeline */
+.timeline { display: grid; grid-template-columns: 80px 1fr; gap: 0; margin-top: 20px; }
+.tl-week { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.06em; padding: 14px 0; border-top: 1px solid var(--border-faint); }
+.tl-content { padding: 14px 0 14px 20px; border-top: 1px solid var(--border-faint); border-left: 1px solid var(--border); position: relative; }
+.tl-content::before { content: ''; position: absolute; left: -5px; top: 22px; width: 9px; height: 9px; border-radius: 50%; background: var(--primary); border: 2px solid var(--background); }
+.tl-content strong { color: var(--fg-strong); font-weight: 600; font-size: 14px; }
+.tl-content p { font-size: 13px; color: var(--fg-secondary); margin-top: 4px; line-height: 1.55; }
+
+/* Sticky right-rail TOC */
+.toc { position: fixed; right: 32px; top: 80px; width: 220px; padding: 16px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 12px; max-height: calc(100vh - 120px); overflow-y: auto; z-index: 10; }
+@media (max-width: 1400px) { .toc { display: none; } }
+.toc-h { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); margin-bottom: 8px; }
+.toc a { display: block; padding: 4px 0; color: var(--fg-secondary); text-decoration: none; line-height: 1.4; }
+.toc a:hover { color: var(--primary); }
+.toc-phase { font-weight: 600; color: var(--fg); margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="roadmap-main">
+
+      <div class="page-kicker">Roadmap · v2 · Q3–Q4 2026</div>
+      <h1 class="page-title">Pulso DS · Plano v2</h1>
+      <div class="lead-block">
+        <p>A v1 fechou o esqueleto: tokens, atoms, organisms, templates. O suficiente para construir o Crisis Monitor de forma consistente. <strong>A v2 transforma o Pulso de uma biblioteca documentada num sistema operacional</strong> — com acessibilidade auditável, voz própria, padrões de dado vivo e governança que sustente o crescimento.</p>
+        <p>Este plano é dividido em <strong>5 fases</strong> com 23 iniciativas, priorizadas em P0/P1/P2. A fase 1 (Acessibilidade) é não-negociável e bloqueante para qualquer release que sirva clientes regulados. As fases 2–5 podem rodar em paralelo a partir do fim da fase 1.</p>
+      </div>
+
+      <!-- Status update banner -->
+      <div style="margin-top:28px;padding:18px 22px;background:color-mix(in oklab, var(--success) 8%, var(--card));border:1px solid color-mix(in oklab, var(--success) 30%, var(--border));border-left:3px solid var(--success);border-radius:var(--radius-md);display:flex;gap:18px;align-items:flex-start;">
+        <div style="font-family:var(--font-pulso-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--success);font-weight:600;flex-shrink:0;padding-top:2px;">Status · 18 mai</div>
+        <div style="flex:1;">
+          <div style="font-size:14px;color:var(--fg-strong);font-weight:600;letter-spacing:-0.005em;">v2 completa · 5 fases · 23 iniciativas entregues</div>
+          <div style="font-size:13px;color:var(--fg-secondary);margin-top:4px;line-height:1.55;"><strong style="color:var(--fg-strong);">A11y</strong> contraste · redundância · focus · ARIA · reduced motion. <strong style="color:var(--fg-strong);">Voz</strong> vocabulário · microcopy · localização · Cris voice. <strong style="color:var(--fg-strong);">Data Viz</strong> primitives · paleta · axes · real-time · recipes. <strong style="color:var(--fg-strong);">Templates &amp; States</strong> 5 templates · states matrix · multi-select · responsive · densidade. <strong style="color:var(--fg-strong);">Governança</strong> 3-layer tokens · Figma↔Code parity · RFC + deprecation · adoption metrics. <strong style="color:var(--fg);">v2 · fechada · pronta para v3 planning.</strong></div>
+        </div>
+      </div>
+
+      <!-- North Star -->
+      <section class="phase" style="margin-top:40px;">
+        <h2 class="section-h1" style="font-size:18px;font-weight:600;color:var(--fg-strong);margin-bottom:6px;">North Star da v2</h2>
+        <p class="section-desc" style="margin-bottom:0;">Três premissas que orientam toda decisão de prioridade.</p>
+        <div class="north-star">
+          <div class="ns-card">
+            <div class="ns-card-kicker">01 · Audível</div>
+            <h3>O DS bloqueia o anti-pattern</h3>
+            <p>Documentação é insuficiente. A v2 entrega lint rules, contraste auditado em CI, redundância de cor obrigatória em risco — guardrails que tornam o uso correto o caminho fácil.</p>
+          </div>
+          <div class="ns-card">
+            <div class="ns-card-kicker">02 · Operacional</div>
+            <h3>Pattern &gt; componente</h3>
+            <p>Ninguém usa Button sozinho. A v2 promove padrões inteiros (search results, notification preferences, audit log) ao mesmo status de organism, com código copiável.</p>
+          </div>
+          <div class="ns-card">
+            <div class="ns-card-kicker">03 · Sustentável</div>
+            <h3>Governança como produto</h3>
+            <p>RFCs, deprecation policy, semver, métricas de adoção. Sem isso, o DS vira fardo em 18 meses. Investir agora multiplica por cinco a velocidade de feature.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- FASE 1 — ACESSIBILIDADE -->
+      <section class="phase">
+        <div class="phase-header">
+          <div class="phase-title-block">
+            <div class="phase-num">01</div>
+            <div>
+              <div class="phase-title">Acessibilidade como contrato</div>
+              <div class="phase-tagline">A fase bloqueante. Sem isso, o DS não serve clientes regulados.</div>
+            </div>
+          </div>
+          <div class="phase-meta">5 iniciativas · 5 entregues<br>≈ 4 semanas · <span style="color:var(--success);font-weight:600;">concluída</span><br><strong style="color:var(--success);">✓ Fase 1 fechada</strong>
+            <div class="phase-progress-bar"><div style="width:100%;"></div></div>
+          </div>
+        </div>
+        <div class="initiatives">
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p0">P0</span><span class="init-num">1.1</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/accessibility-contrast.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">Matriz de contraste auditada</a></h4>
+              <p class="init-why">Hoje <code>fg-subtle</code> sobre <code>background</code> provavelmente falha WCAG AA. Não temos visibilidade. Vamos rodar Axe em todos os tokens combinados, gerar matriz pública, refatorar combinações que falham e travar regressão.</p>
+              <ul class="init-deliverables">
+                <li>Página <strong>Foundations · Accessibility · Contraste</strong> com matriz fg × bg auditada</li>
+                <li>Refator de <code>fg-subtle</code> e <code>fg-disabled</code> em light + dark para AA 4.5:1</li>
+                <li>CI step rodando <code>axe-core</code> nas 3 templates principais</li>
+                <li>Badge AA/AAA em cada token do Color page</li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>5 d</strong></div>
+              <div class="init-meta-row">owner · <strong>design + eng</strong></div>
+              <div class="init-meta-row">dependências · —</div>
+            </div>
+          </div>
+
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p0">P0</span><span class="init-num">1.2</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/accessibility-risk-redundancy.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">Redundância de cor em níveis de risco</a></h4>
+              <p class="init-why">Cor nunca pode ser o único sinal — operador daltônico não distingue <code>attention</code> de <code>high</code>. Em produto de crise, isso vira incidente regulatório. Cada nível ganha glifo + texto obrigatório.</p>
+              <ul class="init-deliverables">
+                <li>Glifos de risk (●○◐◆■) atribuídos a cada nível, vivendo no DS</li>
+                <li>Refator de <code>RiskChip</code>, <code>RiskRing</code>, <code>RiskRail</code> com glifo + label obrigatórios</li>
+                <li>Lint rule: usar <code>--risk-*</code> sem componente Pulso vira warning</li>
+                <li>Página <strong>Patterns · Risk · Redundância</strong></li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>4 d</strong></div>
+              <div class="init-meta-row">owner · <strong>design</strong></div>
+              <div class="init-meta-row">dependências · 1.1</div>
+            </div>
+          </div>
+
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p0">P0</span><span class="init-num">1.3</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/accessibility-focus-keyboard.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">Focus rings e keyboard map</a></h4>
+              <p class="init-why">Hoje temos <code>--ring</code> mas não auditamos uso. Componentes interativos sem outline visível em dark mode ou com hit target &lt; 44px são bloqueantes. Cada componente ganha contrato.</p>
+              <ul class="init-deliverables">
+                <li>Auditoria de focus em 100% dos atoms e form atoms</li>
+                <li>Tabela <strong>Keyboard Map</strong> por componente (Tab, Esc, ↑↓, Enter, Space)</li>
+                <li>Hit target ≥ 44×44px como contrato (token <code>--touch-target</code>)</li>
+                <li>Página <strong>Foundations · Accessibility · Keyboard &amp; Focus</strong></li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>5 d</strong></div>
+              <div class="init-meta-row">owner · <strong>eng + design</strong></div>
+              <div class="init-meta-row">dependências · —</div>
+            </div>
+          </div>
+
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p0">P0</span><span class="init-num">1.4</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/accessibility-screen-readers.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">Screen reader &amp; ARIA contract</a></h4>
+              <p class="init-why">Alertas críticos precisam ser anunciados — sem isso, operador com leitor de tela perde a crise. Cada componente recebe contrato ARIA explícito.</p>
+              <ul class="init-deliverables">
+                <li><code>aria-live="assertive"</code> em Alert critical, <code>polite</code> em outros</li>
+                <li>Labels obrigatórios em IconButton, Switch, Checkbox sem visible label</li>
+                <li>Teste manual com VoiceOver + NVDA nas 3 templates</li>
+                <li>Página <strong>Foundations · Accessibility · Screen Readers</strong></li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>6 d</strong></div>
+              <div class="init-meta-row">owner · <strong>eng</strong></div>
+              <div class="init-meta-row">dependências · 1.3</div>
+            </div>
+          </div>
+
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p1">P1</span><span class="init-num">1.5</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/accessibility-reduced-motion.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">Reduced motion contract</a></h4>
+              <p class="init-why">Animação em monitoramento real-time pode disparar enxaqueca, ataque vestibular. Respeitar <code>prefers-reduced-motion</code> é trivial e impactante.</p>
+              <ul class="init-deliverables">
+                <li><code>@media (prefers-reduced-motion: reduce)</code> aplicado globalmente nos tokens motion</li>
+                <li>Mention card real-time pulse desativada</li>
+                <li>Documentado em <strong>Foundations · Motion · Reduced</strong></li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>2 d</strong></div>
+              <div class="init-meta-row">owner · <strong>eng</strong></div>
+              <div class="init-meta-row">dependências · —</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FASE 2 — VOICE & TONE -->
+      <section class="phase">
+        <div class="phase-header">
+          <div class="phase-title-block">
+            <div class="phase-num">02</div>
+            <div>
+              <div class="phase-title">Voz, vocabulário e copy</div>
+              <div class="phase-tagline">DS bonito gera produto inconsistente sem contrato de conteúdo.</div>
+            </div>
+          </div>
+          <div class="phase-meta">4 iniciativas · 4 entregues<br>≈ 3 semanas · <span style="color:var(--success);font-weight:600;">concluída</span><br><strong style="color:var(--success);">✓ Fase 2 fechada</strong>
+            <div class="phase-progress-bar"><div style="width:100%;"></div></div>
+          </div>
+        </div>
+        <div class="initiatives">
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p1">P1</span><span class="init-num">2.1</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/voice-vocabulary.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">Vocabulário do domínio</a></h4>
+              <p class="init-why">Hoje cada PM escolhe entre <em>Crise</em>, <em>Incidente</em>, <em>Alerta</em>, <em>Menção</em>. Sem dicionário, a UI é Babel.</p>
+              <ul class="init-deliverables">
+                <li>Glossário canônico com 25–40 termos do Crisis Monitor</li>
+                <li>Distinção formal: Crise vs Incidente vs Alerta vs Menção vs Caso</li>
+                <li>Hierarquia: Operador vs Analista vs Cliente vs Gestor</li>
+                <li>Página <strong>Foundations · Voice · Vocabulário</strong></li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>3 d</strong></div>
+              <div class="init-meta-row">owner · <strong>produto + design</strong></div>
+              <div class="init-meta-row">dependências · —</div>
+            </div>
+          </div>
+
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p1">P1</span><span class="init-num">2.2</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/voice-microcopy.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">Microcopy patterns</a></h4>
+              <p class="init-why">"Algo deu errado" é hostil. Erro vs warning vs info têm tons distintos. Empty states precisam de personalidade sem cinismo.</p>
+              <ul class="init-deliverables">
+                <li>Padrões de erro: network, validation, permission, fatal — com exemplo por tipo</li>
+                <li>Padrões de warning, info, success</li>
+                <li>Padrões de empty state (primeira vez, sem resultado, fim do feed)</li>
+                <li>Tom: direto, calmo, nunca apologético, nunca jocoso</li>
+                <li>Página <strong>Foundations · Voice · Microcopy</strong></li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>4 d</strong></div>
+              <div class="init-meta-row">owner · <strong>design + content</strong></div>
+              <div class="init-meta-row">dependências · 2.1</div>
+            </div>
+          </div>
+
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p1">P1</span><span class="init-num">2.3</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/localization.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">Localização e formatação</a></h4>
+              <p class="init-why">Datas, números, plural — cada componente precisa de contrato. Crisis Monitor pode escalar para clientes globais; preparar o terreno agora é barato, depois é refator.</p>
+              <ul class="init-deliverables">
+                <li>Token <code>--locale</code> e helpers (formatNumber, formatDate, formatRelative)</li>
+                <li>Plural pattern (1 menção · 2 menções · 0 menções)</li>
+                <li>Sinal de delta posicionado antes (pt-BR/en-US) ou depois (fr-FR)</li>
+                <li>Página <strong>Foundations · Localização</strong></li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>5 d</strong></div>
+              <div class="init-meta-row">owner · <strong>eng + content</strong></div>
+              <div class="init-meta-row">dependências · 2.1</div>
+            </div>
+          </div>
+
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p2">P2</span><span class="init-num">2.4</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/ai-voice.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">Tom AI · diretrizes para Pulso IA</a></h4>
+              <p class="init-why">A IA escreve respostas sugeridas no domínio mais sensível possível. Sem diretriz, ela vira liability — frases apologéticas, jurídicas, ou pior, jocosas.</p>
+              <ul class="init-deliverables">
+                <li>Princípios: cauteloso, técnico, nunca jurídico, nunca emocional</li>
+                <li>Lista de termos proibidos para IA (peço desculpas, infelizmente, lamentavelmente)</li>
+                <li>Padrões de recomendação (sempre com par "se" + "então")</li>
+                <li>Página <strong>Patterns · AI · Pulso IA Voice</strong></li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>3 d</strong></div>
+              <div class="init-meta-row">owner · <strong>design + AI</strong></div>
+              <div class="init-meta-row">dependências · 2.1, 2.2</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FASE 3 — DATA VIZ -->
+      <section class="phase">
+        <div class="phase-header">
+          <div class="phase-title-block">
+            <div class="phase-num">03</div>
+            <div>
+              <div class="phase-title">Visualização de dados</div>
+              <div class="phase-tagline">Sistema de monitoramento sem padrão de chart é padaria sem pão.</div>
+            </div>
+          </div>
+          <div class="phase-meta">5 iniciativas · 5 entregues<br>≈ 4 semanas · <span style="color:var(--success);font-weight:600;">concluída</span><br><strong style="color:var(--success);">✓ Fase 3 fechada</strong>
+            <div class="phase-progress-bar"><div style="width:100%;"></div></div>
+          </div>
+        </div>
+        <div class="initiatives">
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p1">P1</span><span class="init-num">3.1</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/chart-primitives.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">Chart primitives</a></h4>
+              <p class="init-why">Linha, barra, área, sparkline, donut, heatmap. Cada um com tokens semânticos do Pulso, animação consistente e estado loading/error/empty próprio.</p>
+              <ul class="init-deliverables">
+                <li>Wrapper sobre Recharts (ou Visx) que aplica tokens automaticamente</li>
+                <li>6 componentes: <code>LineChart</code>, <code>BarChart</code>, <code>AreaChart</code>, <code>Sparkline</code>, <code>Donut</code>, <code>Heatmap</code></li>
+                <li>Estados loading/error/empty internos</li>
+                <li>Página <strong>Components · Charts</strong> com matriz completa</li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>10 d</strong></div>
+              <div class="init-meta-row">owner · <strong>eng + design</strong></div>
+              <div class="init-meta-row">dependências · —</div>
+            </div>
+          </div>
+
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p1">P1</span><span class="init-num">3.2</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/data-color.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">Escala categórica para múltiplas séries</a></h4>
+              <p class="init-why">Hoje temos 3-4 cores semânticas. Para 5, 8, 12 séries, falta escala categórica perceptualmente equidistante.</p>
+              <ul class="init-deliverables">
+                <li>Paleta de 8 cores categóricas (já existem <code>chart-1..8</code>, falta auditar)</li>
+                <li>Versões para fundo escuro</li>
+                <li>Versão acessível (color-blind safe)</li>
+                <li>Página <strong>Foundations · Data Color</strong></li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>3 d</strong></div>
+              <div class="init-meta-row">owner · <strong>design</strong></div>
+              <div class="init-meta-row">dependências · 1.1</div>
+            </div>
+          </div>
+
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p1">P1</span><span class="init-num">3.3</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/chart-axes.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">Axes, grids, tooltips, legendas</a></h4>
+              <p class="init-why">Os componentes auxiliares ditam 60% da legibilidade. Sem padrão, cada chart parece de uma biblioteca diferente.</p>
+              <ul class="init-deliverables">
+                <li>Tokens dedicados: <code>--chart-axis</code>, <code>--chart-grid</code>, <code>--chart-tooltip-bg</code></li>
+                <li>Componente <code>ChartTooltip</code> reutilizável</li>
+                <li>Legend pattern: top, bottom, right; clicável para toggle</li>
+                <li>Padrão de tick labels mono, alinhamento, rotação</li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>4 d</strong></div>
+              <div class="init-meta-row">owner · <strong>design + eng</strong></div>
+              <div class="init-meta-row">dependências · 3.1</div>
+            </div>
+          </div>
+
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p2">P2</span><span class="init-num">3.4</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/chart-realtime.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">Animação em update real-time</a></h4>
+              <p class="init-why">Crisis Monitor é tempo real. Gráfico atualizando mal feito é distrativo, bem feito é informativo. Padrão de transição salva atenção do operador.</p>
+              <ul class="init-deliverables">
+                <li>Easing dedicado <code>--motion-easing-chart</code> (suave, não emphasized)</li>
+                <li>Duração 600–800ms para morph, instantâneo para append</li>
+                <li>Reduced-motion: corta animação, mantém update</li>
+                <li>Exemplo em <strong>Patterns · Real-time updates</strong></li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>4 d</strong></div>
+              <div class="init-meta-row">owner · <strong>eng</strong></div>
+              <div class="init-meta-row">dependências · 3.1, 1.5</div>
+            </div>
+          </div>
+
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p2">P2</span><span class="init-num">3.5</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/chart-recipes.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">Recipes — combinações canônicas</a></h4>
+              <p class="init-why">Operador não consome chart solto, consome combinações. Score + sparkline + delta. Heatmap + tooltip + legenda. Documentar a receita evita reinvenção.</p>
+              <ul class="init-deliverables">
+                <li>10 recipes nomeadas: TrendCard, ScoreOverTime, SentimentHeatmap, MentionVolume, AlertFunnel…</li>
+                <li>Cada recipe com snippet copiável</li>
+                <li>Página <strong>Patterns · Chart Recipes</strong></li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>5 d</strong></div>
+              <div class="init-meta-row">owner · <strong>design + eng</strong></div>
+              <div class="init-meta-row">dependências · 3.1, 3.3</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FASE 4 — TEMPLATES + STATES -->
+      <section class="phase">
+        <div class="phase-header">
+          <div class="phase-title-block">
+            <div class="phase-num">04</div>
+            <div>
+              <div class="phase-title">Templates de jornada e estados</div>
+              <div class="phase-tagline">As telas que MAIS importam ainda não estão documentadas.</div>
+            </div>
+          </div>
+          <div class="phase-meta">5 iniciativas · 5 entregues<br>≈ 3 semanas · <span style="color:var(--success);font-weight:600;">concluída</span><br><strong style="color:var(--success);">✓ Fase 4 fechada</strong>
+            <div class="phase-progress-bar"><div style="width:100%;"></div></div>
+          </div>
+        </div>
+        <div class="initiatives">
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p1">P1</span><span class="init-num">4.1</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/tpl-auth.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">Templates faltantes</a></h4>
+              <p class="init-why">Login, Onboarding, Search Results, Notification Preferences, Audit Log. São estados visitados várias vezes por dia e hoje cada um foi inventado uma vez.</p>
+              <ul class="init-deliverables">
+                <li><a href="pages/tpl-auth.html" style="color:inherit;"><strong>Templates · Auth</strong></a> — login SSO, MFA, recover</li>
+                <li><a href="pages/tpl-onboarding.html" style="color:inherit;"><strong>Templates · Onboarding</strong></a> — primeiro workspace, convite de membros</li>
+                <li><a href="pages/tpl-search.html" style="color:inherit;"><strong>Templates · Search</strong></a> — global search + results page</li>
+                <li><a href="pages/tpl-notifications.html" style="color:inherit;"><strong>Templates · Notifications</strong></a> — preferences + history</li>
+                <li><a href="pages/tpl-audit-log.html" style="color:inherit;"><strong>Templates · Audit Log</strong></a> — compliance grid</li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>8 d</strong></div>
+              <div class="init-meta-row">owner · <strong>design</strong></div>
+              <div class="init-meta-row">dependências · —</div>
+            </div>
+          </div>
+
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p1">P1</span><span class="init-num">4.2</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/states-matrix.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">Matriz de estados</a></h4>
+              <p class="init-why">Loading, error, empty existem como componentes mas não como sistema. Toda tela do produto deveria ter 4 versões — default, loading, empty, error — derivadas automaticamente.</p>
+              <ul class="init-deliverables">
+                <li>Tier de loading: instant (&lt;100ms) · fast (&lt;1s) · slow (&lt;3s) · very slow</li>
+                <li>Tier de erro: network · validation · permission · fatal</li>
+                <li>Skeleton matching: cada Card/List tem seu Skeleton equivalente</li>
+                <li>Optimistic UI pattern: ack alert, follow, dismiss</li>
+                <li>Página <strong>Patterns · States</strong></li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>5 d</strong></div>
+              <div class="init-meta-row">owner · <strong>design + eng</strong></div>
+              <div class="init-meta-row">dependências · —</div>
+            </div>
+          </div>
+
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p1">P1</span><span class="init-num">4.3</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/multi-select.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">Bulk actions &amp; multi-select</a></h4>
+              <p class="init-why">Selecionar 30 menções e arquivar é cotidiano. Hoje cada lista resolve do seu jeito. Falta pattern.</p>
+              <ul class="init-deliverables">
+                <li>Componente <code>SelectionBar</code> que aparece quando há seleção</li>
+                <li>Atalhos: Shift+click range, Cmd+click toggle, Esc clear</li>
+                <li>Estados: 0 selecionados, alguns selecionados, todos da página, todos do filtro</li>
+                <li>Página <strong>Patterns · Multi-select</strong></li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>4 d</strong></div>
+              <div class="init-meta-row">owner · <strong>design + eng</strong></div>
+              <div class="init-meta-row">dependências · —</div>
+            </div>
+          </div>
+
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p2">P2</span><span class="init-num">4.4</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/responsive.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">Responsive contract</a></h4>
+              <p class="init-why">Crisis Monitor é desktop-first mas operador no Uber abre pelo celular. Sem padrão, mobile vira "tem que existir" sem direção.</p>
+              <ul class="init-deliverables">
+                <li>Breakpoints documentados: mobile 0–640 · tablet 641–1024 · desktop 1025+</li>
+                <li>Padrão de reflow para Dashboard, Crisis Detail, Settings</li>
+                <li>Mobile prioriza alerta + ack + escalar; desconstrói filtros</li>
+                <li>Página <strong>Foundations · Responsive</strong></li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>5 d</strong></div>
+              <div class="init-meta-row">owner · <strong>design</strong></div>
+              <div class="init-meta-row">dependências · 4.1</div>
+            </div>
+          </div>
+
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p2">P2</span><span class="init-num">4.5</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/density.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">Densidade como decisão de produto</a></h4>
+              <p class="init-why"><strong>Decisão tomada:</strong> default = <code>comfortable</code>. <code>compact</code> e <code>spacious</code> ficam disponíveis como preferência do usuário em <em>Settings → Personal</em>. Não é tweak de produto, é affordance de operador.</p>
+              <ul class="init-deliverables">
+                <li>Default <strong>comfortable</strong> em todo o produto (estado inicial e novos workspaces)</li>
+                <li>Toggle de densidade em <strong>Settings → Personal → Densidade</strong> · 3 opções</li>
+                <li>Persistência por usuário (não por workspace) · <code>localStorage</code> + sync futuro com perfil</li>
+                <li>Comparativo Dashboard nas 3 densidades em <strong>Foundations · Density</strong></li>
+                <li>Tabelas operacionais com densidade <em>local</em> override (mesmo se o user é comfort, a tabela permite compact dentro dela)</li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>3 d</strong></div>
+              <div class="init-meta-row">owner · <strong>design + produto</strong></div>
+              <div class="init-meta-row">dependências · —</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FASE 5 — GOVERNANCE & INFRA -->
+      <section class="phase">
+        <div class="phase-header">
+          <div class="phase-title-block">
+            <div class="phase-num">05</div>
+            <div>
+              <div class="phase-title">Governança, parity e infraestrutura</div>
+              <div class="phase-tagline">DS bom em 18 meses = DS sustentável. Investir agora multiplica feature velocity.</div>
+            </div>
+          </div>
+          <div class="phase-meta">4 iniciativas · 4 entregues<br>≈ 3 semanas · <span style="color:var(--success);font-weight:600;">concluída</span><br><strong style="color:var(--success);">✓ Fase 5 fechada</strong>
+            <div class="phase-progress-bar"><div style="width:100%;"></div></div>
+          </div>
+        </div>
+        <div class="initiatives">
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p1">P1</span><span class="init-num">5.1</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/token-architecture.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">Token architecture · 3 camadas</a></h4>
+              <p class="init-why">Hoje primitive e semantic estão misturados. Sem 3 camadas, rebrand é cirurgia. Com elas, é troca da camada 1 (1 dia).</p>
+              <ul class="init-deliverables">
+                <li>Layer 1 (primitive): <code>violet-500: #6C46F5</code></li>
+                <li>Layer 2 (semantic): <code>color-action-primary: var(--violet-500)</code></li>
+                <li>Layer 3 (component): <code>button-primary-bg: var(--color-action-primary)</code></li>
+                <li>Migração assistida via codemod</li>
+                <li>Página <strong>Foundations · Token Architecture</strong></li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>6 d</strong></div>
+              <div class="init-meta-row">owner · <strong>eng + design</strong></div>
+              <div class="init-meta-row">dependências · —</div>
+            </div>
+          </div>
+
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p1">P1</span><span class="init-num">5.2</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/figma-parity.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">Figma ↔ Code parity</a></h4>
+              <p class="init-why">Sem library Figma alinhada com tokens, designer e dev divergem em semanas. Tokens.studio + Style Dictionary fecha o loop.</p>
+              <ul class="init-deliverables">
+                <li>Figma library com todos os componentes da v1</li>
+                <li>Tokens.studio plugin sincronizando com <code>globals.css</code></li>
+                <li>Source of truth: JSON único exportando para CSS + Figma</li>
+                <li>Documentado em <strong>Tooling · Figma</strong></li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>8 d</strong></div>
+              <div class="init-meta-row">owner · <strong>design</strong></div>
+              <div class="init-meta-row">dependências · 5.1</div>
+            </div>
+          </div>
+
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p1">P1</span><span class="init-num">5.3</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/rfc-process.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">RFC process + deprecation policy</a></h4>
+              <p class="init-why">Sem processo, qualquer dev adiciona componente. Em 6 meses temos 3 Button. RFC + deprecation cura.</p>
+              <ul class="init-deliverables">
+                <li>Template de RFC para novo componente / mudança breaking</li>
+                <li>Política: deprecated por 2 minor releases antes de remover</li>
+                <li>Semver: patch (fix), minor (componente novo, prop nova), major (breaking)</li>
+                <li><code>CHANGELOG.md</code> mantido por release</li>
+                <li>Página <strong>Governance · RFC</strong></li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>3 d</strong></div>
+              <div class="init-meta-row">owner · <strong>eng + design lead</strong></div>
+              <div class="init-meta-row">dependências · —</div>
+            </div>
+          </div>
+
+          <div class="init init-done">
+            <div class="init-pri"><span class="pri-tag pri-p2">P2</span><span class="init-num">5.4</span><span class="init-status status-done">✓ entregue</span></div>
+            <div class="init-body">
+              <h4><a href="pages/adoption-metrics.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--border-strong);">Adoption metrics + performance budget</a></h4>
+              <p class="init-why">Não medimos uso = não sabemos onde investir. Telemetria mínima abre conversa baseada em dado, não opinião.</p>
+              <ul class="init-deliverables">
+                <li>% de telas do Crisis Monitor usando tokens (audit script)</li>
+                <li>Top 10 componentes usados / não usados</li>
+                <li>Bundle size budget: DS &lt; 80 KB gzip</li>
+                <li>LCP/CLS budget por template</li>
+                <li>Dashboard interno <strong>Governance · Adoption</strong></li>
+              </ul>
+            </div>
+            <div class="init-meta">
+              <div class="init-meta-row">esforço · <strong>5 d</strong></div>
+              <div class="init-meta-row">owner · <strong>eng</strong></div>
+              <div class="init-meta-row">dependências · 5.3</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Premissas -->
+      <section class="phase">
+        <div class="phase-header">
+          <div class="phase-title-block">
+            <div class="phase-num" style="color:var(--destructive);">×</div>
+            <div>
+              <div class="phase-title">Premissas que estamos derrubando</div>
+              <div class="phase-tagline">As crenças tácitas que sabotam DS bons.</div>
+            </div>
+          </div>
+        </div>
+        <div class="premises-grid">
+          <div class="premise">
+            <div class="premise-claim premise-claim-strike">"Documentar é suficiente"</div>
+            <div class="premise-h4">→ DS bom <em>bloqueia</em> o anti-pattern</div>
+            <div class="premise-body">Lint rules de token, Figma constraints, ESLint plugin Pulso. Sem isso é decoração com texto. As iniciativas 1.1, 1.2, 5.3 enfrentam isso.</div>
+          </div>
+          <div class="premise">
+            <div class="premise-claim premise-claim-strike">"Componente é a unidade"</div>
+            <div class="premise-h4">→ Pattern &gt; componente</div>
+            <div class="premise-body">Ninguém usa Button sozinho. Templates e patterns ganham status de organism. Fase 4 inteira é sobre isso.</div>
+          </div>
+          <div class="premise">
+            <div class="premise-claim premise-claim-strike">"Acessibilidade é checklist final"</div>
+            <div class="premise-h4">→ A11y é contrato contínuo</div>
+            <div class="premise-body">Axe em CI, contraste auditado a cada PR, screen reader test mensal. Fase 1 estabelece a infra.</div>
+          </div>
+          <div class="premise">
+            <div class="premise-claim premise-claim-strike">"Roxo é nossa cor"</div>
+            <div class="premise-h4">→ Cor é ferramenta, não identidade</div>
+            <div class="premise-body">Roxo continua. Mas a identidade do Pulso precisa carregar mais que o hue: tipografia confiante, ritmo de hairlines, mono nos dados, densidade calibrada. Se trocássemos o roxo amanhã, o produto ainda deveria parecer "do Pulso". Não é da v2, mas vale anotar como direção de v3.</div>
+          </div>
+          <div class="premise">
+            <div class="premise-claim premise-claim-strike">"Mobile não importa"</div>
+            <div class="premise-h4">→ Mobile é resgate, não paridade</div>
+            <div class="premise-body">Operador no Uber recebe crítico. Mobile entrega 3 ações: ack, escalar, comentar. Iniciativa 4.4.</div>
+          </div>
+          <div class="premise">
+            <div class="premise-claim premise-claim-strike">"Tokens são a fundação"</div>
+            <div class="premise-h4">→ Conteúdo é a fundação</div>
+            <div class="premise-body">Sem voice, tom e vocabulário, DS bonito = produto inconsistente. Fase 2 trata.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Métricas de sucesso -->
+      <section class="phase">
+        <div class="phase-header">
+          <div class="phase-title-block">
+            <div class="phase-num" style="color:var(--success);">✓</div>
+            <div>
+              <div class="phase-title">Métricas de sucesso · v2</div>
+              <div class="phase-tagline">O que vamos medir para saber se a v2 funcionou.</div>
+            </div>
+          </div>
+        </div>
+        <div class="metrics-grid">
+          <div class="metric">
+            <div class="metric-label">CONTRASTE WCAG AA</div>
+            <div class="metric-target">100%</div>
+            <div class="metric-sub">combinações fg × bg auditadas</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">USO DE TOKENS</div>
+            <div class="metric-target">≥ 95%</div>
+            <div class="metric-sub">das telas do Crisis Monitor</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">BUNDLE SIZE</div>
+            <div class="metric-target">&lt; 80 KB</div>
+            <div class="metric-sub">gzip, DS completo tree-shaken</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">TIME-TO-NEW-SCREEN</div>
+            <div class="metric-target">−60%</div>
+            <div class="metric-sub">vs. baseline atual</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">PARITY FIGMA ↔ CODE</div>
+            <div class="metric-target">100%</div>
+            <div class="metric-sub">tokens sincronizados via JSON</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">A11Y CI</div>
+            <div class="metric-target">0 violações</div>
+            <div class="metric-sub">Axe rodando em PR</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Timeline agregada -->
+      <section class="phase">
+        <div class="phase-header">
+          <div class="phase-title-block">
+            <div class="phase-num">⏱</div>
+            <div>
+              <div class="phase-title">Cronograma agregado</div>
+              <div class="phase-tagline">≈ 17 semanas (4 meses) se serial; ≈ 10 semanas com 2–3 frentes em paralelo.</div>
+            </div>
+          </div>
+        </div>
+        <div class="timeline">
+          <div class="tl-week">Sem 01–04</div>
+          <div class="tl-content" style="border-color: var(--success);"><strong style="color:var(--success);">✓ Fase 1 · Acessibilidade <span style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--success);font-weight:600;margin-left:8px;">entregue</span></strong><p>5 de 5 iniciativas concluídas. Contraste auditado em AA · redundância de cor com sistema de 5 glifos · keyboard map por componente · ARIA contract + teste VoiceOver/NVDA · reduced motion global com opt-in para sinais informativos.</p></div>
+
+          <div class="tl-week">Sem 03–06</div>
+          <div class="tl-content" style="border-color: var(--success);"><strong style="color:var(--success);">✓ Fase 2 · Voz &amp; Tônica <span style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--success);font-weight:600;margin-left:8px;">entregue</span></strong><p>4 de 4 iniciativas concluídas. Vocabulário canônico (35 termos + 5 distinções vizinhas) · microcopy patterns por classe de erro/aviso/sucesso/vazio · helpers de localização (<code style="font-family:var(--font-pulso-mono);background:var(--muted);padding:1px 5px;border-radius:3px;font-size:11px;">@pulso/i18n</code>) · voz da Cris com marcadores e fórmula "se · então".</p></div>
+
+          <div class="tl-week">Sem 05–09</div>
+          <div class="tl-content" style="border-color: var(--success);"><strong style="color:var(--success);">✓ Fase 3 · Data Viz <span style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--success);font-weight:600;margin-left:8px;">entregue</span></strong><p>5 de 5 iniciativas concluídas. 6 primitives (Line/Bar/Area/Sparkline/Donut/Heatmap) · paleta categórica auditada color-blind safe · axes/grids/tooltip/legend padronizados · motion dedicado real-time (morph 680ms · append 0ms+pulse · flash 900ms) · 10 recipes nomeadas.</p></div>
+
+          <div class="tl-week">Sem 07–10</div>
+          <div class="tl-content" style="border-color: var(--success);"><strong style="color:var(--success);">✓ Fase 4 · Templates &amp; Estados <span style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--success);font-weight:600;margin-left:8px;">entregue</span></strong><p>5 de 5 iniciativas concluídas. 5 templates novos (auth, onboarding, search, notifications, audit log) · matriz de estados loading/error/empty com tiers por velocidade e classe de erro · multi-select com <code style="font-family:var(--font-pulso-mono);background:var(--muted);padding:1px 5px;border-radius:3px;font-size:11px;">SelectionBar</code> e atalhos · responsive contract (3 breakpoints, reflow por template) · densidade como preferência pessoal persistida.</p></div>
+
+          <div class="tl-week">Sem 09–12</div>
+          <div class="tl-content" style="border-color: var(--success);"><strong style="color:var(--success);">✓ Fase 5 · Governança <span style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--success);font-weight:600;margin-left:8px;">entregue</span></strong><p>4 de 4 iniciativas concluídas. Token architecture em 3 camadas (primitive → semantic → component) com codemod e lint rules · Figma↔Code parity via Tokens.studio + Style Dictionary · RFC process com lifecycle de 6 estágios + deprecation policy de 2 minor releases · adoption metrics + perf budget (97% tokens · 71.8 KB bundle · LCP p75 1.4s).</p></div>
+
+          <div class="tl-week">Sem 13</div>
+          <div class="tl-content" style="border-color: var(--success);"><strong style="color:var(--success);">Release v2 · pública</strong><p>Anúncio interno, migração assistida, deprecation v1 começa.</p></div>
+        </div>
+      </section>
+
+      <!-- Não-objetivos -->
+      <section class="phase" style="background:var(--muted);margin-left:-32px;margin-right:-32px;padding:32px;border-radius:var(--radius-md);margin-top:64px;">
+        <div class="phase-title-block" style="margin-bottom:16px;">
+          <div class="phase-num" style="color:var(--fg-subtle);font-size:24px;">!</div>
+          <div>
+            <div class="phase-title" style="font-size:22px;">Não-objetivos da v2</div>
+            <div class="phase-tagline">O que deliberadamente NÃO entra. Discutimos para v3.</div>
+          </div>
+        </div>
+        <ul style="list-style:none;padding:0;margin-top:12px;display:flex;flex-direction:column;gap:10px;">
+          <li style="font-size:14px;color:var(--fg-secondary);line-height:1.55;padding-left:18px;position:relative;"><span style="position:absolute;left:0;color:var(--fg-subtle);">×</span> <strong style="color:var(--fg-strong);">Rebranding de cor primária.</strong> Roxo continua. Discussão de identidade fica para v3, depois de validar adoção da v2.</li>
+          <li style="font-size:14px;color:var(--fg-secondary);line-height:1.55;padding-left:18px;position:relative;"><span style="position:absolute;left:0;color:var(--fg-subtle);">×</span> <strong style="color:var(--fg-strong);">App mobile nativo.</strong> Mobile fica como web responsivo (4.4). App nativo é decisão de produto, não de DS.</li>
+          <li style="font-size:14px;color:var(--fg-secondary);line-height:1.55;padding-left:18px;position:relative;"><span style="position:absolute;left:0;color:var(--fg-subtle);">×</span> <strong style="color:var(--fg-strong);">Theming por cliente / white-label.</strong> Token architecture (5.1) habilita, mas implementação fica para v3.</li>
+          <li style="font-size:14px;color:var(--fg-secondary);line-height:1.55;padding-left:18px;position:relative;"><span style="position:absolute;left:0;color:var(--fg-subtle);">×</span> <strong style="color:var(--fg-strong);">Marketplace de templates / extensões.</strong> Não justifica esforço com base de adoção atual.</li>
+          <li style="font-size:14px;color:var(--fg-secondary);line-height:1.55;padding-left:18px;position:relative;"><span style="position:absolute;left:0;color:var(--fg-subtle);">×</span> <strong style="color:var(--fg-strong);">Mais 30 componentes.</strong> Pulso v1 cobre o necessário. Foco em depth, não breadth.</li>
+        </ul>
+      </section>
+
+      <!-- ── Pointer para v3 ─────────────────── -->
+      <section class="phase" style="margin-top:64px;">
+        <div class="phase-header">
+          <div class="phase-title-block">
+            <div class="phase-num" style="color:var(--info-foreground, var(--info));">→</div>
+            <div>
+              <div class="phase-title">Próximo capítulo · v3</div>
+              <div class="phase-tagline">v2 fechou o sistema. v3 dá identidade própria, vocabulário de IA e paridade móvel.</div>
+            </div>
+          </div>
+        </div>
+        <div style="background:color-mix(in oklab, var(--info) 6%, var(--card));border:1px solid color-mix(in oklab, var(--info) 26%, var(--border));border-left:3px solid var(--info);border-radius:var(--radius-md);padding:22px 26px;">
+          <p style="font-size:15px;color:var(--fg);line-height:1.6;max-width:780px;">A v3 tem <strong style="color:var(--fg-strong);">3 fases · 14 iniciativas · ~12 semanas com paralelismo</strong>:</p>
+          <ul style="list-style:none;padding:0;margin:14px 0 18px;display:flex;flex-direction:column;gap:8px;">
+            <li style="font-size:14px;color:var(--fg-secondary);line-height:1.55;padding-left:22px;position:relative;"><span style="position:absolute;left:0;font-family:var(--font-pulso-mono);color:var(--primary);font-weight:700;">α</span> <strong style="color:var(--fg-strong);">Identidade carregada pelo sistema</strong> · auditoria sem-cor, tipografia confiante, ritmo, signature shapes, brand toolkit</li>
+            <li style="font-size:14px;color:var(--fg-secondary);line-height:1.55;padding-left:22px;position:relative;"><span style="position:absolute;left:0;font-family:var(--font-pulso-mono);color:var(--primary);font-weight:700;">β</span> <strong style="color:var(--fg-strong);">IA como pattern, não componente</strong> · origin tracking, draft &amp; regenerate, embedding, recommendation, audit trail</li>
+            <li style="font-size:14px;color:var(--fg-secondary);line-height:1.55;padding-left:22px;position:relative;"><span style="position:absolute;left:0;font-family:var(--font-pulso-mono);color:var(--primary);font-weight:700;">γ</span> <strong style="color:var(--fg-strong);">Mobile como paridade</strong> · gestures, offline-first, push handover, fundação de tokens nativos</li>
+          </ul>
+          <p style="font-size:13.5px;color:var(--fg-muted);line-height:1.55;margin-bottom:16px;"><strong style="color:var(--fg);">Próximo passo bloqueante:</strong> auditoria de identidade sem-cor (α.1) — 6 telas do Crisis Monitor em monocromático para diagnosticar o que carrega Pulso fora do roxo.</p>
+          <a href="roadmap-v3.html" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:var(--primary);color:var(--primary-foreground);border-radius:var(--radius-sm);font-size:13.5px;font-weight:500;text-decoration:none;font-family:inherit;">Abrir Plano v3 →</a>
+        </div>
+      </section>
+
+      <div style="height: 96px;"></div>
+    </div>
+  </main>
+</div>
+<script src="_nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Mention Card</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.mc {
+  display: grid;
+  grid-template-columns: 4px 1fr;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: box-shadow 160ms var(--motion-easing), border-color 160ms var(--motion-easing);
+}
+.mc:hover { box-shadow: var(--shadow-sm); border-color: var(--border-strong); }
+.mc-rail { background: var(--fg-subtle); }
+.mc-rail.critical { background: var(--risk-critical); }
+.mc-rail.high     { background: var(--risk-high); }
+.mc-rail.medium   { background: var(--risk-medium); }
+.mc-rail.monitor  { background: var(--risk-monitor); }
+
+.mc-body { padding: 14px 16px 12px; }
+
+.mc-meta {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-pulso-mono); font-size: 11px;
+  color: var(--fg-subtle);
+  margin-bottom: 8px;
+}
+.mc-source {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--fg-secondary); font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.mc-source-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--fg-muted); }
+.mc-source-dot.tier1 { background: var(--primary); }
+.mc-source-dot.tier2 { background: var(--success); }
+.mc-source-dot.social { background: var(--accent); }
+.mc-meta-sep { color: var(--border-strong); }
+.mc-time { font-variant-numeric: tabular-nums; }
+.mc-spacer { flex: 1; }
+
+.mc-level {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 2px 8px; border-radius: var(--radius-xs);
+  font-weight: 600;
+}
+.mc-level.critical { background: var(--risk-critical-bg); color: var(--risk-critical); border: 1px solid var(--risk-critical-border); }
+.mc-level.high     { background: var(--risk-high-bg);     color: var(--risk-high);     border: 1px solid var(--risk-high-border); }
+.mc-level.medium   { background: var(--risk-medium-bg);   color: var(--risk-medium);   border: 1px solid var(--risk-medium-border); }
+.mc-level.monitor  { background: var(--risk-monitor-bg);  color: var(--risk-monitor);  border: 1px solid var(--risk-monitor-border); }
+
+.mc-headline {
+  font-size: 15px; line-height: 1.4; color: var(--fg-strong);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  margin-bottom: 4px;
+}
+.mc-snippet {
+  font-size: 13px; line-height: 1.55; color: var(--fg-secondary);
+  margin-bottom: 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.mc-snippet mark {
+  background: color-mix(in oklab, var(--accent) 22%, transparent);
+  color: var(--fg-strong);
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+.mc-sig {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 10px;
+  font-family: var(--font-pulso-mono); font-size: 11px;
+  color: var(--fg-muted);
+}
+.mc-sig-item {
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.mc-sig-item svg { width: 12px; height: 12px; color: var(--fg-subtle); }
+.mc-sig-item .v { color: var(--fg-strong); font-weight: 600; }
+.mc-sig-item .v.up { color: var(--risk-critical); }
+.mc-sig-item .v.dn { color: var(--success); }
+
+.mc-foot {
+  display: flex; align-items: center; gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-faint);
+}
+.mc-action {
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 26px; padding: 0 10px;
+  font-size: 11.5px; font-family: inherit; font-weight: 500;
+  color: var(--fg-secondary);
+  background: transparent; border: 1px solid transparent;
+  border-radius: var(--radius-xs); cursor: pointer;
+}
+.mc-action:hover { background: var(--muted); color: var(--fg-strong); }
+.mc-action svg { width: 12px; height: 12px; }
+.mc-action.primary {
+  background: var(--primary-soft); color: var(--primary);
+  border-color: var(--primary-border);
+}
+.mc-action.primary:hover { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+
+/* AI annotation */
+.mc-ai {
+  display: flex; gap: 10px;
+  padding: 10px 12px;
+  background: color-mix(in oklab, var(--accent) 8%, var(--card));
+  border-top: 1px solid var(--border-faint);
+  font-size: 12.5px; line-height: 1.5;
+  color: var(--fg-secondary);
+}
+.mc-ai-mark {
+  flex-shrink: 0;
+  width: 18px; height: 18px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--accent); color: var(--accent-foreground);
+  border-radius: 50%;
+  font-family: var(--font-pulso-mono); font-size: 9.5px; font-weight: 700;
+}
+.mc-ai-text { color: var(--fg); }
+.mc-ai-text strong { color: var(--fg-strong); font-weight: 600; }
+.mc-ai-conf {
+  font-family: var(--font-pulso-mono); font-size: 10px;
+  color: var(--fg-subtle);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  margin-top: 2px;
+  display: block;
+}
+
+/* Compact variant */
+.mc-compact {
+  display: grid;
+  grid-template-columns: 3px 1fr auto;
+  align-items: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0;
+}
+.mc-compact .rail { width: 3px; align-self: stretch; }
+.mc-compact .body { padding: 10px 14px; min-width: 0; }
+.mc-compact .row1 { display: flex; align-items: center; gap: 8px; font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); margin-bottom: 3px; }
+.mc-compact .head { font-size: 13.5px; color: var(--fg-strong); font-weight: 500; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mc-compact .actions { padding: 0 10px; display: flex; gap: 2px; }
+
+/* Selected state */
+.mc.selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+/* Read state */
+.mc.read .mc-headline { color: var(--fg); font-weight: 500; }
+.mc.read .mc-rail { opacity: 0.4; }
+
+/* Threaded reply */
+.mc-thread {
+  margin-top: 8px;
+  padding-left: 16px;
+  border-left: 2px solid var(--border);
+  font-size: 12.5px; color: var(--fg-secondary);
+  line-height: 1.5;
+}
+.mc-thread-head {
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  color: var(--fg-subtle); text-transform: uppercase;
+  letter-spacing: 0.06em; margin-bottom: 4px;
+}
+
+/* Stack demo */
+.feed { display: grid; gap: 10px; max-width: 720px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Patterns · Crisis Domain</div>
+    <h1 class="page-title">Mention Card</h1>
+    <p class="page-sub">Cartão atômico para uma menção (post, matéria, comentário). É a unidade fundamental de qualquer feed do Pulso. Comunica de imediato: nível de risco (rail lateral), fonte com tier, hora, headline e snippet com termos destacados, sinais quantitativos e ações primárias. AI annotations aparecem como nota à parte.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Anatomia padrão</h2>
+      <p class="section-desc">Rail lateral colorido por nível · meta (fonte + tier + hora + atribuição) · headline em peso 600 · snippet com termos da query destacados · sinais quantitativos compactos · ações primária + secundárias.</p>
+
+      <div class="feed">
+        <article class="mc">
+          <div class="mc-rail critical"></div>
+          <div class="mc-body">
+            <div class="mc-meta">
+              <span class="mc-source"><span class="mc-source-dot tier1"></span>Folha de S.Paulo</span>
+              <span class="mc-meta-sep">·</span>
+              <span>tier 1 · imprensa</span>
+              <span class="mc-meta-sep">·</span>
+              <span class="mc-time">há 12 min</span>
+              <span class="mc-spacer"></span>
+              <span class="mc-level critical">Crítico · 89</span>
+            </div>
+            <h3 class="mc-headline">Reportagem da Folha cita "fontes anônimas" sobre auditoria interna na Acme Bank</h3>
+            <p class="mc-snippet">Segundo apurou a reportagem, ao menos três funcionários relataram <mark>irregularidades</mark> em processos de compliance. A <mark>Acme Bank</mark> foi procurada e respondeu por nota que "todas as práticas seguem a regulação vigente"…</p>
+            <div class="mc-sig">
+              <span class="mc-sig-item">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12V8a3 3 0 016 0v4M14 12V8a3 3 0 00-6 0v4M2 12h12"/></svg>
+                Alcance <span class="v">2.4M</span>
+              </span>
+              <span class="mc-sig-item">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8l3 3 7-7"/></svg>
+                Engajamento <span class="v up">+312%</span>
+              </span>
+              <span class="mc-sig-item">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 4v4l2 2"/></svg>
+                Velocidade <span class="v up">↑↑↑</span>
+              </span>
+              <span class="mc-sig-item">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M8 2v12"/></svg>
+                7 reproduções
+              </span>
+            </div>
+            <div class="mc-foot">
+              <button class="mc-action primary">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M9 4l4 4-4 4"/></svg>
+                Escalar para crise
+              </button>
+              <button class="mc-action">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 8l-6 6-6-6h4V2h4v6h4z" transform="rotate(180 8 8)"/></svg>
+                Briefing
+              </button>
+              <button class="mc-action">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2V5z"/></svg>
+                Atribuir
+              </button>
+              <button class="mc-action">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 8l-3 3m0 0l-3-3m3 3V2M2 13h12"/></svg>
+                Fonte
+              </button>
+              <span class="mc-spacer" style="flex: 1"></span>
+              <button class="mc-action">
+                <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="13" cy="8" r="1.4"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="mc-ai" style="grid-column: 1 / -1">
+            <span class="mc-ai-mark">AI</span>
+            <div>
+              <div class="mc-ai-text">Tema combina com <strong>"Compliance · 2023"</strong>. Padrão histórico: 78% das menções desse tipo escalam em 6h. Recomendado <strong>preparar resposta proativa</strong> antes do horário nobre (19h).</div>
+              <span class="mc-ai-conf">Confiança 84% · base: 142 incidentes similares</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="mc">
+          <div class="mc-rail high"></div>
+          <div class="mc-body">
+            <div class="mc-meta">
+              <span class="mc-source"><span class="mc-source-dot tier1"></span>G1</span>
+              <span class="mc-meta-sep">·</span>
+              <span>tier 1 · imprensa</span>
+              <span class="mc-meta-sep">·</span>
+              <span class="mc-time">há 41 min</span>
+              <span class="mc-meta-sep">·</span>
+              <span>Maria S. atribuiu</span>
+              <span class="mc-spacer"></span>
+              <span class="mc-level high">Alto · 67</span>
+            </div>
+            <h3 class="mc-headline">G1 reproduz íntegra da matéria com chamada na home por 2h12</h3>
+            <p class="mc-snippet">Portal G1 publicou a matéria às 14h51 com chamada de capa. A reportagem cita a <mark>Acme Bank</mark> em três momentos e adiciona contexto sobre processo trabalhista de 2023.</p>
+            <div class="mc-sig">
+              <span class="mc-sig-item">Alcance <span class="v">1.1M</span></span>
+              <span class="mc-sig-item">Engajamento <span class="v up">+118%</span></span>
+              <span class="mc-sig-item">Sentimento <span class="v" style="color: var(--risk-high)">Negativo 0.61</span></span>
+            </div>
+            <div class="mc-foot">
+              <button class="mc-action primary">Escalar</button>
+              <button class="mc-action">Briefing</button>
+              <button class="mc-action">Marcar como lido</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="mc read">
+          <div class="mc-rail medium"></div>
+          <div class="mc-body">
+            <div class="mc-meta">
+              <span class="mc-source"><span class="mc-source-dot social"></span>Twitter / X</span>
+              <span class="mc-meta-sep">·</span>
+              <span>social · @marcoscritica · 12k seguidores</span>
+              <span class="mc-meta-sep">·</span>
+              <span class="mc-time">há 1h08</span>
+              <span class="mc-spacer"></span>
+              <span class="mc-level medium">Médio · 42</span>
+            </div>
+            <h3 class="mc-headline">Influenciador econômico cita matéria da Folha em thread de 8 posts</h3>
+            <p class="mc-snippet">Thread cita <mark>Acme</mark> e questiona "a quem interessa esse silêncio". Crescimento orgânico, 1.2k retweets, 340 comentários — predominantemente questionando.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Variante compacta</h2>
+      <p class="section-desc">Para feeds densos · alerts laterais · resultados de busca. Headline truncada em uma linha, sem snippet, sem AI annotation. Ações em hover.</p>
+      <div class="feed">
+        <article class="mc-compact">
+          <div class="rail" style="background: var(--risk-critical)"></div>
+          <div class="body">
+            <div class="row1">
+              <span style="color: var(--risk-critical); font-weight: 600">CRÍT 89</span>
+              <span style="color: var(--border-strong)">·</span>
+              <span>Folha SP</span>
+              <span style="color: var(--border-strong)">·</span>
+              <span style="font-variant-numeric: tabular-nums">12 min</span>
+            </div>
+            <div class="head">Reportagem da Folha cita "fontes anônimas" sobre auditoria interna na Acme Bank</div>
+          </div>
+          <div class="actions">
+            <button class="mc-action">Abrir</button>
+          </div>
+        </article>
+        <article class="mc-compact">
+          <div class="rail" style="background: var(--risk-high)"></div>
+          <div class="body">
+            <div class="row1">
+              <span style="color: var(--risk-high); font-weight: 600">ALTO 67</span>
+              <span style="color: var(--border-strong)">·</span>
+              <span>G1</span>
+              <span style="color: var(--border-strong)">·</span>
+              <span style="font-variant-numeric: tabular-nums">41 min</span>
+            </div>
+            <div class="head">G1 reproduz íntegra da matéria com chamada na home por 2h12</div>
+          </div>
+          <div class="actions">
+            <button class="mc-action">Abrir</button>
+          </div>
+        </article>
+        <article class="mc-compact">
+          <div class="rail" style="background: var(--risk-medium)"></div>
+          <div class="body">
+            <div class="row1">
+              <span style="color: var(--risk-medium); font-weight: 600">MÉD 42</span>
+              <span style="color: var(--border-strong)">·</span>
+              <span>Twitter</span>
+              <span style="color: var(--border-strong)">·</span>
+              <span style="font-variant-numeric: tabular-nums">1h08</span>
+            </div>
+            <div class="head">Influenciador econômico cita matéria da Folha em thread de 8 posts</div>
+          </div>
+          <div class="actions">
+            <button class="mc-action">Abrir</button>
+          </div>
+        </article>
+        <article class="mc-compact">
+          <div class="rail" style="background: var(--risk-monitor)"></div>
+          <div class="body">
+            <div class="row1">
+              <span style="color: var(--risk-monitor); font-weight: 600">MON 23</span>
+              <span style="color: var(--border-strong)">·</span>
+              <span>Reclame Aqui</span>
+              <span style="color: var(--border-strong)">·</span>
+              <span style="font-variant-numeric: tabular-nums">2h45</span>
+            </div>
+            <div class="head">Volume de reclamações sobre app cresce 18% nas últimas 24h</div>
+          </div>
+          <div class="actions">
+            <button class="mc-action">Abrir</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Estados</h2>
+      <p class="section-desc">Default · selecionado (em multiselect) · lido (rebaixa hierarquia visual mas não esconde) · com thread/resposta interna.</p>
+      <div class="feed">
+        <article class="mc selected">
+          <div class="mc-rail high"></div>
+          <div class="mc-body">
+            <div class="mc-meta">
+              <span class="mc-source"><span class="mc-source-dot tier1"></span>Estadão</span>
+              <span class="mc-meta-sep">·</span>
+              <span class="mc-time">há 2h</span>
+              <span class="mc-spacer"></span>
+              <span class="mc-level high">Alto · 71</span>
+            </div>
+            <h3 class="mc-headline">Estado de São Paulo cita matéria em coluna de bastidores políticos</h3>
+            <p class="mc-snippet">Coluna política do <mark>Estadão</mark> menciona o caso em parágrafo de fechamento. Posicionamento neutro mas com viés crítico nas perguntas levantadas.</p>
+            <div class="mc-thread">
+              <div class="mc-thread-head">Resposta interna · Maria S. · há 20 min</div>
+              Já abri ticket com o jurídico. Vamos preparar nota técnica até 17h. Pinguei o Felipe pra alinhar tom.
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Diretrizes</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Faça</div>
+          <ul>
+            <li>Rail lateral é a primeira leitura · cor por nível, sempre</li>
+            <li>Headline em peso 600 · snippet em 400 · termos da query destacados</li>
+            <li>Sinais quantitativos com tabular-nums e setas direcionais</li>
+            <li>AI annotations sempre marcadas com badge "AI" e nível de confiança</li>
+            <li>Ação primária à esquerda, "mais" como menu à direita</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Evite</div>
+          <ul>
+            <li>Mais de 4 sinais quantitativos · escolha os mais relevantes ao nível</li>
+            <li>Snippet com mais de 2 linhas · use modal para ler completo</li>
+            <li>AI suggestions sem indicação de confiança e base</li>
+            <li>Esconder cards lidos · rebaixe hierarquia, mas mantenha visíveis</li>
+            <li>Ações em ícones sem rótulo · sempre com label visível</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

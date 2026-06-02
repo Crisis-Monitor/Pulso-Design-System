@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Contraste</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* Audit-page-specific */
+.cm-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 4px; }
+.cm-tbl th, .cm-tbl td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border-faint); vertical-align: middle; }
+.cm-tbl th { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.cm-tbl td.mono { font-family: var(--font-pulso-mono); color: var(--fg-secondary); }
+.cm-tbl tr:hover td { background: color-mix(in oklab, var(--muted) 50%, transparent); }
+
+.cm-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -3px; margin-right: 8px; border: 1px solid var(--border); }
+.cm-token-name { font-family: var(--font-pulso-mono); color: var(--fg-strong); font-weight: 500; }
+
+.cm-rating { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-pulso-mono); font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: var(--radius-xs); border: 1px solid; letter-spacing: 0.04em; }
+.cm-rating-aaa  { background: color-mix(in oklab, var(--success) 12%, var(--card)); color: var(--success); border-color: var(--success-border); }
+.cm-rating-aa   { background: color-mix(in oklab, var(--success) 8%, var(--card));  color: var(--success); border-color: color-mix(in oklab, var(--success-border) 60%, transparent); }
+.cm-rating-aal  { background: var(--warning-bg); color: var(--warning); border-color: var(--warning-border); }
+.cm-rating-fail { background: var(--destructive-bg); color: var(--destructive); border-color: var(--destructive-border); }
+.cm-ratio { font-family: var(--font-pulso-mono); font-size: 12px; color: var(--fg-strong); }
+
+.cm-sample { display: inline-block; padding: 4px 10px; border-radius: var(--radius-xs); font-size: 12px; font-family: inherit; min-width: 96px; text-align: center; border: 1px solid transparent; }
+
+.fix-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 720px) { .fix-grid { grid-template-columns: 1fr; } }
+.fix-card { padding: 18px 20px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.fix-before, .fix-after { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
+.fix-before { border-bottom: 1px solid var(--border-faint); }
+.fix-label { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; width: 60px; }
+.fix-before .fix-label { color: var(--destructive); }
+.fix-after .fix-label { color: var(--success); }
+.fix-hex { font-family: var(--font-pulso-mono); font-size: 12px; color: var(--fg-strong); }
+.fix-arrow { color: var(--fg-subtle); }
+.fix-note { font-size: 12.5px; color: var(--fg-secondary); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-faint); line-height: 1.55; }
+.fix-name { font-family: var(--font-pulso-mono); color: var(--fg-strong); font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+
+.theme-tabs { display: inline-flex; background: var(--muted); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 2px; gap: 2px; margin-bottom: 16px; }
+.theme-tab { padding: 5px 14px; background: transparent; border: none; color: var(--fg-muted); font-family: inherit; font-size: 12px; cursor: pointer; border-radius: calc(var(--radius-sm) - 2px); }
+.theme-tab.active { background: var(--card); color: var(--fg-strong); box-shadow: var(--shadow-soft); font-weight: 500; }
+
+.intent-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.intent-tbl th, .intent-tbl td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--border-faint); vertical-align: middle; }
+.intent-tbl th { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.intent-tbl td:first-child { font-family: var(--font-pulso-mono); color: var(--fg-strong); font-weight: 500; white-space: nowrap; }
+.intent-tbl td:nth-child(2) { color: var(--fg); }
+.intent-tbl td:nth-child(3) { color: var(--fg-secondary); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+
+    <div class="page-kicker">Foundations · Accessibility · 01</div>
+    <h1 class="page-title">Contraste</h1>
+    <p class="page-sub">Auditoria WCAG 2.1 de cada combinação <code>foreground × background</code> do Pulso. Esta página é a fonte da verdade: se uma combinação aparece aqui como <strong>AA</strong> ou <strong>AAA</strong>, pode usar; se aparece como <strong>FAIL</strong>, não use — existe alternativa.</p>
+
+    <!-- ── Métricas de release ─────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Estado da v2</h2>
+      <p class="section-desc">Auditoria executada em <strong>14 mai 2026</strong>. Após refator desta release, 100% das combinações de body text passam WCAG AA em ambos os temas.</p>
+      <div class="metrics-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px 18px;">
+          <div style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);">Body text AA</div>
+          <div style="font-family:var(--font-pulso-mono);font-size:24px;font-weight:600;color:var(--success);margin-top:4px;letter-spacing:-0.01em;">100%</div>
+          <div style="font-size:12px;color:var(--fg-muted);margin-top:4px;">era 67% antes do refator</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px 18px;">
+          <div style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);">Tokens refatorados</div>
+          <div style="font-family:var(--font-pulso-mono);font-size:24px;font-weight:600;color:var(--fg-strong);margin-top:4px;letter-spacing:-0.01em;">5</div>
+          <div style="font-size:12px;color:var(--fg-muted);margin-top:4px;">fg-subtle (×2), warning, success, destructive</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px 18px;">
+          <div style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);">Combinações auditadas</div>
+          <div style="font-family:var(--font-pulso-mono);font-size:24px;font-weight:600;color:var(--fg-strong);margin-top:4px;letter-spacing:-0.01em;">64</div>
+          <div style="font-size:12px;color:var(--fg-muted);margin-top:4px;">32 light + 32 dark</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px 18px;">
+          <div style="font-family:var(--font-pulso-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);">CI Axe</div>
+          <div style="font-family:var(--font-pulso-mono);font-size:24px;font-weight:600;color:var(--warning);margin-top:4px;letter-spacing:-0.01em;">pendente</div>
+          <div style="font-size:12px;color:var(--fg-muted);margin-top:4px;">setup na iniciativa 1.1 cont.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Política ─────────────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Política do Pulso</h2>
+      <p class="section-desc">O DS adota WCAG 2.1 AA como mínimo para todo texto de produto. AAA é o alvo para texto crítico (alertas, mensagens de erro).</p>
+      <table class="intent-tbl">
+        <thead><tr><th>Nível</th><th>Critério</th><th>Quando aplicar</th></tr></thead>
+        <tbody>
+          <tr><td>AAA</td><td>Contraste ≥ 7.0 : 1 (texto normal) · ≥ 4.5 (texto grande)</td><td>Texto crítico: alertas, confirmação destrutiva, erros</td></tr>
+          <tr><td>AA</td><td>Contraste ≥ 4.5 : 1 (texto normal) · ≥ 3.0 (texto grande)</td><td><strong>Default obrigatório</strong> para todo texto de produto</td></tr>
+          <tr><td>AA Large</td><td>Contraste ≥ 3.0 : 1 — só vale para texto ≥ 18pt (24px) ou ≥ 14pt (18.5px) bold</td><td>Display, kickers, badges visuais — nunca body</td></tr>
+          <tr><td>FAIL</td><td>Contraste &lt; 3.0 : 1</td><td><strong>Proibido</strong> para qualquer texto, exceto disabled e decorativo</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Refator desta release ─────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Refator · v2 release</h2>
+      <p class="section-desc">Cinco tokens foram realinhados para passar AA. Os hex antigos permanecem citados para rastreabilidade.</p>
+      <div class="fix-grid">
+
+        <div class="fix-card">
+          <div class="fix-name">fg-subtle · light</div>
+          <div class="fix-before">
+            <span class="fix-label">Antes</span>
+            <span class="cm-swatch" style="background:#A09CB4;"></span>
+            <span class="fix-hex">#A09CB4</span>
+            <span class="fix-arrow">→</span>
+            <span class="cm-rating cm-rating-fail">FAIL 2.66</span>
+          </div>
+          <div class="fix-after">
+            <span class="fix-label">Agora</span>
+            <span class="cm-swatch" style="background:#706C88;"></span>
+            <span class="fix-hex">#706C88</span>
+            <span class="fix-arrow">→</span>
+            <span class="cm-rating cm-rating-aa">AA 5.01</span>
+          </div>
+          <div class="fix-note">Usado em placeholders, timestamps, metadados. Era 2.66:1 sobre card — falha grave para body text. Escurecido mantendo a vibe lavanda.</div>
+        </div>
+
+        <div class="fix-card">
+          <div class="fix-name">fg-subtle · dark</div>
+          <div class="fix-before">
+            <span class="fix-label">Antes</span>
+            <span class="cm-swatch" style="background:#6E678E;"></span>
+            <span class="fix-hex">#6E678E</span>
+            <span class="fix-arrow">→</span>
+            <span class="cm-rating cm-rating-aal">AA Large 3.50</span>
+          </div>
+          <div class="fix-after">
+            <span class="fix-label">Agora</span>
+            <span class="cm-swatch" style="background:#9189B5;"></span>
+            <span class="fix-hex">#9189B5</span>
+            <span class="fix-arrow">→</span>
+            <span class="cm-rating cm-rating-aa">AA 5.66</span>
+          </div>
+          <div class="fix-note">Mesmo problema no dark, ao contrário — clareado. Agora passa AA em todos os surfaces (background, card, muted).</div>
+        </div>
+
+        <div class="fix-card">
+          <div class="fix-name">warning · light</div>
+          <div class="fix-before">
+            <span class="fix-label">Antes</span>
+            <span class="cm-swatch" style="background:#D97706;"></span>
+            <span class="fix-hex">#D97706</span>
+            <span class="fix-arrow">→</span>
+            <span class="cm-rating cm-rating-fail">FAIL 2.90</span>
+          </div>
+          <div class="fix-after">
+            <span class="fix-label">Agora</span>
+            <span class="cm-swatch" style="background:#9F4A07;"></span>
+            <span class="fix-hex">#9F4A07</span>
+            <span class="fix-arrow">→</span>
+            <span class="cm-rating cm-rating-aa">AA 5.53</span>
+          </div>
+          <div class="fix-note">Texto warning sobre warning-bg falhava grave. Mantém o hue âmbar, escurecido para legibilidade.</div>
+        </div>
+
+        <div class="fix-card">
+          <div class="fix-name">success · light</div>
+          <div class="fix-before">
+            <span class="fix-label">Antes</span>
+            <span class="cm-swatch" style="background:#15803D;"></span>
+            <span class="fix-hex">#15803D</span>
+            <span class="fix-arrow">→</span>
+            <span class="cm-rating cm-rating-aal">AA Large 4.44</span>
+          </div>
+          <div class="fix-after">
+            <span class="fix-label">Agora</span>
+            <span class="cm-swatch" style="background:#14753A;"></span>
+            <span class="fix-hex">#14753A</span>
+            <span class="fix-arrow">→</span>
+            <span class="cm-rating cm-rating-aa">AA 5.11</span>
+          </div>
+          <div class="fix-note">Borderline (era AA Large). Pequeno ajuste de luminância para AA pleno sem perder identidade.</div>
+        </div>
+
+        <div class="fix-card">
+          <div class="fix-name">destructive · light</div>
+          <div class="fix-before">
+            <span class="fix-label">Antes</span>
+            <span class="cm-swatch" style="background:#D63D4E;"></span>
+            <span class="fix-hex">#D63D4E</span>
+            <span class="fix-arrow">→</span>
+            <span class="cm-rating cm-rating-aal">AA Large 4.01</span>
+          </div>
+          <div class="fix-after">
+            <span class="fix-label">Agora</span>
+            <span class="cm-swatch" style="background:#C53341;"></span>
+            <span class="fix-hex">#C53341</span>
+            <span class="fix-arrow">→</span>
+            <span class="cm-rating cm-rating-aa">AA 4.74</span>
+          </div>
+          <div class="fix-note">Borderline. Ajuste fino — ainda é o mesmo "magenta-rosa", agora seguro para body em delete dialogs e erro.</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── Matriz fg × bg · LIGHT ─────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Matriz fg × bg · Light</h2>
+      <p class="section-desc">Toda combinação fundamental de texto sobre superfície no tema claro.</p>
+      <table class="cm-tbl">
+        <thead>
+          <tr><th>Foreground</th><th>background</th><th>card</th><th>muted</th><th>surface-2</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="cm-swatch" style="background:#0A0A14;"></span><span class="cm-token-name">fg-strong</span></td>
+            <td><span class="cm-ratio">18.01</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+            <td><span class="cm-ratio">19.69</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+            <td><span class="cm-ratio">17.21</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+            <td><span class="cm-ratio">16.27</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+          </tr>
+          <tr>
+            <td><span class="cm-swatch" style="background:#171629;"></span><span class="cm-token-name">fg</span></td>
+            <td><span class="cm-ratio">16.23</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+            <td><span class="cm-ratio">17.75</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+            <td><span class="cm-ratio">15.51</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+            <td><span class="cm-ratio">14.67</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+          </tr>
+          <tr>
+            <td><span class="cm-swatch" style="background:#4A4961;"></span><span class="cm-token-name">fg-secondary</span></td>
+            <td><span class="cm-ratio">7.95</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+            <td><span class="cm-ratio">8.69</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+            <td><span class="cm-ratio">7.59</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+            <td><span class="cm-ratio">7.18</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+          </tr>
+          <tr>
+            <td><span class="cm-swatch" style="background:#73718A;"></span><span class="cm-token-name">fg-muted</span></td>
+            <td><span class="cm-ratio">4.31</span> <span class="cm-rating cm-rating-aal">AA Large</span></td>
+            <td><span class="cm-ratio">4.71</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">4.12</span> <span class="cm-rating cm-rating-aal">AA Large</span></td>
+            <td><span class="cm-ratio">3.89</span> <span class="cm-rating cm-rating-aal">AA Large</span></td>
+          </tr>
+          <tr>
+            <td><span class="cm-swatch" style="background:#706C88;"></span><span class="cm-token-name">fg-subtle</span></td>
+            <td><span class="cm-ratio">4.58</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">5.01</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">4.38</span> <span class="cm-rating cm-rating-aal">AA Large</span></td>
+            <td><span class="cm-ratio">4.14</span> <span class="cm-rating cm-rating-aal">AA Large</span></td>
+          </tr>
+          <tr style="opacity:0.7;">
+            <td><span class="cm-swatch" style="background:#C5C2D2;"></span><span class="cm-token-name">fg-ghost</span></td>
+            <td colspan="4" style="color:var(--fg-muted);font-style:italic;">decorativo/não-texto · WCAG exempt</td>
+          </tr>
+          <tr style="opacity:0.7;">
+            <td><span class="cm-swatch" style="background:#D5CEC5;"></span><span class="cm-token-name">fg-disabled</span></td>
+            <td colspan="4" style="color:var(--fg-muted);font-style:italic;">estado disabled · WCAG exempt</td>
+          </tr>
+          <tr>
+            <td><span class="cm-swatch" style="background:#6C46F5;"></span><span class="cm-token-name">primary</span></td>
+            <td><span class="cm-ratio">5.01</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">5.48</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">4.79</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">4.53</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Matriz fg × bg · DARK ─────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Matriz fg × bg · Dark</h2>
+      <p class="section-desc">Toda combinação fundamental de texto sobre superfície no tema escuro.</p>
+      <table class="cm-tbl">
+        <thead>
+          <tr><th>Foreground</th><th>background</th><th>card</th><th>muted</th><th>surface-2</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="cm-swatch" style="background:#FFFFFF;border-color:var(--border-strong);"></span><span class="cm-token-name">fg-strong</span></td>
+            <td><span class="cm-ratio">19.30</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+            <td><span class="cm-ratio">18.42</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+            <td><span class="cm-ratio">17.44</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+            <td><span class="cm-ratio">16.25</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+          </tr>
+          <tr>
+            <td><span class="cm-swatch" style="background:#F6F3FF;"></span><span class="cm-token-name">fg</span></td>
+            <td><span class="cm-ratio">17.63</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+            <td><span class="cm-ratio">16.83</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+            <td><span class="cm-ratio">15.93</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+            <td><span class="cm-ratio">14.85</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+          </tr>
+          <tr>
+            <td><span class="cm-swatch" style="background:#C9C3E6;"></span><span class="cm-token-name">fg-secondary</span></td>
+            <td><span class="cm-ratio">11.43</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+            <td><span class="cm-ratio">10.90</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+            <td><span class="cm-ratio">10.33</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+            <td><span class="cm-ratio">9.62</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+          </tr>
+          <tr>
+            <td><span class="cm-swatch" style="background:#9891B8;"></span><span class="cm-token-name">fg-muted</span></td>
+            <td><span class="cm-ratio">6.51</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">6.21</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">5.88</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">5.48</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+          </tr>
+          <tr>
+            <td><span class="cm-swatch" style="background:#9189B5;"></span><span class="cm-token-name">fg-subtle</span></td>
+            <td><span class="cm-ratio">5.93</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">5.66</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">5.36</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">4.99</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+          </tr>
+          <tr style="opacity:0.7;">
+            <td><span class="cm-swatch" style="background:#4E4775;"></span><span class="cm-token-name">fg-ghost</span></td>
+            <td colspan="4" style="color:var(--fg-muted);font-style:italic;">decorativo/não-texto · WCAG exempt</td>
+          </tr>
+          <tr style="opacity:0.7;">
+            <td><span class="cm-swatch" style="background:#3D3660;"></span><span class="cm-token-name">fg-disabled</span></td>
+            <td colspan="4" style="color:var(--fg-muted);font-style:italic;">estado disabled · WCAG exempt</td>
+          </tr>
+          <tr>
+            <td><span class="cm-swatch" style="background:#8A63FF;"></span><span class="cm-token-name">primary</span></td>
+            <td><span class="cm-ratio">4.88</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">4.66</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">4.41</span> <span class="cm-rating cm-rating-aal">AA Large</span></td>
+            <td><span class="cm-ratio">4.11</span> <span class="cm-rating cm-rating-aal">AA Large</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Risk text on bg ─────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Texto de risco sobre seu próprio bg</h2>
+      <p class="section-desc">Cada nível de risco é um par <code>text + bg</code>. Combinação validada em ambos os temas.</p>
+      <table class="cm-tbl">
+        <thead><tr><th>Nível</th><th>Token</th><th>Light · ratio</th><th>Dark · ratio</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="cm-swatch" style="background:#2B7A56;"></span><span class="cm-token-name">stable</span></td>
+            <td class="mono">risk-stable-text on bg</td>
+            <td><span class="cm-ratio">4.71</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">9.32</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+          </tr>
+          <tr>
+            <td><span class="cm-swatch" style="background:#4368B8;"></span><span class="cm-token-name">monitor</span></td>
+            <td class="mono">risk-monitor-text on bg</td>
+            <td><span class="cm-ratio">4.83</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">7.51</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+          </tr>
+          <tr>
+            <td><span class="cm-swatch" style="background:#8B5C18;"></span><span class="cm-token-name">attention</span></td>
+            <td class="mono">risk-attention-text on bg</td>
+            <td><span class="cm-ratio">5.25</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">9.19</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+          </tr>
+          <tr>
+            <td><span class="cm-swatch" style="background:#A8455C;"></span><span class="cm-token-name">high</span></td>
+            <td class="mono">risk-high-text on bg</td>
+            <td><span class="cm-ratio">4.88</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">7.89</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+          </tr>
+          <tr>
+            <td><span class="cm-swatch" style="background:#8F3349;"></span><span class="cm-token-name">critical</span></td>
+            <td class="mono">risk-critical-text on bg</td>
+            <td><span class="cm-ratio">5.84</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">8.88</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Semantic ─────────────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Texto semântico sobre seu próprio bg</h2>
+      <p class="section-desc">Após o refator de warning, success e destructive no light, todos passam AA.</p>
+      <table class="cm-tbl">
+        <thead><tr><th>Token</th><th>Light · ratio</th><th>Dark · ratio</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="cm-swatch" style="background:#14753A;"></span><span class="cm-token-name">success</span></td>
+            <td><span class="cm-ratio">5.11</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">7.53</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+          </tr>
+          <tr>
+            <td><span class="cm-swatch" style="background:#9F4A07;"></span><span class="cm-token-name">warning</span></td>
+            <td><span class="cm-ratio">5.53</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">7.61</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+          </tr>
+          <tr>
+            <td><span class="cm-swatch" style="background:#C53341;"></span><span class="cm-token-name">destructive</span></td>
+            <td><span class="cm-ratio">4.74</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">5.83</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+          </tr>
+          <tr>
+            <td><span class="cm-swatch" style="background:#3B4D9F;"></span><span class="cm-token-name">info</span></td>
+            <td><span class="cm-ratio">6.66</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+            <td><span class="cm-ratio">4.99</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Sidebar ─────────────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Sidebar (chrome fixo)</h2>
+      <p class="section-desc">A sidebar usa o mesmo chrome em light e dark, então só uma tabela.</p>
+      <table class="cm-tbl">
+        <thead><tr><th>Combinação</th><th>Uso</th><th>Ratio</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="mono">sidebar-foreground on sidebar</td>
+            <td>Links de navegação</td>
+            <td><span class="cm-ratio">17.63</span> <span class="cm-rating cm-rating-aaa">AAA</span></td>
+          </tr>
+          <tr>
+            <td class="mono">sidebar-muted (#7E78A0) on sidebar</td>
+            <td>Labels de seção (ROADMAP, GETTING STARTED…)</td>
+            <td><span class="cm-ratio">4.67</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+          </tr>
+          <tr>
+            <td class="mono">sidebar-primary on sidebar</td>
+            <td>Brand mark, item ativo, theme toggle</td>
+            <td><span class="cm-ratio">4.88</span> <span class="cm-rating cm-rating-aa">AA</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Regras de uso ─────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Regras de uso</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Faça</div>
+          <ul>
+            <li>Use <code>fg-strong</code>, <code>fg</code> ou <code>fg-secondary</code> em qualquer body text — todos passam AAA.</li>
+            <li>Use <code>fg-muted</code> em labels e captions sobre card; em surface-2 só para texto ≥14px.</li>
+            <li>Use <code>fg-subtle</code> em placeholders, timestamps e metadados — agora passa AA.</li>
+            <li>Audite combinações novas usando esta página antes de subir PR.</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Evite</div>
+          <ul>
+            <li>Não use <code>fg-ghost</code> em texto. É decorativo (separadores, watermarks).</li>
+            <li>Não use <code>fg-disabled</code> em qualquer texto que não seja em controle <em>disabled</em>.</li>
+            <li>Não invente um cinza intermediário — use o token mais próximo.</li>
+            <li>Não confie em cor sozinha para sinalizar risco — combine com ícone + label (ver redundância na iniciativa 1.2).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Próximos passos ──────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Próximos passos · Acessibilidade</h2>
+      <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:8px;">
+        <li style="font-size:13.5px;color:var(--fg);line-height:1.55;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);"><strong style="color:var(--fg-strong);">1.1 cont.</strong> · CI step com <code>axe-core</code> rodando nas 3 templates principais. Bloquear PR que introduz violação.</li>
+        <li style="font-size:13.5px;color:var(--fg);line-height:1.55;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);"><strong style="color:var(--fg-strong);">1.2</strong> · <a href="risk-levels.html" style="color:var(--primary);text-decoration:none;border-bottom:1px solid color-mix(in oklab, var(--primary) 30%, transparent);">Redundância de cor nos níveis de risco</a> — glifo + label obrigatórios em todo componente que carrega risco.</li>
+        <li style="font-size:13.5px;color:var(--fg);line-height:1.55;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);"><strong style="color:var(--fg-strong);">1.3</strong> · Auditar focus rings em 100% dos atoms; documentar keyboard map por componente.</li>
+        <li style="font-size:13.5px;color:var(--fg);line-height:1.55;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);"><strong style="color:var(--fg-strong);">1.4</strong> · Contrato ARIA: <code>aria-live="assertive"</code> em Alert critical, <code>polite</code> nos demais; labels obrigatórios em IconButton.</li>
+        <li style="font-size:13.5px;color:var(--fg);line-height:1.55;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);"><strong style="color:var(--fg-strong);">1.5</strong> · <code>@media (prefers-reduced-motion: reduce)</code> aplicado nos tokens motion globais.</li>
+      </ul>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

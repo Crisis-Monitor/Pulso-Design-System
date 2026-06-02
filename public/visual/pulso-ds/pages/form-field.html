@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Form Field</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.pff { display: flex; flex-direction: column; gap: 6px; min-width: 320px; }
+.pff-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.pff-label { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); }
+.pff-label .pff-req { color: var(--destructive); margin-left: 2px; }
+.pff-optional { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); opacity: 0.7; }
+
+.pff-input {
+  width: 100%; height: 36px; padding: 0 12px;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+  background: var(--card); color: var(--fg-strong);
+  font-family: var(--font-pulso-sans); font-size: 13px;
+  outline: none;
+  transition: border-color 140ms var(--motion-easing);
+}
+.pff-input::placeholder { color: var(--fg-subtle); }
+.pff-input:hover { border-color: var(--fg-muted); }
+.pff-input:focus { border-color: var(--primary); outline: var(--ring-width) solid var(--ring); outline-offset: 0; }
+.pff.is-error .pff-input { border-color: var(--destructive); }
+.pff.is-error .pff-input:focus { outline-color: color-mix(in oklab, var(--destructive) 30%, transparent); }
+.pff.is-success .pff-input { border-color: var(--success); }
+
+.pff-help { font-size: 12px; color: var(--fg-muted); line-height: 1.5; }
+.pff-error { font-size: 12px; color: var(--destructive); display: inline-flex; align-items: center; gap: 6px; }
+.pff-error svg { width: 12px; height: 12px; flex-shrink: 0; }
+.pff-success { font-size: 12px; color: var(--success); display: inline-flex; align-items: center; gap: 6px; }
+.pff-success svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+/* Inline label variant — mais compacto, label à esquerda */
+.pff-inline { display: grid; grid-template-columns: 160px 1fr; gap: 16px; align-items: center; }
+.pff-inline .pff-label { margin: 0; }
+
+/* With prefix/suffix */
+.pff-affix { display: flex; align-items: stretch; }
+.pff-affix .pff-prefix, .pff-affix .pff-suffix {
+  display: inline-flex; align-items: center; gap: 4px; padding: 0 12px;
+  background: var(--surface-2); border: 1px solid var(--border-strong);
+  font-family: var(--font-pulso-mono); font-size: 12px; color: var(--fg-secondary);
+  flex-shrink: 0;
+}
+.pff-affix .pff-prefix { border-radius: var(--radius-md) 0 0 var(--radius-md); border-right: 0; }
+.pff-affix .pff-suffix { border-radius: 0 var(--radius-md) var(--radius-md) 0; border-left: 0; }
+.pff-affix .pff-input { border-radius: 0; }
+.pff-affix .pff-prefix + .pff-input { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+.pff-affix .pff-input + .pff-suffix { }
+.pff-affix .pff-input:first-child { border-top-left-radius: var(--radius-md); border-bottom-left-radius: var(--radius-md); }
+.pff-affix .pff-input:last-child { border-top-right-radius: var(--radius-md); border-bottom-right-radius: var(--radius-md); }
+
+/* Helper alongside */
+.pff-tooltip-trigger {
+  width: 14px; height: 14px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--muted); color: var(--fg-muted);
+  font-size: 9px; font-weight: 700; cursor: help;
+  margin-left: 4px;
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Molecules · Onda 3 · Form 01</div>
+    <h1 class="page-title">Form Field</h1>
+    <p class="page-sub">Container que une label + input + helper/erro/sucesso. Padrão para qualquer campo de formulário no Pulso. Label monoespaçada acima, mensagem de feedback abaixo.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Anatomia</h2>
+      <p class="section-desc">Label em mono uppercase 10.5px (tracking 0.08em). Helper/erro em sans 12px abaixo. Spacing fixo 6px entre todos os elementos.</p>
+      <div class="preview-row" style="display: flex; flex-direction: column; gap: 18px; align-items: stretch;">
+        <div class="pff">
+          <div class="pff-head">
+            <label class="pff-label">Nome do projeto<span class="pff-req">*</span></label>
+            <span class="pff-optional">Obrigatório</span>
+          </div>
+          <input type="text" class="pff-input" placeholder="Ex.: Operação Água Nova" value="Operação Água Nova">
+          <div class="pff-help">Visível para todos os membros do time. Pode ser alterado depois.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Estados</h2>
+      <p class="section-desc">Padrão · Erro · Sucesso · Disabled. Mensagem abaixo do campo, ícone à esquerda do texto. Nunca remova label em estado de erro — sempre fornece contexto para correção.</p>
+      <div class="preview-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+        <div class="pff">
+          <label class="pff-label">E-mail corporativo</label>
+          <input type="email" class="pff-input" placeholder="seu.nome@empresa.com">
+          <div class="pff-help">Usaremos para notificações de alerta.</div>
+        </div>
+        <div class="pff is-error">
+          <label class="pff-label">E-mail corporativo<span class="pff-req">*</span></label>
+          <input type="email" class="pff-input" value="mariana@gmail">
+          <div class="pff-error">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v3.5M8 11v0.5"/></svg>
+            E-mail inválido. Use o domínio corporativo (@empresa.com).
+          </div>
+        </div>
+        <div class="pff is-success">
+          <label class="pff-label">Subdomínio</label>
+          <input type="text" class="pff-input" value="acme-comm">
+          <div class="pff-success">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8.5l3 3 7-7"/></svg>
+            Disponível · acme-comm.pulso.app
+          </div>
+        </div>
+        <div class="pff">
+          <label class="pff-label">Workspace ID</label>
+          <input type="text" class="pff-input" value="ws_2k4n92m" disabled style="background: var(--muted); color: var(--fg-disabled); cursor: not-allowed;">
+          <div class="pff-help">Gerado automaticamente · não editável.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Com prefixo / sufixo</h2>
+      <p class="section-desc">Para entradas com unidade ou contexto fixo. Prefixo/sufixo em mono, fundo surface-2 — visualmente parte do campo, mas não editável.</p>
+      <div class="preview-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+        <div class="pff">
+          <label class="pff-label">URL pública</label>
+          <div class="pff-affix">
+            <span class="pff-prefix">https://</span>
+            <input type="text" class="pff-input" value="acme-comm.pulso.app">
+          </div>
+        </div>
+        <div class="pff">
+          <label class="pff-label">Limiar de menções / hora</label>
+          <div class="pff-affix">
+            <input type="number" class="pff-input" value="120">
+            <span class="pff-suffix">menções/h</span>
+          </div>
+          <div class="pff-help">Acima desse valor, sinal escala para Médio.</div>
+        </div>
+        <div class="pff">
+          <label class="pff-label">Investimento mensal</label>
+          <div class="pff-affix">
+            <span class="pff-prefix">R$</span>
+            <input type="number" class="pff-input" value="48000">
+            <span class="pff-suffix">/mês</span>
+          </div>
+        </div>
+        <div class="pff">
+          <label class="pff-label">Duração estimada</label>
+          <div class="pff-affix">
+            <input type="number" class="pff-input" value="90">
+            <span class="pff-suffix">dias</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Inline label</h2>
+      <p class="section-desc">Label à esquerda em vez de acima. Use em telas de Settings, formulários densos com muitos campos. Coluna fixa 160px.</p>
+      <div class="preview-row" style="display: flex; flex-direction: column; gap: 14px; align-items: stretch;">
+        <div class="pff pff-inline">
+          <label class="pff-label">Nome do alerta</label>
+          <input type="text" class="pff-input" value="Pico de menções negativas">
+        </div>
+        <div class="pff pff-inline">
+          <label class="pff-label">Janela temporal</label>
+          <input type="text" class="pff-input" value="15 minutos">
+        </div>
+        <div class="pff pff-inline">
+          <label class="pff-label">Limiar mínimo</label>
+          <input type="number" class="pff-input" value="120">
+        </div>
+        <div class="pff pff-inline is-error">
+          <label class="pff-label">Webhook URL</label>
+          <input type="text" class="pff-input" value="acme.com/webhook">
+        </div>
+        <div class="pff pff-inline" style="grid-template-columns: 160px 1fr; align-items: start;">
+          <span></span>
+          <div class="pff-error">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v3.5M8 11v0.5"/></svg>
+            URL deve começar com https://
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Diretrizes</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Faça</div>
+          <ul>
+            <li>Helper text para contexto · 1 linha, &lt; 80 caracteres</li>
+            <li>Mensagem de erro indica como corrigir, não só o que está errado</li>
+            <li>Asterisco vermelho discreto para obrigatório</li>
+            <li>Ícone a esquerda da mensagem para reconhecimento rápido</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Evite</div>
+          <ul>
+            <li>Label dentro do input (esconde após digitar — perde contexto)</li>
+            <li>Mensagens vagas ("Erro", "Inválido")</li>
+            <li>Marcar todos os campos como obrigatórios — marque os opcionais</li>
+            <li>Helper + erro ao mesmo tempo · só um por vez</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

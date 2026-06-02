@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Tabs</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* ── Underline tabs (default — workspace) ─────────────────── */
+.tabs { border-bottom: 1px solid var(--border); display: flex; gap: 4px; }
+.tab {
+  position: relative;
+  padding: 10px 14px;
+  background: transparent;
+  border: 0;
+  font-family: var(--font-pulso-sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg-muted);
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: color var(--motion-duration-fast) var(--motion-easing);
+}
+.tab:hover { color: var(--fg); }
+.tab[aria-selected="true"] { color: var(--fg-strong); }
+.tab[aria-selected="true"]::after {
+  content: '';
+  position: absolute;
+  left: 8px; right: 8px; bottom: -1px;
+  height: 2px;
+  background: var(--primary);
+  border-radius: 2px 2px 0 0;
+}
+.tab[disabled] { color: var(--fg-disabled); cursor: not-allowed; }
+.tab .count { font-family: var(--font-pulso-mono); font-size: 10.5px; padding: 1px 5px; border-radius: 999px; background: var(--muted); color: var(--fg-secondary); font-weight: 500; }
+.tab[aria-selected="true"] .count { background: var(--primary-soft); color: var(--primary); }
+.tab svg { width: 13px; height: 13px; }
+
+.tab-panel { padding: 20px 0; font-size: 13px; color: var(--fg); line-height: var(--leading-normal); }
+
+/* ── Pill tabs (filtros, sub-navegação) ───────────────────── */
+.tabs-pill { display: inline-flex; gap: 4px; padding: 4px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-full); }
+.tab-pill { padding: 6px 14px; background: transparent; border: 1px solid transparent; border-radius: var(--radius-full); font-family: inherit; font-size: 12.5px; font-weight: 500; color: var(--fg-muted); cursor: pointer; transition: background var(--motion-duration-fast); }
+.tab-pill:hover { color: var(--fg); }
+.tab-pill[aria-selected="true"] { background: var(--card); color: var(--fg-strong); border-color: var(--border-strong); box-shadow: var(--shadow-xs); }
+
+/* ── Boxed tabs (settings) ────────────────────────────────── */
+.tabs-boxed { display: flex; gap: 0; border-bottom: 1px solid var(--border); }
+.tab-box { padding: 8px 16px; background: transparent; border: 1px solid transparent; border-bottom: none; font-family: inherit; font-size: 13px; font-weight: 500; color: var(--fg-muted); cursor: pointer; border-radius: var(--radius-sm) var(--radius-sm) 0 0; margin-bottom: -1px; }
+.tab-box:hover { color: var(--fg); background: var(--surface-2); }
+.tab-box[aria-selected="true"] { background: var(--card); color: var(--fg-strong); border-color: var(--border); border-bottom-color: var(--card); position: relative; }
+
+/* ── Vertical tabs ────────────────────────────────────────── */
+.tabs-vert { display: flex; flex-direction: column; gap: 2px; min-width: 200px; }
+.tab-vert { padding: 8px 12px; background: transparent; border: 0; border-radius: var(--radius-sm); font-family: inherit; font-size: 13px; font-weight: 500; color: var(--fg-muted); cursor: pointer; text-align: left; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.tab-vert:hover { background: var(--muted); color: var(--fg); }
+.tab-vert[aria-selected="true"] { background: var(--primary-soft); color: var(--primary); }
+.tab-vert .count { font-family: var(--font-pulso-mono); font-size: 10.5px; opacity: 0.7; }
+
+.svg-i { width: 14px; height: 14px; }
+
+.demo-frame { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px 20px; }
+
+.tabs-with-action { display: flex; align-items: stretch; justify-content: space-between; border-bottom: 1px solid var(--border); }
+.tabs-with-action .tabs { border-bottom: 0; }
+.tabs-with-action .right { display: flex; align-items: center; gap: 6px; padding: 8px 0; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Organisms · Onda 1 · 03</div>
+    <h1 class="page-title">Tabs</h1>
+    <p class="page-sub">Quatro padrões. Underline para navegação principal de workspace, pill para filtros e toggles, boxed para settings, vertical para sub-navegação densa.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Underline · workspace</h2>
+      <p class="section-desc">Padrão para o detalhe de caso. Cada aba carrega contagem opcional. Indicador 2px na cor primary.</p>
+      <div class="demo-frame" style="padding: 0;">
+        <div class="tabs-with-action" style="padding: 0 16px;">
+          <div class="tabs">
+            <button class="tab" aria-selected="true">Resumo</button>
+            <button class="tab">Briefing <span class="count">3</span></button>
+            <button class="tab">Cobertura <span class="count">128</span></button>
+            <button class="tab">Histórico</button>
+            <button class="tab">Ações <span class="count">7</span></button>
+            <button class="tab">Contexto</button>
+            <button class="tab">Relatório</button>
+          </div>
+          <div class="right">
+            <button class="btn pb-secondary" style="height: 28px; font-size: 12px;">Exportar</button>
+          </div>
+        </div>
+        <div class="tab-panel" style="padding: 20px;">
+          <p style="color: var(--fg-secondary);">Conteúdo da aba "Resumo" — métricas-chave, alertas ativos, linha do tempo das últimas 6h.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Underline · com ícones</h2>
+      <p class="section-desc">Em superfícies onde o ícone agiliza scan (analytics, configurações).</p>
+      <div class="demo-frame" style="padding: 0;">
+        <div class="tabs" style="padding: 0 16px;">
+          <button class="tab" aria-selected="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
+            Tendência
+          </button>
+          <button class="tab">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6M12 16v6M2 12h6M16 12h6"/><circle cx="12" cy="12" r="2"/></svg>
+            Sentimento
+          </button>
+          <button class="tab">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            Conversa
+          </button>
+          <button class="tab" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>
+            Forecast · em breve
+          </button>
+        </div>
+        <div class="tab-panel" style="padding: 20px;">
+          <p style="color: var(--fg-secondary);">Gráfico de tendência das menções nas últimas 24h.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Pill · toggle filtros</h2>
+      <p class="section-desc">Para troca rápida de janela ou métrica. Mais leve, ocupa menos espaço, ideal para inline.</p>
+      <div class="demo-frame">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+          <div>
+            <div style="font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); margin-bottom: 4px;">JANELA</div>
+            <div class="tabs-pill">
+              <button class="tab-pill">1h</button>
+              <button class="tab-pill" aria-selected="true">6h</button>
+              <button class="tab-pill">24h</button>
+              <button class="tab-pill">7d</button>
+              <button class="tab-pill">30d</button>
+            </div>
+          </div>
+          <div>
+            <div style="font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); margin-bottom: 4px;">MÉTRICA</div>
+            <div class="tabs-pill">
+              <button class="tab-pill" aria-selected="true">Volume</button>
+              <button class="tab-pill">Score</button>
+              <button class="tab-pill">Sentimento</button>
+              <button class="tab-pill">Alcance</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Boxed · settings</h2>
+      <p class="section-desc">Quando cada aba abre uma área de formulário com bastante densidade.</p>
+      <div>
+        <div class="tabs-boxed">
+          <button class="tab-box">Geral</button>
+          <button class="tab-box" aria-selected="true">Fontes</button>
+          <button class="tab-box">Despachos</button>
+          <button class="tab-box">Equipe</button>
+          <button class="tab-box">Integrações</button>
+          <button class="tab-box">API</button>
+        </div>
+        <div style="background: var(--card); border: 1px solid var(--border); border-top: 0; padding: 24px; border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);">
+          <div style="font-size: 14px; font-weight: 600; color: var(--fg-strong); margin-bottom: 4px;">Fontes monitoradas</div>
+          <div style="font-size: 12.5px; color: var(--fg-muted); margin-bottom: 16px;">Configure quais veículos, tiers e regiões alimentam o radar deste workspace.</div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-mini btn-pri" style="height: 28px; padding: 0 12px;">Adicionar fonte</button>
+            <button class="btn-mini">Importar lista</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Vertical · sub-navegação</h2>
+      <p class="section-desc">Para áreas com muitas seções (relatórios, docs). Mantém densidade vertical.</p>
+      <div class="demo-frame" style="padding: 16px;">
+        <div style="display: flex; gap: 24px;">
+          <div class="tabs-vert">
+            <div style="font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); padding: 8px 12px 4px;">RELATÓRIOS</div>
+            <button class="tab-vert" aria-selected="true">Visão executiva <span class="count">12</span></button>
+            <button class="tab-vert">Cobertura <span class="count">128</span></button>
+            <button class="tab-vert">Sentimento</button>
+            <button class="tab-vert">Linha do tempo</button>
+            <button class="tab-vert">Anexos <span class="count">04</span></button>
+            <div style="font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); padding: 16px 12px 4px;">EXPORTAR</div>
+            <button class="tab-vert">PDF executivo</button>
+            <button class="tab-vert">Briefing imprensa</button>
+            <button class="tab-vert">CSV bruto</button>
+          </div>
+          <div style="flex: 1; padding: 8px 0;">
+            <div style="font-size: 18px; font-weight: 600; color: var(--fg-strong); margin-bottom: 4px;">Visão executiva</div>
+            <div style="font-size: 12.5px; color: var(--fg-muted);">Resumo das últimas 24h em 1 página · pronto para o board.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Anatomia</h2>
+      <table class="tokens">
+        <thead><tr><th>Padrão</th><th>Container</th><th>Tab</th><th>Ativo</th></tr></thead>
+        <tbody>
+          <tr><td>Underline</td><td class="mono">border-bottom 1px</td><td class="mono">10 14 · 13/500</td><td>indicator 2px primary</td></tr>
+          <tr><td>Pill</td><td class="mono">surface-2 · radius-full · pad 4</td><td class="mono">6 14 · 12.5/500</td><td>card · shadow-xs · border-strong</td></tr>
+          <tr><td>Boxed</td><td class="mono">border-bottom 1px</td><td class="mono">8 16 · 13/500 · radius-sm-top</td><td>border + bg card · "lift"</td></tr>
+          <tr><td>Vertical</td><td class="mono">stack · gap 2</td><td class="mono">8 12 · 13/500 · radius-sm</td><td>bg primary-soft · color primary</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><div class="rule-tag">DO</div><div>Underline para navegação primária de uma página/workspace. Pill para filtros e troca rápida.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Use contagem (<code style="font-family: var(--font-pulso-mono); font-size: 11px;">count</code>) só quando a contagem agrega valor — número de notificações, de itens.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Suporte teclado: ←/→ navega entre tabs; Home/End no início/fim; Enter/Space ativa.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use mais que 7 tabs underline em uma linha. Se precisa, vire vertical ou hierarquize.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não combine pill e underline na mesma página — sinaliza importância igual e confunde.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não esconda conteúdo crítico em tab — se um caso está crítico, não pode estar 2 tabs de distância.</div></div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script>
+// Simple toggle behavior in demos
+document.querySelectorAll('.tabs, .tabs-pill, .tabs-boxed, .tabs-vert').forEach(group => {
+  group.addEventListener('click', e => {
+    const t = e.target.closest('.tab, .tab-pill, .tab-box, .tab-vert');
+    if (!t || t.disabled) return;
+    group.querySelectorAll('[aria-selected]').forEach(b => b.setAttribute('aria-selected', 'false'));
+    t.setAttribute('aria-selected', 'true');
+  });
+});
+</script>
+<script src="../_nav.js"></script>
+</body>
+</html>

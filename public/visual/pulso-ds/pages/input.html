@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Input</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.pi-field { display: flex; flex-direction: column; gap: 6px; max-width: 360px; }
+.pi-label { font-size: var(--text-label); font-weight: 500; color: var(--fg); display: flex; align-items: center; gap: 4px; }
+.pi-label .pi-req { color: var(--destructive); }
+.pi-help { font-size: 11.5px; color: var(--fg-muted); }
+.pi-error { font-size: 11.5px; color: var(--destructive); display: flex; align-items: center; gap: 4px; }
+.pi-success { font-size: 11.5px; color: var(--success); display: flex; align-items: center; gap: 4px; }
+
+.pi {
+  width: 100%;
+  height: var(--control-h-default);
+  padding: 0 12px;
+  background: var(--card);
+  border: 1px solid var(--input);
+  border-radius: var(--radius-sm);
+  color: var(--fg);
+  font-family: var(--font-pulso-sans);
+  font-size: 13px;
+  transition: border-color var(--motion-duration-fast) var(--motion-easing), background-color var(--motion-duration-fast) var(--motion-easing);
+}
+.pi::placeholder { color: var(--fg-subtle); }
+.pi:hover:not([disabled]):not(:focus) { border-color: var(--border-strong); }
+.pi:focus { outline: none; border-color: var(--ring); box-shadow: 0 0 0 var(--ring-width) color-mix(in oklab, var(--ring) 30%, transparent); }
+.pi[disabled] { background: var(--muted); color: var(--fg-disabled); cursor: not-allowed; }
+.pi[readonly] { background: var(--muted); color: var(--fg-secondary); }
+
+/* States */
+.pi.is-error { border-color: var(--destructive); }
+.pi.is-error:focus { box-shadow: 0 0 0 var(--ring-width) color-mix(in oklab, var(--destructive) 25%, transparent); }
+.pi.is-success { border-color: var(--success); }
+
+/* Sizes */
+.pi-sm { height: var(--control-h-compact); padding: 0 10px; font-size: 12.5px; }
+.pi-lg { height: var(--control-h-prominent); padding: 0 14px; font-size: 14px; }
+
+/* With icon */
+.pi-wrap { position: relative; }
+.pi-wrap .pi-icon { position: absolute; top: 50%; transform: translateY(-50%); color: var(--fg-subtle); pointer-events: none; }
+.pi-wrap .pi-icon-l { left: 10px; }
+.pi-wrap .pi-icon-r { right: 10px; }
+.pi-wrap .pi--has-l { padding-left: 32px; }
+.pi-wrap .pi--has-r { padding-right: 32px; }
+
+/* Textarea */
+.pi-area { height: auto; min-height: 88px; padding: 10px 12px; font-family: var(--font-pulso-sans); resize: vertical; line-height: var(--leading-normal); }
+
+/* Select */
+.pi-select { appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2391899e' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>"); background-repeat: no-repeat; background-position: right 10px center; background-size: 14px; padding-right: 32px; cursor: pointer; }
+
+/* Number input mono */
+.pi-mono { font-family: var(--font-pulso-mono); font-feature-settings: 'tnum' 1; }
+
+/* Switch */
+.psw { position: relative; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+.psw input { position: absolute; opacity: 0; pointer-events: none; }
+.psw-track { width: 32px; height: 18px; background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: 999px; transition: background var(--motion-duration-fast) var(--motion-easing), border-color var(--motion-duration-fast) var(--motion-easing); }
+.psw-thumb { position: absolute; left: 2px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; background: #fff; border-radius: 50%; box-shadow: var(--shadow-xs); transition: left var(--motion-duration-fast) var(--motion-easing); }
+.psw input:checked + .psw-track { background: var(--primary); border-color: var(--primary); }
+.psw input:checked + .psw-track + .psw-thumb { left: 16px; }
+.psw input:focus-visible + .psw-track { outline: var(--ring-width) solid var(--ring); outline-offset: var(--ring-offset); }
+
+/* Checkbox */
+.pcb { position: relative; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+.pcb input { position: absolute; opacity: 0; pointer-events: none; }
+.pcb-box { width: 16px; height: 16px; background: var(--card); border: 1px solid var(--border-strong); border-radius: var(--radius-xs); display: inline-flex; align-items: center; justify-content: center; transition: background var(--motion-duration-fast) var(--motion-easing), border-color var(--motion-duration-fast) var(--motion-easing); }
+.pcb-box svg { width: 10px; height: 10px; color: #fff; opacity: 0; }
+.pcb input:checked + .pcb-box { background: var(--primary); border-color: var(--primary); }
+.pcb input:checked + .pcb-box svg { opacity: 1; }
+.pcb input:focus-visible + .pcb-box { outline: var(--ring-width) solid var(--ring); outline-offset: var(--ring-offset); }
+
+/* Radio */
+.prd { position: relative; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+.prd input { position: absolute; opacity: 0; pointer-events: none; }
+.prd-dot { width: 16px; height: 16px; background: var(--card); border: 1px solid var(--border-strong); border-radius: 50%; position: relative; transition: border-color var(--motion-duration-fast) var(--motion-easing); }
+.prd-dot::after { content: ''; position: absolute; inset: 3px; background: var(--primary); border-radius: 50%; transform: scale(0); transition: transform var(--motion-duration-fast) var(--motion-easing); }
+.prd input:checked + .prd-dot { border-color: var(--primary); }
+.prd input:checked + .prd-dot::after { transform: scale(1); }
+.prd input:focus-visible + .prd-dot { outline: var(--ring-width) solid var(--ring); outline-offset: var(--ring-offset); }
+
+.field-row { display: flex; flex-direction: column; gap: 16px; padding: 20px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.svg-i { width: 14px; height: 14px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Atoms · Onda 1 · 02</div>
+    <h1 class="page-title">Input</h1>
+    <p class="page-sub">Inputs de texto, área, select e controles auxiliares (switch, checkbox, radio). Sempre acompanhados de label visível e mensagem de erro descritiva — nunca placeholder como label.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Text input</h2>
+      <p class="section-desc">Default. Estados: idle, hover, focus, error, disabled.</p>
+      <div class="field-row" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+        <div class="pi-field">
+          <label class="pi-label" for="i1">Email do operador <span class="pi-req">*</span></label>
+          <input id="i1" class="pi" type="email" placeholder="nome@dotcase.com.br">
+          <div class="pi-help">Usado para autenticação e notificações.</div>
+        </div>
+        <div class="pi-field">
+          <label class="pi-label" for="i2">Nome do caso</label>
+          <input id="i2" class="pi" value="Operação Água Nova">
+        </div>
+        <div class="pi-field">
+          <label class="pi-label" for="i3">Threshold (score)</label>
+          <input id="i3" class="pi pi-mono" type="number" value="65">
+          <div class="pi-help">Score acima do qual o radar dispara.</div>
+        </div>
+        <div class="pi-field">
+          <label class="pi-label" for="i4">Token de API</label>
+          <input id="i4" class="pi pi-mono" readonly value="pls_8a4f6c9e2d_live">
+        </div>
+        <div class="pi-field">
+          <label class="pi-label" for="i5">Email do operador</label>
+          <input id="i5" class="pi is-error" value="nome@" >
+          <div class="pi-error">
+            <svg class="svg-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 17h.01"/></svg>
+            Email inválido — verifique o domínio.
+          </div>
+        </div>
+        <div class="pi-field">
+          <label class="pi-label" for="i6">Domínio verificado</label>
+          <input id="i6" class="pi is-success" value="dotcase.com.br" readonly>
+          <div class="pi-success">
+            <svg class="svg-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            Verificado em 23 abr 2026.
+          </div>
+        </div>
+        <div class="pi-field">
+          <label class="pi-label" for="i7">Campo desabilitado</label>
+          <input id="i7" class="pi" value="Não editável" disabled>
+        </div>
+        <div class="pi-field">
+          <label class="pi-label">Tamanhos</label>
+          <input class="pi pi-sm" placeholder="Compact 28">
+          <input class="pi" placeholder="Default 32">
+          <input class="pi pi-lg" placeholder="Prominent 36">
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Com ícone</h2>
+      <p class="section-desc">Ícone leading para busca, filtro, prefixo de moeda. Trailing para clear, copy, dropdown.</p>
+      <div class="field-row" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+        <div class="pi-field">
+          <label class="pi-label">Buscar caso</label>
+          <div class="pi-wrap">
+            <svg class="pi-icon pi-icon-l svg-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input class="pi pi--has-l" placeholder="Nome, ID ou tag…">
+          </div>
+        </div>
+        <div class="pi-field">
+          <label class="pi-label">URL pública do feed</label>
+          <div class="pi-wrap">
+            <svg class="pi-icon pi-icon-l svg-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>
+            <input class="pi pi--has-l pi--has-r pi-mono" value="https://api.crisis.dotcase.com.br/v2/feed">
+            <button class="pi-icon pi-icon-r" aria-label="Copiar" style="background: transparent; border: 0; cursor: pointer; padding: 4px; color: var(--fg-subtle);">
+              <svg class="svg-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Textarea</h2>
+      <div class="pi-field" style="max-width: 560px;">
+        <label class="pi-label">Briefing inicial</label>
+        <textarea class="pi pi-area" placeholder="Resumo objetivo do caso, fontes envolvidas, contexto..."></textarea>
+        <div class="pi-help">Markdown suportado. Marque inferências com <code style="font-family: var(--font-pulso-mono);">[Inferência]</code>.</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Select</h2>
+      <div class="field-row" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+        <div class="pi-field">
+          <label class="pi-label">Modo do Cris</label>
+          <select class="pi pi-select">
+            <option>Executivo</option>
+            <option>Porta-voz</option>
+          </select>
+        </div>
+        <div class="pi-field">
+          <label class="pi-label">Tier de fonte</label>
+          <select class="pi pi-select">
+            <option>Tier 1 — imprensa nacional</option>
+            <option>Tier 2 — regional, especializada</option>
+            <option>Tier 3 — blog, newsletter</option>
+            <option>Tier 4 — UGC, social</option>
+          </select>
+        </div>
+        <div class="pi-field">
+          <label class="pi-label">Janela de análise</label>
+          <select class="pi pi-select">
+            <option>Últimas 6 horas</option>
+            <option>Últimas 24 horas</option>
+            <option>Últimos 7 dias</option>
+            <option>Personalizado</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Switch · Checkbox · Radio</h2>
+      <p class="section-desc">Switch para preferências de sistema (persistente). Checkbox para múltipla escolha. Radio para escolha única exclusiva.</p>
+      <div class="field-row" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <label class="psw">
+            <input type="checkbox" checked>
+            <span class="psw-track"></span><span class="psw-thumb"></span>
+            <span style="font-size: 13px; color: var(--fg);">Notificar Cris automaticamente</span>
+          </label>
+          <label class="psw">
+            <input type="checkbox">
+            <span class="psw-track"></span><span class="psw-thumb"></span>
+            <span style="font-size: 13px; color: var(--fg);">Compartilhar evidências com a equipe</span>
+          </label>
+          <label class="psw">
+            <input type="checkbox" disabled>
+            <span class="psw-track"></span><span class="psw-thumb"></span>
+            <span style="font-size: 13px; color: var(--fg-disabled);">Modo offline (em breve)</span>
+          </label>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <label class="pcb">
+            <input type="checkbox" checked>
+            <span class="pcb-box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 8.5 6.5 12 13 4.5"/></svg></span>
+            <span style="font-size: 13px; color: var(--fg);">Imprensa nacional</span>
+          </label>
+          <label class="pcb">
+            <input type="checkbox" checked>
+            <span class="pcb-box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 8.5 6.5 12 13 4.5"/></svg></span>
+            <span style="font-size: 13px; color: var(--fg);">Imprensa regional</span>
+          </label>
+          <label class="pcb">
+            <input type="checkbox">
+            <span class="pcb-box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 8.5 6.5 12 13 4.5"/></svg></span>
+            <span style="font-size: 13px; color: var(--fg);">Redes sociais</span>
+          </label>
+          <label class="pcb">
+            <input type="checkbox">
+            <span class="pcb-box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 8.5 6.5 12 13 4.5"/></svg></span>
+            <span style="font-size: 13px; color: var(--fg);">Newsletters</span>
+          </label>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <label class="prd">
+            <input type="radio" name="r" checked>
+            <span class="prd-dot"></span>
+            <span style="font-size: 13px; color: var(--fg);">Estável</span>
+          </label>
+          <label class="prd">
+            <input type="radio" name="r">
+            <span class="prd-dot"></span>
+            <span style="font-size: 13px; color: var(--fg);">Monitorar</span>
+          </label>
+          <label class="prd">
+            <input type="radio" name="r">
+            <span class="prd-dot"></span>
+            <span style="font-size: 13px; color: var(--fg);">Em crise</span>
+          </label>
+          <label class="prd">
+            <input type="radio" name="r" disabled>
+            <span class="prd-dot"></span>
+            <span style="font-size: 13px; color: var(--fg-disabled);">Encerrado</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><div class="rule-tag">DO</div><div>Sempre tenha label visível. Placeholder explica formato; nunca substitui label.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Mensagem de erro deve dizer o que está errado <em>e</em> como corrigir.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Use <strong>mono</strong> em campos numéricos, IDs, tokens — alinha colunas e ancora leitura.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use cor como única indicação de erro. Sempre acompanhe com ícone + texto.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use radius-full em inputs. Inputs são radius-sm (6px) — cantos firmes.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não esconda labels em formulários longos. Floating labels prejudicam scan.</div></div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

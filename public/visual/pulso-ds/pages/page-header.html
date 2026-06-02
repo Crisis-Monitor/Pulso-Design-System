@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Page Header</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Molecules</div>
+    <h1 class="page-title">Page Header</h1>
+    <p class="page-sub">Cabeçalho canônico de tela. Kicker + título + sub + ações. Usado em <strong>toda</strong> rota top-level para que o usuário sempre saiba onde está.</p>
+    <section class="section">
+      <h2 class="section-h1">Default</h2>
+      <div class="preview-row" style="display:block;padding:32px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;">
+          <div>
+            <div style="font-family:var(--font-pulso-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);margin-bottom:6px;">Operação · Hoje · 09:42</div>
+            <h1 style="font-size:28px;font-weight:600;color:var(--fg-strong);margin:0 0 4px;letter-spacing:-0.01em;">Bom dia, Neviton.</h1>
+            <p style="font-size:14px;color:var(--fg-secondary);margin:0;">3 casos pedem revisão antes das 10h.</p>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary">Exportar</button>
+            <button class="btn btn-primary">Criar caso</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">Com status pill</h2>
+      <div class="preview-row" style="display:block;padding:32px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;">
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <span style="font-family:var(--font-pulso-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-subtle);">#PLS-2026-014</span>
+              <span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;background:var(--risk-attention-bg);color:var(--risk-attention-text);border:1px solid var(--risk-attention-border);border-radius:999px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;"><span style="width:6px;height:6px;border-radius:50%;background:var(--risk-attention);"></span>Atenção</span>
+            </div>
+            <h1 style="font-size:28px;font-weight:600;color:var(--fg-strong);margin:0 0 4px;letter-spacing:-0.01em;">Operação Água Nova</h1>
+            <p style="font-size:14px;color:var(--fg-secondary);margin:0;">Aberto há 2h 14m · 247 menções · sentimento −0.32</p>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary">Compartilhar</button>
+            <button class="btn btn-secondary">Arquivar</button>
+            <button class="btn btn-primary">Aprovar resposta</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <h2 class="section-h1">Com breadcrumb</h2>
+      <div class="preview-row" style="display:block;padding:32px;">
+        <div style="font-size:12px;color:var(--fg-muted);margin-bottom:10px;">
+          <a style="color:var(--fg-muted);text-decoration:none;">Casos</a> <span style="color:var(--fg-subtle);">/</span> <a style="color:var(--fg-muted);text-decoration:none;">Ativos</a> <span style="color:var(--fg-subtle);">/</span> <span style="color:var(--fg);">Água Nova</span>
+        </div>
+        <h1 style="font-size:24px;font-weight:600;color:var(--fg-strong);margin:0 0 4px;letter-spacing:-0.01em;">Detalhe do caso</h1>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

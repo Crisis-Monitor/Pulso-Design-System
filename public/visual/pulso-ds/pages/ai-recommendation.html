@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Recommendation & Action</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.cris-mark { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; flex-shrink: 0; }
+.cris-mark svg { width: 100%; height: 100%; }
+.cris-kicker { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-pulso-mono); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--primary); }
+
+/* ── Confidence ladder ─────────────── */
+.ladder { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 28px 32px; }
+.ladder-rail { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; position: relative; }
+.lad-step { padding: 16px 16px 12px; border-right: 1px solid var(--border-faint); position: relative; display: flex; flex-direction: column; gap: 8px; }
+.lad-step:last-child { border-right: none; }
+.lad-step::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 0;
+  height: 3px; background: var(--bar-color, var(--border-strong));
+}
+.lad-step.low    { --bar-color: color-mix(in oklab, var(--fg-subtle) 70%, transparent); }
+.lad-step.med    { --bar-color: color-mix(in oklab, var(--risk-monitor) 70%, transparent); }
+.lad-step.high   { --bar-color: color-mix(in oklab, var(--primary) 90%, transparent); }
+.lad-step.decis  { --bar-color: var(--primary); }
+
+.lad-step .label { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 700; }
+.lad-step .name { font-size: 16px; font-weight: 700; color: var(--fg-strong); letter-spacing: -0.005em; }
+.lad-step .range { font-family: var(--font-pulso-mono); font-size: 12px; color: var(--primary); font-weight: 600; font-variant-numeric: tabular-nums; }
+.lad-step .what { font-size: 12.5px; color: var(--fg); line-height: 1.55; }
+.lad-step .ui-rule { font-size: 12px; color: var(--fg-muted); line-height: 1.5; padding-top: 8px; border-top: 1px dashed var(--border-faint); margin-top: 4px; }
+.lad-step .ui-rule strong { color: var(--fg); font-weight: 600; }
+
+/* ── Recommendation card ─────────────── */
+.rec-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 2px solid var(--primary);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.rec-head {
+  padding: 18px 24px; display: grid;
+  grid-template-columns: auto 1fr auto; gap: 18px; align-items: center;
+  border-bottom: 1px solid var(--border-faint);
+}
+.rec-ring { width: 56px; height: 56px; position: relative; flex-shrink: 0; }
+.rec-ring svg { width: 100%; height: 100%; }
+.rec-ring .pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-pulso-mono); font-size: 13px; font-weight: 700; color: var(--fg-strong); font-variant-numeric: tabular-nums; }
+.rec-title { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.rec-title .kicker { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.rec-title .conf {
+  font-family: var(--font-pulso-mono); font-size: 10.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 2px 8px; border-radius: var(--radius-xs);
+  background: color-mix(in oklab, var(--primary) 12%, transparent); color: var(--primary);
+}
+.rec-title h3 { font-size: 17px; font-weight: 700; color: var(--fg-strong); letter-spacing: -0.005em; }
+.rec-title .meta { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); letter-spacing: 0.04em; }
+.rec-srcs {
+  text-align: right;
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  color: var(--fg-muted); letter-spacing: 0.04em;
+}
+.rec-srcs .n { color: var(--primary); font-weight: 700; font-size: 13px; display: block; }
+
+.rec-body { padding: 22px 24px 20px; }
+.rec-if {
+  display: grid; grid-template-columns: 60px 1fr; gap: 14px;
+  padding: 12px 0; align-items: baseline;
+  border-bottom: 1px dashed var(--border-faint);
+}
+.rec-if .k {
+  font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding-top: 2px;
+}
+.rec-if.se .k    { color: var(--risk-monitor-text); }
+.rec-if.entao .k { color: var(--success); }
+.rec-if .v { font-size: 14px; color: var(--fg); line-height: 1.6; }
+.rec-if .v strong { color: var(--fg-strong); font-weight: 600; }
+.rec-if:last-child { border-bottom: none; }
+
+.rec-evidence { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-faint); }
+.rec-evidence .eh { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 700; margin-bottom: 8px; }
+.rec-evidence ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.rec-evidence li { font-size: 12.5px; color: var(--fg-secondary); line-height: 1.55; padding-left: 16px; position: relative; }
+.rec-evidence li::before { content: '▣'; position: absolute; left: 0; color: var(--primary); font-size: 10px; top: 2px; }
+
+.rec-actions {
+  padding: 14px 24px; background: var(--surface-2);
+  border-top: 1px solid var(--border-faint);
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+}
+.rec-actions .btn {
+  font-family: inherit; font-size: 12.5px; font-weight: 600;
+  padding: 8px 16px; border-radius: var(--radius-xs);
+  border: 1px solid var(--border); cursor: default;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.rec-actions .btn.primary { background: var(--primary); color: var(--primary-foreground); border-color: transparent; }
+.rec-actions .btn.secondary { background: var(--card); color: var(--fg); }
+.rec-actions .btn.ghost { background: transparent; border-color: transparent; color: var(--fg-secondary); }
+.rec-actions .sep { flex: 1; }
+.rec-actions .ts { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); letter-spacing: 0.04em; }
+
+/* Decisivo variant: stronger primary band */
+.rec-card.decisivo { border-left-color: var(--primary); border-color: var(--primary-border); }
+.rec-card.decisivo .rec-actions .btn.primary { box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 18%, transparent); }
+.rec-card.decisivo .conf { background: var(--primary); color: var(--primary-foreground); }
+
+/* Low variant: muted */
+.rec-card.low .rec-title .conf { background: color-mix(in oklab, var(--fg-subtle) 18%, transparent); color: var(--fg-secondary); }
+.rec-card.low { border-left-color: var(--border-strong); }
+
+/* Three-card carousel */
+.rec-stack { display: flex; flex-direction: column; gap: 16px; }
+
+/* ── Partial accept · slot mechanic ─────────────── */
+.partial-mock { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.partial-head { padding: 18px 24px; display: flex; gap: 14px; align-items: center; border-bottom: 1px solid var(--border-faint); flex-wrap: wrap; }
+.partial-head .title { font-size: 15px; font-weight: 600; color: var(--fg-strong); }
+.partial-head .sub { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); letter-spacing: 0.04em; margin-left: auto; }
+
+.partial-body { padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; }
+.slot-row { display: grid; grid-template-columns: 130px 1fr; gap: 16px; align-items: center; }
+.slot-row .key { font-family: var(--font-pulso-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 600; }
+.slot-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 14px; border-radius: var(--radius-sm);
+  background: var(--card); border: 1px solid var(--border-strong);
+  font-size: 13.5px; color: var(--fg-strong); font-weight: 500;
+}
+.slot-pill.suggested {
+  border-style: dashed; border-color: var(--primary-border);
+  background: color-mix(in oklab, var(--primary) 5%, transparent);
+  color: var(--fg);
+}
+.slot-pill.changed {
+  background: color-mix(in oklab, var(--success) 10%, var(--card));
+  border-color: color-mix(in oklab, var(--success) 40%, transparent);
+}
+.slot-pill .meta-tag {
+  font-family: var(--font-pulso-mono); font-size: 9.5px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 2px 6px; border-radius: 3px;
+}
+.slot-pill.suggested .meta-tag { background: color-mix(in oklab, var(--primary) 15%, transparent); color: var(--primary); }
+.slot-pill.changed .meta-tag { background: var(--success); color: white; }
+.slot-pill .edit { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--primary); margin-left: auto; cursor: default; font-weight: 600; }
+
+.partial-summary {
+  padding: 14px 24px; background: var(--surface-2);
+  border-top: 1px solid var(--border-faint);
+  display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+}
+.partial-summary .ctxt { font-size: 12.5px; color: var(--fg); }
+.partial-summary .ctxt strong { color: var(--fg-strong); }
+.partial-summary .btn {
+  font-family: inherit; font-size: 12.5px; font-weight: 600;
+  padding: 7px 14px; border-radius: var(--radius-xs);
+  background: var(--primary); color: var(--primary-foreground); border: none;
+}
+.partial-summary .ghost {
+  font-family: var(--font-pulso-mono); font-size: 11px;
+  color: var(--fg-muted); margin-left: auto;
+}
+
+/* ── Outcomes table ─────────────── */
+.outcomes-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+@media (max-width: 880px) { .outcomes-grid { grid-template-columns: 1fr; } }
+.outcome {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 20px 22px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.outcome.accept   { border-top: 3px solid var(--success); }
+.outcome.modify   { border-top: 3px solid var(--primary); }
+.outcome.reject   { border-top: 3px solid var(--destructive); }
+.outcome .label { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
+.outcome.accept .label  { color: var(--success); }
+.outcome.modify .label  { color: var(--primary); }
+.outcome.reject .label  { color: var(--destructive); }
+.outcome .name { font-size: 16px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; }
+.outcome .what { font-size: 12.5px; color: var(--fg-secondary); line-height: 1.55; }
+.outcome ul { list-style: none; padding: 0; margin-top: 6px; display: flex; flex-direction: column; gap: 6px; }
+.outcome ul li { font-size: 12px; color: var(--fg); line-height: 1.5; padding-left: 14px; position: relative; }
+.outcome ul li::before { content: '·'; position: absolute; left: 0; color: var(--primary); font-weight: 700; }
+.outcome ul li strong { color: var(--fg-strong); font-weight: 600; }
+.outcome .audit {
+  font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted);
+  padding-top: 10px; border-top: 1px solid var(--border-faint); margin-top: auto;
+}
+.outcome .audit strong { color: var(--fg); }
+
+/* ── Confidence math ─────────────── */
+.math { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.math-head { padding: 16px 22px; background: var(--surface-2); border-bottom: 1px solid var(--border-faint); }
+.math-head .kk { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); font-weight: 700; }
+.math-head .nn { font-size: 14px; font-weight: 600; color: var(--fg-strong); margin-top: 2px; }
+.math-body { padding: 18px 22px; }
+.math-body pre { font-family: var(--font-pulso-mono); font-size: 12px; line-height: 1.7; color: var(--fg); white-space: pre; overflow-x: auto; margin: 0; }
+.math-body .k { color: var(--primary); }
+.math-body .s { color: var(--success); }
+.math-body .n { color: var(--risk-attention-text); }
+.math-body .c { color: var(--fg-subtle); font-style: italic; }
+
+/* ── Don't / Do ─────────────── */
+.rules { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .rules { grid-template-columns: 1fr; } }
+.rule { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 22px; }
+.rule.do { border-left: 3px solid var(--success); }
+.rule.dont { border-left: 3px solid var(--destructive); }
+.rule .tag { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 8px; }
+.rule.do .tag { color: var(--success); }
+.rule.dont .tag { color: var(--destructive); }
+.rule p { font-size: 13px; color: var(--fg); line-height: 1.55; }
+.rule .note { padding-top: 10px; margin-top: 10px; border-top: 1px solid var(--border-faint); font-size: 12px; color: var(--fg-muted); line-height: 1.55; }
+.rule code { font-family: var(--font-pulso-mono); font-size: 11px; background: var(--surface-2); padding: 1px 5px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Patterns · AI · v3 · β.4 · entregue</div>
+    <h1 class="page-title">Recommendation &amp; action</h1>
+    <p class="page-sub">A Cris recomenda; o operador decide. β.4 formaliza a gramática da recomendação · <strong>confidence ladder</strong> em 4 níveis, contrato "se · então" herdado da v2 · 2.4, aceitação parcial por slot e três desfechos canônicos com pegada no audit log.</p>
+
+    <!-- Princípio -->
+    <section class="section">
+      <h2 class="section-h1">Princípio · Cris recomenda · operador decide</h2>
+      <p class="section-desc">A Cris nunca executa autonomamente. Toda recomendação aparece como proposta versionada — aceitar, modificar ou rejeitar é decisão humana, e cada uma deixa rastro auditável. β.4 entrega o componente que materializa isso · <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">RecommendationCard</code>.</p>
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 26px;">
+        <p style="font-size:15px;color:var(--fg-strong);line-height:1.65;max-width:780px;">Uma recomendação tem <strong>quatro elementos obrigatórios</strong> · confiança (ladder), gatilho ("se"), proposta ("então"), evidências (3–7 fontes da β.1). Sem qualquer um deles, não é recomendação · é palpite. E palpite a Cris não emite.</p>
+      </div>
+    </section>
+
+    <!-- Confidence ladder -->
+    <section class="section">
+      <h2 class="section-h1">Confidence ladder · 4 níveis</h2>
+      <p class="section-desc">A confiança da Cris é <strong>label antes de número</strong>. O operador vê "alta", não "0.87". O número aparece no popover de proveniência (β.1) para auditoria. UI muda por nível · de tom discreto (baixa) a CTA primário em destaque (decisivo).</p>
+
+      <div class="ladder">
+        <div class="ladder-rail">
+          <div class="lad-step low">
+            <span class="label">Nível 01</span>
+            <div class="name">Baixa</div>
+            <div class="range">&lt; 0.55</div>
+            <div class="what">Cris tem hipótese, não tese. Sinal fraco · uma fonte · contradição parcial nas evidências.</div>
+            <div class="ui-rule"><strong>UI</strong> · sem CTA primário · só "Explorar" como secundário · não interrompe.</div>
+          </div>
+          <div class="lad-step med">
+            <span class="label">Nível 02</span>
+            <div class="name">Média</div>
+            <div class="range">0.55 — 0.74</div>
+            <div class="what">Indício consistente · múltiplas fontes apontam o mesmo. Pode ainda haver leitura alternativa.</div>
+            <div class="ui-rule"><strong>UI</strong> · CTA primário ativo · sugestão visível · operador pode escolher modificar.</div>
+          </div>
+          <div class="lad-step high">
+            <span class="label">Nível 03</span>
+            <div class="name">Alta</div>
+            <div class="range">0.75 — 0.89</div>
+            <div class="what">Padrão claro · evidências convergentes · tese da Cris é defensável.</div>
+            <div class="ui-rule"><strong>UI</strong> · CTA primário destacado · "Aceitar" sem subordinação · audit log marca aceitação como ato deliberado.</div>
+          </div>
+          <div class="lad-step decis">
+            <span class="label">Nível 04</span>
+            <div class="name">Decisivo</div>
+            <div class="range">≥ 0.90</div>
+            <div class="what">Convergência forte · padrão histórico replicado · ação inversa exigiria contraevidência ativa.</div>
+            <div class="ui-rule"><strong>UI</strong> · CTA primário com halo · rejeitar pede justificativa textual · audit registra como "rejected against high confidence".</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recommendation card -->
+    <section class="section">
+      <h2 class="section-h1">RecommendationCard · três níveis em ação</h2>
+      <p class="section-desc">O mesmo componente, três contextos. A confidence dita a intensidade da UI · borda, halo, CTA, exigência de justificativa.</p>
+
+      <div class="rec-stack">
+        <!-- Decisivo -->
+        <div class="rec-card decisivo">
+          <div class="rec-head">
+            <div class="rec-ring">
+              <svg viewBox="0 0 56 56">
+                <circle cx="28" cy="28" r="24" stroke="var(--border)" stroke-width="4" fill="none"/>
+                <circle cx="28" cy="28" r="24" stroke="var(--primary)" stroke-width="4" fill="none" stroke-dasharray="150.7" stroke-dashoffset="13.6" stroke-linecap="round" transform="rotate(-90 28 28)"/>
+              </svg>
+              <div class="pct">91</div>
+            </div>
+            <div class="rec-title">
+              <div class="kicker">
+                <span class="cris-kicker">
+                  <span class="cris-mark"><svg viewBox="0 0 14 14"><path d="M3 7 Q3 3 7 3 Q11 3 11 7" stroke="var(--primary)" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="7" cy="7" r="1.4" fill="var(--primary)"/><path d="M3 11 H11" stroke="var(--primary)" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+                  <span>Recomendação Cris</span>
+                </span>
+                <span class="conf">Decisiva</span>
+              </div>
+              <h3>Elevar CASO 248 para tier <em>atenção</em> e publicar nota institucional</h3>
+              <div class="meta">há 3 min · CASO 248 · audit_id 248-r-9a4f</div>
+            </div>
+            <div class="rec-srcs">
+              <span class="n">7</span>
+              fontes
+            </div>
+          </div>
+          <div class="rec-body">
+            <div class="rec-if se">
+              <div class="k">Se</div>
+              <div class="v">menções crescem &gt;+50% em 4h <strong>e</strong> ≥10 contas verificadas amplificam <strong>e</strong> assinatura de coordenação aparece em ≥40% das amplificações.</div>
+            </div>
+            <div class="rec-if entao">
+              <div class="k">Então</div>
+              <div class="v"><strong>Elevar para tier <em>atenção</em></strong> · acionar dispatch nível 2 · publicar nota institucional v3 (firmeza moderada · sem jurídico).</div>
+            </div>
+            <div class="rec-evidence">
+              <div class="eh">Evidências · 3 de 7</div>
+              <ul>
+                <li>Inflexão de menções · +62% 11:42 → 11:46 · acima do limiar 50%</li>
+                <li>14 contas verificadas · padrão de coordenação em 9 (assinatura cluster X)</li>
+                <li>Paralelo histórico · CASO 218 escalou em 6h com mesmo perfil de cluster</li>
+              </ul>
+            </div>
+          </div>
+          <div class="rec-actions">
+            <button class="btn primary">Aceitar recomendação</button>
+            <button class="btn secondary">Modificar</button>
+            <button class="btn ghost">Rejeitar · requer justificativa</button>
+            <span class="sep"></span>
+            <span class="ts">expira em · 14 min</span>
+          </div>
+        </div>
+
+        <!-- Média -->
+        <div class="rec-card">
+          <div class="rec-head">
+            <div class="rec-ring">
+              <svg viewBox="0 0 56 56">
+                <circle cx="28" cy="28" r="24" stroke="var(--border)" stroke-width="4" fill="none"/>
+                <circle cx="28" cy="28" r="24" stroke="var(--risk-monitor-text)" stroke-width="4" fill="none" stroke-dasharray="150.7" stroke-dashoffset="51.2" stroke-linecap="round" transform="rotate(-90 28 28)"/>
+              </svg>
+              <div class="pct">66</div>
+            </div>
+            <div class="rec-title">
+              <div class="kicker">
+                <span class="cris-kicker">
+                  <span class="cris-mark"><svg viewBox="0 0 14 14"><path d="M3 7 Q3 3 7 3 Q11 3 11 7" stroke="var(--primary)" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="7" cy="7" r="1.4" fill="var(--primary)"/><path d="M3 11 H11" stroke="var(--primary)" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+                  <span>Sugestão Cris</span>
+                </span>
+                <span class="conf" style="background: color-mix(in oklab, var(--risk-monitor) 18%, transparent); color: var(--risk-monitor-text);">Média</span>
+              </div>
+              <h3>Notificar tier 2 antes de comunicar externamente</h3>
+              <div class="meta">há 2 min · CASO 252 · audit_id 252-r-0b18</div>
+            </div>
+            <div class="rec-srcs">
+              <span class="n">4</span>
+              fontes
+            </div>
+          </div>
+          <div class="rec-body">
+            <div class="rec-if se">
+              <div class="k">Se</div>
+              <div class="v">o caso tem repercussão regulatória em potencial <strong>e</strong> tier 2 ainda não revisou.</div>
+            </div>
+            <div class="rec-if entao">
+              <div class="k">Então</div>
+              <div class="v"><strong>Pingar tier 2</strong> antes de qualquer comunicação externa · dispatch interno via canal dedicado.</div>
+            </div>
+          </div>
+          <div class="rec-actions">
+            <button class="btn primary">Aceitar</button>
+            <button class="btn secondary">Modificar</button>
+            <button class="btn ghost">Rejeitar</button>
+            <span class="sep"></span>
+            <span class="ts">há 2 min</span>
+          </div>
+        </div>
+
+        <!-- Baixa -->
+        <div class="rec-card low">
+          <div class="rec-head">
+            <div class="rec-ring">
+              <svg viewBox="0 0 56 56">
+                <circle cx="28" cy="28" r="24" stroke="var(--border)" stroke-width="4" fill="none"/>
+                <circle cx="28" cy="28" r="24" stroke="var(--fg-subtle)" stroke-width="4" fill="none" stroke-dasharray="150.7" stroke-dashoffset="79.9" stroke-linecap="round" transform="rotate(-90 28 28)"/>
+              </svg>
+              <div class="pct">47</div>
+            </div>
+            <div class="rec-title">
+              <div class="kicker">
+                <span class="cris-kicker">
+                  <span class="cris-mark"><svg viewBox="0 0 14 14"><path d="M3 7 Q3 3 7 3 Q11 3 11 7" stroke="var(--primary)" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="7" cy="7" r="1.4" fill="var(--primary)"/><path d="M3 11 H11" stroke="var(--primary)" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+                  <span>Observação Cris</span>
+                </span>
+                <span class="conf">Baixa</span>
+              </div>
+              <h3>Possível recorrência do cluster X · análise sugere monitorar</h3>
+              <div class="meta">há 12 min · CASO 250 · audit_id 250-r-7e02</div>
+            </div>
+            <div class="rec-srcs">
+              <span class="n">2</span>
+              fontes
+            </div>
+          </div>
+          <div class="rec-body">
+            <div class="rec-if se">
+              <div class="k">Se</div>
+              <div class="v">2 perfis do cluster X reaparecem <strong>e</strong> volume ainda está abaixo do limiar de atenção.</div>
+            </div>
+            <div class="rec-if entao">
+              <div class="k">Então</div>
+              <div class="v">Considerar manter monitoramento ativo · sem dispatch · sem nota.</div>
+            </div>
+          </div>
+          <div class="rec-actions">
+            <button class="btn secondary">Explorar no Sheet</button>
+            <button class="btn ghost">Dispensar</button>
+            <span class="sep"></span>
+            <span class="ts">há 12 min</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Three outcomes -->
+    <section class="section">
+      <h2 class="section-h1">Três desfechos canônicos</h2>
+      <p class="section-desc">Toda recomendação termina em um destes três. Modificar é o mais importante · é onde a inteligência híbrida acontece e onde o audit log fica mais rico.</p>
+
+      <div class="outcomes-grid">
+        <div class="outcome accept">
+          <span class="label">✓ Aceitar</span>
+          <div class="name">Operador aceita integralmente</div>
+          <div class="what">A proposta da Cris vira ação. Nenhuma alteração nos slots.</div>
+          <ul>
+            <li><strong>Quando</strong> · confiança alta, evidências convergentes, sem nuance contextual.</li>
+            <li><strong>UI</strong> · botão primário · confirmação inline · sem modal.</li>
+            <li><strong>Velocidade</strong> · 1 clique. Otimizado para o caso mais comum.</li>
+          </ul>
+          <div class="audit"><strong>audit · accepted</strong> · `original ≡ executed`</div>
+        </div>
+
+        <div class="outcome modify">
+          <span class="label">↻ Modificar</span>
+          <div class="name">Operador aceita parcialmente</div>
+          <div class="what">Um ou mais slots da proposta são substituídos. O resto da recomendação fica.</div>
+          <ul>
+            <li><strong>Quando</strong> · contexto local muda parte da proposta · "aceito tudo, mas troco o veículo".</li>
+            <li><strong>UI</strong> · slot pills editáveis · diff visual · botão "Confirmar com mudanças".</li>
+            <li><strong>Velocidade</strong> · 2–4 cliques. Maioria das ações em crise passa por aqui.</li>
+          </ul>
+          <div class="audit"><strong>audit · modified</strong> · diff slot-by-slot</div>
+        </div>
+
+        <div class="outcome reject">
+          <span class="label">× Rejeitar</span>
+          <div class="name">Operador descarta proposta</div>
+          <div class="what">Nada da recomendação é executado. Cris recebe sinal de feedback.</div>
+          <ul>
+            <li><strong>Quando</strong> · contexto contradiz · informação faltante · julgamento humano divergente.</li>
+            <li><strong>UI</strong> · em <em>decisivo</em>, exige justificativa textual · nos demais, opcional.</li>
+            <li><strong>Sinal</strong> · alimenta o modelo · não para retreinar em hot path, sim para revisão de prompt.</li>
+          </ul>
+          <div class="audit"><strong>audit · rejected</strong> · texto da justificativa</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Partial accept mechanic -->
+    <section class="section">
+      <h2 class="section-h1">Aceitação parcial · slots editáveis</h2>
+      <p class="section-desc">A proposta da Cris é decomposta em <strong>slots nomeados</strong> · veículo, destinatário, timing, tom. Operador edita só os que precisam mudar · o resto fica. O audit log da β.5 sabe diff por slot, não por texto livre.</p>
+
+      <div class="partial-mock">
+        <div class="partial-head">
+          <span class="cris-kicker">
+            <span class="cris-mark"><svg viewBox="0 0 14 14"><path d="M3 7 Q3 3 7 3 Q11 3 11 7" stroke="var(--primary)" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="7" cy="7" r="1.4" fill="var(--primary)"/><path d="M3 11 H11" stroke="var(--primary)" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+            <span>Modificando</span>
+          </span>
+          <div class="title">Dispatch nível 2 · CASO 248</div>
+          <div class="sub">3 slots · 1 alterado</div>
+        </div>
+
+        <div class="partial-body">
+          <div class="slot-row">
+            <div class="key">Veículo</div>
+            <div class="slot-pill changed">
+              <span class="meta-tag">alterado</span>
+              <span>Slack · #crisis-tier2</span>
+              <span class="edit">editar</span>
+            </div>
+          </div>
+
+          <div class="slot-row">
+            <div class="key">Destinatário</div>
+            <div class="slot-pill suggested">
+              <span class="meta-tag">Cris</span>
+              <span>Equipe Comms · 4 pessoas em on-call</span>
+              <span class="edit">editar</span>
+            </div>
+          </div>
+
+          <div class="slot-row">
+            <div class="key">Timing</div>
+            <div class="slot-pill suggested">
+              <span class="meta-tag">Cris</span>
+              <span>Imediato</span>
+              <span class="edit">editar</span>
+            </div>
+          </div>
+
+          <div class="slot-row">
+            <div class="key">Tom da nota</div>
+            <div class="slot-pill suggested">
+              <span class="meta-tag">Cris</span>
+              <span>Firme · sem jurídico</span>
+              <span class="edit">editar</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="partial-summary">
+          <div class="ctxt"><strong>Diff:</strong> Veículo alterado · originalmente <code style="font-family:var(--font-pulso-mono);font-size:11.5px;background:var(--card);border:1px solid var(--border-faint);padding:1px 5px;border-radius:3px;text-decoration:line-through;text-decoration-color:var(--destructive);">Email institucional</code> → Slack #crisis-tier2.</div>
+          <button class="btn">Confirmar com 1 mudança</button>
+          <span class="ghost">⌘↵ atalho</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Confidence math -->
+    <section class="section">
+      <h2 class="section-h1">Schema · recommendation</h2>
+      <p class="section-desc">Estende o <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">ai-content-block</code> da β.1 com slots, confidence ladder e tipo de gatilho. Audit log (β.5) consome esse schema direto.</p>
+
+      <div class="math">
+        <div class="math-head">
+          <div class="kk">SCHEMA · recommendation</div>
+          <div class="nn">v1 · estável a partir de β.4</div>
+        </div>
+        <div class="math-body">
+<pre>{
+  <span class="k">"author"</span>: <span class="s">"cris"</span>,
+  <span class="k">"kind"</span>: <span class="s">"recommendation"</span>,
+  <span class="k">"generated_at"</span>: <span class="s">"2026-05-21T11:46:02Z"</span>,
+  <span class="k">"confidence"</span>: {
+    <span class="k">"score"</span>: <span class="n">0.91</span>,
+    <span class="k">"label"</span>: <span class="s">"decisive"</span>     <span class="c">// low | medium | high | decisive</span>
+  },
+  <span class="k">"if"</span>: [
+    <span class="s">"mentions_growth_4h &gt; 0.5"</span>,
+    <span class="s">"verified_amplifiers &gt;= 10"</span>,
+    <span class="s">"coordination_signature &gt;= 0.4"</span>
+  ],
+  <span class="k">"then"</span>: {
+    <span class="k">"primary_action"</span>: <span class="s">"raise_tier"</span>,
+    <span class="k">"slots"</span>: {
+      <span class="k">"vehicle"</span>:     { <span class="k">"suggested"</span>: <span class="s">"email_inst"</span>,  <span class="k">"actual"</span>: <span class="s">"slack_t2"</span> },
+      <span class="k">"recipient"</span>:   { <span class="k">"suggested"</span>: <span class="s">"comms_team"</span>, <span class="k">"actual"</span>: <span class="s">"comms_team"</span> },
+      <span class="k">"timing"</span>:      { <span class="k">"suggested"</span>: <span class="s">"now"</span>,        <span class="k">"actual"</span>: <span class="s">"now"</span> },
+      <span class="k">"tone"</span>:        { <span class="k">"suggested"</span>: <span class="s">"firm_no_legal"</span>, <span class="k">"actual"</span>: <span class="s">"firm_no_legal"</span> }
+    }
+  },
+  <span class="k">"sources"</span>: [<span class="c">/* 7 fontes — vide β.1 */</span>],
+  <span class="k">"outcome"</span>: {
+    <span class="k">"action"</span>: <span class="s">"modified"</span>,        <span class="c">// accepted | modified | rejected | dismissed</span>
+    <span class="k">"operator_id"</span>: <span class="s">"op_42"</span>,
+    <span class="k">"slots_changed"</span>: [<span class="s">"vehicle"</span>],
+    <span class="k">"reject_reason"</span>: <span class="s">null</span>,
+    <span class="k">"decided_at"</span>: <span class="s">"2026-05-21T11:48:11Z"</span>
+  },
+  <span class="k">"audit_id"</span>: <span class="s">"248-r-9a4f"</span>
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Don't / Do -->
+    <section class="section">
+      <h2 class="section-h1">Don't / Do</h2>
+      <p class="section-desc">Armadilhas comuns ao desenhar recomendações.</p>
+
+      <div class="rules">
+        <div class="rule dont">
+          <div class="tag">✕ Não exibir score bruto na UI</div>
+          <p>"0.87 confidence" não significa nada para o operador em crise. Use o label do ladder. O número fica no popover de proveniência (β.1) para auditoria.</p>
+          <div class="note">Score é entrada do designer · label é saída para o operador.</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Sempre par "se · então"</div>
+          <p>A recomendação tem que mostrar gatilho. Sem "se", a Cris parece arbitrária. Com "se", o operador pode questionar a regra — não apenas a conclusão.</p>
+          <div class="note">Herdado da v2 · 2.4 (Pulso IA · Voz). Sem "se", a UI bloqueia o render.</div>
+        </div>
+
+        <div class="rule dont">
+          <div class="tag">✕ Não auto-executar nada</div>
+          <p>Nem em decisivo. A Cris recomenda · o humano decide. Aceitação é sempre clique explícito · nunca timer, nunca default action depois de N segundos.</p>
+          <div class="note">Auto-execução é onde a confiança no sistema morre. Custo de um clique &lt; custo de um falso positivo.</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Modificar é o caminho preferido</div>
+          <p>O contexto local é sempre mais rico que o da Cris. Modificar deve ser tão rápido quanto aceitar · slots editáveis com hover · ⌘↵ confirma.</p>
+          <div class="note">Métrica · &gt;50% das recomendações de alta+ deveriam ser <em>modificadas</em>, não aceitas raw. Se 95% são aceitas raw, a Cris está coreografando · não recomendando.</div>
+        </div>
+
+        <div class="rule dont">
+          <div class="tag">✕ Não enfileirar recomendações</div>
+          <p>Mais de 3 recomendações ativas simultâneas vira fadiga. Cris precisa priorizar internamente e mostrar 1–3 · o resto vai pro Sheet sob demanda.</p>
+          <div class="note">Atenção do operador é o recurso escasso · não tela.</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Justificativa obrigatória em decisivo rejeitado</div>
+          <p>Rejeitar decisivo é caro · audit log registra explicitamente. O texto da justificativa alimenta revisão de prompt e oferece proteção compliance.</p>
+          <div class="note">Não é punição · é proteção. Operador que rejeita com razão fica protegido pelo registro.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dependencies -->
+    <section class="section">
+      <h2 class="section-h1">Dependências</h2>
+      <p class="section-desc">Como β.4 se encaixa.</p>
+
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 26px;">
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">β.1</span> &nbsp;<a href="ai-origin-tracking.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Origin tracking</a> · cada card herda marca + popover. Confidence Ring usa o Score Ring (signature shape 02) com paleta de confiança.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">β.2</span> &nbsp;<a href="ai-draft-regenerate.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Draft &amp; regenerate</a> · modificar slot de texto longo (ex: "tom da nota") abre DraftStack inline.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">β.3</span> &nbsp;<a href="ai-embedding.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Embedding</a> · em decisivo, recomendação aparece como balão modal (formato 03). Demais ficam como card inline.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">2.4</span> &nbsp;<a href="ai-voice.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Pulso IA · Voz</a> · fórmula "se · então" é binding · não há recomendação sem ela.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">β.5</span> &nbsp;Audit trail consome <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">outcome.slots_changed</code> · uma linha do log por recomendação, com diff slot-by-slot.</li>
+        </ul>
+      </div>
+    </section>
+
+    <div style="height:96px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

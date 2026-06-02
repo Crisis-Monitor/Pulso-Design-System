@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Native Token Foundation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* ── Pipeline diagram ───── */
+.pipeline {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 32px;
+  overflow: hidden;
+}
+.pipe-grid {
+  display: grid; grid-template-columns: 1fr auto 2fr; gap: 24px;
+  align-items: center;
+}
+@media (max-width: 900px) { .pipe-grid { grid-template-columns: 1fr; } }
+
+.pipe-source {
+  background: var(--surface-2); border: 1px solid var(--border-faint);
+  border-radius: var(--radius-md);
+  padding: 22px 24px;
+}
+.pipe-source .lbl {
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--primary); font-weight: 700; margin-bottom: 8px;
+}
+.pipe-source h4 { font-size: 16px; font-weight: 700; color: var(--fg-strong); letter-spacing: -0.005em; margin-bottom: 12px; }
+.pipe-source code.file {
+  display: block;
+  font-family: var(--font-pulso-mono); font-size: 12px;
+  background: var(--card); border: 1px solid var(--border-faint);
+  padding: 8px 12px; border-radius: var(--radius-xs);
+  color: var(--fg); margin-top: 8px;
+}
+.pipe-source .key {
+  font-family: var(--font-pulso-mono); font-size: 11px;
+  color: var(--fg-muted); line-height: 1.6;
+}
+.pipe-source .key b { color: var(--fg-strong); font-weight: 700; }
+
+.pipe-arrow {
+  font-family: var(--font-pulso-mono); font-size: 32px;
+  color: var(--primary); font-weight: 700;
+  text-align: center;
+  position: relative;
+}
+.pipe-arrow .label {
+  position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
+  font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--fg-subtle); font-weight: 700;
+  white-space: nowrap;
+}
+@media (max-width: 900px) { .pipe-arrow { transform: rotate(90deg); padding: 12px 0; } }
+
+.pipe-outputs {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;
+}
+@media (max-width: 600px) { .pipe-outputs { grid-template-columns: 1fr; } }
+.pipe-out {
+  background: var(--surface-2); border: 1px solid var(--border-faint);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+}
+.pipe-out .plat {
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  font-weight: 700; margin-bottom: 6px;
+}
+.pipe-out.web .plat { color: var(--success); }
+.pipe-out.ios .plat { color: var(--primary); }
+.pipe-out.and .plat { color: var(--risk-monitor-text); }
+.pipe-out h5 { font-size: 14px; font-weight: 700; color: var(--fg-strong); margin-bottom: 4px; }
+.pipe-out .file {
+  font-family: var(--font-pulso-mono); font-size: 11px;
+  color: var(--fg-muted); margin-bottom: 8px;
+}
+.pipe-out .pkg {
+  display: inline-block;
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  background: var(--card); border: 1px solid var(--border-faint);
+  padding: 2px 7px; border-radius: 3px;
+  color: var(--primary); font-weight: 600;
+}
+
+/* ── Code triad ───── */
+.code-triad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 1024px) { .code-triad { grid-template-columns: 1fr; } }
+.code-pane {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md); overflow: hidden;
+}
+.code-head {
+  background: var(--surface-2); border-bottom: 1px solid var(--border-faint);
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.code-head .plat-pill {
+  font-family: var(--font-pulso-mono); font-size: 10px; font-weight: 700;
+  padding: 3px 8px; border-radius: 3px;
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.code-pane.web .plat-pill { background: color-mix(in oklab, var(--success) 14%, transparent); color: var(--success); }
+.code-pane.ios .plat-pill { background: color-mix(in oklab, var(--primary) 14%, transparent); color: var(--primary); }
+.code-pane.and .plat-pill { background: color-mix(in oklab, var(--risk-monitor) 16%, transparent); color: var(--risk-monitor-text); }
+.code-head .title { font-family: var(--font-pulso-mono); font-size: 11.5px; color: var(--fg); font-weight: 600; }
+.code-body {
+  padding: 18px 20px;
+  font-family: var(--font-pulso-mono); font-size: 12px; line-height: 1.65;
+  color: var(--fg); white-space: pre; overflow-x: auto;
+}
+.code-body .k { color: var(--primary); font-weight: 600; }
+.code-body .s { color: var(--success); }
+.code-body .n { color: var(--risk-attention-text); }
+.code-body .t { color: var(--risk-monitor-text); }
+.code-body .c { color: var(--fg-subtle); font-style: italic; }
+.code-body .f { color: var(--fg-strong); font-weight: 600; }
+
+/* Result preview */
+.code-preview {
+  background: var(--surface-2);
+  border-top: 1px solid var(--border-faint);
+  padding: 16px;
+  display: flex; gap: 12px; align-items: center; justify-content: center;
+}
+.pv-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  width: 100%; max-width: 220px;
+}
+.pv-card .h { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.pv-card .glyph { color: var(--risk-attention-text); font-family: var(--font-pulso-mono); font-weight: 700; }
+.pv-card .lbl { font-family: var(--font-pulso-mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 700; }
+.pv-card .t { font-size: 12px; font-weight: 600; color: var(--fg-strong); }
+.pv-card .s { font-size: 10.5px; color: var(--fg-muted); margin-top: 2px; }
+
+/* ── Parity matrix ───── */
+.parity-pane {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.parity-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.parity-tbl thead th {
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--fg-subtle); font-weight: 700;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+  text-align: center;
+}
+.parity-tbl thead th:first-child { text-align: left; }
+.parity-tbl tbody td {
+  padding: 12px 16px; border-bottom: 1px solid var(--border-faint);
+  vertical-align: middle;
+}
+.parity-tbl tbody td.name {
+  font-weight: 600; color: var(--fg-strong);
+}
+.parity-tbl tbody td.name .sub {
+  display: block;
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  color: var(--fg-subtle); font-weight: 500;
+  margin-top: 2px;
+}
+.parity-tbl tbody td.val {
+  font-family: var(--font-pulso-mono); font-size: 11.5px;
+  color: var(--fg); text-align: center;
+}
+.parity-tbl tbody td.val.match { color: var(--success); font-weight: 600; }
+.parity-tbl tbody td.val.match::after { content: ' ✓'; opacity: 0.5; }
+
+.parity-summary {
+  padding: 14px 18px;
+  background: var(--surface-2); border-top: 1px solid var(--border-faint);
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+}
+.parity-summary .stat {
+  display: flex; align-items: baseline; gap: 6px;
+}
+.parity-summary .stat .v {
+  font-family: var(--font-pulso-mono); font-size: 18px; font-weight: 700;
+  color: var(--success); letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.parity-summary .stat .k {
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--fg-subtle); font-weight: 700;
+}
+.parity-summary .sep { flex: 1; }
+.parity-summary .last-check {
+  font-family: var(--font-pulso-mono); font-size: 11px;
+  color: var(--fg-muted);
+}
+
+/* ── Drift detector ───── */
+.drift-pane {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.drift-head {
+  padding: 18px 22px; border-bottom: 1px solid var(--border-faint);
+  display: flex; align-items: center; gap: 14px;
+  background: color-mix(in oklab, var(--risk-attention) 5%, var(--card));
+}
+.drift-head .ico {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--risk-attention) 18%, transparent);
+  border: 1px solid var(--risk-attention-border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-pulso-mono); font-size: 14px;
+  color: var(--risk-attention-text); font-weight: 700;
+}
+.drift-head h4 { font-size: 14.5px; font-weight: 600; color: var(--fg-strong); }
+.drift-head .sub { font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-subtle); margin-left: auto; }
+.drift-body { padding: 18px 22px; }
+.drift-row {
+  display: grid; grid-template-columns: 200px 1fr 1fr 1fr;
+  gap: 14px; padding: 12px 0;
+  border-top: 1px solid var(--border-faint);
+  align-items: center;
+}
+.drift-row:first-of-type { border-top: 1px solid var(--border-strong); }
+@media (max-width: 900px) { .drift-row { grid-template-columns: 1fr; gap: 6px; } }
+.drift-row .tok {
+  font-family: var(--font-pulso-mono); font-size: 11.5px;
+  color: var(--fg-strong); font-weight: 600;
+}
+.drift-row .plat-val {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-pulso-mono); font-size: 11.5px;
+}
+.drift-row .plat-val .plat-lbl {
+  font-family: var(--font-pulso-mono); font-size: 9px; font-weight: 700;
+  padding: 2px 6px; border-radius: 3px;
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.drift-row .plat-val.web .plat-lbl { background: color-mix(in oklab, var(--success) 14%, transparent); color: var(--success); }
+.drift-row .plat-val.ios .plat-lbl { background: color-mix(in oklab, var(--primary) 14%, transparent); color: var(--primary); }
+.drift-row .plat-val.and .plat-lbl { background: color-mix(in oklab, var(--risk-monitor) 16%, transparent); color: var(--risk-monitor-text); }
+.drift-row .val-text { color: var(--fg); }
+.drift-row.match { background: color-mix(in oklab, var(--success) 3%, transparent); }
+.drift-row.drift .val-text.drifted { color: var(--destructive); font-weight: 700; }
+.drift-row.drift .val-text.drifted::before { content: '⚠ '; }
+
+/* ── Sample list ───── */
+.sample-list {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 18px 22px;
+}
+.sample-row {
+  display: grid; grid-template-columns: 180px 1fr auto;
+  gap: 18px; padding: 14px 0;
+  border-top: 1px solid var(--border-faint);
+  align-items: center;
+}
+.sample-row:first-of-type { border-top: 1px solid var(--border-strong); }
+.sample-row .name { font-size: 13.5px; font-weight: 600; color: var(--fg-strong); }
+.sample-row .what { font-size: 12.5px; color: var(--fg-secondary); line-height: 1.55; }
+.sample-row .meta {
+  font-family: var(--font-pulso-mono); font-size: 11px;
+  color: var(--primary); font-weight: 600;
+}
+
+/* ── Onboarding ───── */
+.onboarding {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 26px 30px;
+}
+.onboarding ol { list-style: none; counter-reset: step; padding: 0; margin: 0; }
+.onboarding ol li {
+  counter-increment: step;
+  display: grid; grid-template-columns: 36px 1fr;
+  gap: 16px; padding: 14px 0;
+  border-top: 1px solid var(--border-faint);
+}
+.onboarding ol li:first-of-type { border-top: none; padding-top: 0; }
+.onboarding ol li::before {
+  content: counter(step, decimal-leading-zero);
+  font-family: var(--font-pulso-mono); font-size: 12px;
+  font-weight: 700; color: var(--primary);
+  padding-top: 3px;
+}
+.onboarding li h5 { font-size: 14px; font-weight: 600; color: var(--fg-strong); margin-bottom: 4px; }
+.onboarding li p { font-size: 13px; color: var(--fg-secondary); line-height: 1.55; }
+.onboarding li code {
+  font-family: var(--font-pulso-mono); font-size: 11.5px;
+  background: var(--surface-2); padding: 1px 5px; border-radius: 3px;
+  color: var(--fg-strong);
+}
+
+/* ── Rules ───── */
+.rules { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .rules { grid-template-columns: 1fr; } }
+.rule { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 22px; }
+.rule.do { border-left: 3px solid var(--success); }
+.rule.dont { border-left: 3px solid var(--destructive); }
+.rule .tag { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 8px; }
+.rule.do .tag { color: var(--success); }
+.rule.dont .tag { color: var(--destructive); }
+.rule p { font-size: 13px; color: var(--fg); line-height: 1.55; }
+.rule .note { padding-top: 10px; margin-top: 10px; border-top: 1px solid var(--border-faint); font-size: 12px; color: var(--fg-muted); line-height: 1.55; }
+.rule code { font-family: var(--font-pulso-mono); font-size: 11px; background: var(--surface-2); padding: 1px 5px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Foundations · Native · v3 · γ.4 · entregue</div>
+    <h1 class="page-title">Native token foundation</h1>
+    <p class="page-sub">A v2 · 5.2 emite Swift e XML do Style Dictionary. γ.4 valida esses outputs em <strong>projetos-piloto</strong> · sem app ainda. Quando produto decidir construir nativo, a fundação está testada · audit de drift, sample apps em SwiftUI e Compose, onboarding documentado.</p>
+
+    <!-- Princípio -->
+    <section class="section">
+      <h2 class="section-h1">Princípio · ponte testada, não estrada construída</h2>
+      <p class="section-desc">A v2 deixou os outputs nativos prontos · γ.4 não constrói app, prova que a ponte aguenta. Dois sample apps minimalistas consomem os mesmos tokens · drift detectado em CI · documentação cobre como um time futuro entra sem reinventar.</p>
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 26px;">
+        <p style="font-size:15px;color:var(--fg-strong);line-height:1.65;max-width:780px;">Quando o produto decidir construir app nativo, a decisão é &lt; 2 semanas de setup · não 2 trimestres. <strong>γ.4 é apólice de seguro</strong> · custo baixo, opção valiosa.</p>
+      </div>
+    </section>
+
+    <!-- Pipeline -->
+    <section class="section">
+      <h2 class="section-h1">Pipeline · um JSON, três outputs</h2>
+      <p class="section-desc">Style Dictionary lê o token source · emite CSS, Swift e XML. Mesma chave, valor traduzido para a unidade nativa de cada plataforma.</p>
+
+      <div class="pipeline">
+        <div class="pipe-grid">
+          <div class="pipe-source">
+            <div class="lbl">Source</div>
+            <h4>tokens.json</h4>
+            <div class="key"><b>184</b> primitive tokens · <b>92</b> semantic · <b>240+</b> component</div>
+            <code class="file">/tokens/source/*.json</code>
+          </div>
+
+          <div class="pipe-arrow">
+            <span class="label">Style Dictionary</span>
+            →
+          </div>
+
+          <div class="pipe-outputs">
+            <div class="pipe-out web">
+              <div class="plat">Web</div>
+              <h5>CSS variables</h5>
+              <div class="file">globals.css</div>
+              <span class="pkg">@pulso/tokens-web</span>
+            </div>
+            <div class="pipe-out ios">
+              <div class="plat">iOS</div>
+              <h5>Swift constants</h5>
+              <div class="file">PulsoTokens.swift</div>
+              <span class="pkg">@pulso/tokens-ios</span>
+            </div>
+            <div class="pipe-out and">
+              <div class="plat">Android</div>
+              <h5>XML + Kotlin</h5>
+              <div class="file">tokens.xml + Tokens.kt</div>
+              <span class="pkg">@pulso/tokens-android</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Code triad -->
+    <section class="section">
+      <h2 class="section-h1">Mesma chave · três sintaxes</h2>
+      <p class="section-desc">Um alerta crítico desenhado nas três plataformas. Mesmas referências de token · cada plataforma resolve para sua API idiomática · resultado visual indistinguível.</p>
+
+      <div class="code-triad">
+        <!-- Web -->
+        <div class="code-pane web">
+          <div class="code-head">
+            <span class="plat-pill">Web</span>
+            <span class="title">AlertCritical.tsx</span>
+          </div>
+<div class="code-body"><span class="k">import</span> <span class="f">styles</span> <span class="k">from</span> <span class="s">'./AlertCritical.module.css'</span>;
+
+<span class="k">export const</span> <span class="f">AlertCritical</span> = ({ title }) =&gt; (
+  &lt;<span class="t">div</span> className={styles.<span class="f">alert</span>}&gt;
+    &lt;<span class="t">span</span> className={styles.<span class="f">glyph</span>}&gt;●&lt;/<span class="t">span</span>&gt;
+    &lt;<span class="t">span</span> className={styles.<span class="f">label</span>}&gt;CRÍTICO&lt;/<span class="t">span</span>&gt;
+    &lt;<span class="t">strong</span>&gt;{title}&lt;/<span class="t">strong</span>&gt;
+  &lt;/<span class="t">div</span>&gt;
+);
+
+<span class="c">/* AlertCritical.module.css */</span>
+.<span class="f">alert</span> {
+  <span class="k">background</span>: <span class="n">var(--risk-critical-bg)</span>;
+  <span class="k">color</span>:      <span class="n">var(--risk-critical-text)</span>;
+  <span class="k">border-left</span>: <span class="n">var(--border-width-emphasis)</span> <span class="n">solid</span>
+                <span class="n">var(--risk-critical-border)</span>;
+  <span class="k">padding</span>:    <span class="n">var(--space-3)</span> <span class="n">var(--space-4)</span>;
+  <span class="k">border-radius</span>: <span class="n">var(--radius-md)</span>;
+}</div>
+          <div class="code-preview">
+            <div class="pv-card" style="border-left: 3px solid var(--risk-critical-text); background: var(--risk-critical-bg);">
+              <div class="h"><span class="glyph" style="color: var(--risk-critical-text);">●</span><span class="lbl" style="color: var(--risk-critical-text);">CRÍTICO</span></div>
+              <div class="t">CASO 248 · escalada</div>
+              <div class="s">+62% menções · cluster X</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- iOS -->
+        <div class="code-pane ios">
+          <div class="code-head">
+            <span class="plat-pill">iOS · SwiftUI</span>
+            <span class="title">AlertCritical.swift</span>
+          </div>
+<div class="code-body"><span class="k">import</span> SwiftUI
+<span class="k">import</span> PulsoTokens
+
+<span class="k">struct</span> <span class="f">AlertCritical</span>: <span class="t">View</span> {
+  <span class="k">let</span> title: <span class="t">String</span>
+
+  <span class="k">var</span> body: <span class="k">some</span> <span class="t">View</span> {
+    <span class="t">HStack</span>(spacing: PulsoTokens.<span class="f">space3</span>) {
+      <span class="t">Text</span>(<span class="s">"●"</span>).foregroundStyle(
+        PulsoTokens.<span class="f">riskCriticalText</span>)
+      <span class="t">Text</span>(<span class="s">"CRÍTICO"</span>)
+        .font(PulsoTokens.<span class="f">kicker</span>)
+        .foregroundStyle(PulsoTokens.<span class="f">riskCriticalText</span>)
+      <span class="t">Text</span>(title)
+        .font(PulsoTokens.<span class="f">bodyStrong</span>)
+    }
+    .padding(.horizontal, PulsoTokens.<span class="f">space4</span>)
+    .padding(.vertical, PulsoTokens.<span class="f">space3</span>)
+    .background(PulsoTokens.<span class="f">riskCriticalBg</span>)
+    .clipShape(.rect(cornerRadius:
+        PulsoTokens.<span class="f">radiusMd</span>))
+    .overlay(<span class="t">Rectangle</span>().frame(width: 3),
+        alignment: .leading)
+  }
+}</div>
+          <div class="code-preview">
+            <div class="pv-card" style="border-left: 3px solid var(--risk-critical-text); background: var(--risk-critical-bg);">
+              <div class="h"><span class="glyph" style="color: var(--risk-critical-text);">●</span><span class="lbl" style="color: var(--risk-critical-text);">CRÍTICO</span></div>
+              <div class="t">CASO 248 · escalada</div>
+              <div class="s">+62% menções · cluster X</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Android -->
+        <div class="code-pane and">
+          <div class="code-head">
+            <span class="plat-pill">Android · Compose</span>
+            <span class="title">AlertCritical.kt</span>
+          </div>
+<div class="code-body"><span class="k">package</span> com.pulso.components
+<span class="k">import</span> androidx.compose.foundation.*
+<span class="k">import</span> com.pulso.tokens.<span class="f">PulsoTokens</span>
+
+@<span class="t">Composable</span>
+<span class="k">fun</span> <span class="f">AlertCritical</span>(title: <span class="t">String</span>) {
+  <span class="t">Row</span>(
+    modifier = <span class="t">Modifier</span>
+      .background(PulsoTokens.<span class="f">riskCriticalBg</span>)
+      .padding(
+        horizontal = PulsoTokens.<span class="f">space4</span>,
+        vertical   = PulsoTokens.<span class="f">space3</span>)
+      .clip(<span class="t">RoundedCornerShape</span>(
+        PulsoTokens.<span class="f">radiusMd</span>))
+      .drawWithContent {
+        drawContent()
+        drawLine(PulsoTokens.<span class="f">riskCriticalBorder</span>,
+          start = <span class="t">Offset</span>(0f, 0f),
+          end   = <span class="t">Offset</span>(0f, size.height),
+          strokeWidth = 3.dp.toPx())
+      },
+    horizontalArrangement =
+      <span class="t">Arrangement</span>.spacedBy(PulsoTokens.<span class="f">space3</span>)
+  ) {
+    <span class="t">Text</span>(<span class="s">"●"</span>, color = PulsoTokens.<span class="f">riskCriticalText</span>)
+    <span class="t">Text</span>(<span class="s">"CRÍTICO"</span>,
+      style = PulsoTokens.<span class="f">typeKicker</span>,
+      color = PulsoTokens.<span class="f">riskCriticalText</span>)
+    <span class="t">Text</span>(title, style = PulsoTokens.<span class="f">typeBodyStrong</span>)
+  }
+}</div>
+          <div class="code-preview">
+            <div class="pv-card" style="border-left: 3px solid var(--risk-critical-text); background: var(--risk-critical-bg);">
+              <div class="h"><span class="glyph" style="color: var(--risk-critical-text);">●</span><span class="lbl" style="color: var(--risk-critical-text);">CRÍTICO</span></div>
+              <div class="t">CASO 248 · escalada</div>
+              <div class="s">+62% menções · cluster X</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Parity matrix -->
+    <section class="section">
+      <h2 class="section-h1">Parity matrix · primitive tokens</h2>
+      <p class="section-desc">Cada token primitive resolve identicamente em três plataformas. CI roda diff em todo PR · drift &gt; 0% bloqueia merge.</p>
+
+      <div class="parity-pane">
+        <table class="parity-tbl">
+          <thead>
+            <tr>
+              <th style="width:32%;">Token</th>
+              <th>Web</th>
+              <th>iOS</th>
+              <th>Android</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="name">--violet-500<span class="sub">primary brand</span></td>
+              <td class="val match">#6C46F5</td>
+              <td class="val match">UIColor(0x6C46F5)</td>
+              <td class="val match">#FF6C46F5</td>
+            </tr>
+            <tr>
+              <td class="name">--risk-critical<span class="sub">crítico semantic</span></td>
+              <td class="val match">#E0344A</td>
+              <td class="val match">UIColor(0xE0344A)</td>
+              <td class="val match">#FFE0344A</td>
+            </tr>
+            <tr>
+              <td class="name">--space-3<span class="sub">spacing scale step 3</span></td>
+              <td class="val match">12px</td>
+              <td class="val match">12.0 (CGFloat)</td>
+              <td class="val match">12.dp</td>
+            </tr>
+            <tr>
+              <td class="name">--space-4<span class="sub">spacing scale step 4</span></td>
+              <td class="val match">16px</td>
+              <td class="val match">16.0 (CGFloat)</td>
+              <td class="val match">16.dp</td>
+            </tr>
+            <tr>
+              <td class="name">--radius-md<span class="sub">medium corner</span></td>
+              <td class="val match">10px</td>
+              <td class="val match">10.0 (CGFloat)</td>
+              <td class="val match">10.dp</td>
+            </tr>
+            <tr>
+              <td class="name">--text-body<span class="sub">body text size</span></td>
+              <td class="val match">14px / 1.5</td>
+              <td class="val match">14pt · lh 21</td>
+              <td class="val match">14.sp · lh 21</td>
+            </tr>
+            <tr>
+              <td class="name">--tracking-kicker<span class="sub">kicker letter spacing</span></td>
+              <td class="val match">0.12em</td>
+              <td class="val match">1.32 · pt-em</td>
+              <td class="val match">0.12.em</td>
+            </tr>
+            <tr>
+              <td class="name">--motion-duration-base<span class="sub">animation base</span></td>
+              <td class="val match">200ms</td>
+              <td class="val match">0.2 (TimeInterval)</td>
+              <td class="val match">200 (Long ms)</td>
+            </tr>
+            <tr>
+              <td class="name">--shadow-md<span class="sub">elevation medium</span></td>
+              <td class="val match">0 4 12 rgba</td>
+              <td class="val match">CGShadow · y4 r12</td>
+              <td class="val match">elevation 4dp</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="parity-summary">
+          <div class="stat"><span class="v">184</span><span class="k">tokens primitive</span></div>
+          <div class="stat"><span class="v">100%</span><span class="k">parity 3 platforms</span></div>
+          <div class="stat"><span class="v">0</span><span class="k">drift detectado</span></div>
+          <div class="sep"></div>
+          <div class="last-check">CI run · 25 mai 2026 · 04:14 UTC</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Drift detector -->
+    <section class="section">
+      <h2 class="section-h1">Drift detector · CI guarda</h2>
+      <p class="section-desc">Script roda em todo PR que toca <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">/tokens/source</code>. Para cada token, calcula valor resolvido em cada plataforma · diff em hex/dp/pt. Resultado vai no comentário do PR · drift &gt; 0 bloqueia merge.</p>
+
+      <div class="drift-pane">
+        <div class="drift-head">
+          <div class="ico">⌗</div>
+          <h4>Exemplo · drift hipotético no PR #2418</h4>
+          <span class="sub">run · 25 mai · 09:12</span>
+        </div>
+        <div class="drift-body">
+          <div class="drift-row match">
+            <div class="tok">--risk-critical</div>
+            <div class="plat-val web"><span class="plat-lbl">Web</span><span class="val-text">#E0344A</span></div>
+            <div class="plat-val ios"><span class="plat-lbl">iOS</span><span class="val-text">#E0344A</span></div>
+            <div class="plat-val and"><span class="plat-lbl">Android</span><span class="val-text">#E0344A</span></div>
+          </div>
+          <div class="drift-row match">
+            <div class="tok">--space-3</div>
+            <div class="plat-val web"><span class="plat-lbl">Web</span><span class="val-text">12px</span></div>
+            <div class="plat-val ios"><span class="plat-lbl">iOS</span><span class="val-text">12.0</span></div>
+            <div class="plat-val and"><span class="plat-lbl">Android</span><span class="val-text">12.dp</span></div>
+          </div>
+          <div class="drift-row drift">
+            <div class="tok">--radius-md</div>
+            <div class="plat-val web"><span class="plat-lbl">Web</span><span class="val-text">10px</span></div>
+            <div class="plat-val ios"><span class="plat-lbl">iOS</span><span class="val-text drifted">12.0</span></div>
+            <div class="plat-val and"><span class="plat-lbl">Android</span><span class="val-text">10.dp</span></div>
+          </div>
+          <div class="drift-row match">
+            <div class="tok">--tracking-kicker</div>
+            <div class="plat-val web"><span class="plat-lbl">Web</span><span class="val-text">0.12em</span></div>
+            <div class="plat-val ios"><span class="plat-lbl">iOS</span><span class="val-text">1.32</span></div>
+            <div class="plat-val and"><span class="plat-lbl">Android</span><span class="val-text">0.12.em</span></div>
+          </div>
+          <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border-faint); font-size: 12.5px; color: var(--destructive); line-height: 1.6;">
+            <strong>⛔ 1 drift detectado · merge bloqueado.</strong> iOS resolveu <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">--radius-md</code> para 12.0 quando web/android = 10. Origem provável · override em <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">tokens.ios.json</code> não-coberto pelo source único · remover override ou justificar na RFC.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sample apps -->
+    <section class="section">
+      <h2 class="section-h1">Sample apps · escopo do piloto</h2>
+      <p class="section-desc">Dois apps mínimos · uma tela cada · suficiente para validar consumo dos tokens em código real. Não são produto · são <em>fixtures</em> que vivem no monorepo do DS.</p>
+
+      <div class="sample-list">
+        <div class="sample-row">
+          <div class="name">PulsoSampleiOS</div>
+          <div class="what">SwiftUI · tela de alerta + métrica + botão · consome <code style="font-family:var(--font-pulso-mono);font-size:11.5px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">@pulso/tokens-ios</code> via SwiftPM. 280 linhas. Roda em iOS 16+.</div>
+          <div class="meta">/samples/ios/</div>
+        </div>
+        <div class="sample-row">
+          <div class="name">PulsoSampleAndroid</div>
+          <div class="what">Jetpack Compose · mesma tela · consome <code style="font-family:var(--font-pulso-mono);font-size:11.5px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">@pulso/tokens-android</code> via Maven local. 320 linhas. Roda em API 28+.</div>
+          <div class="meta">/samples/android/</div>
+        </div>
+        <div class="sample-row">
+          <div class="name">PulsoVisualDiff</div>
+          <div class="what">Script CI · roda os sample apps em emulador · captura screenshot · compara com baseline web. Diff &gt; 2% por token bloqueia.</div>
+          <div class="meta">/tools/visual-diff/</div>
+        </div>
+        <div class="sample-row">
+          <div class="name">Storybook · cross-platform</div>
+          <div class="what">Mesmo screenshot dos 3 sample apps lado-a-lado · publicado a cada commit · stakeholders comparam visualmente sem instalar nada.</div>
+          <div class="meta">/storybook/native-parity</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Onboarding -->
+    <section class="section">
+      <h2 class="section-h1">Onboarding · time nativo futuro</h2>
+      <p class="section-desc">Cinco passos para um time iOS/Android começar a consumir tokens. Documentado, roteado, com PR de exemplo · setup &lt; 1 hora.</p>
+
+      <div class="onboarding">
+        <ol>
+          <li>
+            <div>
+              <h5>Instalar o pacote de tokens</h5>
+              <p>iOS · <code>.package(url: "github.com/pulso/tokens-ios", from: "3.0")</code>. Android · <code>implementation("com.pulso:tokens-android:3.0")</code>. Versão major casa com a versão major do DS web.</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <h5>Importar e usar</h5>
+              <p><code>import PulsoTokens</code> (Swift) · <code>import com.pulso.tokens</code> (Kotlin). Autocompletar mostra todos os primitives e semantics · IDE entrega documentação inline.</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <h5>Seguir contratos do DS</h5>
+              <p>Aplicar tokens é mandatório · cor literal proíbida via lint. Time consulta <code>Foundations</code> do DS · não inventa cor ou espaçamento.</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <h5>Componente novo · RFC</h5>
+              <p>Qualquer componente nativo que não é tradução direta de um do web · vira RFC. Council aprova ou propõe alternativa. Sem ramificação fantasma do DS nativo.</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <h5>Drift detector ativo</h5>
+              <p>CI roda em todo PR do time nativo · drift em token causa block. Drift visual (screenshot) acima de 2% causa warning · do council.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Don't / Do -->
+    <section class="section">
+      <h2 class="section-h1">Don't / Do</h2>
+      <p class="section-desc">Armadilhas comuns quando DS multiplataforma cresce.</p>
+
+      <div class="rules">
+        <div class="rule dont">
+          <div class="tag">✕ Não duplicar source</div>
+          <p>iOS-only override · Android-only ajuste · cada um vira fork. Source único em <code>tokens.json</code> · plataforma só especifica <em>format</em> de saída, nunca valor.</p>
+          <div class="note">Excepcionalidade obrigatória (ex: <code>UIBlur</code> que web não tem) vira semantic separado · não override do mesmo token.</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Aceitar idioma de cada plataforma</div>
+          <p>iOS usa <code>spacingS</code>, web usa <code>--space-3</code>, Android usa <code>space3</code>. Nomes seguem convenção local · valor é idêntico. Style Dictionary cuida da tradução.</p>
+          <div class="note">Forçar nomes idênticos seria contra-cultural · friction sem benefício.</div>
+        </div>
+
+        <div class="rule dont">
+          <div class="tag">✕ Não construir app antes de pedido produto</div>
+          <p>γ.4 é fundação · não produto. Tentar construir Crisis Monitor nativo sem decisão de produto produz código órfão · que apodrece em 6 meses.</p>
+          <div class="note">Sample apps são 280–320 linhas · suficientes para provar pipeline. Se cresce, vira responsabilidade do produto.</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Storybook visual cross-platform</div>
+          <p>Designer + dev abrem mesma URL · veem mesmo card renderizado em web, iOS, Android. Comparam · achatam discrepância antes de PR.</p>
+          <div class="note">Compartilhe a URL com stakeholders · realismo da paridade convence sem reunião.</div>
+        </div>
+
+        <div class="rule dont">
+          <div class="tag">✕ Não pular drift detector em hotfix</div>
+          <p>"Só essa cor, urgente" é como o drift começa. Drift de 1 token vira drift de 12 em 6 meses. CI block é proteção · não burocracia.</p>
+          <div class="note">Override pontual passa por RFC expressa · 1 dia · não merge silencioso.</div>
+        </div>
+
+        <div class="rule do">
+          <div class="tag">✓ Versionar tokens com semver</div>
+          <p>Major · breaking (remoção de token) · minor · novo token · patch · valor ajustado mas API estável. iOS, Android e Web sobem versão juntos · sempre.</p>
+          <div class="note">Single source = single version. <code>v3.1.0</code> existe nos três · cliente nativo nunca trava em v2 enquanto web está em v3.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dependencies -->
+    <section class="section">
+      <h2 class="section-h1">Dependências</h2>
+      <p class="section-desc">Como γ.4 fecha a fase.</p>
+
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px 26px;">
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">5.1</span> &nbsp;<a href="token-architecture.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Token architecture</a> · 3 camadas (primitive · semantic · component) é o que torna a tradução cross-platform viável.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">5.2</span> &nbsp;<a href="figma-parity.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Figma ↔ Code</a> · Style Dictionary é o pipeline · Tokens.studio entrega source · γ.4 valida outputs nativos.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">5.3</span> &nbsp;<a href="rfc-process.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">RFC process</a> · token novo segue mesma política · só publicado no nativo após aprovação no source.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">5.4</span> &nbsp;<a href="adoption-metrics.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Adoption metrics</a> · quando app nativo existir, instrumentação reusa mesmo schema · só muda a fonte de medição.</li>
+          <li style="font-size:13.5px;color:var(--fg);line-height:1.6;padding-left:22px;position:relative;"><span style="position:absolute;left:0;color:var(--primary);font-family:var(--font-pulso-mono);font-weight:700;">γ.1</span> &nbsp;<a href="mobile-gestures.html" style="color:inherit;border-bottom:1px dashed var(--border-strong);">Gestures</a> · contratos de gesture têm equivalente nativo · haptic feedback usa <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">UIImpactFeedbackGenerator</code> / <code style="font-family:var(--font-pulso-mono);font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">HapticFeedbackConstants</code>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <div style="height:96px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

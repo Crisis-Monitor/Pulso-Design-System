@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — DatePicker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.pdp-field { display: flex; flex-direction: column; gap: 6px; min-width: 280px; }
+.pdp-label { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); }
+.pdp-trigger {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 36px; padding: 0 12px;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+  background: var(--card); color: var(--fg);
+  font-family: var(--font-pulso-sans); font-size: 13px;
+  cursor: pointer;
+  transition: background 140ms var(--motion-easing), border-color 140ms var(--motion-easing);
+}
+.pdp-trigger:hover { background: var(--muted); border-color: var(--fg-muted); }
+.pdp-trigger svg { width: 14px; height: 14px; color: var(--fg-muted); flex-shrink: 0; }
+.pdp-trigger.is-open { border-color: var(--primary); }
+
+.pdp-cal {
+  background: var(--popover);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 14px;
+  font-family: var(--font-pulso-sans);
+  width: 280px;
+}
+.pdp-cal.range { width: 580px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.pdp-month { display: flex; flex-direction: column; gap: 10px; }
+
+.pdp-head { display: flex; align-items: center; justify-content: space-between; }
+.pdp-h-title { font-size: 13.5px; font-weight: 600; color: var(--fg-strong); }
+.pdp-h-nav { display: inline-flex; gap: 2px; }
+.pdp-h-btn {
+  width: 26px; height: 26px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 0; background: transparent; color: var(--fg-muted);
+  border-radius: var(--radius-xs); cursor: pointer;
+  transition: background 140ms var(--motion-easing), color 140ms var(--motion-easing);
+}
+.pdp-h-btn:hover { background: var(--muted); color: var(--fg); }
+.pdp-h-btn svg { width: 14px; height: 14px; }
+
+.pdp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.pdp-dow {
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--fg-subtle); text-align: center; padding: 4px 0;
+}
+.pdp-day {
+  height: 32px; display: flex; align-items: center; justify-content: center;
+  font-size: 12.5px; font-variant-numeric: tabular-nums;
+  color: var(--fg); border-radius: var(--radius-sm);
+  cursor: pointer; user-select: none;
+  position: relative;
+  transition: background 120ms var(--motion-easing), color 120ms var(--motion-easing);
+}
+.pdp-day:hover { background: var(--muted); }
+.pdp-day.outside { color: var(--fg-disabled); }
+.pdp-day.today { font-weight: 700; color: var(--primary); }
+.pdp-day.today::after {
+  content: ""; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+  width: 3px; height: 3px; background: var(--primary); border-radius: 50%;
+}
+.pdp-day.disabled { color: var(--fg-disabled); cursor: not-allowed; }
+.pdp-day.disabled:hover { background: transparent; }
+
+/* Range states */
+.pdp-day.in-range { background: var(--primary-soft); color: var(--primary); border-radius: 0; }
+.pdp-day.range-start { background: var(--primary); color: var(--primary-foreground); border-radius: var(--radius-sm) 0 0 var(--radius-sm); font-weight: 600; }
+.pdp-day.range-end { background: var(--primary); color: var(--primary-foreground); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-weight: 600; }
+.pdp-day.selected { background: var(--primary); color: var(--primary-foreground); font-weight: 600; }
+
+/* Footer (presets) */
+.pdp-foot {
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.pdp-foot.range { grid-column: 1 / -1; }
+.pdp-preset {
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 5px 10px; border-radius: var(--radius-xs);
+  border: 1px solid var(--border); background: var(--card);
+  color: var(--fg-secondary); cursor: pointer;
+  transition: background 140ms var(--motion-easing), color 140ms var(--motion-easing);
+}
+.pdp-preset:hover { background: var(--muted); color: var(--fg); }
+.pdp-preset.active { background: var(--primary-soft); color: var(--primary); border-color: var(--primary-border); }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Atoms · Onda 3 · Form 07</div>
+    <h1 class="page-title">DatePicker</h1>
+    <p class="page-sub">Calendário em popover. Suporta single date e range. Range usa dois meses lado a lado, com presets ("últimos 7 dias", "este mês"). Hoje é marcado com ponto da marca abaixo do número — não competindo com seleção.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Trigger</h2>
+      <p class="section-desc">Mesma altura do Input/Select (36px). Ícone de calendário à esquerda, valor formatado em dd MMM yyyy.</p>
+      <div class="preview-row" style="gap: 24px; flex-wrap: wrap;">
+        <div class="pdp-field">
+          <div class="pdp-label">Data do incidente</div>
+          <button class="pdp-trigger">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M2 6h12M5 1v3M11 1v3"/></svg>
+            <span>14 mai 2026</span>
+          </button>
+        </div>
+        <div class="pdp-field">
+          <div class="pdp-label">Range</div>
+          <button class="pdp-trigger is-open">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M2 6h12M5 1v3M11 1v3"/></svg>
+            <span>14 abr — 14 mai 2026</span>
+          </button>
+        </div>
+        <div class="pdp-field">
+          <div class="pdp-label">Vazio</div>
+          <button class="pdp-trigger" style="color: var(--fg-subtle);">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M2 6h12M5 1v3M11 1v3"/></svg>
+            <span>Selecione uma data…</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Single date · open</h2>
+      <p class="section-desc">Calendário aberto. Mês atual com navegação. Dia atual marcado em marca. Domingo a sábado, padrão pt-BR.</p>
+      <div class="preview-row" style="background: transparent; border: 0; padding: 0;">
+        <div class="pdp-cal">
+          <div class="pdp-head">
+            <div class="pdp-h-title">Maio 2026</div>
+            <div class="pdp-h-nav">
+              <button class="pdp-h-btn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 4l-4 4 4 4"/></svg></button>
+              <button class="pdp-h-btn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4l4 4-4 4"/></svg></button>
+            </div>
+          </div>
+          <div class="pdp-grid">
+            <div class="pdp-dow">D</div><div class="pdp-dow">S</div><div class="pdp-dow">T</div><div class="pdp-dow">Q</div><div class="pdp-dow">Q</div><div class="pdp-dow">S</div><div class="pdp-dow">S</div>
+            <div class="pdp-day outside">26</div><div class="pdp-day outside">27</div><div class="pdp-day outside">28</div><div class="pdp-day outside">29</div><div class="pdp-day outside">30</div><div class="pdp-day">1</div><div class="pdp-day">2</div>
+            <div class="pdp-day">3</div><div class="pdp-day">4</div><div class="pdp-day today">5</div><div class="pdp-day">6</div><div class="pdp-day">7</div><div class="pdp-day">8</div><div class="pdp-day">9</div>
+            <div class="pdp-day">10</div><div class="pdp-day">11</div><div class="pdp-day">12</div><div class="pdp-day">13</div><div class="pdp-day selected">14</div><div class="pdp-day">15</div><div class="pdp-day">16</div>
+            <div class="pdp-day">17</div><div class="pdp-day">18</div><div class="pdp-day">19</div><div class="pdp-day">20</div><div class="pdp-day">21</div><div class="pdp-day">22</div><div class="pdp-day">23</div>
+            <div class="pdp-day">24</div><div class="pdp-day">25</div><div class="pdp-day">26</div><div class="pdp-day">27</div><div class="pdp-day">28</div><div class="pdp-day">29</div><div class="pdp-day">30</div>
+            <div class="pdp-day">31</div><div class="pdp-day outside">1</div><div class="pdp-day outside">2</div><div class="pdp-day outside">3</div><div class="pdp-day outside">4</div><div class="pdp-day outside">5</div><div class="pdp-day outside">6</div>
+          </div>
+          <div class="pdp-foot">
+            <button class="pdp-preset active">Hoje</button>
+            <button class="pdp-preset">Ontem</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Range · dois meses</h2>
+      <p class="section-desc">Padrão para queries em dashboard. Presets cobrem os intervalos mais usados — "últimos 7", "últimos 30", "este mês", "trimestre".</p>
+      <div class="preview-row" style="background: transparent; border: 0; padding: 0;">
+        <div class="pdp-cal range">
+          <div class="pdp-month">
+            <div class="pdp-head">
+              <div class="pdp-h-title">Abril 2026</div>
+              <div class="pdp-h-nav">
+                <button class="pdp-h-btn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 4l-4 4 4 4"/></svg></button>
+              </div>
+            </div>
+            <div class="pdp-grid">
+              <div class="pdp-dow">D</div><div class="pdp-dow">S</div><div class="pdp-dow">T</div><div class="pdp-dow">Q</div><div class="pdp-dow">Q</div><div class="pdp-dow">S</div><div class="pdp-dow">S</div>
+              <div class="pdp-day outside">29</div><div class="pdp-day outside">30</div><div class="pdp-day outside">31</div><div class="pdp-day">1</div><div class="pdp-day">2</div><div class="pdp-day">3</div><div class="pdp-day">4</div>
+              <div class="pdp-day">5</div><div class="pdp-day">6</div><div class="pdp-day">7</div><div class="pdp-day">8</div><div class="pdp-day">9</div><div class="pdp-day">10</div><div class="pdp-day">11</div>
+              <div class="pdp-day">12</div><div class="pdp-day">13</div><div class="pdp-day range-start">14</div><div class="pdp-day in-range">15</div><div class="pdp-day in-range">16</div><div class="pdp-day in-range">17</div><div class="pdp-day in-range">18</div>
+              <div class="pdp-day in-range">19</div><div class="pdp-day in-range">20</div><div class="pdp-day in-range">21</div><div class="pdp-day in-range">22</div><div class="pdp-day in-range">23</div><div class="pdp-day in-range">24</div><div class="pdp-day in-range">25</div>
+              <div class="pdp-day in-range">26</div><div class="pdp-day in-range">27</div><div class="pdp-day in-range">28</div><div class="pdp-day in-range">29</div><div class="pdp-day in-range">30</div><div class="pdp-day outside">1</div><div class="pdp-day outside">2</div>
+            </div>
+          </div>
+          <div class="pdp-month">
+            <div class="pdp-head">
+              <div class="pdp-h-title">Maio 2026</div>
+              <div class="pdp-h-nav">
+                <button class="pdp-h-btn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4l4 4-4 4"/></svg></button>
+              </div>
+            </div>
+            <div class="pdp-grid">
+              <div class="pdp-dow">D</div><div class="pdp-dow">S</div><div class="pdp-dow">T</div><div class="pdp-dow">Q</div><div class="pdp-dow">Q</div><div class="pdp-dow">S</div><div class="pdp-dow">S</div>
+              <div class="pdp-day outside">26</div><div class="pdp-day outside">27</div><div class="pdp-day outside">28</div><div class="pdp-day outside">29</div><div class="pdp-day outside">30</div><div class="pdp-day in-range">1</div><div class="pdp-day in-range">2</div>
+              <div class="pdp-day in-range">3</div><div class="pdp-day in-range">4</div><div class="pdp-day in-range today">5</div><div class="pdp-day in-range">6</div><div class="pdp-day in-range">7</div><div class="pdp-day in-range">8</div><div class="pdp-day in-range">9</div>
+              <div class="pdp-day in-range">10</div><div class="pdp-day in-range">11</div><div class="pdp-day in-range">12</div><div class="pdp-day in-range">13</div><div class="pdp-day range-end">14</div><div class="pdp-day">15</div><div class="pdp-day">16</div>
+              <div class="pdp-day">17</div><div class="pdp-day">18</div><div class="pdp-day">19</div><div class="pdp-day">20</div><div class="pdp-day">21</div><div class="pdp-day">22</div><div class="pdp-day">23</div>
+              <div class="pdp-day">24</div><div class="pdp-day">25</div><div class="pdp-day">26</div><div class="pdp-day">27</div><div class="pdp-day">28</div><div class="pdp-day">29</div><div class="pdp-day">30</div>
+              <div class="pdp-day">31</div><div class="pdp-day outside">1</div><div class="pdp-day outside">2</div><div class="pdp-day outside">3</div><div class="pdp-day outside">4</div><div class="pdp-day outside">5</div><div class="pdp-day outside">6</div>
+            </div>
+          </div>
+          <div class="pdp-foot range">
+            <button class="pdp-preset">Hoje</button>
+            <button class="pdp-preset">Ontem</button>
+            <button class="pdp-preset">Últimos 7 dias</button>
+            <button class="pdp-preset active">Últimos 30 dias</button>
+            <button class="pdp-preset">Este mês</button>
+            <button class="pdp-preset">Mês passado</button>
+            <button class="pdp-preset">Trimestre</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Quando usar</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Use</div>
+          <ul>
+            <li>Filtros temporais em dashboards e relatórios</li>
+            <li>Data de incidente, agendamento, deadline</li>
+            <li>Range com presets para queries comuns</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Considere</div>
+          <ul>
+            <li>Período relativo predefinido → Segmented (24h/7d/30d)</li>
+            <li>Hora isolada → use input time específico</li>
+            <li>Menos de 4 datas possíveis → Radio</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+
+<script src="../_nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Reduced Motion</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* ── Toggle (force reduced-motion in the demo) ───────── */
+.rm-toggle { display: flex; align-items: center; gap: 14px; padding: 14px 18px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); margin-bottom: 18px; }
+.rm-toggle-label { font-size: 13px; color: var(--fg); flex: 1; line-height: 1.5; }
+.rm-toggle-label strong { color: var(--fg-strong); font-weight: 600; }
+.rm-switch { position: relative; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+.rm-switch input { position: absolute; opacity: 0; pointer-events: none; }
+.rm-switch-track { width: 38px; height: 22px; background: var(--muted); border: 1px solid var(--border-strong); border-radius: 999px; position: relative; transition: background var(--motion-duration-fast) var(--motion-easing), border-color var(--motion-duration-fast) var(--motion-easing); flex-shrink: 0; }
+.rm-switch-track::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: var(--background); border-radius: 50%; transition: transform var(--motion-duration-default) var(--motion-easing); box-shadow: 0 1px 2px rgba(0,0,0,0.15); }
+.rm-switch input:checked + .rm-switch-track { background: var(--primary); border-color: var(--primary); }
+.rm-switch input:checked + .rm-switch-track::after { transform: translateX(16px); }
+.rm-switch input:focus-visible + .rm-switch-track { outline: 2px solid var(--ring); outline-offset: 2px; }
+.rm-switch-state { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-strong); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; min-width: 50px; text-align: left; }
+
+/* Force reduced motion when toggle is on */
+body[data-rm="on"] *, body[data-rm="on"] *::before, body[data-rm="on"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+/* …but keep the live-signal pulse and progress alive — they are information */
+body[data-rm="on"] .keep-anim,
+body[data-rm="on"] .keep-anim * {
+  animation-duration: 1.6s !important;
+}
+
+/* ── Demo cards ──────────────────────────────────────── */
+.demo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 900px) { .demo-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .demo-grid { grid-template-columns: 1fr; } }
+.demo-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px; display: flex; flex-direction: column; gap: 16px; min-height: 170px; }
+.demo-card h3 { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 500; }
+.demo-card p { font-size: 12px; color: var(--fg-muted); line-height: 1.5; }
+.demo-card .stage { flex: 1; display: flex; align-items: center; justify-content: center; gap: 12px; }
+.demo-card .verdict { font-size: 11px; font-family: var(--font-pulso-mono); padding-top: 10px; border-top: 1px solid var(--border-faint); display: flex; gap: 6px; align-items: center; }
+
+/* Demo: hover lift */
+.lift-btn { padding: 12px 22px; background: var(--primary); color: var(--primary-foreground); border: none; border-radius: var(--radius-sm); font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: transform 200ms var(--motion-easing), box-shadow 200ms var(--motion-easing); }
+.lift-btn:hover { transform: translateY(-4px); box-shadow: 0 12px 24px -12px color-mix(in oklab, var(--primary) 60%, transparent); }
+
+/* Demo: bouncing entry */
+@keyframes demo-bounce {
+  0% { transform: translateY(-30px) scale(0.6); opacity: 0; }
+  60% { transform: translateY(8px) scale(1.05); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.bounce-target { width: 64px; height: 64px; background: var(--risk-attention-bg); border: 2px solid var(--risk-attention-border); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--risk-attention-text); font-family: var(--font-pulso-mono); font-size: 16px; font-weight: 700; }
+.bounce-target.go { animation: demo-bounce 700ms var(--motion-easing); }
+
+/* Demo: pulse — keep alive */
+@keyframes demo-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.4); }
+}
+.live-pulse-wrap { position: relative; width: 16px; height: 16px; }
+.live-pulse-dot { position: absolute; inset: 4px; background: var(--risk-critical); border-radius: 50%; }
+.live-pulse-halo { position: absolute; inset: 0; border: 2px solid var(--risk-critical); border-radius: 50%; animation: demo-pulse 1.6s var(--motion-easing) infinite; }
+
+/* Demo: parallax scroll */
+@keyframes drift {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(40px); }
+  100% { transform: translateX(0); }
+}
+.drift-row { display: flex; gap: 8px; }
+.drift-row > div { width: 18px; height: 28px; background: var(--primary-soft); border-radius: 3px; animation: drift 2.4s var(--motion-easing) infinite; }
+.drift-row > div:nth-child(2) { animation-delay: 0.15s; }
+.drift-row > div:nth-child(3) { animation-delay: 0.3s; }
+.drift-row > div:nth-child(4) { animation-delay: 0.45s; }
+
+/* Demo: progress sweep — keep alive */
+.prog-bar { width: 180px; height: 6px; background: var(--muted); border-radius: 999px; overflow: hidden; }
+.prog-bar > div { height: 100%; width: 32%; background: var(--primary); animation: prog-sweep 1.8s var(--motion-easing) infinite; border-radius: 999px; }
+@keyframes prog-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(360%); }
+}
+
+/* Demo: focus ring — instantaneous always */
+.fr-input { height: 36px; padding: 0 12px; border: 1px solid var(--input); border-radius: var(--radius-sm); background: var(--background); color: var(--fg); font-family: inherit; font-size: 13px; transition: border-color 150ms var(--motion-easing), box-shadow 150ms var(--motion-easing); min-width: 180px; }
+.fr-input:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; border-color: var(--primary); }
+
+/* ── Matrix ──────────────────────────────────────────── */
+.rm-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.rm-tbl th, .rm-tbl td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--border-faint); vertical-align: top; }
+.rm-tbl th { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.rm-tbl td:first-child { color: var(--fg-strong); font-weight: 500; }
+.rm-tbl td code { font-family: var(--font-pulso-mono); font-size: 11.5px; background: var(--muted); padding: 1px 6px; border-radius: 3px; }
+.verdict-keep { color: var(--success); font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 600; }
+.verdict-cut  { color: var(--destructive); font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 600; }
+.verdict-soft { color: var(--warning); font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 600; }
+
+/* ── Code blocks ─────────────────────────────────────── */
+.code-block { background: var(--muted); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; font-family: var(--font-pulso-mono); font-size: 12px; color: var(--fg-strong); white-space: pre; overflow-x: auto; line-height: 1.65; margin-top: 12px; }
+.code-block .c-key { color: var(--primary); }
+.code-block .c-str { color: var(--success); }
+.code-block .c-com { color: var(--fg-muted); font-style: italic; }
+.code-block .c-num { color: var(--risk-attention-text); }
+
+/* ── Why grid ────────────────────────────────────────── */
+.why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 900px) { .why-grid { grid-template-columns: 1fr; } }
+.why-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px 22px; }
+.why-card h4 { font-size: 14px; font-weight: 600; color: var(--fg-strong); margin-bottom: 8px; }
+.why-card p { font-size: 12.5px; color: var(--fg-secondary); line-height: 1.55; }
+.why-card .pct { font-family: var(--font-pulso-mono); font-size: 26px; font-weight: 600; color: var(--primary); letter-spacing: -0.01em; line-height: 1; margin-bottom: 8px; }
+
+/* ── Spec rows ───────────────────────────────────────── */
+.spec-row { display: grid; grid-template-columns: 200px 1fr; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--border-faint); align-items: baseline; }
+.spec-row:last-child { border-bottom: none; }
+.spec-key { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.06em; }
+.spec-val { font-size: 13px; color: var(--fg); line-height: 1.55; }
+.spec-val code { font-family: var(--font-pulso-mono); background: var(--muted); padding: 1px 6px; border-radius: 3px; font-size: 11.5px; }
+
+/* OS instructions */
+.os-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 900px) { .os-grid { grid-template-columns: 1fr; } }
+.os-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 20px; }
+.os-card h4 { font-family: var(--font-pulso-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); margin-bottom: 10px; font-weight: 500; }
+.os-card ol { margin-left: 18px; font-size: 13px; color: var(--fg); line-height: 1.6; }
+.os-card code { font-family: var(--font-pulso-mono); font-size: 11.5px; background: var(--muted); padding: 1px 6px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+
+    <div class="page-kicker">Foundations · Accessibility · 05</div>
+    <h1 class="page-title">Reduced motion</h1>
+    <p class="page-sub">Animação em monitoramento real-time pode disparar enxaqueca, ataque vestibular ou ansiedade. Respeitar <code style="font-family:var(--font-pulso-mono);font-size:18px;background:var(--muted);padding:2px 8px;border-radius:4px;">prefers-reduced-motion: reduce</code> é trivial, barato e elimina uma classe inteira de incidentes. O Pulso desliga o movimento decorativo e mantém o movimento que <em>informa</em>.</p>
+
+    <!-- ── Toggle de simulação ───────────────────────────── -->
+    <div class="rm-toggle" style="margin-top:24px;">
+      <div class="rm-toggle-label">
+        <strong>Simulação reduced-motion</strong> — força <code style="font-family:var(--font-pulso-mono);background:var(--muted);padding:1px 6px;border-radius:3px;font-size:11.5px;">prefers-reduced-motion: reduce</code> nesta página. As demos abaixo refletem o estado escolhido.
+      </div>
+      <label class="rm-switch" id="rmSwitch">
+        <input type="checkbox" id="rmInput">
+        <span class="rm-switch-track"></span>
+        <span class="rm-switch-state" id="rmState">normal</span>
+      </label>
+    </div>
+
+    <!-- ── Por que ─────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Quem se beneficia</h2>
+      <p class="section-desc">Não é população nicho. Dor-de-cabeça antes de pico de crise é exatamente quem precisa do Crisis Monitor funcionando.</p>
+      <div class="why-grid">
+        <div class="why-card">
+          <div class="pct">~35%</div>
+          <h4>Sensibilidade vestibular</h4>
+          <p>Vertigem desencadeada por parallax, slide-in agressivo, blur progressivo. Inclui pacientes com migrânea vestibular, doença de Ménière, pós-AVC.</p>
+        </div>
+        <div class="why-card">
+          <div class="pct">~15%</div>
+          <h4>Migrânea / aura</h4>
+          <p>Pulso luminoso, flash, transição entre cores saturadas pode disparar crise. Operador com aura ativa precisa baixar estímulo agora — não em 3 cliques.</p>
+        </div>
+        <div class="why-card">
+          <div class="pct">+</div>
+          <h4>Ansiedade · TDAH · fadiga</h4>
+          <p>Movimento atrai a atenção. Em jornada longa de monitoramento, animação decorativa rouba foco que deveria estar no sinal real.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Princípio ─────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Princípio</h2>
+      <div style="background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: var(--radius-md); padding: 22px 26px;">
+        <p style="font-size: 16px; color: var(--fg-strong); line-height: 1.6; font-weight: 500; max-width: 720px;">Movimento que <em>decora</em> some. Movimento que <em>informa</em> permanece.</p>
+        <p style="font-size: 13.5px; color: var(--fg-secondary); margin-top: 12px; line-height: 1.6; max-width: 720px;">Hover lift, page transition, modal slide-up, micro-bounce — tudo decoração. Pulse de "live", spinner de loading, progress bar — informação. Cortar a primeira lista é grátis; cortar a segunda equivale a esconder o sinal vital do paciente.</p>
+      </div>
+    </section>
+
+    <!-- ── O contrato (CSS global) ─────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">O contrato global · <code style="font-family:var(--font-pulso-mono);font-size:18px;background:var(--muted);padding:2px 8px;border-radius:4px;">globals.css</code></h2>
+      <p class="section-desc">Uma única regra no fim de <code>globals.css</code> neutraliza animação e transição em todos os elementos. Componentes específicos que merecem manter o movimento usam a classe <code>.keep-anim</code> como opt-in explícito.</p>
+
+      <pre class="code-block"><span class="c-com">/* globals.css — base sweep */</span>
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    <span class="c-key">animation-duration</span>: <span class="c-num">0.001ms</span> !important;
+    <span class="c-key">animation-iteration-count</span>: <span class="c-num">1</span> !important;
+    <span class="c-key">transition-duration</span>: <span class="c-num">0.001ms</span> !important;
+    <span class="c-key">scroll-behavior</span>: auto !important;
+  }
+
+  <span class="c-com">/* Opt-in: keep informational motion alive */</span>
+  .keep-anim, .keep-anim * {
+    <span class="c-key">animation-duration</span>: <span class="c-num">1.6s</span> !important;
+  }
+}</pre>
+
+      <div class="spec-row" style="margin-top:18px;">
+        <div class="spec-key">0.001ms (não 0)</div>
+        <div class="spec-val">Mantém o evento <code>transitionend</code> disparando — código JS que espera transição terminar não trava. Truque clássico vindo da Adobe.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">!important</div>
+        <div class="spec-val">Único lugar onde aceitamos <code>!important</code> no Pulso. A user preference vence qualquer cascade.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">.keep-anim</div>
+        <div class="spec-val">Classe explícita. Aplica-se a containers de pulse, progress, spinner e qualquer movimento que carregue informação.</div>
+      </div>
+    </section>
+
+    <!-- ── Demos ─────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Demos · ligue o toggle no topo</h2>
+      <p class="section-desc">Cada card mostra um padrão de movimento do Pulso. Com reduced-motion <strong>ativo</strong>, alguns continuam (informativos), outros caem para estado final imediato (decorativos).</p>
+
+      <div class="demo-grid">
+        <div class="demo-card">
+          <h3>01 · Hover lift</h3>
+          <p>Botão sobe 4px no hover. Decoração pura.</p>
+          <div class="stage"><button class="lift-btn">Aprovar resposta</button></div>
+          <div class="verdict"><span class="verdict-cut">✗ corta</span> · vira hover instantâneo</div>
+        </div>
+
+        <div class="demo-card">
+          <h3>02 · Entrada com bounce</h3>
+          <p>Notificação que entra em cena com leve overshoot.</p>
+          <div class="stage"><div class="bounce-target" id="bounceEl">!</div></div>
+          <div class="verdict"><span class="verdict-cut">✗ corta</span> · aparece no estado final · <a href="#" id="bounceTrigger" style="color:var(--primary);text-decoration:none;">replay</a></div>
+        </div>
+
+        <div class="demo-card">
+          <h3>03 · Drift / parallax</h3>
+          <p>Barras flutuando para "decorar". Vestibular trigger clássico.</p>
+          <div class="stage"><div class="drift-row"><div></div><div></div><div></div><div></div></div></div>
+          <div class="verdict"><span class="verdict-cut">✗ corta</span> · imobiliza</div>
+        </div>
+
+        <div class="demo-card">
+          <h3>04 · Live pulse</h3>
+          <p>Halo pulsa em torno do dot. <strong>É informação</strong>: caso ativo, monitorando agora.</p>
+          <div class="stage"><span class="live-pulse-wrap keep-anim"><span class="live-pulse-halo"></span><span class="live-pulse-dot"></span></span><span style="font-size:13px;color:var(--fg);">Caso ativo · monitorando</span></div>
+          <div class="verdict"><span class="verdict-keep">✓ mantém</span> · classe <code style="font-family:var(--font-pulso-mono);background:var(--muted);padding:1px 5px;border-radius:3px;font-size:11px;">.keep-anim</code></div>
+        </div>
+
+        <div class="demo-card">
+          <h3>05 · Progress indeterminate</h3>
+          <p>Barra varrendo. Sinal de "estou processando". Sem ela, parece travado.</p>
+          <div class="stage"><div class="prog-bar keep-anim"><div></div></div></div>
+          <div class="verdict"><span class="verdict-keep">✓ mantém</span> · informa estado</div>
+        </div>
+
+        <div class="demo-card">
+          <h3>06 · Focus ring</h3>
+          <p>Estado de foco é binário, não animado. Aparece instantaneamente — antes e depois.</p>
+          <div class="stage"><input class="fr-input" placeholder="Foque com Tab"></div>
+          <div class="verdict"><span class="verdict-keep">✓ mantém</span> · sempre instantâneo</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Matrix de decisões ─────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Matriz · o que corta, o que fica</h2>
+      <p class="section-desc">Decisão por padrão de movimento, não por componente. Quando dúvida, corte — animação decorativa raramente é missed.</p>
+
+      <table class="rm-tbl">
+        <thead><tr><th>Padrão</th><th>Reduced ativo</th><th>Razão</th></tr></thead>
+        <tbody>
+          <tr><td>Hover lift / hover shadow</td><td><span class="verdict-cut">corta</span></td><td>Decoração — função (clicabilidade) está no cursor + focus ring</td></tr>
+          <tr><td>Page transition (fade between routes)</td><td><span class="verdict-cut">corta</span></td><td>Cobre ms de carga; SR já dá o sinal</td></tr>
+          <tr><td>Modal slide-up / scale-in</td><td><span class="verdict-soft">simplifica</span></td><td>Mantém fade <code>0 → 1</code> (orientação espacial), corta translate</td></tr>
+          <tr><td>Tab panel cross-fade</td><td><span class="verdict-cut">corta</span></td><td>Conteúdo aparece direto · foco no novo painel</td></tr>
+          <tr><td>Bounce / overshoot em entrada</td><td><span class="verdict-cut">corta</span></td><td>Pico clássico de vestibular trigger</td></tr>
+          <tr><td>Parallax / drift contínuo</td><td><span class="verdict-cut">corta</span></td><td>Sempre</td></tr>
+          <tr><td>Auto-scroll suave</td><td><span class="verdict-cut">corta</span></td><td><code>scroll-behavior: auto</code> · scroll instantâneo</td></tr>
+          <tr><td>Tooltip aparecer com delay</td><td><span class="verdict-keep">mantém</span></td><td>Delay é UX, não animação · sem fade</td></tr>
+          <tr><td>Live indicator pulse</td><td><span class="verdict-keep">mantém</span></td><td>Informação · ausência sugere caso parado</td></tr>
+          <tr><td>Spinner de loading</td><td><span class="verdict-keep">mantém</span></td><td>Sinal de "processando" · não decoração</td></tr>
+          <tr><td>Progress bar indeterminate</td><td><span class="verdict-keep">mantém</span></td><td>Mesma razão</td></tr>
+          <tr><td>Skeleton shimmer</td><td><span class="verdict-soft">simplifica</span></td><td>Mantém placeholder estático em var(--muted), sem shimmer</td></tr>
+          <tr><td>Focus ring</td><td><span class="verdict-keep">mantém</span></td><td>Estado binário, instantâneo · não tem o que cortar</td></tr>
+          <tr><td>Chart update (real-time)</td><td><span class="verdict-soft">simplifica</span></td><td>Mantém o update · corta o morph · valor "salta" para novo valor</td></tr>
+          <tr><td>Confetti / celebração</td><td><span class="verdict-cut">corta</span></td><td>Sempre. Aliás, evitar mesmo em modo normal — não está no DS.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Por componente ──────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Por componente Pulso</h2>
+      <p class="section-desc">Status de implementação. Todos os atoms checados; ainda há débito em organisms compostos.</p>
+
+      <table class="rm-tbl">
+        <thead><tr><th>Componente</th><th>Comportamento normal</th><th>Comportamento reduced</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Button</td><td>brightness · transition 120ms</td><td>brightness instantâneo</td><td><span class="verdict-keep">✓ ok</span></td></tr>
+          <tr><td>Tooltip</td><td>fade-in 150ms + delay 500ms</td><td>delay 500ms · sem fade</td><td><span class="verdict-keep">✓ ok</span></td></tr>
+          <tr><td>Dialog · Sheet</td><td>backdrop fade + content slide-up 320ms</td><td>fade only, sem translate</td><td><span class="verdict-keep">✓ ok</span></td></tr>
+          <tr><td>Tabs · panel transition</td><td>cross-fade 200ms</td><td>painel troca direto</td><td><span class="verdict-keep">✓ ok</span></td></tr>
+          <tr><td>Accordion · expand</td><td>height + opacity 200ms</td><td>expande direto</td><td><span class="verdict-keep">✓ ok</span></td></tr>
+          <tr><td>Toast · entrada</td><td>slide-from-right 280ms</td><td>aparece direto</td><td><span class="verdict-keep">✓ ok</span></td></tr>
+          <tr><td>Live Indicator</td><td>pulse 1.6s loop</td><td>pulse 1.6s loop (.keep-anim)</td><td><span class="verdict-keep">✓ ok</span></td></tr>
+          <tr><td>Spinner</td><td>rotate 1s linear</td><td>rotate 1s linear (.keep-anim)</td><td><span class="verdict-keep">✓ ok</span></td></tr>
+          <tr><td>Progress (indeterminate)</td><td>sweep 1.8s loop</td><td>sweep 1.8s loop (.keep-anim)</td><td><span class="verdict-keep">✓ ok</span></td></tr>
+          <tr><td>Skeleton</td><td>shimmer 1.4s loop</td><td>placeholder estático em var(--muted)</td><td><span class="verdict-soft">⏳ em refator</span></td></tr>
+          <tr><td>Mention Card · entrada real-time</td><td>slide-in + flash highlight</td><td>aparece direto · flash mantido em 1 frame</td><td><span class="verdict-soft">⏳ em refator</span></td></tr>
+          <tr><td>Score Ring · update</td><td>morph arc 600ms</td><td>salta para o novo valor</td><td><span class="verdict-soft">⏳ depende fase 3</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── JS hook (matchMedia) ───────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Hook JS · <code style="font-family:var(--font-pulso-mono);font-size:16px;background:var(--muted);padding:2px 8px;border-radius:4px;">usePrefersReducedMotion</code></h2>
+      <p class="section-desc">Para animações controladas via JS (charts, sprites, GSAP/Framer Motion), consultar a preferência diretamente. CSS sozinho não cobre canvas / WebGL / requestAnimationFrame.</p>
+
+      <pre class="code-block"><span class="c-com">// hooks/usePrefersReducedMotion.ts</span>
+<span class="c-key">export function</span> usePrefersReducedMotion() {
+  <span class="c-key">const</span> [reduced, setReduced] = useState(
+    () =&gt; window.matchMedia(<span class="c-str">'(prefers-reduced-motion: reduce)'</span>).matches
+  );
+  <span class="c-key">useEffect</span>(() =&gt; {
+    <span class="c-key">const</span> mq = window.matchMedia(<span class="c-str">'(prefers-reduced-motion: reduce)'</span>);
+    <span class="c-key">const</span> onChange = (e) =&gt; setReduced(e.matches);
+    mq.addEventListener(<span class="c-str">'change'</span>, onChange);
+    <span class="c-key">return</span> () =&gt; mq.removeEventListener(<span class="c-str">'change'</span>, onChange);
+  }, []);
+  <span class="c-key">return</span> reduced;
+}
+
+<span class="c-com">// Uso em chart de tempo real</span>
+<span class="c-key">const</span> reduced = usePrefersReducedMotion();
+&lt;<span class="c-key">LineChart</span> data={series} animationDuration={reduced ? <span class="c-num">0</span> : <span class="c-num">600</span>} /&gt;</pre>
+    </section>
+
+    <!-- ── Como testar ─────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Como ativar no sistema</h2>
+      <p class="section-desc">Antes de PR, todo dev/designer testa nas três plataformas. O toggle no topo desta página é simulação — não substitui o flag real do OS.</p>
+
+      <div class="os-grid">
+        <div class="os-card">
+          <h4>macOS</h4>
+          <ol>
+            <li><code>Ajustes do Sistema</code></li>
+            <li><code>Acessibilidade</code> → <code>Tela</code></li>
+            <li>Marcar <strong>Reduzir movimento</strong></li>
+          </ol>
+        </div>
+        <div class="os-card">
+          <h4>Windows 11</h4>
+          <ol>
+            <li><code>Configurações</code></li>
+            <li><code>Acessibilidade</code> → <code>Efeitos visuais</code></li>
+            <li>Desligar <strong>Efeitos de animação</strong></li>
+          </ol>
+        </div>
+        <div class="os-card">
+          <h4>iOS / Android</h4>
+          <ol>
+            <li>iOS: <code>Ajustes</code> → <code>Acessibilidade</code> → <code>Movimento</code> → <strong>Reduzir movimento</strong></li>
+            <li>Android: <code>Configurações</code> → <code>Acessibilidade</code> → <strong>Remover animações</strong></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Regras ──────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules-grid">
+        <div class="rule rule-do">
+          <div class="rule-head">Faça</div>
+          <ul>
+            <li>Use a regra global em <code>globals.css</code>. Não tente "esconder" animação componente a componente.</li>
+            <li>Marque com <code>.keep-anim</code> apenas o que é <strong>informação</strong> (pulse, spinner, progress).</li>
+            <li>Em modal/sheet, mantenha o <em>fade</em> de opacidade, corte o <em>translate</em>. Orientação espacial fica.</li>
+            <li>Em JS-driven animation, leia <code>matchMedia('(prefers-reduced-motion: reduce)')</code>. CSS não cobre canvas.</li>
+            <li>Teste antes do PR ativando o flag no OS, não só simulando no DevTools.</li>
+          </ul>
+        </div>
+        <div class="rule rule-dont">
+          <div class="rule-head">Evite</div>
+          <ul>
+            <li>Não corte animações de carregamento. Spinner imóvel = sistema travado.</li>
+            <li>Não use <code>display:none</code> para "remover" animação — quebra layout. Use <code>animation-duration: 0.001ms</code>.</li>
+            <li>Não dependa de animação para hierarquia. Se o usuário não vê o movimento, ainda deve entender a estrutura.</li>
+            <li>Não adicione confete, parallax e overshoot no modo normal "porque é bonito". Eles não estão no DS.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Status ─────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-h1">Status da iniciativa · 1.5</h2>
+      <table class="rm-tbl">
+        <thead><tr><th>Deliverable</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Regra global <code>@media (prefers-reduced-motion: reduce)</code> em <code>globals.css</code></td><td><span class="verdict-keep">✓ entregue</span></td></tr>
+          <tr><td>Classe opt-in <code>.keep-anim</code> + aplicada em Live Indicator, Spinner, Progress</td><td><span class="verdict-keep">✓ entregue</span></td></tr>
+          <tr><td>Hook <code>usePrefersReducedMotion()</code> para uso JS</td><td><span class="verdict-keep">✓ entregue</span></td></tr>
+          <tr><td>Documentação <strong>Foundations · Accessibility · Reduced Motion</strong></td><td><span class="verdict-keep">✓ entregue</span></td></tr>
+          <tr><td>Refator Skeleton shimmer → placeholder estático</td><td><span class="verdict-soft">⏳ PLS-DS-A11Y-018</span></td></tr>
+          <tr><td>Refator Score Ring · morph → snap (depende fase 3 / charts)</td><td><span class="verdict-soft">⏳ PLS-DS-A11Y-019 (fase 3)</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const input = document.getElementById('rmInput');
+  const state = document.getElementById('rmState');
+  const bounceEl = document.getElementById('bounceEl');
+  const bounceTrig = document.getElementById('bounceTrigger');
+
+  function apply(on){
+    document.body.dataset.rm = on ? 'on' : 'off';
+    state.textContent = on ? 'reduzido' : 'normal';
+  }
+  // Honor system preference as initial state
+  const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  input.checked = mq.matches;
+  apply(input.checked);
+
+  input.addEventListener('change', () => apply(input.checked));
+
+  function replay(){
+    bounceEl.classList.remove('go');
+    void bounceEl.offsetWidth;
+    bounceEl.classList.add('go');
+  }
+  bounceTrig.addEventListener('click', (e) => { e.preventDefault(); replay(); });
+  setTimeout(replay, 400);
+})();
+</script>
+<script src="../_nav.js"></script>
+</body>
+</html>

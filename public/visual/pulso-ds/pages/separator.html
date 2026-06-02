@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Separator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+.psep { background: var(--border); flex-shrink: 0; }
+.psep-h { width: 100%; height: 1px; }
+.psep-v { width: 1px; align-self: stretch; }
+.psep-faint { background: var(--border-faint); }
+.psep-strong { background: var(--border-strong); }
+.psep-dashed { background: transparent; border-top: 1px dashed var(--border-strong); height: 0; }
+.psep-dashed-v { background: transparent; border-left: 1px dashed var(--border-strong); width: 0; }
+
+/* Separator with label */
+.psep-label { display: flex; align-items: center; gap: 12px; color: var(--fg-muted); font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; }
+.psep-label::before, .psep-label::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+/* Demo containers */
+.demo-card { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--card); padding: 18px 20px; max-width: 520px; }
+.demo-row { display: flex; align-items: center; gap: 12px; max-width: 520px; }
+.demo-row > span:not(.psep) { font-size: 13px; color: var(--fg); }
+
+.kbd { font-family: var(--font-pulso-mono); font-size: 11px; padding: 2px 6px; background: var(--muted); border: 1px solid var(--border); border-radius: 3px; color: var(--fg-secondary); }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Atoms · Onda 2 · 03</div>
+    <h1 class="page-title">Separator</h1>
+    <p class="page-sub">Linha sutil que divide grupos. <strong>Última opção</strong> de hierarquia — antes considere espaço, agrupamento ou Card. Quando precisar, use o tom certo.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Horizontal · 3 pesos</h2>
+      <p class="section-desc">Faint para separações dentro de uma seção (linhas de tabela). Default para divisões claras. Strong para corte de seção principal.</p>
+      <div style="max-width: 520px; display: flex; flex-direction: column; gap: 32px;">
+        <div>
+          <div style="font-size: 13px; color: var(--fg); padding: 8px 0;">Linha de tabela 1</div>
+          <div class="psep psep-h psep-faint"></div>
+          <div style="font-size: 13px; color: var(--fg); padding: 8px 0;">Linha de tabela 2</div>
+          <div style="font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); margin-top: 6px;">FAINT · --border-faint</div>
+        </div>
+        <div>
+          <div style="font-size: 13px; color: var(--fg); padding: 8px 0;">Bloco superior</div>
+          <div class="psep psep-h"></div>
+          <div style="font-size: 13px; color: var(--fg); padding: 8px 0;">Bloco inferior</div>
+          <div style="font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); margin-top: 6px;">DEFAULT · --border</div>
+        </div>
+        <div>
+          <div style="font-size: 14px; font-weight: 500; color: var(--fg-strong); padding: 8px 0;">Seção 1</div>
+          <div class="psep psep-h psep-strong"></div>
+          <div style="font-size: 14px; font-weight: 500; color: var(--fg-strong); padding: 8px 0;">Seção 2</div>
+          <div style="font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); margin-top: 6px;">STRONG · --border-strong</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Vertical</h2>
+      <p class="section-desc">Para inline groups — ações secundárias, breadcrumbs, metadados em linha.</p>
+      <div class="demo-row" style="height: 24px;">
+        <span>Editar</span>
+        <span class="psep psep-v"></span>
+        <span>Duplicar</span>
+        <span class="psep psep-v"></span>
+        <span>Arquivar</span>
+        <span class="psep psep-v"></span>
+        <span style="color: var(--destructive);">Excluir</span>
+      </div>
+      <div class="demo-row" style="height: 24px; margin-top: 16px; color: var(--fg-muted); font-size: 12px;">
+        <span>Operação Água Nova</span>
+        <span class="psep psep-v"></span>
+        <span>há 14 min</span>
+        <span class="psep psep-v"></span>
+        <span>3 fontes</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Com label</h2>
+      <p class="section-desc">Para corte semântico — agrupar opções de menu, separar relevâncias temporais.</p>
+      <div style="max-width: 520px; display: flex; flex-direction: column; gap: 24px;">
+        <div>
+          <div style="font-size: 13px; color: var(--fg); padding: 6px 0;">Operação Água Nova</div>
+          <div style="font-size: 13px; color: var(--fg); padding: 6px 0;">CFO · disclosure</div>
+          <div class="psep-label" style="margin: 14px 0;">Ontem</div>
+          <div style="font-size: 13px; color: var(--fg); padding: 6px 0;">Reunião extraordinária</div>
+          <div style="font-size: 13px; color: var(--fg); padding: 6px 0;">Resposta · imprensa</div>
+          <div class="psep-label" style="margin: 14px 0;">Semana passada</div>
+          <div style="font-size: 13px; color: var(--fg); padding: 6px 0;">Briefing trimestral</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Em Card</h2>
+      <p class="section-desc">Dentro de um Card, separar header/content/footer com Separator faint.</p>
+      <div class="demo-card">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;">
+          <div>
+            <div style="font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.06em;">Operação Água Nova</div>
+            <div style="font-size: 16px; font-weight: 600; color: var(--fg-strong); margin-top: 4px;">Disclosure ANP</div>
+          </div>
+          <span style="font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted);">há 14min</span>
+        </div>
+        <div class="psep psep-h psep-faint"></div>
+        <div style="font-size: 13px; color: var(--fg-secondary); line-height: 1.55; padding: 12px 0;">Briefing inicial confirmado pelo time jurídico. Aguardando liberação para imprensa interna.</div>
+        <div class="psep psep-h psep-faint"></div>
+        <div style="display: flex; justify-content: flex-end; padding-top: 12px;">
+          <button style="height: 28px; padding: 0 12px; border-radius: var(--radius-md); border: 1px solid var(--border-strong); background: var(--card); font-size: 12px; color: var(--fg); cursor: pointer;">Ver detalhes</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Variante · tracejada</h2>
+      <p class="section-desc">Use <strong>raramente</strong> — apenas para indicar continuidade não-finalizada (drafts, blocos colapsáveis fechados, área para drop).</p>
+      <div style="max-width: 520px; display: flex; flex-direction: column; gap: 24px;">
+        <div class="psep-dashed"></div>
+        <div class="demo-row" style="height: 24px;">
+          <span>Antes</span>
+          <span class="psep-dashed-v"></span>
+          <span>Depois</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Anatomia</h2>
+      <table class="tokens">
+        <thead><tr><th>Variante</th><th>Espessura</th><th>Cor token</th><th>Uso</th></tr></thead>
+        <tbody>
+          <tr><td>Faint</td><td class="mono">1px</td><td class="mono">--border-faint</td><td>Linhas de tabela, dentro de Card</td></tr>
+          <tr><td>Default</td><td class="mono">1px</td><td class="mono">--border</td><td>Default — divisão clara entre blocos</td></tr>
+          <tr><td>Strong</td><td class="mono">1px</td><td class="mono">--border-strong</td><td>Corte de seção, header / content</td></tr>
+          <tr><td>Dashed</td><td class="mono">1px dashed</td><td class="mono">--border-strong</td><td>Continuidade, drop zones</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><div class="rule-tag">DO</div><div>Antes de usar Separator, tente <strong>aumentar o gap</strong>. Espaço resolve a maioria dos problemas que linhas tentam resolver.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Em Cards, use <code>faint</code>. Em divisões de página, <code>strong</code>. Default é o tom de uso geral.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Vertical separator deve ter altura igual ao texto que separa, não mais.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não empilhe Separators e Card juntos — Card já tem borda. Dentro de Card, Separator faint apenas.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use Separator com cor semântica (success, warning). Borda colorida é função de Alert/Card de status.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use linhas tracejadas como decoração. Tracejado tem significado (continuidade, draft, drop).</div></div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

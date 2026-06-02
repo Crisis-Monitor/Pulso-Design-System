@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Live Indicator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+<style>
+/* Live indicator with pulsing halo */
+.plive { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-pulso-mono); font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-secondary); }
+.plive-dot { position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
+.plive-dot::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; background: var(--success); opacity: 0.4; animation: plive-halo 1.6s var(--motion-easing) infinite; }
+@keyframes plive-halo { 0% { transform: scale(0.6); opacity: 0.6; } 100% { transform: scale(2); opacity: 0; } }
+
+/* Variant: critical */
+.plive-critical .plive-dot { background: var(--risk-critical); }
+.plive-critical .plive-dot::after { background: var(--risk-critical); }
+.plive-critical { color: var(--risk-critical); }
+
+/* Variant: paused / offline */
+.plive-paused .plive-dot { background: var(--fg-muted); }
+.plive-paused .plive-dot::after { display: none; }
+.plive-paused { color: var(--fg-muted); }
+
+/* Variant: stale (warn) */
+.plive-stale .plive-dot { background: var(--warning); animation: plive-blink 1.4s ease-in-out infinite; }
+.plive-stale .plive-dot::after { display: none; }
+.plive-stale { color: var(--warning); }
+@keyframes plive-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+
+/* In context */
+.plive-pill { padding: 4px 10px 4px 8px; border-radius: 999px; background: var(--success-bg); border: 1px solid var(--success-border); }
+.plive-pill.plive-critical { background: var(--risk-critical-bg); border-color: var(--risk-critical-border); }
+.plive-pill.plive-stale { background: var(--warning-bg); border-color: var(--warning-border); }
+.plive-pill.plive-paused { background: var(--muted); border: 1px solid var(--border); }
+
+@media (prefers-reduced-motion: reduce) {
+  .plive-dot::after { animation: none; opacity: 0; }
+  .plive-stale .plive-dot { animation: none; }
+}
+
+/* Demo */
+.demo-card { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--card); padding: 18px 20px; max-width: 520px; }
+.metric-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.metric-num { font-family: var(--font-pulso-display); font-size: 36px; font-weight: 700; color: var(--fg-strong); letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums; }
+
+.demo-list { max-width: 520px; }
+.demo-list-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-faint); }
+.demo-list-item:last-child { border-bottom: 0; }
+.demo-list-item .name { font-size: 13.5px; color: var(--fg); }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Atoms · Onda 2 · 04</div>
+    <h1 class="page-title">Live Indicator</h1>
+    <p class="page-sub">Sinaliza dado em tempo real. Estado <strong>operacional</strong> — não confundir com badge de risco. Mostra que o feed está vivo, pausado, defasado ou em alerta.</p>
+
+    <section class="section">
+      <h2 class="section-h1">Estados</h2>
+      <p class="section-desc">Quatro estados canônicos. Live é o default; outros indicam que o usuário precisa saber de algo sobre o feed.</p>
+      <div class="preview-row" style="gap: 24px; flex-direction: column; align-items: flex-start;">
+        <span class="plive"><span class="plive-dot"></span>Ao vivo</span>
+        <span class="plive plive-critical"><span class="plive-dot"></span>Crise ao vivo</span>
+        <span class="plive plive-stale"><span class="plive-dot"></span>Defasado · 4min</span>
+        <span class="plive plive-paused"><span class="plive-dot"></span>Pausado</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Em pílula</h2>
+      <p class="section-desc">Quando o indicador precisa de presença visual maior — header de página, top de painel.</p>
+      <div class="preview-row" style="gap: 12px; flex-wrap: wrap;">
+        <span class="plive plive-pill"><span class="plive-dot"></span>Ao vivo</span>
+        <span class="plive plive-critical plive-pill"><span class="plive-dot"></span>Crise ao vivo · score 87</span>
+        <span class="plive plive-stale plive-pill"><span class="plive-dot"></span>Sem novas há 12min</span>
+        <span class="plive plive-paused plive-pill"><span class="plive-dot"></span>Monitoramento pausado</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Em métrica</h2>
+      <p class="section-desc">Sobre uma métrica que se atualiza em tempo real, o indicador entra como kicker — comunica "esse número está vivo".</p>
+      <div class="demo-card">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+          <span class="plive"><span class="plive-dot"></span>Ao vivo</span>
+        </div>
+        <div style="font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px;">Menções nas últimas 24h</div>
+        <div class="metric-row">
+          <div class="metric-num">2.847</div>
+          <div style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 999px; background: var(--destructive-bg); color: var(--destructive); border: 1px solid var(--destructive-border); font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 600;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="18 9 12 3 6 9"/></svg>
+            +43%
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Em lista de monitoramentos</h2>
+      <p class="section-desc">Estado por linha. Cada monitoramento tem status próprio.</p>
+      <div class="demo-list">
+        <div class="demo-list-item">
+          <span class="name">Operação Água Nova</span>
+          <span class="plive plive-critical"><span class="plive-dot"></span>Crise · 87</span>
+        </div>
+        <div class="demo-list-item">
+          <span class="name">Disclosure ANP</span>
+          <span class="plive"><span class="plive-dot"></span>Ao vivo</span>
+        </div>
+        <div class="demo-list-item">
+          <span class="name">Reorganização societária</span>
+          <span class="plive plive-stale"><span class="plive-dot"></span>Defasado · 8min</span>
+        </div>
+        <div class="demo-list-item">
+          <span class="name">Briefing trimestral</span>
+          <span class="plive plive-paused"><span class="plive-dot"></span>Pausado</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Em header de página</h2>
+      <div class="demo-card" style="background: linear-gradient(180deg, var(--card), var(--background));">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px;">
+          <div style="font-family: var(--font-pulso-mono); font-size: 10.5px; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.06em;">Crisis Monitor · Operação Água Nova</div>
+          <span class="plive plive-critical plive-pill"><span class="plive-dot"></span>Ao vivo</span>
+        </div>
+        <h3 style="font-size: 22px; font-weight: 600; color: var(--fg-strong); letter-spacing: -0.005em; margin: 0;">Vazamento ANP — disclosure regulatório</h3>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Anatomia</h2>
+      <table class="tokens">
+        <thead><tr><th>Estado</th><th>Cor</th><th>Animação</th><th>Significado</th></tr></thead>
+        <tbody>
+          <tr><td>Live</td><td class="mono">--success</td><td class="mono">halo pulsante 1.6s</td><td>Feed conectado, dado fresco</td></tr>
+          <tr><td>Critical</td><td class="mono">--risk-critical</td><td class="mono">halo pulsante 1.6s</td><td>Crise ativa em score crítico</td></tr>
+          <tr><td>Stale</td><td class="mono">--warning</td><td class="mono">blink 1.4s</td><td>Sem atualização há &gt; X min</td></tr>
+          <tr><td>Paused</td><td class="mono">--fg-muted</td><td class="mono">nenhuma</td><td>Monitoramento pausado pelo usuário</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Regras</h2>
+      <div class="rules">
+        <div class="rule do"><div class="rule-tag">DO</div><div>Use <strong>Live</strong> apenas quando o feed está realmente recebendo dados. Não use como decoração.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div><strong>Critical</strong> = score ≥ 80 + feed ativo. Sem o feed ativo, é só badge de risco.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Defina o limiar de Stale por tipo de monitoramento — 2min para crise ativa, 1h para baseline.</div></div>
+        <div class="rule do"><div class="rule-tag">DO</div><div>Em prefers-reduced-motion, halo desaparece e mantém apenas o dot estático com label.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use mais que <strong>um</strong> Live Indicator por área visível. Múltiplos halos competindo viram ruído.</div></div>
+        <div class="rule dont"><div class="rule-tag">DON'T</div><div>Não use Live como substituto de Badge de risco. Live é sobre <em>conexão</em>, Badge é sobre <em>nível</em>.</div></div>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

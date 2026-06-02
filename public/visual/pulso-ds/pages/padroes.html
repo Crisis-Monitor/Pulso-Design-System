@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Padrões de Composição</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Conceitual · 04</div>
+    <h1 class="page-title">Padrões de Composição</h1>
+    <p class="page-sub">Estruturas recorrentes que resolvem problemas específicos do Crisis Monitor. Não são componentes — são <strong style="color: var(--fg);">formas de combinar componentes</strong> para criar telas coerentes. Cada padrão tem um nome canônico, função clara, anatomia e quando usar.</p>
+
+    <section class="section">
+      <div class="patt">
+        <div class="patt-num">PADRÃO 01</div>
+        <div class="patt-title">Header de Página de Crise</div>
+        <div class="patt-fn">Apresentar identidade, estado e ações principais de uma crise ativa.</div>
+        <div class="patt-section">
+          <div class="patt-section-h">Anatomia</div>
+          <div class="patt-anatomy">[Kicker: nome do monitoramento]
+[Título da crise]                    [Score circle + ring colorido]
+[Badge de status]  [AvatarGroup]
+[Ações: Exportar | Configurações | Arquivar]</div>
+        </div>
+        <div class="patt-pair">
+          <div>
+            <div class="patt-section-h">Regras</div>
+            <ul class="patt-rules-list">
+              <li>Header é <strong>flat</strong> — sem Card wrapper, sem borda, sem elevação</li>
+              <li>Score é o elemento de maior destaque visual</li>
+              <li>Status badge usa tokens de risco (--risk-*)</li>
+              <li>Ações secundárias em DropdownMenu</li>
+              <li>AvatarGroup mostra equipe responsável em modo compacto</li>
+            </ul>
+          </div>
+          <div>
+            <div class="patt-section-h">Quando usar / Quando não usar</div>
+            <p style="font-size: 13.5px; color: var(--fg); line-height: 1.55;"><strong>Usar:</strong> toda página de detalhe de crise ativa ou monitoramento.</p>
+            <p style="font-size: 13.5px; color: var(--fg-muted); line-height: 1.55; margin-top: 6px;"><strong>Não usar:</strong> listagens, configurações ou telas sem identidade de crise específica.</p>
+          </div>
+        </div>
+        <div class="patt-section">
+          <div class="patt-section-h">Componentes</div>
+          <div class="patt-comp">
+            <span class="patt-comp-pill">PageHeader</span>
+            <span class="patt-comp-pill">Badge · risk</span>
+            <span class="patt-comp-pill">Score circle</span>
+            <span class="patt-comp-pill">AvatarGroup</span>
+            <span class="patt-comp-pill">Button</span>
+            <span class="patt-comp-pill">DropdownMenu</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="patt">
+        <div class="patt-num">PADRÃO 02</div>
+        <div class="patt-title">Anatomia de Tela de Crise</div>
+        <div class="patt-fn">Estrutura completa de uma página de detalhe — organiza múltiplas camadas de informação.</div>
+        <div class="patt-section">
+          <div class="patt-section-h">Hierarquia obrigatória</div>
+          <div class="ord-list" style="margin-top: 4px;">
+            <div class="ord-item"><div class="ord-item-text"><strong>O que é</strong> — identidade e contexto (header)</div></div>
+            <div class="ord-item"><div class="ord-item-text"><strong>Qual o risco</strong> — score e status (header)</div></div>
+            <div class="ord-item"><div class="ord-item-text"><strong>O que mudou</strong> — evolução recente (overview)</div></div>
+            <div class="ord-item"><div class="ord-item-text"><strong>Quais evidências</strong> — cobertura e menções (tabs)</div></div>
+            <div class="ord-item"><div class="ord-item-text"><strong>O que fazer</strong> — decisões e ações (tabs + assistente)</div></div>
+          </div>
+        </div>
+        <div class="patt-section">
+          <div class="patt-section-h">Estrutura de tabs recomendada</div>
+          <div class="patt-anatomy">[Tabs variant="underline"]
+├── Resumo         → CrisisOverview + BriefingCard
+├── Menções        → filtros + MentionList
+├── Analytics      → score histórico + sentimento + fontes
+├── Decisões       → DecisionLog + COA
+└── Relatório      → ReportClipping</div>
+        </div>
+        <div class="patt-section">
+          <div class="patt-section-h">Painel lateral</div>
+          <ul class="patt-rules-list">
+            <li>Assistente (Cris) disponível em todas as abas</li>
+            <li>Sinais de escalada acessíveis como painel colapsável</li>
+          </ul>
+        </div>
+        <div class="patt-section">
+          <div class="patt-section-h">Componentes</div>
+          <div class="patt-comp">
+            <span class="patt-comp-pill">Tabs · underline</span>
+            <span class="patt-comp-pill">Card</span>
+            <span class="patt-comp-pill">MetricCard</span>
+            <span class="patt-comp-pill">Table</span>
+            <span class="patt-comp-pill">DeltaChip</span>
+            <span class="patt-comp-pill">LiveIndicator</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="patt">
+        <div class="patt-num">PADRÃO 03</div>
+        <div class="patt-title">Card de Menção</div>
+        <div class="patt-fn">Exibir uma menção coletada com contexto suficiente para triagem e leitura rápida.</div>
+        <div class="patt-section">
+          <div class="patt-section-h">Anatomia</div>
+          <div class="patt-anatomy">[Kicker: veículo + tier]              [Badge de sentimento]
+[Título da menção]
+[Trecho relevante truncado]
+[Data] · [Keyword] · [Score atenção]   [Ação: Ver detalhe]</div>
+        </div>
+        <div class="patt-pair">
+          <div>
+            <div class="patt-section-h">Regras</div>
+            <ul class="patt-rules-list">
+              <li>Título nunca truncado além de 2 linhas</li>
+              <li>Trecho limitado a 3 linhas (text-clamp)</li>
+              <li>Sentimento usa badge com token semântico</li>
+              <li>Score de atenção em DeltaChip</li>
+              <li>"Ver detalhe" abre ResponsiveSheet</li>
+            </ul>
+          </div>
+          <div>
+            <div class="patt-section-h">Quando usar / Quando não usar</div>
+            <p style="font-size: 13.5px; color: var(--fg); line-height: 1.55;"><strong>Usar:</strong> listagem de menções em aba Menções e painel de cobertura.</p>
+            <p style="font-size: 13.5px; color: var(--fg-muted); line-height: 1.55; margin-top: 6px;"><strong>Não usar:</strong> resumos executivos — usar bloco de evidências simplificado.</p>
+          </div>
+        </div>
+        <div class="patt-section">
+          <div class="patt-section-h">Componentes</div>
+          <div class="patt-comp">
+            <span class="patt-comp-pill">Card</span>
+            <span class="patt-comp-pill">Kicker</span>
+            <span class="patt-comp-pill">Badge · semantic</span>
+            <span class="patt-comp-pill">DeltaChip</span>
+            <span class="patt-comp-pill">Button · ghost</span>
+            <span class="patt-comp-pill">ResponsiveSheet</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="patt">
+        <div class="patt-num">PADRÃO 04</div>
+        <div class="patt-title">Bloco de Métricas (Overview)</div>
+        <div class="patt-fn">Exibir KPIs principais da crise em leitura rápida — para o decisor.</div>
+        <div class="patt-section">
+          <div class="patt-section-h">Anatomia</div>
+          <div class="patt-anatomy">[MetricCard: Score atual]      [MetricCard: Menções hoje]
+[MetricCard: Sentimento neg]   [MetricCard: Velocidade]</div>
+        </div>
+        <div class="patt-pair">
+          <div>
+            <div class="patt-section-h">Regras</div>
+            <ul class="patt-rules-list">
+              <li>Máximo 4 MetricCards no overview</li>
+              <li>Cada card: kicker, número grande, DeltaChip</li>
+              <li>Score usa token de cor de risco no número</li>
+              <li>Grid 2×2 desktop, 1 coluna mobile</li>
+            </ul>
+          </div>
+          <div>
+            <div class="patt-section-h">Quando usar / Quando não usar</div>
+            <p style="font-size: 13.5px; color: var(--fg); line-height: 1.55;"><strong>Usar:</strong> overview da crise, painel executivo.</p>
+            <p style="font-size: 13.5px; color: var(--fg-muted); line-height: 1.55; margin-top: 6px;"><strong>Não usar:</strong> telas de configuração ou investigação.</p>
+          </div>
+        </div>
+        <div class="patt-section">
+          <div class="patt-section-h">Componentes</div>
+          <div class="patt-comp">
+            <span class="patt-comp-pill">MetricCard</span>
+            <span class="patt-comp-pill">DeltaChip</span>
+            <span class="patt-comp-pill">Kicker</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="patt">
+        <div class="patt-num">PADRÃO 05</div>
+        <div class="patt-title">Timeline de Eventos</div>
+        <div class="patt-fn">Exibir sequência cronológica de escaladas, decisões e mudanças relevantes.</div>
+        <div class="patt-section">
+          <div class="patt-section-h">Anatomia</div>
+          <div class="patt-anatomy">[data/hora] ─● [evento + tipo + badge]
+              └─ [descrição breve + evidência opcional]
+[data/hora] ─● [evento + tipo + badge]
+              └─ [descrição breve]</div>
+        </div>
+        <div class="patt-pair">
+          <div>
+            <div class="patt-section-h">Regras</div>
+            <ul class="patt-rules-list">
+              <li>Eventos em ordem decrescente (mais recente primeiro)</li>
+              <li>Cada evento: timestamp, tipo, badge de risco</li>
+              <li>Descrição máxima 2 linhas</li>
+              <li>Evidência opcional em texto muted com link</li>
+              <li>Separador vertical entre eventos</li>
+            </ul>
+          </div>
+          <div>
+            <div class="patt-section-h">Quando usar / Quando não usar</div>
+            <p style="font-size: 13.5px; color: var(--fg); line-height: 1.55;"><strong>Usar:</strong> aba timeline, histórico de decisões, log de escalada.</p>
+            <p style="font-size: 13.5px; color: var(--fg-muted); line-height: 1.55; margin-top: 6px;"><strong>Não usar:</strong> quando &gt; 20 eventos e comparação importa mais que sequência → tabela.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="patt">
+        <div class="patt-num">PADRÃO 06</div>
+        <div class="patt-title">Filtro de Menções</div>
+        <div class="patt-fn">Permitir triagem rápida de menções por sentimento, veículo, tier, período e keyword.</div>
+        <div class="patt-section">
+          <div class="patt-section-h">Anatomia</div>
+          <div class="patt-anatomy">[InputGroup: busca textual]      [ButtonGroup: 7d/30d/90d]
+[Chip: sentimento]  [Chip: tier]  [Chip: keyword]  [+ Adicionar]</div>
+        </div>
+        <div class="patt-section">
+          <div class="patt-section-h">Regras</div>
+          <ul class="patt-rules-list">
+            <li>Filtros ativos como Chips com variante <code>brand</code> e <code>removable</code></li>
+            <li>Busca textual em InputGroup com ícone de lupa</li>
+            <li>Período em ButtonGroup horizontal</li>
+            <li>"Adicionar filtro" abre DropdownMenu com opções restantes</li>
+          </ul>
+        </div>
+        <div class="patt-section">
+          <div class="patt-section-h">Componentes</div>
+          <div class="patt-comp">
+            <span class="patt-comp-pill">InputGroup</span>
+            <span class="patt-comp-pill">ButtonGroup</span>
+            <span class="patt-comp-pill">Chip · brand · removable</span>
+            <span class="patt-comp-pill">DropdownMenu</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="patt">
+        <div class="patt-num">PADRÃO 07</div>
+        <div class="patt-title">Estado Vazio</div>
+        <div class="patt-fn">Comunicar ausência de dado com contexto e CTA útil — sem parecer erro.</div>
+        <div class="patt-pair">
+          <div>
+            <div class="patt-section-h">Vazio de início</div>
+            <p style="font-size: 13.5px; color: var(--fg); line-height: 1.55;">Monitoramento criado mas sem menções coletadas ainda. <strong>CTA:</strong> "Configurar keywords" ou "Aguardando primeira ingestão".</p>
+          </div>
+          <div>
+            <div class="patt-section-h">Vazio de filtro</div>
+            <p style="font-size: 13.5px; color: var(--fg); line-height: 1.55;">Filtro aplicado zerou os resultados. <strong>CTA:</strong> "Limpar filtros" ou "Ajustar período".</p>
+          </div>
+        </div>
+        <div class="patt-section">
+          <div class="patt-section-h">Vazio positivo</div>
+          <p style="font-size: 13.5px; color: var(--fg); line-height: 1.55;">Nenhum sinal negativo detectado. <strong>Tom:</strong> positivo, não neutro. Ícone de escudo ou check.</p>
+        </div>
+        <div class="patt-section">
+          <div class="patt-section-h">Regras</div>
+          <ul class="patt-rules-list">
+            <li>Nunca usar ícone genérico de erro</li>
+            <li>Texto explica o motivo e o que fazer</li>
+            <li>CTA obrigatório exceto em vazio positivo</li>
+            <li>Ícone com relação semântica ao contexto</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="patt">
+        <div class="patt-num">PADRÃO 08</div>
+        <div class="patt-title">Painel de Detalhe (Sheet)</div>
+        <div class="patt-fn">Exibir contexto expandido de uma menção, decisão ou sinal sem sair da página atual.</div>
+        <div class="patt-section">
+          <div class="patt-section-h">Anatomia</div>
+          <div class="patt-anatomy">[Sheet — lateral ou bottom mobile]
+├── [Header: título + badge + fechar]
+├── [Conteúdo principal scrollável]
+│   ├── Título da menção
+│   ├── Veículo + tier + data
+│   ├── Texto completo
+│   ├── Entidades (chips) · Fatos estruturados
+│   └── Ações: clipping, compartilhar
+└── [Footer: ação principal]</div>
+        </div>
+        <div class="patt-section">
+          <div class="patt-section-h">Regras</div>
+          <ul class="patt-rules-list">
+            <li>Sheet nunca abre outra Sheet (sem empilhamento)</li>
+            <li>Conteúdo principal scrollável, header e footer fixos</li>
+            <li>Ações destrutivas em DropdownMenu, não expostas</li>
+            <li>Mobile: Sheet vira bottom drawer</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="patt">
+        <div class="patt-num">PADRÃO 09</div>
+        <div class="patt-title">Seção de Settings</div>
+        <div class="patt-fn">Organizar configurações em grupos semânticos dentro de uma página de settings.</div>
+        <div class="patt-section">
+          <div class="patt-section-h">Anatomia</div>
+          <div class="patt-anatomy">[Card]
+├── [CardHeader: título do grupo + descrição]
+├── [CardContent: campos / toggles / seletores]
+└── [CardFooter: border-t + Button "Salvar"]</div>
+        </div>
+        <div class="patt-section">
+          <div class="patt-section-h">Regras</div>
+          <ul class="patt-rules-list">
+            <li>Uma seção = um Card</li>
+            <li>Cada Card tem um único propósito</li>
+            <li>Botão salvar é por Card, não global</li>
+            <li>Zona de perigo sempre no final</li>
+            <li>Largura máxima max-w-2xl</li>
+          </ul>
+        </div>
+        <div class="patt-section">
+          <div class="patt-section-h">Componentes</div>
+          <div class="patt-comp">
+            <span class="patt-comp-pill">Card · header · content · footer</span>
+            <span class="patt-comp-pill">FormField</span>
+            <span class="patt-comp-pill">Switch</span>
+            <span class="patt-comp-pill">RadioGroup</span>
+            <span class="patt-comp-pill">Select</span>
+            <span class="patt-comp-pill">AlertDialog</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="patt">
+        <div class="patt-num">PADRÃO 10</div>
+        <div class="patt-title">Bloco de Explicabilidade</div>
+        <div class="patt-fn">Exibir o raciocínio por trás de um score, decisão assistida ou recomendação da IA.</div>
+        <div class="patt-section">
+          <div class="patt-section-h">Anatomia</div>
+          <div class="patt-anatomy">[Kicker: "Por que esse score?"]
+[Texto explicativo — 2–4 linhas]
+[Fatores contribuintes]
+├── [DeltaChip] Volume de menções: +43% nas últimas 6h
+├── [DeltaChip] Sentimento negativo: 71%
+└── [DeltaChip] Escalada detectada: 2 veículos Tier 1
+[Link: "Ver evidências completas"]</div>
+        </div>
+        <div class="patt-section">
+          <div class="patt-section-h">Regras</div>
+          <ul class="patt-rules-list">
+            <li><strong>Nunca</strong> apresentar recomendação de IA sem bloco de explicabilidade</li>
+            <li>Fatores em ordem de impacto (maior primeiro)</li>
+            <li>DeltaChips com tons semânticos</li>
+            <li>Texto em voz ativa, sóbria, sem dramatização</li>
+          </ul>
+        </div>
+        <div class="patt-section">
+          <div class="patt-section-h">Componentes</div>
+          <div class="patt-comp">
+            <span class="patt-comp-pill">Kicker</span>
+            <span class="patt-comp-pill">DeltaChip</span>
+            <span class="patt-comp-pill">Card</span>
+            <span class="patt-comp-pill">Accordion</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">Resumo · quando usar cada padrão</h2>
+      <table class="vocab">
+        <thead><tr><th>Padrão</th><th colspan="2">Contexto de uso</th></tr></thead>
+        <tbody>
+          <tr><td>Header de Crise</td><td colspan="2">Toda página de detalhe de crise</td></tr>
+          <tr><td>Anatomia de Tela</td><td colspan="2">Estrutura de tabs e hierarquia da página</td></tr>
+          <tr><td>Card de Menção</td><td colspan="2">Listagem de menções em investigação</td></tr>
+          <tr><td>Bloco de Métricas</td><td colspan="2">Overview executivo / resumo de crise</td></tr>
+          <tr><td>Timeline</td><td colspan="2">Escaladas, decisões, histórico</td></tr>
+          <tr><td>Filtro de Menções</td><td colspan="2">Triagem e busca em volume de menções</td></tr>
+          <tr><td>Estado Vazio</td><td colspan="2">Ausência de dado com contexto</td></tr>
+          <tr><td>Painel de Detalhe</td><td colspan="2">Contexto expandido sem sair da página</td></tr>
+          <tr><td>Seção de Settings</td><td colspan="2">Configuração organizada por grupo</td></tr>
+          <tr><td>Explicabilidade</td><td colspan="2">Raciocínio de IA e scores</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>

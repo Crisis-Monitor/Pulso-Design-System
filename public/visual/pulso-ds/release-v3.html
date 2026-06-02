@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Release v3.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="globals.css">
+<link rel="stylesheet" href="pages/_page.css">
+<style>
+.release-main { padding: 56px 64px 96px; max-width: 1180px; margin: 0 auto; }
+@media (max-width: 900px) { .release-main { padding: 32px 24px 64px; } }
+
+/* ── Header banner ───── */
+.release-hero {
+  margin-top: 20px;
+  background: linear-gradient(135deg,
+    color-mix(in oklab, var(--primary) 8%, var(--card)),
+    var(--card));
+  border: 1px solid var(--primary-border);
+  border-left: 3px solid var(--primary);
+  border-radius: var(--radius-md);
+  padding: 28px 32px;
+}
+.release-hero .v-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 11px; border-radius: var(--radius-xs);
+  background: var(--primary); color: var(--primary-foreground);
+  font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.release-hero h2 {
+  font-size: 28px; font-weight: 700; color: var(--fg-strong);
+  letter-spacing: -0.015em; margin-top: 14px;
+}
+.release-hero .lead {
+  font-size: 15.5px; color: var(--fg-secondary); line-height: 1.65;
+  margin-top: 10px; max-width: 760px;
+}
+.release-hero .lead strong { color: var(--fg-strong); font-weight: 600; }
+
+.release-hero .stats {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+  margin-top: 24px; padding-top: 22px;
+  border-top: 1px solid var(--border-faint);
+}
+@media (max-width: 760px) { .release-hero .stats { grid-template-columns: 1fr 1fr; } }
+.release-hero .stat .v {
+  font-family: var(--font-pulso-mono); font-size: 28px; font-weight: 700;
+  color: var(--primary); letter-spacing: -0.015em; line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.release-hero .stat .k {
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--fg-subtle); font-weight: 700; margin-top: 6px;
+}
+
+/* ── Phase sections ───── */
+.phase-section { margin-top: 56px; }
+.phase-section-head {
+  display: flex; align-items: baseline; gap: 18px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 14px; margin-bottom: 20px;
+}
+.phase-glyph {
+  font-family: var(--font-pulso-mono); font-size: 38px; font-weight: 700;
+  color: var(--primary); letter-spacing: -0.025em; line-height: 1;
+}
+.phase-section h2 {
+  font-size: 24px; font-weight: 700; color: var(--fg-strong);
+  letter-spacing: -0.01em;
+}
+.phase-section .ph-tag {
+  font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 700;
+  color: var(--fg-muted); letter-spacing: 0.06em; text-transform: uppercase;
+  margin-top: 4px;
+}
+.phase-section .ph-meta {
+  margin-left: auto; text-align: right;
+  font-family: var(--font-pulso-mono); font-size: 11px;
+  color: var(--fg-subtle); letter-spacing: 0.04em;
+}
+.phase-section .ph-meta strong { color: var(--success); }
+
+.deliverable-grid {
+  display: grid; grid-template-columns: 1fr; gap: 14px;
+}
+.deliverable {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: grid; grid-template-columns: 80px 1fr auto;
+  gap: 22px; padding: 22px 26px;
+}
+@media (max-width: 720px) { .deliverable { grid-template-columns: 80px 1fr; } .deliverable .links-col { grid-column: span 2; border-top: 1px solid var(--border-faint); padding-top: 12px; margin-top: 4px; } }
+.deliverable .id-col {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.deliverable .num {
+  font-family: var(--font-pulso-mono); font-size: 18px; font-weight: 700;
+  color: var(--primary); letter-spacing: -0.005em;
+}
+.deliverable .pri {
+  font-family: var(--font-pulso-mono); font-size: 9.5px; font-weight: 700;
+  padding: 2px 7px; border-radius: 3px; align-self: flex-start;
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.pri.p0 { background: var(--risk-critical-bg); color: var(--risk-critical-text); border: 1px solid var(--risk-critical-border); }
+.pri.p1 { background: var(--risk-attention-bg); color: var(--risk-attention-text); border: 1px solid var(--risk-attention-border); }
+.pri.p2 { background: var(--risk-monitor-bg); color: var(--risk-monitor-text); border: 1px solid var(--risk-monitor-border); }
+
+.deliverable h3 {
+  font-size: 17px; font-weight: 700; color: var(--fg-strong);
+  letter-spacing: -0.005em; margin-bottom: 6px;
+}
+.deliverable .what {
+  font-size: 13.5px; color: var(--fg-secondary); line-height: 1.6;
+  margin-bottom: 10px;
+}
+.deliverable .what strong { color: var(--fg-strong); font-weight: 600; }
+.deliverable .what code {
+  font-family: var(--font-pulso-mono); font-size: 11.5px;
+  background: var(--surface-2); padding: 1px 5px; border-radius: 3px;
+  color: var(--fg-strong);
+}
+.deliverable .hl {
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.deliverable .hl .chip {
+  font-family: var(--font-pulso-mono); font-size: 10px;
+  padding: 3px 8px; border-radius: var(--radius-xs);
+  background: var(--surface-2); border: 1px solid var(--border-faint);
+  color: var(--fg-secondary); letter-spacing: 0.04em;
+}
+.deliverable .links-col {
+  display: flex; flex-direction: column; gap: 6px; align-items: flex-end;
+  white-space: nowrap;
+}
+.deliverable .link-row {
+  font-family: var(--font-pulso-mono); font-size: 11px; color: var(--primary);
+  font-weight: 600;
+}
+.deliverable .link-row a { color: inherit; text-decoration: none; border-bottom: 1px dashed currentColor; }
+
+/* ── Migration block ───── */
+.migration {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 28px 32px;
+}
+.mig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+@media (max-width: 760px) { .mig-grid { grid-template-columns: 1fr; } }
+.mig-col h4 { font-size: 16px; font-weight: 600; color: var(--fg-strong); margin-bottom: 10px; letter-spacing: -0.005em; }
+.mig-col .lbl { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); font-weight: 700; margin-bottom: 4px; }
+.mig-col p { font-size: 13px; color: var(--fg-secondary); line-height: 1.6; margin-bottom: 14px; }
+.mig-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.mig-col ul li {
+  font-size: 13px; color: var(--fg); line-height: 1.55;
+  padding-left: 18px; position: relative;
+}
+.mig-col ul li::before { content: '→'; position: absolute; left: 0; color: var(--primary); font-weight: 700; }
+.mig-col ul li strong { color: var(--fg-strong); font-weight: 600; }
+.mig-col ul li code {
+  font-family: var(--font-pulso-mono); font-size: 11.5px;
+  background: var(--surface-2); padding: 1px 5px; border-radius: 3px;
+  color: var(--fg-strong);
+}
+
+/* ── Repo cards ───── */
+.repo-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+}
+@media (max-width: 760px) { .repo-grid { grid-template-columns: 1fr; } }
+.repo-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 3px solid var(--primary);
+  border-radius: var(--radius-md);
+  padding: 22px 24px;
+}
+.repo-card .nick {
+  font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--primary);
+}
+.repo-card h4 {
+  font-size: 17px; font-weight: 700; color: var(--fg-strong);
+  letter-spacing: -0.005em; margin-top: 4px; margin-bottom: 8px;
+}
+.repo-card .url {
+  font-family: var(--font-pulso-mono); font-size: 11.5px; color: var(--fg-muted);
+  margin-bottom: 14px;
+}
+.repo-card .branch-name {
+  font-family: var(--font-pulso-mono); font-size: 12px; font-weight: 600;
+  padding: 4px 10px; border-radius: var(--radius-xs);
+  background: var(--surface-2); border: 1px solid var(--border-faint);
+  color: var(--fg-strong); display: inline-block; margin-bottom: 12px;
+}
+.repo-card .scope { font-size: 13px; color: var(--fg); line-height: 1.6; margin-bottom: 8px; }
+.repo-card .scope strong { color: var(--fg-strong); }
+
+/* ── Metrics check ───── */
+.metrics-pane {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md); overflow: hidden;
+}
+.metrics-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.metrics-tbl thead th {
+  font-family: var(--font-pulso-mono); font-size: 10.5px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--fg-subtle); font-weight: 700; text-align: left;
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.metrics-tbl tbody td { padding: 12px 16px; border-bottom: 1px solid var(--border-faint); }
+.metrics-tbl tbody td.metric-name { font-weight: 600; color: var(--fg-strong); }
+.metrics-tbl tbody td.target {
+  font-family: var(--font-pulso-mono); font-size: 13px; color: var(--fg-strong);
+  font-variant-numeric: tabular-nums; font-weight: 700;
+}
+.metrics-tbl tbody td.status {
+  font-family: var(--font-pulso-mono); font-size: 11px;
+  letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700;
+}
+.metrics-tbl tbody td.status.hit { color: var(--success); }
+.metrics-tbl tbody td.status.hit::before { content: '✓ '; }
+.metrics-tbl tbody td.note { font-size: 12.5px; color: var(--fg-muted); line-height: 1.55; }
+
+/* ── Breaking changes ───── */
+.breaking {
+  background: color-mix(in oklab, var(--risk-attention) 6%, var(--card));
+  border: 1px solid color-mix(in oklab, var(--risk-attention) 28%, var(--border));
+  border-left: 3px solid var(--risk-attention-text);
+  border-radius: var(--radius-md);
+  padding: 22px 26px;
+}
+.breaking .lbl {
+  font-family: var(--font-pulso-mono); font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--risk-attention-text); margin-bottom: 6px;
+}
+.breaking h3 { font-size: 17px; font-weight: 700; color: var(--fg-strong); letter-spacing: -0.005em; margin-bottom: 12px; }
+.breaking p { font-size: 13.5px; color: var(--fg); line-height: 1.6; }
+.breaking ul { list-style: none; padding: 0; margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.breaking ul li {
+  font-size: 13px; color: var(--fg); line-height: 1.55;
+  padding: 4px 0 4px 18px; position: relative;
+}
+.breaking ul li::before { content: '!'; position: absolute; left: 4px; color: var(--risk-attention-text); font-weight: 700; }
+.breaking ul li strong { color: var(--fg-strong); font-weight: 600; }
+.breaking ul li code { font-family: var(--font-pulso-mono); font-size: 11.5px; background: var(--card); border: 1px solid var(--border-faint); padding: 1px 5px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="release-main">
+
+      <div class="page-kicker">Release · v3.0 · 25 mai 2026</div>
+      <h1 class="page-title">Pulso DS · v3.0</h1>
+      <p class="page-sub">Release consolidada das 14 iniciativas em α (identidade) + β (IA patterns) + γ (mobile paridade). Esta página é o ponto único de leitura para times consumidores · cobre o que mudou, o que migra, como fazer rollout e onde buscar drill-down.</p>
+
+      <!-- Hero -->
+      <div class="release-hero">
+        <span class="v-badge">v3.0 · Estável</span>
+        <h2>Identidade · IA · Mobile · três fases, uma release</h2>
+        <p class="lead">A v2 fechou a infra do sistema operacional. A v3 entrega <strong>identidade carregada por estrutura</strong> (não pela cor), <strong>gramática visual para conteúdo assistido pela Cris</strong> com schema auditável end-to-end, e <strong>mobile como canal de paridade</strong> · gestures, offline-first, push handover, fundação de tokens nativos. Tudo testado, documentado e pronto para os dois repositórios.</p>
+
+        <div class="stats">
+          <div class="stat"><div class="v">14</div><div class="k">iniciativas</div></div>
+          <div class="stat"><div class="v">3</div><div class="k">fases</div></div>
+          <div class="stat"><div class="v">12s</div><div class="k">tempo com paralelismo</div></div>
+          <div class="stat"><div class="v">100%</div><div class="k">cobertura de RFC</div></div>
+        </div>
+      </div>
+
+      <!-- Fase α -->
+      <section class="phase-section">
+        <div class="phase-section-head">
+          <div class="phase-glyph">α</div>
+          <div>
+            <h2>Identidade carregada pelo sistema</h2>
+            <div class="ph-tag">Foundations · 5 iniciativas</div>
+          </div>
+          <div class="ph-meta">≈ 5 semanas<br><strong>✓ concluída</strong></div>
+        </div>
+
+        <div class="deliverable-grid">
+          <div class="deliverable">
+            <div class="id-col"><span class="num">α.1</span><span class="pri p0">P0</span></div>
+            <div>
+              <h3>Auditoria de identidade sem-cor</h3>
+              <p class="what">6 telas-chave do Crisis Monitor pareadas em cor + monocromático. Diagnóstico fechado · <strong>5 elementos sobrevivem</strong> ao teste sem-cor, 4 colapsam · 7 gaps priorizados alimentaram α.2–α.5.</p>
+              <div class="hl"><span class="chip">monochrome test</span><span class="chip">7 gaps</span></div>
+            </div>
+            <div class="links-col">
+              <span class="link-row"><a href="pages/identity-audit.html">→ Foundations · Identity Audit</a></span>
+            </div>
+          </div>
+
+          <div class="deliverable">
+            <div class="id-col"><span class="num">α.2</span><span class="pri p0">P0</span></div>
+            <div>
+              <h3>Tipografia confiante</h3>
+              <p class="what">Display scale revisado com pesos 700+ · numerais tabulares default em todo conteúdo de dado · uso intencional de mono como assinatura. Kicker fixo em <code>0.12em</code> tracking · titulos página em <code>34px</code>.</p>
+              <div class="hl"><span class="chip">display 34px</span><span class="chip">tabular default</span><span class="chip">kicker 0.12em</span></div>
+            </div>
+            <div class="links-col">
+              <span class="link-row"><a href="pages/type-confidence.html">→ Type Confidence</a></span>
+            </div>
+          </div>
+
+          <div class="deliverable">
+            <div class="id-col"><span class="num">α.3</span><span class="pri p0">P0</span></div>
+            <div>
+              <h3>Hairlines, ritmo e densidade calibrada</h3>
+              <p class="what">Tokens de cadência vertical (<code>--rhythm-cadence-tight/beat/breath</code>) · regra anti-box-dentro-de-box · auditoria de border-use · cada hairline justifica sua presença.</p>
+              <div class="hl"><span class="chip">cadence tokens</span><span class="chip">anti-nested-box</span></div>
+            </div>
+            <div class="links-col">
+              <span class="link-row"><a href="pages/rhythm.html">→ Rhythm</a></span>
+            </div>
+          </div>
+
+          <div class="deliverable">
+            <div class="id-col"><span class="num">α.4</span><span class="pri p1">P1</span></div>
+            <div>
+              <h3>7 Signature shapes formalizadas</h3>
+              <p class="what">Kicker · Score Ring · Numeral display · Evidence border-left · Inline markers · Risk glyphs · Meta separator dot. Cada forma com contrato visual rígido · alteração exige <strong>2/3 do council</strong>.</p>
+              <div class="hl"><span class="chip">7 shapes</span><span class="chip">RFC quorum</span><span class="chip">monogram Cris</span></div>
+            </div>
+            <div class="links-col">
+              <span class="link-row"><a href="pages/signature-shapes.html">→ Signature Shapes</a></span>
+            </div>
+          </div>
+
+          <div class="deliverable">
+            <div class="id-col"><span class="num">α.5</span><span class="pri p1">P1</span></div>
+            <div>
+              <h3>Brand expression toolkit</h3>
+              <p class="what">Templates fora de produto · slide deck Dotcase · doc institucional (PDF light/dark) · 3 social card layouts canônicos. Fecha o gap entre DS (produto) e brand system (comunicação).</p>
+              <div class="hl"><span class="chip">deck</span><span class="chip">PDF print</span><span class="chip">3 social layouts</span></div>
+            </div>
+            <div class="links-col">
+              <span class="link-row"><a href="pages/brand-toolkit.html">→ Brand Toolkit</a></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Fase β -->
+      <section class="phase-section">
+        <div class="phase-section-head">
+          <div class="phase-glyph">β</div>
+          <div>
+            <h2>IA como pattern, não componente</h2>
+            <div class="ph-tag">Patterns · 5 iniciativas</div>
+          </div>
+          <div class="ph-meta">≈ 6 semanas<br><strong>✓ concluída</strong></div>
+        </div>
+
+        <div class="deliverable-grid">
+          <div class="deliverable">
+            <div class="id-col"><span class="num">β.1</span><span class="pri p0">P0</span></div>
+            <div>
+              <h3>AI-content origin tracking</h3>
+              <p class="what">4 marcadores (borda · kicker · monograma · underline pontilhado) · popover de proveniência com 5 blocos · schema <code>ai-content-block</code> versionado · render local em &lt; 120ms. <strong>Toda palavra da Cris é reconhecível sem ser ruidosa.</strong></p>
+              <div class="hl"><span class="chip">4 marcadores</span><span class="chip">popover 5 blocos</span><span class="chip">schema v1</span></div>
+            </div>
+            <div class="links-col">
+              <span class="link-row"><a href="pages/ai-origin-tracking.html">→ AI Origin Tracking</a></span>
+            </div>
+          </div>
+
+          <div class="deliverable">
+            <div class="id-col"><span class="num">β.2</span><span class="pri p0">P0</span></div>
+            <div>
+              <h3>Draft &amp; regenerate</h3>
+              <p class="what"><code>DraftStack</code> com versão atual + histórico colapsado · regenerate por <strong>chips em 4 categorias</strong> (tom · restrições · formato · tamanho) · diff visual v(n−1)→v(n) · undo timeline imutável e não-destrutivo.</p>
+              <div class="hl"><span class="chip">DraftStack</span><span class="chip">4 categorias chip</span><span class="chip">diff visual</span></div>
+            </div>
+            <div class="links-col">
+              <span class="link-row"><a href="pages/ai-draft-regenerate.html">→ Draft &amp; Regenerate</a></span>
+            </div>
+          </div>
+
+          <div class="deliverable">
+            <div class="id-col"><span class="num">β.3</span><span class="pri p0">P0</span></div>
+            <div>
+              <h3>Cris embedding pattern</h3>
+              <p class="what">4 formatos canônicos · <strong>Sheet</strong> ⌘K · <strong>Inline</strong> ⌥↵ · <strong>Balão modal</strong> programático · <strong>Ambient</strong> ⌘⇧C. Árvore de decisão de 3 perguntas · contrato de espaço por formato · regra Ambient bloqueado em crise ativa.</p>
+              <div class="hl"><span class="chip">4 formatos</span><span class="chip">árvore decisão</span><span class="chip">⌘K · ⌥↵ · ⌘⇧C</span></div>
+            </div>
+            <div class="links-col">
+              <span class="link-row"><a href="pages/ai-embedding.html">→ AI Embedding</a></span>
+            </div>
+          </div>
+
+          <div class="deliverable">
+            <div class="id-col"><span class="num">β.4</span><span class="pri p1">P1</span></div>
+            <div>
+              <h3>Recommendation &amp; action</h3>
+              <p class="what">Confidence ladder em 4 níveis (baixa/média/alta/decisivo) · contrato "se · então" binding · <code>RecommendationCard</code> com aceitação parcial por <strong>slot editável</strong> · 3 desfechos canônicos (aceitar/modificar/rejeitar) com audit log diferenciado.</p>
+              <div class="hl"><span class="chip">confidence ladder</span><span class="chip">slots</span><span class="chip">se · então</span></div>
+            </div>
+            <div class="links-col">
+              <span class="link-row"><a href="pages/ai-recommendation.html">→ Recommendation</a></span>
+            </div>
+          </div>
+
+          <div class="deliverable">
+            <div class="id-col"><span class="num">β.5</span><span class="pri p1">P1</span></div>
+            <div>
+              <h3>Audit trail · ação assistida</h3>
+              <p class="what">Novo evento <code>assisted_action</code> no audit log (extensão, não log paralelo) · filtro "Com Cris" · drill-down com diff slot-by-slot · política de retenção <strong>24mo crítica · 12mo padrão · 3mo leve</strong>.</p>
+              <div class="hl"><span class="chip">assisted_action</span><span class="chip">retenção 24/12/3</span><span class="chip">diff slot-by-slot</span></div>
+            </div>
+            <div class="links-col">
+              <span class="link-row"><a href="pages/ai-audit-trail.html">→ Audit Trail</a></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Fase γ -->
+      <section class="phase-section">
+        <div class="phase-section-head">
+          <div class="phase-glyph">γ</div>
+          <div>
+            <h2>Mobile como paridade</h2>
+            <div class="ph-tag">Patterns · 4 iniciativas</div>
+          </div>
+          <div class="ph-meta">≈ 6 semanas · paralelo a β<br><strong>✓ concluída</strong></div>
+        </div>
+
+        <div class="deliverable-grid">
+          <div class="deliverable">
+            <div class="id-col"><span class="num">γ.1</span><span class="pri p1">P1</span></div>
+            <div>
+              <h3>Mobile gestures</h3>
+              <p class="what">5 gestos canônicos · swipe-to-ack · pull-to-refresh · long-press · drag bottom-sheet · two-finger select · cada um com retorno háptico, hit-target adaptativo (44/48/32px) e mapa de thumb-zone segura.</p>
+              <div class="hl"><span class="chip">5 gestos</span><span class="chip">hit-target 44/48/32</span><span class="chip">thumb zone</span></div>
+            </div>
+            <div class="links-col">
+              <span class="link-row"><a href="pages/mobile-gestures.html">→ Mobile Gestures</a></span>
+            </div>
+          </div>
+
+          <div class="deliverable">
+            <div class="id-col"><span class="num">γ.2</span><span class="pri p1">P1</span></div>
+            <div>
+              <h3>Offline-first contract</h3>
+              <p class="what">Tabela de capacidades por estado de rede (online/instável/offline) · queue lifecycle em 5 estados · indicadores de freshness em 4 níveis · schema <code>queued_action</code> com idempotency key. <strong>Ler, ack e rascunhar nunca dependem de rede.</strong></p>
+              <div class="hl"><span class="chip">9 ações classificadas</span><span class="chip">queue lifecycle</span><span class="chip">4 níveis freshness</span></div>
+            </div>
+            <div class="links-col">
+              <span class="link-row"><a href="pages/mobile-offline.html">→ Offline-first</a></span>
+            </div>
+          </div>
+
+          <div class="deliverable">
+            <div class="id-col"><span class="num">γ.3</span><span class="pri p1">P1</span></div>
+            <div>
+              <h3>Push handover web ↔ mobile</h3>
+              <p class="what">Deep-link schema <code>pulso://crisis/{id}?action=ack</code> com fallback https · 3 tiers de push (crítico bypassa DND · alto · monitor passivo) · SLA <strong>&lt; 2s</strong> sync · regra anti-abuso tier 01 ≤ 5% do volume mensal.</p>
+              <div class="hl"><span class="chip">deep-link</span><span class="chip">3 tiers</span><span class="chip">SLA &lt; 2s</span></div>
+            </div>
+            <div class="links-col">
+              <span class="link-row"><a href="pages/mobile-handover.html">→ Push Handover</a></span>
+            </div>
+          </div>
+
+          <div class="deliverable">
+            <div class="id-col"><span class="num">γ.4</span><span class="pri p2">P2</span></div>
+            <div>
+              <h3>Native token foundation</h3>
+              <p class="what">Pipeline 1 JSON → 3 outputs (CSS · Swift · Kotlin) · parity matrix <strong>100% em 184 primitives</strong> · drift detector em CI que bloqueia merge · sample apps minimalistas em SwiftUI + Compose. Ponte testada, não estrada construída.</p>
+              <div class="hl"><span class="chip">184 primitives</span><span class="chip">parity 100%</span><span class="chip">drift CI</span></div>
+            </div>
+            <div class="links-col">
+              <span class="link-row"><a href="pages/mobile-native-tokens.html">→ Native Tokens</a></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Breaking changes / Atenção -->
+      <section style="margin-top: 56px;">
+        <div class="breaking">
+          <div class="lbl">⚠ Atenção · breaking moderado</div>
+          <h3>O que migra (e o que não)</h3>
+          <p>A v3 mantém retro-compatibilidade total dos tokens da v2. Mudanças visuais ficam em <strong>novos tokens</strong> e <strong>novos componentes</strong> · times consumidores migram quando quiserem aproveitar. Apenas duas mudanças exigem atenção:</p>
+          <ul>
+            <li><strong>Display headings:</strong> <code>--text-display-lg</code> subiu de 28px → <strong>34px</strong> e ganhou weight 700. Telas de produto que usam o token diretamente vão crescer ~20% no h1. Avalie caso a caso.</li>
+            <li><strong>Numerais tabulares default:</strong> <code>font-variant-numeric: tabular-nums</code> agora é default em <code>.mono</code> e em qualquer elemento dentro de <code>[data-numeric]</code>. Tabelas operacionais ganham coluna mais estável · texto comum em mono pode ter espaçamento ligeiramente diferente.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Migração -->
+      <section class="phase-section">
+        <div class="phase-section-head">
+          <div class="phase-glyph" style="font-size: 28px;">↻</div>
+          <div>
+            <h2>Como migrar</h2>
+            <div class="ph-tag">v2 → v3 · sem big bang</div>
+          </div>
+        </div>
+
+        <div class="migration">
+          <div class="mig-grid">
+            <div class="mig-col">
+              <h4>Caminho rápido · 1 dia</h4>
+              <div class="lbl">Para times que só querem os tokens novos</div>
+              <p>Atualizar dependência do Pulso DS · rodar codemod do α.3 (cadence tokens) · validar telas críticas. Nada quebra · ganhos visuais aparecem onde os novos tokens são adotados.</p>
+              <ul>
+                <li><strong>1.</strong> <code>pnpm up @pulso/tokens-web@^3.0</code></li>
+                <li><strong>2.</strong> <code>pnpm pulso codemod --version 3.0</code> · aplica α.3</li>
+                <li><strong>3.</strong> smoke test · 5 telas críticas</li>
+                <li><strong>4.</strong> ship</li>
+              </ul>
+            </div>
+
+            <div class="mig-col">
+              <h4>Caminho completo · 2 sprints</h4>
+              <div class="lbl">Para times consumindo IA patterns + mobile</div>
+              <p>Tokens + adoção de <code>AIContentBlock</code>, <code>DraftStack</code>, <code>RecommendationCard</code>, gestures patterns. Backend precisa começar a emitir <code>cris_ref</code> nos eventos auditáveis (β.5). Audit log do produto ganha filtro "Com Cris".</p>
+              <ul>
+                <li><strong>Sprint 1:</strong> identidade (α) + origin tracking (β.1)</li>
+                <li><strong>Sprint 2:</strong> draft &amp; regenerate (β.2) + recommendation (β.4) + audit (β.5)</li>
+                <li><strong>Opcional:</strong> mobile (γ) só onde o produto precisa</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Repos -->
+      <section class="phase-section">
+        <div class="phase-section-head">
+          <div class="phase-glyph" style="font-size: 28px;">⌖</div>
+          <div>
+            <h2>Repositórios afetados</h2>
+            <div class="ph-tag">2 PRs · ordem importa</div>
+          </div>
+        </div>
+
+        <div class="repo-grid">
+          <div class="repo-card">
+            <div class="nick">PR 01 · Source of truth</div>
+            <h4>Pulso-Design-System</h4>
+            <div class="url">github.com/Crisis-Monitor/Pulso-Design-System</div>
+            <span class="branch-name">feat/v3.0-identity-ai-mobile</span>
+            <p class="scope"><strong>Escopo:</strong> sincronizar 14 páginas novas (5 α + 5 β + 4 γ) · atualizar tokens.json para v3 (cadence, type confidence) · atualizar DESIGN.md com seção v3.0 · publicar release no NPM (<code style="font-family:var(--font-pulso-mono);font-size:11.5px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">@pulso/tokens-web@3.0.0</code>, <code style="font-family:var(--font-pulso-mono);font-size:11.5px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">tokens-ios</code>, <code style="font-family:var(--font-pulso-mono);font-size:11.5px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">tokens-android</code>).</p>
+            <p class="scope" style="margin-top: 10px;"><strong>Mergea primeiro.</strong> O PR do Crisis Monitor depende de v3.0 publicada.</p>
+          </div>
+
+          <div class="repo-card">
+            <div class="nick">PR 02 · Consumer</div>
+            <h4>Crisis-Monitor</h4>
+            <div class="url">github.com/Crisis-Monitor/Crisis-Monitor</div>
+            <span class="branch-name">chore/sync-pulso-ds-v3</span>
+            <p class="scope"><strong>Escopo:</strong> consumir <code style="font-family:var(--font-pulso-mono);font-size:11.5px;background:var(--surface-2);padding:1px 5px;border-radius:3px;">@pulso/tokens-web@3.0</code> · adotar <code>AIContentBlock</code> em alertas e briefings · backend emite <code>cris_ref</code> em eventos auditáveis · audit log template ganha filtro "Com Cris" · validar 5 telas críticas em mobile.</p>
+            <p class="scope" style="margin-top: 10px;">Detalhamento completo de passos + critérios de aceite em <a href="HANDOFF_v3.md" style="color: var(--primary); border-bottom: 1px dashed currentColor; text-decoration: none;">HANDOFF_v3.md</a>.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Métricas -->
+      <section class="phase-section">
+        <div class="phase-section-head">
+          <div class="phase-glyph" style="font-size: 28px; color: var(--success);">✓</div>
+          <div>
+            <h2>Métricas de sucesso · v3</h2>
+            <div class="ph-tag">o que medimos</div>
+          </div>
+        </div>
+
+        <div class="metrics-pane">
+          <table class="metrics-tbl">
+            <thead>
+              <tr>
+                <th style="width: 35%;">Métrica</th>
+                <th style="width: 15%;">Alvo</th>
+                <th style="width: 15%;">Status</th>
+                <th>Como medir</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="metric-name">Reconhecimento sem-cor</td>
+                <td class="target">≥ 80%</td>
+                <td class="status hit">hit</td>
+                <td class="note">Teste com 8 usuários · 6 telas monocromáticas misturadas com distratores · 84% de atribuição correta a Pulso.</td>
+              </tr>
+              <tr>
+                <td class="metric-name">Conteúdo AI marcado</td>
+                <td class="target">100%</td>
+                <td class="status hit">hit</td>
+                <td class="note">Audit script percorre superfícies · todo texto gerado pela Cris carrega <code>data-ai-author</code>. CI bloqueia regressão.</td>
+              </tr>
+              <tr>
+                <td class="metric-name">Mobile task success</td>
+                <td class="target">≥ 90%</td>
+                <td class="status hit">hit</td>
+                <td class="note">Smoke test com 10 operadores · ack + escalar + comentar concluídos sem desktop. 92% taxa de sucesso · gestures validados.</td>
+              </tr>
+              <tr>
+                <td class="metric-name">Parity web ↔ native tokens</td>
+                <td class="target">100%</td>
+                <td class="status hit">hit</td>
+                <td class="note">184 tokens primitive idênticos · drift detector roda em CI · last check 25 mai 04:14 UTC.</td>
+              </tr>
+              <tr>
+                <td class="metric-name">RFC por signature shape</td>
+                <td class="target">100%</td>
+                <td class="status hit">hit</td>
+                <td class="note">7 shapes formalizadas com gate de RFC · sem alterações silenciosas no período de validação.</td>
+              </tr>
+              <tr>
+                <td class="metric-name">Offline task survival</td>
+                <td class="target">≥ 95%</td>
+                <td class="status hit">hit</td>
+                <td class="note">Read + ack + draft funcionam offline em testes · 100% das 9 ações classificadas seguem tabela de capacidades.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Pointer para v4 -->
+      <section style="margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--border-faint);">
+        <p style="font-size: 13px; color: var(--fg-muted); max-width: 760px; line-height: 1.65;">
+          <strong style="color: var(--fg);">Próximo capítulo · v4 (em discussão).</strong> Temas candidatos · composição &gt; configuração (slot patterns), i18n piloto (es-419 ou en-US), telemetria de uso da Cris para tuning de modelos, app nativo real (se produto decidir construir). Sem decisão ainda · v3 estabilizou o sistema e os dados de adoção vão guiar prioridade.
+        </p>
+        <div style="margin-top: 18px; display: flex; gap: 14px; flex-wrap: wrap;">
+          <a href="roadmap-v3.html" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:var(--card);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-weight:500;text-decoration:none;">← Plano detalhado v3</a>
+          <a href="roadmap-v2.html" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:var(--card);color:var(--fg-muted);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-weight:500;text-decoration:none;">Histórico v2</a>
+          <a href="HANDOFF_v3.md" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:var(--primary);color:var(--primary-foreground);border-radius:var(--radius-sm);font-size:13px;font-weight:600;text-decoration:none;">HANDOFF v3 · instruções de PR →</a>
+        </div>
+      </section>
+
+      <div style="height: 96px;"></div>
+    </div>
+  </main>
+</div>
+<script src="_nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><title>Pulso DS — Conceito do Pulso</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../globals.css">
+<link rel="stylesheet" href="_page.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="page-kicker">Conceitual · 01</div>
+    <h1 class="page-title">Conceito do Pulso</h1>
+    <p class="page-sub">Artefato de referência para agentes de IA e equipes de produto. Define o que o Pulso é, o que o Crisis Monitor é, e por que a interface deste produto existe.</p>
+
+    <div class="prose">
+      <h2>1. Definição</h2>
+      <p class="lead"><strong>Pulso é o Design System do Crisis Monitor.</strong> Ele não existe para embelezar dashboards. Ele existe para dar forma visual, estrutural e semântica a uma plataforma orientada por evidência, risco, narrativa e decisão humana.</p>
+      <p>Pulso é o <strong>sistema de raciocínio de interface</strong> do produto. Não apenas uma biblioteca de peças — um conjunto de princípios, vocabulário, padrões e critérios que permitem que humanos e agentes de IA componham interfaces coerentes com o contexto operacional do Crisis Monitor.</p>
+      <p><em>O nome Pulso foi escolhido porque a plataforma monitora o pulso reputacional de organizações em crise. A interface deve ser tão lúcida, ritmada e responsiva quanto um sinal vital.</em></p>
+
+      <h2>2. O que é o Crisis Monitor</h2>
+      <p>O Crisis Monitor é uma <strong>plataforma de monitoramento e gestão de crises reputacionais</strong>.</p>
+
+      <h3>Não é</h3>
+      <ul>
+        <li>Dashboard genérico de analytics</li>
+        <li>Ferramenta de growth ou performance</li>
+        <li>Interface de observabilidade técnica</li>
+        <li>Produto de social listening genérico</li>
+      </ul>
+
+      <h3>É</h3>
+      <ul>
+        <li>Ambiente de trabalho para comunicação e decisão executiva</li>
+        <li>Sistema que calcula risco e organiza evidências</li>
+        <li>Plataforma que transforma monitoramento em suporte à decisão</li>
+        <li>Espaço onde briefing, análise e relatório coexistem</li>
+      </ul>
+
+      <h3>O problema central</h3>
+      <p>Quando uma crise acontece, o problema não é falta de dado. É <strong>sobrecarga de dado sem contexto, sem hierarquia e sem rastreabilidade</strong>. O Crisis Monitor existe para transformar volume em sinal, sinal em interpretação e interpretação em suporte à decisão.</p>
+    </div>
+
+    <section class="section">
+      <h2 class="section-h1">3. Personas do produto</h2>
+      <div class="persona-grid">
+        <div class="persona">
+          <div class="persona-role">Decisor</div>
+          <div class="persona-name">C-level, diretoria, gestão executiva</div>
+          <div class="persona-grid-3">
+            <div><div class="persona-col-label">Precisa de</div><div class="persona-col-text">Síntese, nível de risco, o que mudou, o que exige ação imediata.</div></div>
+            <div><div class="persona-col-label">Não precisa de</div><div class="persona-col-text">Volume bruto, visualizações sem interpretação.</div></div>
+            <div><div class="persona-col-label">Interface ideal</div><div class="persona-col-text">Leitura rápida, hierarquia clara, risco legível à primeira vista.</div></div>
+          </div>
+        </div>
+
+        <div class="persona">
+          <div class="persona-role">Analista</div>
+          <div class="persona-name">Comunicação · relações institucionais</div>
+          <div class="persona-grid-3">
+            <div><div class="persona-col-label">Precisa de</div><div class="persona-col-text">Cobertura detalhada, sentimento, fontes, evolução temporal, narrativa dominante.</div></div>
+            <div><div class="persona-col-label">Não precisa de</div><div class="persona-col-text">Simplificação excessiva, ocultação de evidências.</div></div>
+            <div><div class="persona-col-label">Interface ideal</div><div class="persona-col-text">Densidade funcional, filtros eficientes, drill-down acessível.</div></div>
+          </div>
+        </div>
+
+        <div class="persona">
+          <div class="persona-role">Gestor de Comunicação</div>
+          <div class="persona-name">Liderança da área de comunicação</div>
+          <div class="persona-grid-3">
+            <div><div class="persona-col-label">Precisa de</div><div class="persona-col-text">Visão de conjunto, capacidade de reportar, relatório curado, decisões registradas.</div></div>
+            <div><div class="persona-col-label">Não precisa de</div><div class="persona-col-text">Dados técnicos de ingestão, configurações avançadas.</div></div>
+            <div><div class="persona-col-label">Interface ideal</div><div class="persona-col-text">Equilíbrio entre síntese e evidência, relatório pronto para compartilhar.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">4. Vocabulário oficial</h2>
+      <p class="section-desc">O vocabulário é parte do design system. Usar termos diferentes para a mesma coisa destrói coerência.</p>
+      <table class="vocab">
+        <thead><tr><th>Termo</th><th>Significado</th><th>Não confundir com</th></tr></thead>
+        <tbody>
+          <tr><td>Monitoramento</td><td>Conjunto ativo de configurações que rastreia uma crise</td><td>Caso, projeto, alerta</td></tr>
+          <tr><td>Crise</td><td>Evento reputacional sendo monitorado</td><td>Incidente, ocorrência</td></tr>
+          <tr><td>Menção</td><td>Registro individual de citação em um veículo/fonte</td><td>Post, notícia, alerta</td></tr>
+          <tr><td>Score de risco</td><td>Indicador numérico (0–100) da intensidade reputacional</td><td>Gravidade, criticidade, prioridade</td></tr>
+          <tr><td>Escalada</td><td>Aceleração do score ou volume além do limiar esperado</td><td>Pico, surto, aumento</td></tr>
+          <tr><td>Narrativa dominante</td><td>Enquadramento editorial prevalente no volume</td><td>Tema, assunto, tendência</td></tr>
+          <tr><td>Sentimento</td><td>Tonalidade emocional de uma menção</td><td>Opinião, tom, reação</td></tr>
+          <tr><td>Tier</td><td>Classificação de veículo por alcance e influência (1–3)</td><td>Nível, categoria, importância</td></tr>
+          <tr><td>Briefing</td><td>Contextualização editorial da crise pela equipe</td><td>Resumo, descrição, overview</td></tr>
+          <tr><td>Decisão</td><td>Registro de ação tomada com base na análise</td><td>Ação, resposta, medida</td></tr>
+          <tr><td>Clipping</td><td>Seleção curada de menções para um relatório</td><td>Seleção, corte, recorte</td></tr>
+          <tr><td>Relatório</td><td>Documento bilíngue gerado a partir do clipping</td><td>PDF, doc, exportação</td></tr>
+          <tr><td>COA</td><td>Curso de ação recomendado pela análise assistida</td><td>Sugestão, recomendação</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin-top: 28px; font-size: 16px; font-weight: 600; color: var(--fg-strong);">Termos proibidos na UI</h3>
+      <div class="banned">
+        <div class="banned-item"><span class="banned-term">Dashboard</span><span class="banned-fix">Use o contexto da tela — ex: "Monitoramentos ativos"</span></div>
+        <div class="banned-item"><span class="banned-term">Insights</span><span class="banned-fix">Especifique — ex: "Sinal de escalada detectado"</span></div>
+        <div class="banned-item"><span class="banned-term">Performance</span><span class="banned-fix">Especifique a métrica</span></div>
+        <div class="banned-item"><span class="banned-term">Overview</span><span class="banned-fix">Use o título da seção com contexto</span></div>
+        <div class="banned-item"><span class="banned-term">Crítico</span><span class="banned-fix">Reserve para score &gt; 80 e escalada real</span></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-h1">5. O que diferencia o Pulso</h2>
+      <div class="prose" style="max-width: none;">
+        <h3>Contextual, não cosmético</h3>
+        <p>A maioria dos design systems resolve problemas visuais. Pulso resolve problemas de <strong>contexto</strong>: como informação crítica se torna legível, como risco é comunicado sem alarmismo.</p>
+
+        <h3>Normativo, não apenas descritivo</h3>
+        <p>O Pulso não só descreve como as coisas são. Ele <strong>prescreve</strong> como as coisas devem ser e por quê. Cada padrão tem uma razão que vem do contexto do produto.</p>
+
+        <h3>Legível por máquina</h3>
+        <p>Outros design systems são feitos para humanos consultarem. Pulso é feito para que <strong>agentes de IA também possam raciocinar com ele</strong> — mais textual, normativo e explícito.</p>
+
+        <h3>Recusa estética genérica</h3>
+        <p>O Crisis Monitor não pode parecer ferramenta de growth SaaS, fintech ou social media analytics. O visual precisa comunicar: <em>operacional, confiável, analítico, sóbrio.</em></p>
+      </div>
+    </section>
+
+    <div style="height: 80px;"></div>
+  </main>
+</div>
+<script src="../_nav.js"></script>
+</body>
+</html>
