@@ -30,14 +30,64 @@
 .ms-cb.partial::after { content: ''; width: 8px; height: 2px; background: var(--primary-foreground); border-radius: 1px; }
 
 /* Selection bar */
-.sel-bar { background: var(--surface-inverse, #1A1530); color: #F5F4FA; padding: 12px 18px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; border-radius: var(--radius-md) var(--radius-md) 0 0; }
-.sel-count { font-family: var(--font-pulso-mono); font-size: 13px; font-weight: 600; }
-.sel-count span { color: rgba(255,255,255,0.6); font-weight: 400; margin-left: 6px; }
-.sel-divider { width: 1px; height: 22px; background: rgba(255,255,255,0.14); }
-.sel-action { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; background: transparent; color: rgba(255,255,255,0.92); border: 1px solid rgba(255,255,255,0.16); border-radius: var(--radius-sm); font-family: inherit; font-size: 12.5px; cursor: pointer; }
-.sel-action:hover { background: rgba(255,255,255,0.06); }
-.sel-action.destructive { color: #F47080; border-color: rgba(244,112,128,0.4); }
-.sel-clear { margin-left: auto; font-size: 12.5px; color: rgba(255,255,255,0.6); cursor: pointer; padding: 6px 8px; }
+.sel-bar {
+  background: var(--card);
+  color: var(--fg);
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  border: 1px solid var(--border);
+  border-bottom: 0;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+.sel-count { font-family: var(--font-pulso-mono); font-size: 13px; font-weight: 600; color: var(--fg-strong); }
+.sel-count span { color: var(--fg-muted); font-weight: 400; margin-left: 6px; }
+.sel-divider { width: 1px; height: 22px; background: var(--border); }
+.sel-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  background: var(--background);
+  color: var(--fg);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.sel-action:hover { background: var(--muted); color: var(--fg-strong); }
+.sel-action.destructive { color: var(--destructive); border-color: var(--destructive-border); background: var(--destructive-bg); }
+.sel-clear { margin-left: auto; font-size: 12.5px; color: var(--fg-muted); cursor: pointer; padding: 6px 8px; }
+.sel-kbd {
+  font-family: var(--font-pulso-mono);
+  font-size: 10px;
+  background: var(--muted);
+  color: var(--fg-muted);
+  border: 1px solid var(--border);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.sel-bar.scope-filter {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+}
+.sel-bar.scope-filter .sel-count { color: var(--primary-foreground); }
+.sel-bar.scope-filter .sel-count span { color: color-mix(in oklab, var(--primary-foreground) 72%, transparent); }
+.sel-bar.scope-filter .sel-divider { background: color-mix(in oklab, var(--primary-foreground) 24%, transparent); }
+.sel-bar.scope-filter .sel-action {
+  background: transparent;
+  color: var(--primary-foreground);
+  border-color: color-mix(in oklab, var(--primary-foreground) 34%, transparent);
+}
+.sel-bar.scope-filter .sel-action:hover { background: color-mix(in oklab, var(--primary-foreground) 12%, transparent); color: var(--primary-foreground); }
+.sel-bar.scope-filter .sel-action.destructive { background: color-mix(in oklab, var(--primary-foreground) 10%, transparent); color: var(--primary-foreground); border-color: color-mix(in oklab, var(--primary-foreground) 34%, transparent); }
+.sel-bar.scope-filter .sel-clear { color: color-mix(in oklab, var(--primary-foreground) 80%, transparent); }
+.sel-bar.scope-filter .sel-kbd { background: color-mix(in oklab, var(--primary-foreground) 18%, transparent); color: var(--primary-foreground); border-color: color-mix(in oklab, var(--primary-foreground) 28%, transparent); }
 
 /* Range hint */
 .range-hint { background: color-mix(in oklab, var(--primary) 8%, var(--card)); border: 1px solid var(--primary-border); padding: 10px 16px; display: flex; gap: 14px; align-items: center; font-size: 12.5px; color: var(--fg); border-radius: 0 0 var(--radius-md) var(--radius-md); }
@@ -130,7 +180,7 @@ kbd.k { display: inline-block; font-family: var(--font-pulso-mono); font-size: 1
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
           Encerrar
         </button>
-        <span class="sel-clear">Limpar · <kbd style="font-family:var(--font-pulso-mono);font-size:10px;background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;color:rgba(255,255,255,0.7);">esc</kbd></span>
+        <span class="sel-clear">Limpar · <kbd class="sel-kbd">esc</kbd></span>
       </div>
       <div class="ms-table" style="border-radius:0 0 var(--radius-md) var(--radius-md);border-top:none;">
         <div class="ms-row selected">
@@ -169,7 +219,7 @@ kbd.k { display: inline-block; font-family: var(--font-pulso-mono); font-size: 1
         <button class="sel-action">Atribuir</button>
         <button class="sel-action">Marcar</button>
         <button class="sel-action destructive">Encerrar</button>
-        <span class="sel-clear">Limpar · <kbd style="font-family:var(--font-pulso-mono);font-size:10px;background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;color:rgba(255,255,255,0.7);">esc</kbd></span>
+        <span class="sel-clear">Limpar · <kbd class="sel-kbd">esc</kbd></span>
       </div>
       <div class="range-hint">
         <span class="icon">
@@ -181,15 +231,15 @@ kbd.k { display: inline-block; font-family: var(--font-pulso-mono); font-size: 1
 
       <!-- Phase 3: all on filter -->
       <h3 style="font-size:13px;font-weight:600;color:var(--fg-strong);margin-top:24px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em;">Fase 3 · todos do filtro · escopo expandido</h3>
-      <div class="sel-bar" style="background:var(--primary);">
+      <div class="sel-bar scope-filter">
         <div><div class="ms-cb on" style="background:white;color:var(--primary);"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 10-10"/></svg></div></div>
-        <span class="sel-count" style="color:white;">142 selecionados <span style="color:rgba(255,255,255,0.7);">· todos do filtro atual</span></span>
-        <div class="sel-divider" style="background:rgba(255,255,255,0.2);"></div>
-        <button class="sel-action" style="border-color:rgba(255,255,255,0.3);color:white;">Escalar</button>
-        <button class="sel-action" style="border-color:rgba(255,255,255,0.3);color:white;">Atribuir</button>
-        <button class="sel-action" style="border-color:rgba(255,255,255,0.3);color:white;">Marcar</button>
-        <button class="sel-action destructive" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.3);color:white;">Encerrar 142 casos</button>
-        <span class="sel-clear" style="color:rgba(255,255,255,0.8);">Limpar · <kbd style="font-family:var(--font-pulso-mono);font-size:10px;background:rgba(255,255,255,0.18);padding:1px 5px;border-radius:3px;color:white;">esc</kbd></span>
+        <span class="sel-count">142 selecionados <span>· todos do filtro atual</span></span>
+        <div class="sel-divider"></div>
+        <button class="sel-action">Escalar</button>
+        <button class="sel-action">Atribuir</button>
+        <button class="sel-action">Marcar</button>
+        <button class="sel-action destructive">Encerrar 142 casos</button>
+        <span class="sel-clear">Limpar · <kbd class="sel-kbd">esc</kbd></span>
       </div>
       <p class="section-desc" style="margin-top:14px;"><strong>Cor muda para primary</strong> quando o escopo passa da página para o filtro · sinaliza que a ação tem peso maior. Encerrar 142 casos exige confirmação dupla (modal nomeando o número).</p>
     </section>
@@ -201,8 +251,8 @@ kbd.k { display: inline-block; font-family: var(--font-pulso-mono); font-size: 1
         <thead><tr><th>Estado</th><th>Header checkbox</th><th>SelectionBar</th><th>Range hint</th><th>Cor da SelectionBar</th></tr></thead>
         <tbody>
           <tr><td>0 selecionados</td><td>vazio</td><td>oculto</td><td>—</td><td>—</td></tr>
-          <tr><td>1–N selecionados (parcial)</td><td><code>partial</code></td><td>visível</td><td>—</td><td>surface-inverse</td></tr>
-          <tr><td>Todos da página (com mais no filtro)</td><td>on</td><td>visível</td><td>visível · "+134 fora desta página"</td><td>surface-inverse</td></tr>
+          <tr><td>1–N selecionados (parcial)</td><td><code>partial</code></td><td>visível</td><td>—</td><td>card tokenizado</td></tr>
+          <tr><td>Todos da página (com mais no filtro)</td><td>on</td><td>visível</td><td>visível · "+134 fora desta página"</td><td>card tokenizado</td></tr>
           <tr><td>Todos do filtro</td><td>on</td><td>visível · escopo expandido</td><td>oculto</td><td><strong>primary</strong> (chama atenção)</td></tr>
         </tbody>
       </table>
