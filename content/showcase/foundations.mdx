@@ -1,83 +1,301 @@
 ---
 title: Foundations
-description: Demonstrações visuais das foundations do Pulso DS.
+description: Galeria visual das foundations do Pulso DS.
 ---
 
 # Foundations
 
-Foundations demonstram que a identidade do Pulso nasce de estrutura: superfícies,
-tipo, ritmo, risco e assinatura numérica.
+Foundations mostram que a identidade do Pulso nasce de estrutura: superfície,
+tipo, ritmo, risco, origem de IA, densidade e assinatura numérica. Esta página é
+uma camada visual; os contratos canônicos continuam em [Colors](/foundations/colors),
+[Typography](/foundations/typography), [Density](/foundations/density) e
+`src/app/globals.css`.
 
-## Superfícies e marca
-
-<div className="grid gap-4 md:grid-cols-4">
-  <div className="overflow-hidden rounded-xl border bg-card">
-    <div className="h-20 bg-background" />
-    <div className="p-4">
-      <strong>Background</strong>
-      <p className="mt-1 font-mono text-xs text-muted-foreground">--background</p>
-    </div>
-  </div>
-  <div className="overflow-hidden rounded-xl border bg-card">
-    <div className="h-20 bg-card" />
-    <div className="p-4">
-      <strong>Card</strong>
-      <p className="mt-1 font-mono text-xs text-muted-foreground">--card</p>
-    </div>
-  </div>
-  <div className="overflow-hidden rounded-xl border bg-card">
-    <div className="h-20 bg-muted" />
-    <div className="p-4">
-      <strong>Muted</strong>
-      <p className="mt-1 font-mono text-xs text-muted-foreground">--muted</p>
-    </div>
-  </div>
-  <div className="overflow-hidden rounded-xl border bg-card">
-    <div className="h-20 bg-primary" />
-    <div className="p-4">
-      <strong>Primary</strong>
-      <p className="mt-1 font-mono text-xs text-muted-foreground">--primary</p>
-    </div>
-  </div>
-</div>
-
-## Risco explícito
-
-<div className="grid gap-3 md:grid-cols-5">
+<div className="not-prose my-8 grid gap-3 md:grid-cols-3">
   {[
-    ["stable", "Estável", "var(--risk-stable-bg)", "var(--risk-stable-text)"],
-    ["monitor", "Monitorar", "var(--risk-monitor-bg)", "var(--risk-monitor-text)"],
-    ["attention", "Atenção", "var(--risk-attention-bg)", "var(--risk-attention-text)"],
-    ["high", "Alto", "var(--risk-high-bg)", "var(--risk-high-text)"],
-    ["critical", "Crítico", "var(--risk-critical-bg)", "var(--risk-critical-text)"],
-  ].map(([key, label, bg, color]) => (
-    <div key={key} className="rounded-xl border p-4" style={{ background: bg, color }}>
-      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)]">{key}</p>
-      <strong className="mt-2 block">{label}</strong>
-    </div>
+    ["Superfícies", "#superficies", "Fundo, card, muted e marca"],
+    ["Tipografia", "#tipografia", "Display, mono e kicker"],
+    ["Risco", "#risco", "stable → critical"],
+    ["Densidade", "#densidade", "compact, comfortable, spacious"],
+    ["IA", "#ia", "Origem e auditabilidade"],
+    ["Mobile", "#mobile", "Toque, handover e paridade"],
+  ].map(([title, href, desc]) => (
+    <a
+      key={title}
+      className="rounded-xl border bg-card p-5 no-underline transition hover:border-primary hover:bg-muted/30"
+      href={href}
+    >
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+        foundation
+      </p>
+      <strong className="mt-2 block text-lg">{title}</strong>
+      <span className="mt-2 block text-sm text-muted-foreground">{desc}</span>
+    </a>
   ))}
 </div>
 
-## Assinatura numérica
+## Superfícies
 
-<div className="rounded-2xl border bg-card p-6">
-  <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
-    operação reputacional
-  </p>
-  <div className="mt-6 grid gap-6 md:grid-cols-3">
+<div id="superficies" className="not-prose rounded-2xl border bg-card p-6">
+  <div className="mb-6 flex items-start justify-between gap-4">
     <div>
-      <strong className="mono block text-5xl font-bold" data-numeric>87</strong>
-      <span className="text-sm text-muted-foreground">score de risco</span>
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+        colors · surface hierarchy
+      </p>
+      <h2 className="mt-2 text-2xl font-bold">Fundo neutro, bordas finas, marca em ação</h2>
+      <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+        Pulso é light-first: superfícies frias e hairlines sustentam leitura
+        prolongada; o roxo aparece como ação, foco ou origem.
+      </p>
     </div>
-    <div>
-      <strong className="mono block text-5xl font-bold" data-numeric>1.482</strong>
-      <span className="text-sm text-muted-foreground">menções qualificadas</span>
+    <a className="text-sm font-medium text-primary no-underline" href="../foundations/colors">
+      Ver colors →
+    </a>
+  </div>
+
+  <div className="grid gap-4 md:grid-cols-5">
+    {[
+      ["Background", "--background", "bg-background"],
+      ["Card", "--card", "bg-card"],
+      ["Muted", "--muted", "bg-muted"],
+      ["Elevated", "--elevated", ""],
+      ["Primary", "--primary", "bg-primary"],
+    ].map(([name, token, cls]) => (
+      <div key={token} className="overflow-hidden rounded-xl border bg-card">
+        <div
+          className={`h-20 ${cls}`}
+          style={token === "--elevated" ? { background: "var(--elevated)" } : undefined}
+        />
+        <div className="p-4">
+          <strong>{name}</strong>
+          <p className="mt-1 font-mono text-xs text-muted-foreground">{token}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+## Tipografia
+
+<div id="tipografia" className="not-prose grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+  <div className="rounded-2xl border bg-card p-6">
+    <div className="mb-6 flex items-start justify-between gap-4">
+      <div>
+        <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+          typography · identity
+        </p>
+        <h2 className="mt-2 text-2xl font-bold">Reconhecimento sem depender de cor</h2>
+      </div>
+      <a className="text-sm font-medium text-primary no-underline" href="../foundations/typography">
+        Ver typography →
+      </a>
     </div>
-    <div>
-      <strong className="mono block text-5xl font-bold" data-numeric>08m</strong>
-      <span className="text-sm text-muted-foreground">SLA restante</span>
+
+    <div className="rounded-xl border bg-background p-6">
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+        monitoramento · crise ativa
+      </p>
+      <h3 className="mt-3 text-[var(--text-display-lg)] font-bold leading-tight tracking-tight">
+        Operação reputacional em atenção
+      </h3>
+      <p className="mt-4 max-w-3xl text-muted-foreground">
+        Títulos carregam consequência; mono aparece em dados, metadados e
+        kickers para criar assinatura operacional.
+      </p>
+    </div>
+  </div>
+
+  <div className="rounded-2xl border bg-card p-6">
+    <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+      numeric signature
+    </p>
+    <div className="mt-6 grid gap-5">
+      <div>
+        <strong className="mono block text-5xl font-bold" data-numeric>87</strong>
+        <span className="text-sm text-muted-foreground">score de risco</span>
+      </div>
+      <div>
+        <strong className="mono block text-5xl font-bold" data-numeric>1.482</strong>
+        <span className="text-sm text-muted-foreground">menções qualificadas</span>
+      </div>
+      <div>
+        <strong className="mono block text-5xl font-bold" data-numeric>08m</strong>
+        <span className="text-sm text-muted-foreground">SLA restante</span>
+      </div>
     </div>
   </div>
 </div>
 
-Ver também: [Colors](/foundations/colors), [Typography](/foundations/typography) e [Density](/foundations/density).
+## Risco
+
+<div id="risco" className="not-prose rounded-2xl border bg-card p-6">
+  <div className="mb-6 flex items-start justify-between gap-4">
+    <div>
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+        operational risk
+      </p>
+      <h2 className="mt-2 text-2xl font-bold">Taxonomia explícita</h2>
+      <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+        Risco usa texto, fundo e borda. Delta continua sendo movimento de
+        métrica, não risco operacional.
+      </p>
+    </div>
+    <a className="text-sm font-medium text-primary no-underline" href="../patterns/risk-levels">
+      Ver risk levels →
+    </a>
+  </div>
+
+  <div className="grid gap-3 md:grid-cols-5">
+    {[
+      ["stable", "Estável", "var(--risk-stable-bg)", "var(--risk-stable-text)", "var(--risk-stable-border)"],
+      ["monitor", "Monitorar", "var(--risk-monitor-bg)", "var(--risk-monitor-text)", "var(--risk-monitor-border)"],
+      ["attention", "Atenção", "var(--risk-attention-bg)", "var(--risk-attention-text)", "var(--risk-attention-border)"],
+      ["high", "Alto", "var(--risk-high-bg)", "var(--risk-high-text)", "var(--risk-high-border)"],
+      ["critical", "Crítico", "var(--risk-critical-bg)", "var(--risk-critical-text)", "var(--risk-critical-border)"],
+    ].map(([key, label, bg, color, border]) => (
+      <div key={key} className="rounded-xl border p-4" style={{ background: bg, color, borderColor: border }}>
+        <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)]">{key}</p>
+        <strong className="mt-2 block">{label}</strong>
+        <p className="mt-3 text-xs opacity-80">cor + texto + forma</p>
+      </div>
+    ))}
+  </div>
+</div>
+
+## Densidade
+
+<div id="densidade" className="not-prose rounded-2xl border bg-card p-6">
+  <div className="mb-6 flex items-start justify-between gap-4">
+    <div>
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+        density · operator affordance
+      </p>
+      <h2 className="mt-2 text-2xl font-bold">Mais ou menos volume, não mais ou menos importância</h2>
+      <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+        Densidade altera padding, gap e altura. A hierarquia tipográfica permanece.
+      </p>
+    </div>
+    <a className="text-sm font-medium text-primary no-underline" href="../foundations/density">
+      Ver density →
+    </a>
+  </div>
+
+  <div className="grid gap-4 md:grid-cols-3">
+    <div className="rounded-xl border bg-background p-4">
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">compact</p>
+      <div className="mt-4 grid gap-2">
+        {["Audit log", "Search result", "Mention feed"].map((label) => (
+          <div key={label} className="rounded-md border bg-card px-3 py-2 text-sm">{label}</div>
+        ))}
+      </div>
+    </div>
+    <div className="rounded-xl border bg-background p-5 ring-1 ring-primary/30">
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-primary">comfortable · default</p>
+      <div className="mt-5 grid gap-3">
+        {["Dashboard", "Formulário", "Settings"].map((label) => (
+          <div key={label} className="rounded-md border bg-card px-4 py-3 text-sm">{label}</div>
+        ))}
+      </div>
+    </div>
+    <div className="rounded-xl border bg-background p-6">
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">spacious</p>
+      <div className="mt-6 grid gap-4">
+        {["Resumo executivo", "Apresentação", "Análise"].map((label) => (
+          <div key={label} className="rounded-md border bg-card px-5 py-4 text-sm">{label}</div>
+        ))}
+      </div>
+    </div>
+  </div>
+</div>
+
+## IA
+
+<div id="ia" className="not-prose grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
+  <div className="rounded-2xl border bg-card p-6" style={{ borderLeft: "var(--ai-marker-border)" }}>
+    <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+      escrito com cris
+    </p>
+    <h2 className="mt-3 text-2xl font-bold">Origem visível</h2>
+    <p className="mt-3 text-sm text-muted-foreground">
+      [Inferência] A narrativa está migrando de reclamação pontual para crítica
+      de governança.
+    </p>
+    <div className="mt-5 flex flex-wrap gap-2">
+      <span className="rounded-md border px-2 py-1 font-mono text-xs text-muted-foreground">fontes · 12</span>
+      <span className="rounded-md border px-2 py-1 font-mono text-xs text-muted-foreground">confiança · média</span>
+      <span className="rounded-md border px-2 py-1 font-mono text-xs text-muted-foreground">auditável</span>
+    </div>
+  </div>
+
+  <div className="rounded-2xl border bg-card p-6">
+    <div className="mb-5 flex items-start justify-between gap-4">
+      <div>
+        <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+          ai contract
+        </p>
+        <h2 className="mt-2 text-2xl font-bold">IA não é decoração</h2>
+      </div>
+      <a className="text-sm font-medium text-primary no-underline" href="../patterns/ai-origin-tracking">
+        Ver patterns →
+      </a>
+    </div>
+    <div className="grid gap-3">
+      {[
+        ["Origem", "Quem escreveu, sugeriu ou resumiu."],
+        ["Evidência", "Quais fontes sustentam a leitura."],
+        ["Ação", "O que muda para o operador humano."],
+      ].map(([title, desc]) => (
+        <div key={title} className="rounded-lg border bg-background p-4">
+          <strong>{title}</strong>
+          <p className="mt-1 text-sm text-muted-foreground">{desc}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+## Mobile
+
+<div id="mobile" className="not-prose rounded-2xl border bg-card p-6">
+  <div className="mb-6 flex items-start justify-between gap-4">
+    <div>
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+        mobile parity
+      </p>
+      <h2 className="mt-2 text-2xl font-bold">Ação crítica preserva alvo, contexto e handover</h2>
+      <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+        Mobile não reduz consequência: tokens nativos e padrões de handover
+        preservam decisão sob pressão.
+      </p>
+    </div>
+    <a className="text-sm font-medium text-primary no-underline" href="../foundations/mobile-native-tokens">
+      Ver mobile tokens →
+    </a>
+  </div>
+
+  <div className="grid gap-4 md:grid-cols-3">
+    <div className="rounded-xl border bg-background p-5">
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">touch target</p>
+      <strong className="mono mt-4 block text-4xl" data-numeric>48px</strong>
+      <p className="mt-2 text-sm text-muted-foreground">mínimo para ação crítica</p>
+    </div>
+    <div className="rounded-xl border bg-background p-5">
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">offline</p>
+      <strong className="mt-4 block text-lg">Pendente, não invisível</strong>
+      <p className="mt-2 text-sm text-muted-foreground">estado local declara sincronização.</p>
+    </div>
+    <div className="rounded-xl border bg-background p-5">
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">handover</p>
+      <strong className="mt-4 block text-lg">Owner + última decisão</strong>
+      <p className="mt-2 text-sm text-muted-foreground">continuidade entre turnos e dispositivos.</p>
+    </div>
+  </div>
+</div>
+
+## Navegação canônica
+
+- [Colors](/foundations/colors) — superfícies, marca, risco e origem de IA.
+- [Typography](/foundations/typography) — Manrope, IBM Plex Mono e assinatura numérica.
+- [Density](/foundations/density) — compact, comfortable e spacious.
+- [Rhythm](/foundations/rhythm) — cadência visual e espaçamento semântico.
+- [Mobile native tokens](/foundations/mobile-native-tokens) — toque, haptics e paridade mobile.
