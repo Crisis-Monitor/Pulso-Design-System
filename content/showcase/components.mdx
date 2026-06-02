@@ -1,18 +1,59 @@
 ---
 title: Components
-description: Demonstrações visuais de componentes em contexto operacional.
+description: Galeria visual de componentes do Pulso DS em contexto operacional.
 ---
 
 # Components
 
-Componentes do Pulso são instrumentos de decisão. A demonstração visual prioriza
-hierarquia, estado, consequência e rastreabilidade.
+Componentes do Pulso são instrumentos de decisão. Esta galeria mostra famílias
+visuais em contexto — o inventário técnico continua nas páginas canônicas de
+[Atoms](/components/atoms/button), [Molecules](/components/molecules/metric-card)
+e [Organisms](/components/organisms/table).
+
+<div className="not-prose my-8 grid gap-3 md:grid-cols-3">
+  {[
+    ["Ações", "#acoes", "Button, links, destructive"],
+    ["Formulários", "#formularios", "Input, Select, Checkbox"],
+    ["Feedback", "#feedback", "Alert, Badge, Progress"],
+    ["Dados", "#dados", "Metric, Table, Chart"],
+    ["Overlays", "#overlays", "Dialog, Sheet, Popover"],
+    ["Mobile", "#mobile", "Drawer, Responsive Sheet"],
+  ].map(([title, href, desc]) => (
+    <a
+      key={title}
+      className="rounded-xl border bg-card p-5 no-underline transition hover:border-primary hover:bg-muted/30"
+      href={href}
+    >
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+        família
+      </p>
+      <strong className="mt-2 block text-lg">{title}</strong>
+      <span className="mt-2 block text-sm text-muted-foreground">{desc}</span>
+    </a>
+  ))}
+</div>
 
 ## Ações
 
-<div className="rounded-2xl border bg-card p-6">
+<div id="acoes" className="not-prose rounded-2xl border bg-card p-6">
+  <div className="mb-5 flex items-start justify-between gap-4">
+    <div>
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+        atoms · button
+      </p>
+      <h2 className="mt-2 text-2xl font-bold">Hierarquia de decisão</h2>
+      <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+        Primary aparece uma vez por superfície. Secondary sustenta tarefas.
+        Ghost e link reduzem peso. Destructive exige consequência explícita.
+      </p>
+    </div>
+    <a className="text-sm font-medium text-primary no-underline" href="../components/atoms/button">
+      Ver doc →
+    </a>
+  </div>
+
   <div className="grid gap-5">
-    <div className="grid gap-3 md:grid-cols-[160px_1fr] md:items-center">
+    <div className="grid gap-3 md:grid-cols-[150px_1fr] md:items-center">
       <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
         Primary
       </p>
@@ -22,16 +63,27 @@ hierarquia, estado, consequência e rastreabilidade.
         <button className="rounded-md bg-primary/45 px-4 py-2 font-medium text-primary-foreground" disabled>Disabled</button>
       </div>
     </div>
-    <div className="grid gap-3 md:grid-cols-[160px_1fr] md:items-center">
+    <div className="grid gap-3 md:grid-cols-[150px_1fr] md:items-center">
       <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
         Secondary
       </p>
       <div className="flex flex-wrap gap-3">
         <button className="rounded-md border bg-background px-4 py-2 font-medium">Exportar</button>
         <button className="rounded-md border bg-background px-4 py-2 font-medium">+ Adicionar fonte</button>
+        <button className="rounded-md border bg-background px-4 py-2 font-medium opacity-50" disabled>Disabled</button>
       </div>
     </div>
-    <div className="grid gap-3 md:grid-cols-[160px_1fr] md:items-center">
+    <div className="grid gap-3 md:grid-cols-[150px_1fr] md:items-center">
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+        Ghost / Link
+      </p>
+      <div className="flex flex-wrap gap-3">
+        <button className="rounded-md px-4 py-2 font-medium text-muted-foreground">Cancelar</button>
+        <a className="px-0 py-2 font-medium text-primary no-underline" href="../patterns/crisis-status">Ver todos os casos</a>
+        <a className="px-0 py-2 font-medium text-primary no-underline" href="../components/atoms/button">Documentação</a>
+      </div>
+    </div>
+    <div className="grid gap-3 md:grid-cols-[150px_1fr] md:items-center">
       <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
         Destructive
       </p>
@@ -47,34 +99,269 @@ hierarquia, estado, consequência e rastreabilidade.
   </div>
 </div>
 
-## Estado operacional
+## Formulários
 
-<div className="grid gap-4 md:grid-cols-3">
-  <div className="rounded-xl border bg-card p-5">
+<div id="formularios" className="not-prose grid gap-4 lg:grid-cols-[1fr_0.9fr]">
+  <div className="rounded-2xl border bg-card p-6">
+    <div className="mb-5 flex items-start justify-between gap-4">
+      <div>
+        <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+          form atoms
+        </p>
+        <h2 className="mt-2 text-2xl font-bold">Entrada com contexto</h2>
+      </div>
+      <a className="text-sm font-medium text-primary no-underline" href="../components/atoms/input">
+        Ver input →
+      </a>
+    </div>
+    <div className="grid gap-4">
+      <label className="grid gap-2">
+        <span className="text-sm font-medium">Fonte monitorada</span>
+        <input className="h-10 rounded-md border bg-background px-3 text-sm" placeholder="@perfil, domínio ou termo" />
+        <span className="text-xs text-muted-foreground">Use nomes verificáveis para facilitar auditoria.</span>
+      </label>
+      <div className="grid gap-3 md:grid-cols-2">
+        <label className="grid gap-2">
+          <span className="text-sm font-medium">Risco mínimo</span>
+          <select className="h-10 rounded-md border bg-background px-3 text-sm">
+            <option>attention</option>
+            <option>high</option>
+            <option>critical</option>
+          </select>
+        </label>
+        <label className="grid gap-2">
+          <span className="text-sm font-medium">Janela</span>
+          <input className="h-10 rounded-md border bg-background px-3 font-mono text-sm" value="24h" readOnly />
+        </label>
+      </div>
+      <label className="flex items-center gap-3 rounded-lg border bg-background p-3 text-sm">
+        <span className="flex h-4 w-4 items-center justify-center rounded border bg-primary text-[10px] text-primary-foreground">✓</span>
+        Exigir justificativa antes de acionar porta-voz
+      </label>
+    </div>
+  </div>
+
+  <div className="rounded-2xl border bg-card p-6">
     <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
-      Alert
+      field contract
+    </p>
+    <h2 className="mt-2 text-2xl font-bold">Estados previsíveis</h2>
+    <div className="mt-5 grid gap-3">
+      <div className="rounded-lg border bg-background p-4">
+        <strong className="text-sm">Default</strong>
+        <p className="mt-1 text-sm text-muted-foreground">Campo pronto para entrada.</p>
+      </div>
+      <div className="rounded-lg border p-4" style={{ borderColor: "var(--risk-attention-border)", background: "var(--risk-attention-bg)" }}>
+        <strong className="text-sm" style={{ color: "var(--risk-attention-text)" }}>Atenção</strong>
+        <p className="mt-1 text-sm" style={{ color: "var(--risk-attention-text)" }}>Valor incompleto, mas recuperável.</p>
+      </div>
+      <div className="rounded-lg border p-4" style={{ borderColor: "var(--risk-critical-border)", background: "var(--risk-critical-bg)" }}>
+        <strong className="text-sm" style={{ color: "var(--risk-critical-text)" }}>Crítico</strong>
+        <p className="mt-1 text-sm" style={{ color: "var(--risk-critical-text)" }}>Bloqueia ação até correção.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+## Feedback
+
+<div id="feedback" className="not-prose grid gap-4 md:grid-cols-3">
+  <div className="rounded-2xl border bg-card p-5">
+    <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+      alert
     </p>
     <h2 className="mt-3 text-xl font-bold">Narrativa em aceleração</h2>
     <p className="mt-2 text-sm text-muted-foreground">
       A variação de menções indica possível transição para atenção.
     </p>
+    <a className="mt-4 inline-block text-sm font-medium text-primary no-underline" href="../components/atoms/alert">
+      Ver alert →
+    </a>
   </div>
-  <div className="rounded-xl border bg-card p-5" style={{ borderLeft: "var(--ai-marker-border)" }}>
+  <div className="rounded-2xl border bg-card p-5" style={{ borderLeft: "var(--ai-marker-border)" }}>
     <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
-      Cris
+      cris
     </p>
     <h2 className="mt-3 text-xl font-bold">Resumo assistido</h2>
     <p className="mt-2 text-sm text-muted-foreground">
       [Inferência] O foco público migrou de atendimento para governança.
     </p>
+    <span className="mt-4 inline-flex rounded-md border px-2 py-1 font-mono text-xs text-muted-foreground">
+      origem · auditável
+    </span>
   </div>
-  <div className="rounded-xl border bg-card p-5">
+  <div className="rounded-2xl border bg-card p-5">
     <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
-      Metric
+      progress
     </p>
-    <strong className="mono mt-3 block text-4xl" data-numeric>+18%</strong>
-    <p className="mt-2 text-sm text-muted-foreground">movimento nas últimas 2h</p>
+    <h2 className="mt-3 text-xl font-bold">Coleta em andamento</h2>
+    <div className="mt-5 h-2 overflow-hidden rounded-full bg-muted">
+      <div className="h-full w-[68%] rounded-full bg-primary" />
+    </div>
+    <p className="mt-3 font-mono text-xs text-muted-foreground">68% · 21 fontes verificadas</p>
   </div>
 </div>
 
-Ver também: [Button](/components/atoms/button), [Alert](/components/atoms/alert) e [Metric Card](/components/molecules/metric-card).
+## Dados
+
+<div id="dados" className="not-prose grid gap-4">
+  <div className="grid gap-4 md:grid-cols-3">
+    <div className="rounded-2xl border bg-card p-5">
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+        risk score
+      </p>
+      <strong className="mono mt-4 block text-5xl" data-numeric>87</strong>
+      <span className="mt-3 inline-flex rounded-md border px-2 py-1 font-mono text-xs" style={{ color: "var(--risk-high-text)", borderColor: "var(--risk-high-border)", background: "var(--risk-high-bg)" }}>
+        high
+      </span>
+    </div>
+    <div className="rounded-2xl border bg-card p-5">
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+        mentions
+      </p>
+      <strong className="mono mt-4 block text-5xl" data-numeric>1.482</strong>
+      <p className="mt-3 font-mono text-xs" style={{ color: "var(--delta-warn)" }}>+18% · últimas 2h</p>
+    </div>
+    <div className="rounded-2xl border bg-card p-5">
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+        sla
+      </p>
+      <strong className="mono mt-4 block text-5xl" data-numeric>08m</strong>
+      <p className="mt-3 text-sm text-muted-foreground">janela crítica restante</p>
+    </div>
+  </div>
+
+  <div className="overflow-hidden rounded-2xl border bg-card">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b p-4">
+      <div>
+        <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+          organism · table
+        </p>
+        <h2 className="mt-1 text-xl font-bold">Casos ativos</h2>
+      </div>
+      <a className="text-sm font-medium text-primary no-underline" href="../components/organisms/table">
+        Ver table →
+      </a>
+    </div>
+    <div className="overflow-x-auto">
+      <table className="w-full text-left text-sm">
+        <thead className="border-b bg-muted/50 font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+          <tr>
+            <th className="px-4 py-3 font-medium">Caso</th>
+            <th className="px-4 py-3 font-medium">Risco</th>
+            <th className="px-4 py-3 text-right font-medium">Menções</th>
+            <th className="px-4 py-3 font-medium">Owner</th>
+          </tr>
+        </thead>
+        <tbody>
+          {[
+            ["Água Nova", "high", "1.482", "Comms"],
+            ["Atendimento Norte", "attention", "438", "Ops"],
+            ["Fonte anônima", "monitor", "91", "Legal"],
+          ].map(([name, risk, count, owner]) => (
+            <tr key={name} className="border-b last:border-b-0">
+              <td className="px-4 py-3 font-medium">{name}</td>
+              <td className="px-4 py-3">
+                <span className="inline-flex rounded-md border px-2 py-1 font-mono text-xs">{risk}</span>
+              </td>
+              <td className="mono px-4 py-3 text-right" data-numeric>{count}</td>
+              <td className="px-4 py-3 text-muted-foreground">{owner}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+## Overlays
+
+<div id="overlays" className="not-prose grid gap-4 lg:grid-cols-2">
+  <div className="rounded-2xl border bg-card p-6">
+    <div className="mb-5 flex items-start justify-between gap-4">
+      <div>
+        <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+          dialog
+        </p>
+        <h2 className="mt-2 text-2xl font-bold">Confirmação bloqueante</h2>
+      </div>
+      <a className="text-sm font-medium text-primary no-underline" href="../components/organisms/dialog">
+        Ver dialog →
+      </a>
+    </div>
+    <div className="rounded-xl border bg-background p-5 shadow-sm">
+      <h3 className="text-xl font-bold">Declarar crise?</h3>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Esta ação cria trilha executiva e notifica owners críticos.
+      </p>
+      <div className="mt-5 flex justify-end gap-3">
+        <button className="rounded-md border bg-card px-4 py-2 text-sm font-medium">Cancelar</button>
+        <button className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <div className="rounded-2xl border bg-card p-6">
+    <div className="mb-5 flex items-start justify-between gap-4">
+      <div>
+        <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+          sheet
+        </p>
+        <h2 className="mt-2 text-2xl font-bold">Contexto sem trocar tela</h2>
+      </div>
+      <a className="text-sm font-medium text-primary no-underline" href="../components/atoms/sheet">
+        Ver sheet →
+      </a>
+    </div>
+    <div className="ml-auto max-w-sm rounded-xl border bg-background p-5 shadow-sm">
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+        fonte · x
+      </p>
+      <h3 className="mt-2 text-xl font-bold">Histórico da fonte</h3>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Últimos sinais, confiabilidade e ações sugeridas ficam no painel lateral.
+      </p>
+    </div>
+  </div>
+</div>
+
+## Mobile
+
+<div id="mobile" className="not-prose rounded-2xl border bg-card p-6">
+  <div className="mb-5 flex items-start justify-between gap-4">
+    <div>
+      <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">
+        responsive behavior
+      </p>
+      <h2 className="mt-2 text-2xl font-bold">Paridade operacional</h2>
+      <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+        Mobile não é versão reduzida: ações críticas preservam leitura,
+        hit target e handover.
+      </p>
+    </div>
+    <a className="text-sm font-medium text-primary no-underline" href="../components/organisms/responsive-sheet">
+      Ver responsive sheet →
+    </a>
+  </div>
+  <div className="grid gap-4 md:grid-cols-3">
+    <div className="rounded-xl border bg-background p-5">
+      <strong>Toque crítico</strong>
+      <p className="mt-2 text-sm text-muted-foreground">Ações destrutivas usam alvo mínimo de 48px.</p>
+    </div>
+    <div className="rounded-xl border bg-background p-5">
+      <strong>Offline-first</strong>
+      <p className="mt-2 text-sm text-muted-foreground">Estados pendentes declaram sincronização e consequência.</p>
+    </div>
+    <div className="rounded-xl border bg-background p-5">
+      <strong>Handover</strong>
+      <p className="mt-2 text-sm text-muted-foreground">Transferência preserva origem, owner e última decisão.</p>
+    </div>
+  </div>
+</div>
+
+## Navegação canônica
+
+- [Atoms](/components/atoms/button) — controles, feedback leve e primitivas.
+- [Molecules](/components/molecules/metric-card) — combinações reutilizáveis.
+- [Organisms](/components/organisms/table) — superfícies complexas e padrões de layout.
+- [Patterns](/patterns/crisis-status) — componentes compostos em cenários reais.
