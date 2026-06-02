@@ -25,6 +25,17 @@
 @keyframes hint-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.7); } }
 
 /* Tooltip core */
+:root {
+  --tooltip-demo-bg: #1A1530;
+  --tooltip-demo-fg: #F5F4FA;
+  --tooltip-demo-muted: rgba(245,244,250,0.85);
+  --tooltip-demo-kbd-bg: rgba(245,244,250,0.12);
+  --tooltip-demo-kbd-border: rgba(245,244,250,0.18);
+  --tooltip-demo-kbd-fg: rgba(245,244,250,0.9);
+}
+html.dark {
+  --tooltip-demo-bg: #0F0C1A;
+}
 .ptip {
   position: absolute;
   z-index: 30;
@@ -32,8 +43,8 @@
   font-size: 12px;
   line-height: 1.4;
   font-weight: 500;
-  color: var(--background);
-  background: var(--fg-strong);
+  color: var(--tooltip-demo-fg);
+  background: var(--tooltip-demo-bg);
   padding: 6px 10px;
   border-radius: var(--radius-sm);
   white-space: nowrap;
@@ -51,7 +62,7 @@
   position: absolute;
   width: 8px;
   height: 8px;
-  background: var(--fg-strong);
+  background: var(--tooltip-demo-bg);
   transform: rotate(45deg);
 }
 /* Position + direction-aware enter motion (rest state offset toward anchor) */
@@ -91,14 +102,14 @@
   width: max-content;
   max-width: 280px;
   padding: 10px 12px;
-  background: var(--fg-strong);
+  background: var(--tooltip-demo-bg);
   font-weight: 400;
-  color: rgba(255,255,255,0.85);
+  color: var(--tooltip-demo-muted);
   text-wrap: pretty;
 }
-.ptip-rich .tt-title { font-weight: 600; color: #fff; margin-bottom: 4px; font-size: 12.5px; }
+.ptip-rich .tt-title { font-weight: 600; color: var(--tooltip-demo-fg); margin-bottom: 4px; font-size: 12.5px; }
 .ptip-rich .tt-shortcut { display: inline-flex; gap: 4px; margin-top: 6px; }
-.ptip-rich .kbd { font-family: var(--font-pulso-mono); font-size: 10.5px; padding: 1px 5px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.18); border-radius: 3px; color: rgba(255,255,255,0.9); font-weight: 500; }
+.ptip-rich .kbd { font-family: var(--font-pulso-mono); font-size: 10.5px; padding: 1px 5px; background: var(--tooltip-demo-kbd-bg); border: 1px solid var(--tooltip-demo-kbd-border); border-radius: 3px; color: var(--tooltip-demo-kbd-fg); font-weight: 500; }
 
 /* Inline tooltip (?) */
 .tt-help {
@@ -241,8 +252,8 @@
       <table class="tokens">
         <thead><tr><th>Token</th><th>Default</th><th>Rich</th><th>Notas</th></tr></thead>
         <tbody>
-          <tr><td>Background</td><td class="mono">--fg-strong</td><td class="mono">--fg-strong</td><td>Sempre escuro, mesmo em dark</td></tr>
-          <tr><td>Cor texto</td><td class="mono">--background</td><td class="mono">rgba(255,255,255,.85)</td><td>Contraste WCAG AA garantido</td></tr>
+          <tr><td>Background</td><td class="mono">--tooltip-demo-bg</td><td class="mono">--tooltip-demo-bg</td><td>Sempre escuro, mesmo em dark</td></tr>
+          <tr><td>Cor texto</td><td class="mono">--tooltip-demo-fg</td><td class="mono">--tooltip-demo-muted</td><td>Contraste WCAG AA garantido</td></tr>
           <tr><td>Padding</td><td class="mono">6 / 10</td><td class="mono">10 / 12</td><td>—</td></tr>
           <tr><td>Border-radius</td><td class="mono">--radius-sm</td><td class="mono">--radius-sm</td><td>—</td></tr>
           <tr><td>Font-size</td><td class="mono">12px</td><td class="mono">12px</td><td>500 weight default</td></tr>
