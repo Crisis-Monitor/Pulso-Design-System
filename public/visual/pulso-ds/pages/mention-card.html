@@ -19,7 +19,7 @@
 .mc-rail { background: var(--fg-subtle); }
 .mc-rail.critical { background: var(--risk-critical); }
 .mc-rail.high     { background: var(--risk-high); }
-.mc-rail.medium   { background: var(--risk-medium); }
+.mc-rail.attention { background: var(--risk-attention); }
 .mc-rail.monitor  { background: var(--risk-monitor); }
 
 .mc-body { padding: 14px 16px 12px; }
@@ -53,7 +53,7 @@
 }
 .mc-level.critical { background: var(--risk-critical-bg); color: var(--risk-critical); border: 1px solid var(--risk-critical-border); }
 .mc-level.high     { background: var(--risk-high-bg);     color: var(--risk-high);     border: 1px solid var(--risk-high-border); }
-.mc-level.medium   { background: var(--risk-medium-bg);   color: var(--risk-medium);   border: 1px solid var(--risk-medium-border); }
+.mc-level.attention { background: var(--risk-attention-bg); color: var(--risk-attention-text); border: 1px solid var(--risk-attention-border); }
 .mc-level.monitor  { background: var(--risk-monitor-bg);  color: var(--risk-monitor);  border: 1px solid var(--risk-monitor-border); }
 
 .mc-headline {
@@ -290,7 +290,7 @@
         </article>
 
         <article class="mc read">
-          <div class="mc-rail medium"></div>
+          <div class="mc-rail attention"></div>
           <div class="mc-body">
             <div class="mc-meta">
               <span class="mc-source"><span class="mc-source-dot social"></span>Twitter / X</span>
@@ -299,7 +299,7 @@
               <span class="mc-meta-sep">·</span>
               <span class="mc-time">há 1h08</span>
               <span class="mc-spacer"></span>
-              <span class="mc-level medium">Médio · 42</span>
+              <span class="mc-level attention">Atenção · 42</span>
             </div>
             <h3 class="mc-headline">Influenciador econômico cita matéria da Folha em thread de 8 posts</h3>
             <p class="mc-snippet">Thread cita <mark>Acme</mark> e questiona "a quem interessa esse silêncio". Crescimento orgânico, 1.2k retweets, 340 comentários — predominantemente questionando.</p>
@@ -345,10 +345,10 @@
           </div>
         </article>
         <article class="mc-compact">
-          <div class="rail" style="background: var(--risk-medium)"></div>
+          <div class="rail" style="background: var(--risk-attention)"></div>
           <div class="body">
             <div class="row1">
-              <span style="color: var(--risk-medium); font-weight: 600">MÉD 42</span>
+              <span style="color: var(--risk-attention-text); font-weight: 600">ATTN 42</span>
               <span style="color: var(--border-strong)">·</span>
               <span>Twitter</span>
               <span style="color: var(--border-strong)">·</span>

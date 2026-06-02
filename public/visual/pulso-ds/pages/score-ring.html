@@ -50,12 +50,12 @@
 
 /* Color by band */
 .sr.b-monitor  .sr-fill { stroke: var(--risk-monitor); }
-.sr.b-medium   .sr-fill { stroke: var(--risk-medium); }
+.sr.b-attention .sr-fill { stroke: var(--risk-attention); }
 .sr.b-high     .sr-fill { stroke: var(--risk-high); }
 .sr.b-critical .sr-fill { stroke: var(--risk-critical); }
 
 .sr.b-monitor  .sr-value { color: var(--risk-monitor); }
-.sr.b-medium   .sr-value { color: var(--risk-medium); }
+.sr.b-attention .sr-value { color: var(--risk-attention-text); }
 .sr.b-high     .sr-value { color: var(--risk-high); }
 .sr.b-critical .sr-value { color: var(--risk-critical); }
 
@@ -162,7 +162,7 @@
           <div class="band-desc">Volume normal, sentimento neutro/positivo. Acompanhe.</div>
         </div>
         <div class="band">
-          <div class="sr sr-md b-medium">
+          <div class="sr sr-md b-attention">
             <svg viewBox="0 0 80 80" width="72" height="72">
               <circle class="sr-track" cx="40" cy="40" r="33" fill="none" stroke-width="6"/>
               <circle class="sr-fill" cx="40" cy="40" r="33" fill="none" stroke-width="6" stroke-linecap="round"
@@ -170,7 +170,7 @@
             </svg>
             <div class="sr-num"><span class="sr-value">48</span><span class="sr-label">Pulso</span></div>
           </div>
-          <div class="band-name" style="color: var(--risk-medium)">Médio</div>
+          <div class="band-name" style="color: var(--risk-attention-text)">Atenção</div>
           <div class="band-range">40 — 59</div>
           <div class="band-desc">Sinais de instabilidade. Atenção da equipe.</div>
         </div>
@@ -231,7 +231,7 @@
           <div class="lab">sm · 44</div>
         </div>
         <div class="size-cell">
-          <div class="sr sr-md b-medium">
+          <div class="sr sr-md b-attention">
             <svg viewBox="0 0 72 72" width="72" height="72">
               <circle class="sr-track" cx="36" cy="36" r="29" fill="none" stroke-width="5"/>
               <circle class="sr-fill" cx="36" cy="36" r="29" fill="none" stroke-width="5" stroke-linecap="round"
@@ -322,7 +322,7 @@
           </div>
         </div>
         <div class="list-stack-item">
-          <div class="sr sr-sm b-medium">
+          <div class="sr sr-sm b-attention">
             <svg viewBox="0 0 44 44" width="44" height="44">
               <circle class="sr-track" cx="22" cy="22" r="18" fill="none" stroke-width="3.5"/>
               <circle class="sr-fill" cx="22" cy="22" r="18" fill="none" stroke-width="3.5" stroke-linecap="round"
@@ -364,7 +364,7 @@
           </div>
         </div>
         <div class="list-stack-item">
-          <div class="sr sr-sm b-medium">
+          <div class="sr sr-sm b-attention">
             <svg viewBox="0 0 44 44" width="44" height="44">
               <circle class="sr-track" cx="22" cy="22" r="18" fill="none" stroke-width="3.5"/>
               <circle class="sr-fill" cx="22" cy="22" r="18" fill="none" stroke-width="3.5" stroke-linecap="round"
