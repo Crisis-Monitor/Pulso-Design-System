@@ -51,6 +51,7 @@
 
 /* VelocityGauge */
 .vg-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.vg-svg { display: block; margin-inline: auto; overflow: visible; }
 .vg-center-val { font-family: var(--font-pulso-mono); font-size: 24px; font-weight: 700; color: var(--fg-strong); font-variant-numeric: tabular-nums; }
 .vg-center-sub { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--risk-attention); font-weight: 600; }
 
@@ -515,16 +516,16 @@
       <div class="rcp-body">
         <div class="rcp-preview">
           <div class="vg-wrap">
-            <svg width="180" height="120" viewBox="0 0 180 120">
+            <svg class="vg-svg" width="200" height="126" viewBox="0 0 200 126">
               <!-- Background arc (180deg) -->
-              <path d="M 20 100 A 70 70 0 0 1 160 100" fill="none" stroke="var(--muted)" stroke-width="16" stroke-linecap="round"/>
+              <path d="M 24 96 A 76 76 0 0 1 176 96" fill="none" stroke="var(--muted)" stroke-width="16" stroke-linecap="round"/>
               <!-- Fill arc (72% of 180deg) -->
-              <path d="M 20 100 A 70 70 0 0 1 144 38" fill="none" stroke="var(--risk-attention)" stroke-width="16" stroke-linecap="round"/>
+              <path d="M 24 96 A 76 76 0 0 1 158 29" fill="none" stroke="var(--risk-attention)" stroke-width="16" stroke-linecap="round"/>
               <!-- Center value -->
-              <text x="90" y="92" font-family="var(--font-pulso-mono)" font-size="28" fill="var(--fg-strong)" text-anchor="middle" font-weight="700">+72%</text>
-              <text x="90" y="108" font-family="var(--font-pulso-mono)" font-size="9" fill="var(--risk-attention)" text-anchor="middle" letter-spacing="0.08em" font-weight="600">ACELERANDO</text>
+              <text x="100" y="82" font-family="var(--font-pulso-mono)" font-size="28" fill="var(--fg-strong)" text-anchor="middle" font-weight="700">+72%</text>
+              <text x="100" y="100" font-family="var(--font-pulso-mono)" font-size="9" fill="var(--risk-attention)" text-anchor="middle" letter-spacing="0.08em" font-weight="600">ACELERANDO</text>
             </svg>
-            <div style="display:flex;justify-content:space-between;width:180px;font-family:var(--font-pulso-mono);font-size:10px;color:var(--fg-subtle);">
+            <div style="display:flex;justify-content:space-between;width:200px;font-family:var(--font-pulso-mono);font-size:10px;color:var(--fg-subtle);">
               <span>0%</span><span>+100%</span>
             </div>
             <div style="font-size:12.5px;color:var(--fg-secondary);text-align:center;max-width:200px;margin-top:6px;">menções/h cresceu 72% nas últimas 3h vs janela anterior</div>
