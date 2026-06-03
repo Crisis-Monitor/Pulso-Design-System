@@ -136,6 +136,7 @@
   color: var(--fg);
 }
 .slot-pill.changed {
+  --changed-tag-fg: #FFFFFF;
   background: color-mix(in oklab, var(--success) 10%, var(--card));
   border-color: color-mix(in oklab, var(--success) 40%, transparent);
 }
@@ -145,7 +146,7 @@
   padding: 2px 6px; border-radius: 3px;
 }
 .slot-pill.suggested .meta-tag { background: color-mix(in oklab, var(--primary) 15%, transparent); color: var(--primary); }
-.slot-pill.changed .meta-tag { background: var(--success); color: white; }
+.slot-pill.changed .meta-tag { background: var(--success); color: var(--changed-tag-fg); }
 .slot-pill .edit { font-family: var(--font-pulso-mono); font-size: 11px; color: var(--primary); margin-left: auto; cursor: default; font-weight: 600; }
 
 .partial-summary {
