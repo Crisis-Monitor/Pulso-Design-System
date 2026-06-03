@@ -152,15 +152,41 @@
       </div>
     </div>`;
 
+  const groups = [];
+  let currentGroup = null;
+
   for (const item of links) {
     if (item.section) {
-      html += `<div class="sb-section">${item.section}</div>`;
+      currentGroup = { section: item.section, items: [], active: false };
+      groups.push(currentGroup);
     } else {
+      if (!currentGroup) {
+        currentGroup = { section: 'Navigation', items: [], active: false };
+        groups.push(currentGroup);
+      }
       const itemFile = (item.href || '').split('/').pop();
       const isActive = itemFile === here ||
                        (item.match && item.match.includes(here));
-      html += `<a class="sb-link${isActive ? ' active' : ''}" href="${item.href}">${item.name}</a>`;
+      currentGroup.active = currentGroup.active || isActive;
+      currentGroup.items.push({ ...item, isActive });
     }
+  }
+
+  for (const [index, group] of groups.entries()) {
+    const groupId = `sb-group-${index}`;
+    const isOpen = group.active;
+    html += `
+      <div class="sb-group${group.active ? ' active' : ''}" data-open="${isOpen ? 'true' : 'false'}">
+        <button class="sb-section" type="button" aria-expanded="${isOpen ? 'true' : 'false'}" aria-controls="${groupId}">
+          <span>${group.section}</span>
+          <svg class="sb-section-i" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="sb-items" id="${groupId}">
+    `;
+    for (const item of group.items) {
+      html += `<a class="sb-link${item.isActive ? ' active' : ''}" href="${item.href}">${item.name}</a>`;
+    }
+    html += `</div></div>`;
   }
 
   html += `<div style="height:8px;"></div>`;
@@ -192,6 +218,19 @@
   }
   document.querySelectorAll('.theme-btn').forEach(b => b.addEventListener('click', () => applyTheme(b.dataset.theme)));
   document.querySelectorAll('.tw-btn').forEach(b => b.addEventListener('click', () => applyDensity(b.dataset.density)));
+  document.querySelectorAll('.sb-section').forEach(button => {
+    button.addEventListener('click', () => {
+      const targetGroup = button.closest('.sb-group');
+      const shouldOpen = targetGroup?.dataset.open !== 'true';
+
+      document.querySelectorAll('.sb-group').forEach(group => {
+        const isTarget = group === targetGroup;
+        const isOpen = isTarget && shouldOpen;
+        group.dataset.open = isOpen ? 'true' : 'false';
+        group.querySelector('.sb-section')?.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+    });
+  });
 
   applyTheme(localStorage.getItem('pulso-theme') || 'light');
   applyDensity(localStorage.getItem('pulso-density') || 'comfortable');
