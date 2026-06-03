@@ -51,6 +51,8 @@
 .btn-mini:hover { background: var(--muted); color: var(--fg); }
 .btn-mini svg { width: 11px; height: 11px; }
 .btn-pri { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); height: 28px; padding: 0 12px; border-radius: var(--radius-sm); font-size: 12.5px; font-weight: 500; }
+.pcard-footer .btn-mini { height: 28px; padding: 0 12px; border-radius: var(--radius-sm); font-size: 12.5px; justify-content: center; }
+.pcard-action-group { display: inline-flex; align-items: center; gap: 6px; }
 
 .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
 
@@ -110,7 +112,7 @@
           </div>
           <div class="pcard-footer">
             <span style="font-family: var(--font-pulso-mono); font-size: 11px; color: var(--fg-subtle);">Em 12 min</span>
-            <div style="display: flex; gap: 4px;">
+            <div class="pcard-action-group">
               <button class="btn-mini">Editar</button>
               <button class="btn-mini btn-pri">Despachar agora</button>
             </div>
@@ -183,7 +185,7 @@
           </div>
           <div class="pcard-footer" style="background: transparent; border-top-color: var(--primary-border);">
             <button class="btn-mini">Descartar</button>
-            <div style="display: flex; gap: 4px;">
+            <div class="pcard-action-group">
               <button class="btn-mini">Ver evidências</button>
               <button class="btn-mini btn-pri">Acionar</button>
             </div>
