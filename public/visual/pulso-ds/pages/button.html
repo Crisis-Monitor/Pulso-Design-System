@@ -8,6 +8,7 @@
 <style>
 /* ── Pulso Button (canonical) ─────────────────────────────── */
 .pb {
+  --button-destructive-fg: #FFFFFF;
   display: inline-flex; align-items: center; justify-content: center;
   gap: 6px;
   font-family: var(--font-pulso-sans);
@@ -52,7 +53,7 @@
 .pb-link { background: transparent; color: var(--primary); border-color: transparent; padding-left: 0; padding-right: 0; height: auto; }
 .pb-link:hover:not([disabled]) { color: var(--primary-hover); text-decoration: underline; text-underline-offset: 3px; }
 
-.pb-destructive { background: var(--destructive); color: #fff; border-color: var(--destructive); }
+.pb-destructive { background: var(--destructive); color: var(--button-destructive-fg); border-color: var(--destructive); }
 .pb-destructive:hover:not([disabled]) { background: color-mix(in oklab, var(--destructive) 90%, black); }
 
 .pb-outline-destructive { background: transparent; color: var(--destructive); border-color: var(--destructive-border); }
