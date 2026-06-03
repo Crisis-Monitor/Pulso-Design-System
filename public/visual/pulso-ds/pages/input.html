@@ -58,19 +58,19 @@
 .pi-mono { font-family: var(--font-pulso-mono); font-feature-settings: 'tnum' 1; }
 
 /* Switch */
-.psw { position: relative; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+.psw { --input-switch-thumb-bg: #FFFFFF; position: relative; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
 .psw input { position: absolute; opacity: 0; pointer-events: none; }
 .psw-track { width: 32px; height: 18px; background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: 999px; transition: background var(--motion-duration-fast) var(--motion-easing), border-color var(--motion-duration-fast) var(--motion-easing); }
-.psw-thumb { position: absolute; left: 2px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; background: #fff; border-radius: 50%; box-shadow: var(--shadow-xs); transition: left var(--motion-duration-fast) var(--motion-easing); }
+.psw-thumb { position: absolute; left: 2px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; background: var(--input-switch-thumb-bg); border-radius: 50%; box-shadow: var(--shadow-xs); transition: left var(--motion-duration-fast) var(--motion-easing); }
 .psw input:checked + .psw-track { background: var(--primary); border-color: var(--primary); }
 .psw input:checked + .psw-track + .psw-thumb { left: 16px; }
 .psw input:focus-visible + .psw-track { outline: var(--ring-width) solid var(--ring); outline-offset: var(--ring-offset); }
 
 /* Checkbox */
-.pcb { position: relative; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+.pcb { --input-checkbox-check-fg: #FFFFFF; position: relative; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
 .pcb input { position: absolute; opacity: 0; pointer-events: none; }
 .pcb-box { width: 16px; height: 16px; background: var(--card); border: 1px solid var(--border-strong); border-radius: var(--radius-xs); display: inline-flex; align-items: center; justify-content: center; transition: background var(--motion-duration-fast) var(--motion-easing), border-color var(--motion-duration-fast) var(--motion-easing); }
-.pcb-box svg { width: 10px; height: 10px; color: #fff; opacity: 0; }
+.pcb-box svg { width: 10px; height: 10px; color: var(--input-checkbox-check-fg); opacity: 0; }
 .pcb input:checked + .pcb-box { background: var(--primary); border-color: var(--primary); }
 .pcb input:checked + .pcb-box svg { opacity: 1; }
 .pcb input:focus-visible + .pcb-box { outline: var(--ring-width) solid var(--ring); outline-offset: var(--ring-offset); }
