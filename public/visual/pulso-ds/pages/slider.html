@@ -11,7 +11,7 @@
 .psd-label { font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-subtle); }
 .psd-value { font-family: var(--font-pulso-mono); font-size: 13px; color: var(--fg-strong); font-variant-numeric: tabular-nums; }
 
-.psd { position: relative; height: 18px; display: flex; align-items: center; cursor: pointer; touch-action: none; user-select: none; }
+.psd { --slider-thumb-bg: #FFFFFF; position: relative; height: 18px; display: flex; align-items: center; cursor: pointer; touch-action: none; user-select: none; }
 .psd-track {
   position: absolute; left: 0; right: 0; height: 4px;
   background: var(--border-strong); border-radius: 2px;
@@ -24,7 +24,7 @@
 .psd-thumb {
   position: absolute;
   width: 16px; height: 16px;
-  background: #fff;
+  background: var(--slider-thumb-bg);
   border: 2px solid var(--primary);
   border-radius: 50%;
   box-shadow: 0 1px 3px rgba(0,0,0,0.18);
