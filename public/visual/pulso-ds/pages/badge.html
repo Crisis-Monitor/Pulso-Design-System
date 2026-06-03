@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="_page.css">
 <style>
 .pbg {
+  --badge-solid-fg: #FFFFFF;
   display: inline-flex; align-items: center; gap: 6px;
   font-family: var(--font-pulso-sans);
   font-size: 11.5px;
@@ -49,10 +50,10 @@
 .pbg-lg { font-size: 12.5px; padding: 5px 10px; }
 
 /* Solid (filled) variants */
-.pbg-solid-critical { background: var(--risk-critical); color: #fff; border-color: var(--risk-critical); }
-.pbg-solid-high     { background: var(--risk-high);     color: #fff; border-color: var(--risk-high); }
-.pbg-solid-success  { background: var(--success);       color: #fff; border-color: var(--success); }
-.pbg-solid-info     { background: var(--info);          color: #fff; border-color: var(--info); }
+.pbg-solid-critical { background: var(--risk-critical); color: var(--badge-solid-fg); border-color: var(--risk-critical); }
+.pbg-solid-high     { background: var(--risk-high);     color: var(--badge-solid-fg); border-color: var(--risk-high); }
+.pbg-solid-success  { background: var(--success);       color: var(--badge-solid-fg); border-color: var(--success); }
+.pbg-solid-info     { background: var(--info);          color: var(--badge-solid-fg); border-color: var(--info); }
 .pbg-solid-neutral  { background: var(--fg-strong);     color: var(--background); border-color: var(--fg-strong); }
 
 /* Counter */
