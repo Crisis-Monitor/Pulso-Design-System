@@ -67,6 +67,7 @@
 .code-block .c-num { color: var(--risk-monitor-text); }
 
 /* ── Index map ─────────────────────────────────── */
+.recipe-index { margin-bottom: var(--rhythm-comfort); }
 .idx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 12px; }
 .idx-item { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; transition: all 120ms var(--motion-easing); text-decoration: none; color: inherit; display: block; }
 .idx-item:hover { border-color: var(--primary-border); background: color-mix(in oklab, var(--primary) 4%, var(--card)); }
@@ -85,7 +86,7 @@
     <p class="page-sub">Operador não consome chart solto · consome combinações. Score + sparkline + delta. Heatmap + tooltip + legenda. Documentar a receita evita reinvenção. Dez combinações canônicas — cada uma com nome, snippet e ponto de uso no Crisis Monitor.</p>
 
     <!-- ── Index ────────────────────────────────────── -->
-    <section class="section">
+    <section class="section recipe-index">
       <h2 class="section-h1">Índice</h2>
       <div class="idx-grid">
         <a class="idx-item" href="#r-01"><div class="idx-num">01</div><div class="idx-name">TrendCard</div><div class="idx-desc">Métrica + sparkline + delta</div></a>
