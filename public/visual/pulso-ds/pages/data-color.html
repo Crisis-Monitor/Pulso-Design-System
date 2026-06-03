@@ -19,8 +19,8 @@
 
 /* ── Stacked bar demo ─────────────────────────────── */
 .stack-row { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px; display: flex; flex-direction: column; gap: 16px; }
-.stack-bar { display: flex; height: 36px; border-radius: var(--radius-sm); overflow: hidden; }
-.stack-bar > div { display: flex; align-items: center; justify-content: center; font-family: var(--font-pulso-mono); font-size: 11px; color: white; font-weight: 600; }
+.stack-bar { --stack-bar-fg: #FFFFFF; display: flex; height: 36px; border-radius: var(--radius-sm); overflow: hidden; }
+.stack-bar > div { display: flex; align-items: center; justify-content: center; font-family: var(--font-pulso-mono); font-size: 11px; color: var(--stack-bar-fg); font-weight: 600; }
 .stack-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11.5px; color: var(--fg-secondary); }
 .stack-legend .item { display: inline-flex; align-items: center; gap: 6px; }
 .stack-legend .dot { width: 9px; height: 9px; border-radius: 2px; }
