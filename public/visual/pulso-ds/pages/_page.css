@@ -17,8 +17,15 @@ body { background: var(--background); color: var(--foreground); font-family: var
 .sb-brand-name { font-weight: 700; font-size: 14px; letter-spacing: -0.01em; }
 .sb-brand-sub { font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: #7E78A0; margin-top: 2px; }
 .sb-theme { display: inline-flex; background: rgba(255,255,255,0.04); border: 1px solid var(--sidebar-border); border-radius: var(--radius-sm); padding: 2px; gap: 2px; flex-shrink: 0; }
-.sb-section { padding: 16px 20px 4px; font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: #7E78A0; }
-.sb-link { display: block; padding: 6px 20px; font-size: 13px; color: var(--sidebar-foreground); text-decoration: none; opacity: 0.75; }
+.sb-group { border-bottom: 1px solid color-mix(in oklab, var(--sidebar-border) 42%, transparent); }
+.sb-group:last-of-type { border-bottom: 0; }
+.sb-section { width: 100%; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 8px; background: transparent; border: 0; font-family: var(--font-pulso-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: #7E78A0; cursor: pointer; text-align: left; }
+.sb-section:hover { color: var(--sidebar-foreground); background: color-mix(in oklab, var(--sidebar-accent) 50%, transparent); }
+.sb-section-i { opacity: 0.65; transition: transform var(--motion-duration-fast) var(--motion-easing); }
+.sb-group[data-open="true"] .sb-section-i { transform: rotate(180deg); }
+.sb-group[data-open="false"] .sb-items { display: none; }
+.sb-items { padding: 0 0 8px; }
+.sb-link { display: block; padding: 6px 20px 6px 24px; font-size: 13px; color: var(--sidebar-foreground); text-decoration: none; opacity: 0.75; }
 .sb-link:hover { background: var(--sidebar-accent); opacity: 1; }
 .sb-link.active { background: var(--sidebar-accent); opacity: 1; box-shadow: inset 2px 0 0 var(--sidebar-primary); }
 .theme-btn { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: transparent; border: none; color: var(--sidebar-foreground); border-radius: calc(var(--radius-sm) - 2px); cursor: pointer; opacity: 0.55; transition: opacity .15s; padding: 0; }
