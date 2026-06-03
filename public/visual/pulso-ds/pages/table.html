@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../globals.css">
 <link rel="stylesheet" href="_page.css">
 <style>
-.ptbl-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.ptbl-wrap { --table-checkbox-check-fg: #FFFFFF; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
 .ptbl { width: 100%; border-collapse: collapse; font-size: 13px; font-family: var(--font-pulso-sans); }
 .ptbl thead th { text-align: left; font-family: var(--font-pulso-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-subtle); font-weight: 500; padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--surface-2); white-space: nowrap; user-select: none; }
 .ptbl thead th.sortable { cursor: pointer; }
@@ -82,7 +82,7 @@
 /* Checkbox */
 .tcb { width: 14px; height: 14px; border: 1px solid var(--border-strong); border-radius: var(--radius-xs); background: var(--card); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
 .tcb.is-checked { background: var(--primary); border-color: var(--primary); }
-.tcb.is-checked svg { width: 9px; height: 9px; color: #fff; }
+.tcb.is-checked svg { width: 9px; height: 9px; color: var(--table-checkbox-check-fg); }
 .tcb svg { display: none; }
 .tcb.is-checked svg { display: block; }
 
