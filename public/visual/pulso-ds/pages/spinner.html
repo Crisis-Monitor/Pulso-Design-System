@@ -32,12 +32,15 @@
 
 .label-row { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg-secondary); }
 .label-row.on-dark {
-  --spinner-inverse-demo-bg: #11101A;
+  --spinner-inverse-demo-bg: #0D0B16;
   --spinner-inverse-demo-fg: #FFFFFF;
+  --spinner-inverse-demo-border: rgba(255,255,255,0.10);
   padding: 8px 14px;
   background: var(--spinner-inverse-demo-bg);
+  border: 1px solid var(--spinner-inverse-demo-border);
   color: var(--spinner-inverse-demo-fg);
   border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-xs);
 }
 
 .size-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 24px; align-items: end; }
