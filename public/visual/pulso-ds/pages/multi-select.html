@@ -88,6 +88,7 @@
 .sel-bar.scope-filter .sel-action.destructive { background: color-mix(in oklab, var(--primary-foreground) 10%, transparent); color: var(--primary-foreground); border-color: color-mix(in oklab, var(--primary-foreground) 34%, transparent); }
 .sel-bar.scope-filter .sel-clear { color: color-mix(in oklab, var(--primary-foreground) 80%, transparent); }
 .sel-bar.scope-filter .sel-kbd { background: color-mix(in oklab, var(--primary-foreground) 18%, transparent); color: var(--primary-foreground); border-color: color-mix(in oklab, var(--primary-foreground) 28%, transparent); }
+.sel-bar.scope-filter .ms-cb.on { --multi-select-scope-checkbox-bg: #FFFFFF; background: var(--multi-select-scope-checkbox-bg); color: var(--primary); }
 
 /* Range hint */
 .range-hint { background: color-mix(in oklab, var(--primary) 8%, var(--card)); border: 1px solid var(--primary-border); padding: 10px 16px; display: flex; gap: 14px; align-items: center; font-size: 12.5px; color: var(--fg); border-radius: 0 0 var(--radius-md) var(--radius-md); }
@@ -232,7 +233,7 @@ kbd.k { display: inline-block; font-family: var(--font-pulso-mono); font-size: 1
       <!-- Phase 3: all on filter -->
       <h3 style="font-size:13px;font-weight:600;color:var(--fg-strong);margin-top:24px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em;">Fase 3 · todos do filtro · escopo expandido</h3>
       <div class="sel-bar scope-filter">
-        <div><div class="ms-cb on" style="background:white;color:var(--primary);"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 10-10"/></svg></div></div>
+        <div><div class="ms-cb on"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 10-10"/></svg></div></div>
         <span class="sel-count">142 selecionados <span>· todos do filtro atual</span></span>
         <div class="sel-divider"></div>
         <button class="sel-action">Escalar</button>
