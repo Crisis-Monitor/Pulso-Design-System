@@ -14,7 +14,7 @@
 .psp-xl { width: 48px; height: 48px; border-width: 3.5px; }
 .psp-on-fg { border-color: var(--border-faint); border-top-color: var(--fg); }
 .psp-on-mute { border-color: color-mix(in oklab, var(--fg-muted) 20%, transparent); border-top-color: var(--fg-muted); }
-.psp-inverse { border-color: rgba(255,255,255,0.18); border-top-color: #fff; }
+.psp-inverse { --spinner-inverse-track: rgba(255,255,255,0.18); --spinner-inverse-fg: #FFFFFF; border-color: var(--spinner-inverse-track); border-top-color: var(--spinner-inverse-fg); }
 
 @keyframes psp-rot { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
