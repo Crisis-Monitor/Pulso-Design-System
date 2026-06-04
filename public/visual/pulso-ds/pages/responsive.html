@@ -60,9 +60,9 @@
 .tb-row .ta { font-family: var(--font-pulso-mono); font-size: 9px; text-align: center; padding: 1px 4px; border-radius: 3px; }
 
 /* Desktop mockup */
-.dt-sidebar { width: 50px; background: #0F0C1A; border-radius: var(--radius-xs); display: flex; flex-direction: column; gap: 6px; padding: 10px 8px; align-items: center; }
-.dt-sidebar > div { width: 26px; height: 26px; border-radius: 5px; background: rgba(255,255,255,0.06); }
-.dt-sidebar > div.active { background: rgba(138, 99, 255, 0.3); }
+.dt-sidebar { --responsive-desktop-sidebar-bg: #0F0C1A; --responsive-desktop-sidebar-item-bg: rgba(255,255,255,0.06); --responsive-desktop-sidebar-active-bg: rgba(138, 99, 255, 0.3); width: 50px; background: var(--responsive-desktop-sidebar-bg); border-radius: var(--radius-xs); display: flex; flex-direction: column; gap: 6px; padding: 10px 8px; align-items: center; }
+.dt-sidebar > div { width: 26px; height: 26px; border-radius: 5px; background: var(--responsive-desktop-sidebar-item-bg); }
+.dt-sidebar > div.active { background: var(--responsive-desktop-sidebar-active-bg); }
 .dt-row { display: grid; grid-template-columns: 50px 1fr; gap: 12px; min-height: 100%; }
 .dt-main { display: flex; flex-direction: column; gap: 10px; }
 .dt-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
