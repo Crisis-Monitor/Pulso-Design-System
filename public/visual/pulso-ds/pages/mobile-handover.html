@@ -28,8 +28,9 @@
 
 /* Mini phone */
 .mini-phone {
+  --mobile-handover-phone-shell-bg: #0f0c1a;
   width: 200px; height: 410px;
-  background: #0f0c1a; border-radius: 30px; padding: 7px;
+  background: var(--mobile-handover-phone-shell-bg); border-radius: 30px; padding: 7px;
   position: relative; margin: 0 auto;
 }
 .mini-phone .screen {
@@ -38,7 +39,7 @@
 }
 .mini-phone .notch {
   position: absolute; top: 9px; left: 50%; transform: translateX(-50%);
-  width: 56px; height: 14px; background: #0f0c1a; border-radius: 10px; z-index: 4;
+  width: 56px; height: 14px; background: var(--mobile-handover-phone-shell-bg); border-radius: 10px; z-index: 4;
 }
 .mini-phone-content {
   position: absolute; top: 30px; left: 0; right: 0; bottom: 0;
