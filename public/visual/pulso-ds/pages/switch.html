@@ -190,5 +190,16 @@ input:checked + .psw-lg::after { transform: translateX(18px); }
 </div>
 
 <script src="../_nav.js"></script>
+<script>
+  document.querySelectorAll(".psw-row input[type=\"checkbox\"], .psw-field input[type=\"checkbox\"]").forEach((input) => {
+    const syncSwitchState = () => {
+      input.setAttribute("role", "switch");
+      input.setAttribute("aria-checked", String(input.checked));
+    };
+
+    syncSwitchState();
+    input.addEventListener("change", syncSwitchState);
+  });
+</script>
 </body>
 </html>
