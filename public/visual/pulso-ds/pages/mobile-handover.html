@@ -120,9 +120,9 @@
 }
 .browser-dots { display: flex; gap: 5px; }
 .browser-dots .d { width: 10px; height: 10px; border-radius: 50%; }
-.browser-dots .d.r { background: #ff5f57; }
-.browser-dots .d.y { background: #febc2e; }
-.browser-dots .d.g { background: #28c840; }
+.browser-dots .d.r { --mobile-handover-browser-dot-red: #ff5f57; background: var(--mobile-handover-browser-dot-red); }
+.browser-dots .d.y { --mobile-handover-browser-dot-yellow: #febc2e; background: var(--mobile-handover-browser-dot-yellow); }
+.browser-dots .d.g { --mobile-handover-browser-dot-green: #28c840; background: var(--mobile-handover-browser-dot-green); }
 .browser-url {
   flex: 1; background: var(--card); border: 1px solid var(--border-faint);
   border-radius: 6px; padding: 4px 10px;
