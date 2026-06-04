@@ -209,5 +209,17 @@ input:disabled ~ .prd-content { color: var(--fg-disabled); cursor: not-allowed; 
 </div>
 
 <script src="../_nav.js"></script>
+<script>
+  function syncRadioCards(groupName) {
+    document.querySelectorAll(`.prd-card input[type="radio"][name="${groupName}"]`).forEach((input) => {
+      input.closest(".prd-card")?.classList.toggle("is-checked", input.checked);
+    });
+  }
+
+  document.querySelectorAll(".prd-card input[type=\"radio\"]").forEach((input) => {
+    syncRadioCards(input.name);
+    input.addEventListener("change", () => syncRadioCards(input.name));
+  });
+</script>
 </body>
 </html>
