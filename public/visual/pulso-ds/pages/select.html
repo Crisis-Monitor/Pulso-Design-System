@@ -296,18 +296,65 @@
 </div>
 
 <script>
+const selects = [...document.querySelectorAll('.psl')];
+
+function setOpen(psl, open) {
+  if (!psl || psl.getAttribute('aria-disabled') === 'true') return;
+  const hasPanel = Boolean(psl.querySelector('.psl-panel'));
+  const isOpen = hasPanel && open;
+  psl.dataset.open = isOpen ? 'true' : 'false';
+  const trigger = psl.querySelector('.psl-trigger');
+  const panel = psl.querySelector('.psl-panel');
+  if (trigger) {
+    trigger.setAttribute('aria-haspopup', hasPanel ? 'listbox' : 'false');
+    trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  }
+  if (panel) panel.hidden = !isOpen;
+}
+
+function closeAll(except) {
+  selects.forEach(psl => {
+    if (psl !== except) setOpen(psl, false);
+  });
+}
+
+// Initialize accessible state for demo selects.
+selects.forEach(psl => {
+  const panel = psl.querySelector('.psl-panel');
+  if (panel) {
+    panel.querySelectorAll('.psl-opt').forEach(opt => opt.setAttribute('role', 'option'));
+  }
+  setOpen(psl, psl.dataset.open === 'true');
+});
+
 // Toggle open state on triggers (demo only — closes on outside click)
 document.querySelectorAll('.psl-trigger').forEach(t => {
   t.addEventListener('click', e => {
     e.stopPropagation();
     const psl = t.closest('.psl');
     const wasOpen = psl.dataset.open === 'true';
-    document.querySelectorAll('.psl').forEach(p => p.dataset.open = 'false');
-    psl.dataset.open = wasOpen ? 'false' : 'true';
+    closeAll(psl);
+    setOpen(psl, !wasOpen);
+  });
+
+  t.addEventListener('keydown', e => {
+    const psl = t.closest('.psl');
+    if (e.key === 'Escape') {
+      setOpen(psl, false);
+      return;
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      closeAll(psl);
+      setOpen(psl, true);
+      const selected = psl.querySelector('.psl-opt[aria-selected="true"]');
+      const first = psl.querySelector('.psl-opt');
+      (selected || first)?.scrollIntoView({ block: 'nearest' });
+    }
   });
 });
 document.addEventListener('click', () => {
-  document.querySelectorAll('.psl').forEach(p => p.dataset.open = 'false');
+  closeAll();
 });
 // Selecting an option (single)
 document.querySelectorAll('.psl-single .psl-opt').forEach(opt => {
@@ -324,7 +371,8 @@ document.querySelectorAll('.psl-single .psl-opt').forEach(opt => {
       val.textContent = opt.textContent.replace(/\s+(Ctrl|0–19|20–39|40–59|60–79|80–100|PM|Lead|Sr\.).*$/, '').trim();
       trigger.classList.remove('is-placeholder');
     }
-    psl.dataset.open = 'false';
+    setOpen(psl, false);
+    trigger?.focus();
   });
 });
 </script>
