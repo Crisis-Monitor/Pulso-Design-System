@@ -71,13 +71,31 @@ input:disabled ~ .prd-content { color: var(--fg-disabled); cursor: not-allowed; 
 /* Segmented control (radio styled as button group) */
 .prd-segment {
   display: inline-flex;
+  position: relative;
   padding: 3px;
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.prd-segment::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 0;
+  width: var(--segment-indicator-width, 0);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  box-shadow: var(--shadow-xs);
+  transform: translateX(var(--segment-indicator-x, 3px));
+  transition:
+    transform var(--motion-duration-default) var(--motion-easing),
+    width var(--motion-duration-default) var(--motion-easing);
 }
 .prd-segment label {
   position: relative;
+  z-index: 1;
   padding: 6px 14px;
   font-size: 12.5px;
   font-weight: 500;
@@ -89,9 +107,7 @@ input:disabled ~ .prd-content { color: var(--fg-disabled); cursor: not-allowed; 
 .prd-segment label:hover { color: var(--fg); }
 .prd-segment input { position: absolute; opacity: 0; pointer-events: none; }
 .prd-segment label:has(input:checked) {
-  background: var(--card);
   color: var(--fg-strong);
-  box-shadow: var(--shadow-xs);
   font-weight: 600;
 }
 </style>
@@ -219,6 +235,25 @@ input:disabled ~ .prd-content { color: var(--fg-disabled); cursor: not-allowed; 
   document.querySelectorAll(".prd-card input[type=\"radio\"]").forEach((input) => {
     syncRadioCards(input.name);
     input.addEventListener("change", () => syncRadioCards(input.name));
+  });
+
+  function syncSegmentIndicator(segment) {
+    const checkedInput = segment.querySelector("input[type=\"radio\"]:checked");
+    const checkedLabel = checkedInput?.closest("label");
+    if (!checkedLabel) return;
+
+    segment.style.setProperty("--segment-indicator-x", `${checkedLabel.offsetLeft}px`);
+    segment.style.setProperty("--segment-indicator-width", `${checkedLabel.offsetWidth}px`);
+  }
+
+  document.querySelectorAll(".prd-segment").forEach((segment) => {
+    syncSegmentIndicator(segment);
+
+    segment.querySelectorAll("input[type=\"radio\"]").forEach((input) => {
+      input.addEventListener("change", () => syncSegmentIndicator(segment));
+    });
+
+    window.addEventListener("resize", () => syncSegmentIndicator(segment));
   });
 </script>
 </body>
