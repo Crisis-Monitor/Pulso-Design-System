@@ -189,7 +189,9 @@ input:disabled ~ .pcb-content { color: var(--fg-disabled); cursor: not-allowed; 
 
 <script>
 // Indeterminate demo
-document.getElementById('cb-ind').indeterminate = true;
+const indeterminateDemo = document.getElementById('cb-ind');
+indeterminateDemo.indeterminate = true;
+indeterminateDemo.setAttribute('aria-checked', 'mixed');
 
 // Tree behavior — selecionar tudo
 (function() {
@@ -202,13 +204,25 @@ document.getElementById('cb-ind').indeterminate = true;
     const checked = children.filter(c => c.checked).length;
     parent.checked = checked === children.length;
     parent.indeterminate = checked > 0 && checked < children.length;
+    parent.setAttribute('aria-checked', parent.indeterminate ? 'mixed' : String(parent.checked));
+    children.forEach(child => child.setAttribute('aria-checked', String(child.checked)));
   }
   parent.addEventListener('change', () => {
     children.forEach(c => c.checked = parent.checked);
+    syncParent();
   });
   children.forEach(c => c.addEventListener('change', syncParent));
   syncParent();
 })();
+
+// Card variant — keep visual state in sync with native checkbox state.
+document.querySelectorAll('.pcb-card').forEach(card => {
+  const input = card.querySelector('input[type="checkbox"]');
+  if (!input) return;
+  const syncCard = () => card.classList.toggle('is-checked', input.checked);
+  input.addEventListener('change', syncCard);
+  syncCard();
+});
 </script>
 <script src="../_nav.js"></script>
 </body>
