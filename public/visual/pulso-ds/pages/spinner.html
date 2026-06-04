@@ -31,7 +31,14 @@
 @keyframes psp-bar { 0% { left: -30%; } 100% { left: 100%; } }
 
 .label-row { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg-secondary); }
-.label-row.on-dark { padding: 8px 14px; background: var(--fg-strong); color: var(--background); border-radius: var(--radius-sm); }
+.label-row.on-dark {
+  --spinner-inverse-demo-bg: #11101A;
+  --spinner-inverse-demo-fg: #FFFFFF;
+  padding: 8px 14px;
+  background: var(--spinner-inverse-demo-bg);
+  color: var(--spinner-inverse-demo-fg);
+  border-radius: var(--radius-sm);
+}
 
 .size-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 24px; align-items: end; }
 .size-cell { display: flex; flex-direction: column; align-items: center; gap: 8px; }
