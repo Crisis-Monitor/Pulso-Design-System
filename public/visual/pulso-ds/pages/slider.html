@@ -216,20 +216,32 @@ document.querySelectorAll('.psd-wrap').forEach(wrap => {
   const step = parseFloat(wrap.dataset.step || '1');
 
   let dragging = false;
-  function setFromX(clientX) {
-    const r = psd.getBoundingClientRect();
-    let pct = Math.max(0, Math.min(1, (clientX - r.left) / r.width));
-    let raw = min + pct * (max - min);
+  function setValue(raw) {
+    raw = Math.max(min, Math.min(max, raw));
     raw = Math.round(raw / step) * step;
-    pct = (raw - min) / (max - min);
+    const pct = (raw - min) / (max - min);
     thumb.style.left = (pct * 100) + '%';
     fill.style.width = (pct * 100) + '%';
+    psd.dataset.value = String(raw);
+    psd.setAttribute('aria-valuenow', String(raw));
     if (valueEl) {
       const suffix = valueEl.textContent.includes('/') ? ' / ' + max : '';
       valueEl.textContent = (Math.round(raw * 100) / 100) + suffix;
     }
     if (bubble) bubble.textContent = Math.round(raw);
   }
+  function setFromX(clientX) {
+    const r = psd.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (clientX - r.left) / r.width));
+    setValue(min + pct * (max - min));
+  }
+
+  psd.setAttribute('role', 'slider');
+  psd.setAttribute('aria-valuemin', String(min));
+  psd.setAttribute('aria-valuemax', String(max));
+  psd.setAttribute('aria-valuenow', psd.dataset.value || String(min));
+  psd.setAttribute('aria-label', wrap.querySelector('.psd-label')?.textContent?.trim() || 'Slider');
+
   psd.addEventListener('pointerdown', e => {
     dragging = true; psd.classList.add('is-active');
     psd.setPointerCapture(e.pointerId);
@@ -238,6 +250,26 @@ document.querySelectorAll('.psd-wrap').forEach(wrap => {
   psd.addEventListener('pointermove', e => { if (dragging) setFromX(e.clientX); });
   psd.addEventListener('pointerup', e => { dragging = false; psd.classList.remove('is-active'); });
   psd.addEventListener('pointercancel', () => { dragging = false; psd.classList.remove('is-active'); });
+  psd.addEventListener('keydown', e => {
+    const current = parseFloat(psd.dataset.value || String(min));
+    const largeStep = step * 10;
+    const keyMap = {
+      ArrowLeft: current - step,
+      ArrowDown: current - step,
+      ArrowRight: current + step,
+      ArrowUp: current + step,
+      PageDown: current - largeStep,
+      PageUp: current + largeStep,
+      Home: min,
+      End: max,
+    };
+
+    if (!(e.key in keyMap)) return;
+    e.preventDefault();
+    psd.classList.add('is-active');
+    setValue(keyMap[e.key]);
+  });
+  psd.addEventListener('blur', () => psd.classList.remove('is-active'));
 });
 </script>
 <script src="../_nav.js"></script>
