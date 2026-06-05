@@ -5,16 +5,112 @@ description: Seletor de data e range para filtros, relatórios e agendamentos.
 
 # Calendar
 
-> **Atom / date primitive**
->
-> Calendar resolve data. DatePicker resolve a experiência de escolher data dentro de um popover/trigger.
+Calendar resolve data. DatePicker resolve a experiência de escolher data dentro de um popover/trigger.
 
 Use Calendar para seleção de data em filtros temporais, relatórios, agendamentos, data de incidente e deadlines. Para produto, ele normalmente aparece como DatePicker: trigger de 36px, ícone de calendário e popover com calendário.
 
-## Import
+## Blueprint React copiável
+
+Este repo documenta o Pulso DS; ele ainda não publica uma biblioteca runtime. Use o exemplo abaixo como blueprint de implementação no produto.
 
 ```tsx
-import { Calendar } from "@/components/ui/calendar"
+import * as React from "react";
+
+type CalendarDay = {
+  date: Date;
+  outside?: boolean;
+  disabled?: boolean;
+};
+
+type PulsoCalendarProps = {
+  label: string;
+  monthLabel: string;
+  days: CalendarDay[];
+  selectedDate?: Date;
+  onSelectDate: (date: Date) => void;
+};
+
+const formatter = new Intl.DateTimeFormat("pt-BR", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+});
+
+function isSameDay(a?: Date, b?: Date) {
+  return Boolean(
+    a &&
+    b &&
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate(),
+  );
+}
+
+export function PulsoCalendar({
+  label,
+  monthLabel,
+  days,
+  selectedDate,
+  onSelectDate,
+}: PulsoCalendarProps) {
+  return (
+    <section aria-label={label} className="w-[280px] rounded-[var(--radius-md)] border border-[var(--border-strong)] bg-[var(--popover)] p-3 shadow-[var(--shadow-md)]">
+      <header className="mb-3 flex items-center justify-between gap-3">
+        <h2 className="text-sm font-semibold text-[var(--fg-strong)]">{monthLabel}</h2>
+        <span className="font-mono text-[10px] uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-subtle)]">
+          {selectedDate ? formatter.format(selectedDate) : "Sem data"}
+        </span>
+      </header>
+
+      <div className="grid grid-cols-7 gap-0.5 text-center font-mono text-[10px] uppercase tracking-[0.05em] text-[var(--fg-subtle)]">
+        {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((dayName, index) => (
+          <div key={`${dayName}-${index}`}>{dayName}</div>
+        ))}
+      </div>
+
+      <div className="mt-1 grid grid-cols-7 gap-0.5" role="grid" aria-label={monthLabel}>
+        {days.map((day) => {
+          const selected = isSameDay(day.date, selectedDate);
+
+          return (
+            <button
+              key={day.date.toISOString()}
+              type="button"
+              disabled={day.disabled}
+              aria-selected={selected}
+              onClick={() => onSelectDate(day.date)}
+              className={[
+                "h-8 rounded-[var(--radius-sm)] text-xs tabular-nums transition-colors duration-[var(--motion-duration-fast)] ease-[var(--motion-easing)]",
+                "focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]",
+                selected
+                  ? "bg-[var(--primary)] font-semibold text-[var(--primary-foreground)]"
+                  : "text-[var(--fg)] hover:bg-[var(--muted)]",
+                day.outside ? "text-[var(--fg-disabled)]" : "",
+                day.disabled ? "cursor-not-allowed opacity-50" : "",
+              ].filter(Boolean).join(" ")}
+            >
+              {day.date.getDate()}
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+```
+
+## Uso
+
+```tsx
+const [selectedDate, setSelectedDate] = React.useState(new Date(2026, 4, 14));
+
+<PulsoCalendar
+  label="Data do incidente"
+  monthLabel="Maio 2026"
+  selectedDate={selectedDate}
+  onSelectDate={setSelectedDate}
+  days={daysForMay2026}
+/>
 ```
 
 ## DatePicker contract
@@ -35,14 +131,6 @@ import { Calendar } from "@/components/ui/calendar"
 - Revisão de períodos de auditoria.
 
 Não use Calendar quando a escolha é uma das poucas opções fixas. Para `24h / 7d / 30d`, use segmented/radio. Para hora isolada, use input de horário específico.
-
-## Single date vs range
-
-| Modo | Uso | Regra |
-|---|---|---|
-| Single date | Incidente, deadline, agendamento | Valor único e claro |
-| Range | Dashboard, relatório, auditoria | Presets para últimos 7/30 dias, este mês, trimestre |
-| Relative period | Consulta rápida e frequente | Prefira segmented control |
 
 ## Regras
 
