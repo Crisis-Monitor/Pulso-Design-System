@@ -1,56 +1,110 @@
 ---
 title: Select
-description: Dropdown de seleção com suporte a busca, grupos e placeholder.
+description: Seleção entre opções conhecidas quando o espaço é limitado.
 ---
 
 # Select
 
-Menu dropdown para selecionar uma opção de uma lista.
+Select permite escolher uma opção entre valores conhecidos. Use quando há mais opções do que caberia bem em `Radio Group` ou quando o espaço da interface é limitado.
 
-## Import
+Para 2–5 opções que precisam ser comparadas visualmente, prefira `Radio Group`. Para múltipla escolha, use `Checkbox` ou `Multi-select`.
 
-```tsx
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from "@/components/ui/select"
-```
+## Blueprint React copiável
 
-## Uso básico
+Este repo documenta o Pulso DS; ele ainda não publica uma biblioteca runtime. Use o exemplo abaixo como blueprint de implementação no produto.
 
 ```tsx
-<Select>
-  <SelectTrigger className="w-[180px]">
-    <SelectValue placeholder="Status" />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectItem value="active">Ativa</SelectItem>
-    <SelectItem value="resolved">Resolvida</SelectItem>
-    <SelectItem value="archived">Arquivada</SelectItem>
-  </SelectContent>
-</Select>
+import * as React from "react";
+
+type SelectOption = {
+  value: string;
+  label: string;
+  disabled?: boolean;
+};
+
+type PulsoSelectProps = Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "children"> & {
+  label: string;
+  placeholder?: string;
+  description?: string;
+  options: SelectOption[];
+};
+
+export function PulsoSelect({
+  id,
+  label,
+  placeholder = "Selecione…",
+  description,
+  options,
+  className,
+  ...props
+}: PulsoSelectProps) {
+  const reactId = React.useId();
+  const selectId = id ?? reactId;
+  const descriptionId = description ? `${selectId}-description` : undefined;
+
+  return (
+    <div className="grid gap-1.5">
+      <label
+        htmlFor={selectId}
+        className="font-mono text-[10.5px] uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-subtle)]"
+      >
+        {label}
+      </label>
+
+      <select
+        id={selectId}
+        aria-describedby={descriptionId}
+        className={[
+          "h-9 rounded-[var(--radius-md)] border border-[var(--border-strong)] bg-[var(--card)] px-3 text-sm text-[var(--fg)]",
+          "transition-colors duration-[var(--motion-duration-fast)] ease-[var(--motion-easing)]",
+          "focus-visible:border-[var(--primary)] focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]",
+          "disabled:cursor-not-allowed disabled:text-[var(--fg-disabled)] disabled:opacity-60",
+          className,
+        ].filter(Boolean).join(" ")}
+        {...props}
+      >
+        <option value="" disabled>
+          {placeholder}
+        </option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value} disabled={option.disabled}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+
+      {description ? (
+        <p id={descriptionId} className="text-xs text-[var(--fg-muted)]">
+          {description}
+        </p>
+      ) : null}
+    </div>
+  );
+}
 ```
 
-## Com grupos
+## Uso
 
 ```tsx
-<Select>
-  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-  <SelectContent>
-    <SelectGroup>
-      <SelectLabel>Prioridade</SelectLabel>
-      <SelectItem value="low">Baixa</SelectItem>
-      <SelectItem value="medium">Média</SelectItem>
-      <SelectItem value="high">Alta</SelectItem>
-    </SelectGroup>
-  </SelectContent>
-</Select>
+<PulsoSelect
+  label="Status do caso"
+  placeholder="Selecione um status"
+  defaultValue="monitor"
+  description="Use Crítico apenas quando há impacto operacional confirmado."
+  options={[
+    { value: "stable", label: "Estável" },
+    { value: "monitor", label: "Monitor" },
+    { value: "attention", label: "Atenção" },
+    { value: "high", label: "Alto" },
+    { value: "critical", label: "Crítico" },
+  ]}
+/>
 ```
 
-## Quando usar
+## Regras
 
-- Seleção entre 3+ opções
-- Quando espaço é limitado
-- Para filtros em dashboards
-
-## Acessibilidade
-
-- Navegação por teclado (setas, Enter, ESC)
-- Busca por digitação (typeahead)
+- Use para seleção única entre opções conhecidas.
+- Mais de 5 opções tende a Select; 2–5 opções visíveis tendem a Radio.
+- O placeholder não substitui o label.
+- Agrupe ou busque opções quando a lista ficar longa.
+- Para risco operacional, use a escala `stable / monitor / attention / high / critical`.

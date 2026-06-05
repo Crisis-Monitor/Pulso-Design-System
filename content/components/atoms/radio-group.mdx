@@ -5,32 +5,107 @@ description: Escolha exclusiva entre poucas opções visíveis.
 
 # Radio Group
 
-> **Atom / selection primitive**
->
-> Radio é escolha exclusiva: exatamente uma opção do grupo.
+Radio é escolha exclusiva: exatamente uma opção do grupo. Use quando todas as opções precisam estar visíveis para comparação e o conjunto é pequeno.
 
-Use Radio Group quando todas as opções precisam estar visíveis para comparação e o conjunto é pequeno. Se houver muitas opções, hierarquia complexa ou busca, use Select.
+Se houver muitas opções, hierarquia complexa ou busca, use `Select`. Para múltipla escolha, use `Checkbox`. Para liga/desliga imediato, use `Switch`.
 
-## Import
+## Blueprint React copiável
+
+Este repo documenta o Pulso DS; ele ainda não publica uma biblioteca runtime. Use o exemplo abaixo como blueprint de implementação no produto.
 
 ```tsx
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import * as React from "react";
+
+type RadioOption = {
+  value: string;
+  label: string;
+  description?: string;
+};
+
+type PulsoRadioGroupProps = {
+  legend: string;
+  name: string;
+  options: RadioOption[];
+  defaultValue?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+};
+
+export function PulsoRadioGroup({
+  legend,
+  name,
+  options,
+  defaultValue,
+  value,
+  onChange,
+}: PulsoRadioGroupProps) {
+  return (
+    <fieldset className="grid gap-3">
+      <legend className="font-mono text-[10.5px] uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-subtle)]">
+        {legend}
+      </legend>
+
+      <div className="grid gap-2" role="radiogroup" aria-label={legend}>
+        {options.map((option) => {
+          const optionId = `${name}-${option.value}`;
+          const descriptionId = option.description ? `${optionId}-description` : undefined;
+
+          return (
+            <label key={option.value} htmlFor={optionId} className="inline-flex cursor-pointer select-none items-start gap-2.5">
+              <input
+                id={optionId}
+                type="radio"
+                name={name}
+                value={option.value}
+                defaultChecked={defaultValue === option.value}
+                checked={value ? value === option.value : undefined}
+                onChange={() => onChange?.(option.value)}
+                aria-describedby={descriptionId}
+                className="mt-0.5 h-4 w-4 accent-[var(--primary)] focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
+              />
+
+              <span className="grid gap-0.5">
+                <span className="text-sm font-medium text-[var(--fg-strong)]">{option.label}</span>
+                {option.description ? (
+                  <span id={descriptionId} className="text-xs text-[var(--fg-muted)]">
+                    {option.description}
+                  </span>
+                ) : null}
+              </span>
+            </label>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}
 ```
 
-## Uso básico
+## Uso
 
 ```tsx
-<RadioGroup defaultValue="daily">
-  <div className="flex items-center space-x-2">
-    <RadioGroupItem value="daily" id="daily" />
-    <Label htmlFor="daily">Diário</Label>
-  </div>
-  <div className="flex items-center space-x-2">
-    <RadioGroupItem value="weekly" id="weekly" />
-    <Label htmlFor="weekly">Semanal</Label>
-  </div>
-</RadioGroup>
+<PulsoRadioGroup
+  legend="Modo de alerta"
+  name="alert-mode"
+  defaultValue="grouped"
+  options={[
+    {
+      value: "immediate",
+      label: "Imediato",
+      description: "Notifica no momento em que o sinal cruzar o limiar.",
+    },
+    {
+      value: "grouped",
+      label: "Agrupado · 15 min",
+      description: "Consolida sinais para reduzir ruído operacional.",
+    },
+    {
+      value: "daily",
+      label: "Diário · 08:00",
+      description: "Apenas resumo no início do expediente.",
+    },
+  ]}
+/>
 ```
 
 ## Quando usar
@@ -41,8 +116,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 - Escolhas com consequência operacional clara.
 - Segmented control para opções curtas e frequentes.
 
-Não use Radio para múltipla escolha; use Checkbox. Não use para on/off simples; use Switch.
-
 ## Variantes
 
 | Variante | Uso | Regra |
@@ -51,22 +124,6 @@ Não use Radio para múltipla escolha; use Checkbox. Não use para on/off simple
 | Com descrição | Opções com consequência | Explique impacto operacional |
 | Card | 2–4 escolhas com peso | Facilita comparação |
 | Segmented | 2–4 opções curtas e frequentes | Bom para período, modo, escala |
-
-## Radio vs Select vs Checkbox
-
-| Componente | Uso |
-|---|---|
-| Radio | Uma escolha entre poucas opções visíveis |
-| Select | Muitas opções ou opções com hierarquia |
-| Checkbox | Múltipla escolha ou boolean independente |
-| Switch | Liga/desliga imediato |
-
-## Acessibilidade
-
-- Navegação por setas dentro do grupo.
-- Label sempre associado via `htmlFor`.
-- Estado selecionado precisa ser programático, não apenas visual.
-- Descrição deve ser lida junto da opção quando informa consequência.
 
 ## Regras
 
