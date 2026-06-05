@@ -238,5 +238,52 @@
 </div>
 
 <script src="../_nav.js"></script>
+<script>
+  const singleDateTrigger = document.querySelector(".pdp-field:first-child .pdp-trigger span");
+  const singleDateCalendar = document.querySelector(".pdp-cal:not(.range)");
+  const singleDateDays = singleDateCalendar?.querySelectorAll(".pdp-day:not(.outside):not(.disabled)") ?? [];
+
+  singleDateDays.forEach((day) => {
+    day.setAttribute("role", "button");
+    day.setAttribute("tabindex", "0");
+    day.setAttribute("aria-selected", String(day.classList.contains("selected")));
+
+    const selectDay = () => {
+      singleDateDays.forEach((otherDay) => {
+        otherDay.classList.remove("selected");
+        otherDay.setAttribute("aria-selected", "false");
+      });
+
+      day.classList.add("selected");
+      day.setAttribute("aria-selected", "true");
+
+      if (singleDateTrigger) {
+        singleDateTrigger.textContent = `${day.textContent?.trim()} mai 2026`;
+      }
+    };
+
+    day.addEventListener("click", selectDay);
+    day.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      selectDay();
+    });
+  });
+
+  document.querySelectorAll(".pdp-preset").forEach((preset) => {
+    preset.setAttribute("aria-pressed", String(preset.classList.contains("active")));
+
+    preset.addEventListener("click", () => {
+      const footer = preset.closest(".pdp-foot");
+      footer?.querySelectorAll(".pdp-preset").forEach((otherPreset) => {
+        otherPreset.classList.remove("active");
+        otherPreset.setAttribute("aria-pressed", "false");
+      });
+
+      preset.classList.add("active");
+      preset.setAttribute("aria-pressed", "true");
+    });
+  });
+</script>
 </body>
 </html>
