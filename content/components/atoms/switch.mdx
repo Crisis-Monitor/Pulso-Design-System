@@ -1,32 +1,82 @@
-# Switch
-
-> Toggle booleano visual para ligar/desligar configuracoes.
-
+---
+title: Switch
+description: Toggle booleano para ligar ou desligar um comportamento imediato.
 ---
 
-## Props
+# Switch
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+Switch é uma chave binária para comportamento reversível com efeito imediato: ativar notificações, modo de visualização, auto-save ou preferências pessoais.
+
+Use `Checkbox` quando a decisão faz parte de um formulário ou seleção em lote. Use `Switch` quando a mudança acontece agora.
+
+## Blueprint React copiável
+
+Este repo documenta o Pulso DS; ele ainda não publica uma biblioteca runtime. Use o exemplo abaixo como blueprint de implementação no produto.
+
+```tsx
+import * as React from "react";
+
+type PulsoSwitchProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> & {
+  label: string;
+  description?: string;
+};
+
+export function PulsoSwitch({ id, label, description, checked, defaultChecked, onChange, ...props }: PulsoSwitchProps) {
+  const reactId = React.useId();
+  const switchId = id ?? reactId;
+  const descriptionId = description ? `${switchId}-description` : undefined;
+
+  return (
+    <label className="flex cursor-pointer select-none items-start justify-between gap-6">
+      <span className="grid gap-0.5">
+        <span className="text-sm font-medium text-[var(--fg-strong)]">{label}</span>
+        {description ? (
+          <span id={descriptionId} className="text-xs text-[var(--fg-muted)]">
+            {description}
+          </span>
+        ) : null}
+      </span>
+
+      <input
+        id={switchId}
+        type="checkbox"
+        role="switch"
+        checked={checked}
+        defaultChecked={defaultChecked}
+        onChange={onChange}
+        aria-describedby={descriptionId}
+        className="peer sr-only"
+        {...props}
+      />
+
+      <span
+        aria-hidden="true"
+        className={[
+          "relative mt-0.5 h-[18px] w-8 shrink-0 rounded-full bg-[var(--border-strong)] transition-colors duration-[var(--motion-duration-default)] ease-[var(--motion-easing)]",
+          "after:absolute after:left-0.5 after:top-0.5 after:h-3.5 after:w-3.5 after:rounded-full after:bg-white after:shadow-sm after:transition-transform after:duration-[var(--motion-duration-default)] after:ease-[var(--motion-easing)]",
+          "peer-checked:bg-[var(--primary)] peer-checked:after:translate-x-3.5",
+          "peer-focus-visible:outline peer-focus-visible:outline-[var(--ring-width)] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--ring)]",
+          "peer-disabled:cursor-not-allowed peer-disabled:opacity-60",
+        ].join(" ")}
+      />
+    </label>
+  );
+}
+```
 
 ## Uso
 
 ```tsx
-import { Switch } from "@/components/ui/switch"
-
-// Exemplo de uso basico
+<PulsoSwitch
+  label="Alertas críticos por e-mail"
+  description="Dispara quando um sinal cruza o nível Crítico."
+  defaultChecked
+/>
 ```
 
----
+## Regras
 
-<details>
-<summary>Exemplos</summary>
-
-### Basico
-
-```tsx
-{/* TODO: adicionar exemplo de uso */}
-```
-
-</details>
+- Use para comportamento imediato e reversível.
+- Explique consequência no texto auxiliar quando a chave tiver impacto operacional.
+- Exponha `role="switch"` e mantenha estado programático sincronizado.
+- Não use Switch para aceitar termos ou selecionar múltiplos itens.

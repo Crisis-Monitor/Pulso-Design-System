@@ -1,32 +1,70 @@
-# Checkbox
-
-> Input de selecao booleana para formularios e filtros.
-
+---
+title: Checkbox
+description: Seleção booleana para filtros, listas e consentimentos explícitos.
 ---
 
-## Props
+# Checkbox
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+Checkbox representa uma escolha independente ou múltipla seleção. Diferente de `Switch`, ele normalmente participa de uma submissão, filtro ou seleção em lote.
+
+## Blueprint React copiável
+
+Este repo documenta o Pulso DS; ele ainda não publica uma biblioteca runtime. Use o exemplo abaixo como blueprint de implementação no produto.
+
+```tsx
+import * as React from "react";
+
+type PulsoCheckboxProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> & {
+  label: string;
+  description?: string;
+};
+
+export function PulsoCheckbox({ id, label, description, className, ...props }: PulsoCheckboxProps) {
+  const reactId = React.useId();
+  const checkboxId = id ?? reactId;
+  const descriptionId = description ? `${checkboxId}-description` : undefined;
+
+  return (
+    <label className="inline-flex cursor-pointer select-none items-start gap-2.5">
+      <input
+        id={checkboxId}
+        type="checkbox"
+        aria-describedby={descriptionId}
+        className={[
+          "mt-0.5 h-4 w-4 rounded-[var(--radius-xs)] border border-[var(--border-strong)] bg-[var(--card)]",
+          "accent-[var(--primary)] transition-colors duration-[var(--motion-duration-fast)] ease-[var(--motion-easing)]",
+          "focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]",
+          "disabled:cursor-not-allowed disabled:opacity-60",
+          className,
+        ].filter(Boolean).join(" ")}
+        {...props}
+      />
+
+      <span className="grid gap-0.5">
+        <span className="text-sm font-medium text-[var(--fg-strong)]">{label}</span>
+        {description ? (
+          <span id={descriptionId} className="text-xs text-[var(--fg-muted)]">
+            {description}
+          </span>
+        ) : null}
+      </span>
+    </label>
+  );
+}
+```
 
 ## Uso
 
 ```tsx
-import { Checkbox } from "@/components/ui/checkbox"
-
-// Exemplo de uso basico
+<PulsoCheckbox
+  label="Incluir fontes arquivadas"
+  description="Mostra fontes inativas apenas neste filtro."
+/>
 ```
 
----
+## Regras
 
-<details>
-<summary>Exemplos</summary>
-
-### Basico
-
-```tsx
-{/* TODO: adicionar exemplo de uso */}
-```
-
-</details>
+- Use para seleção múltipla ou boolean que será aplicado em conjunto.
+- Para liga/desliga com efeito imediato, use `Switch`.
+- Em tabelas, sincronize seleção parcial com `aria-checked="mixed"`.
+- A descrição deve explicar consequência operacional quando houver risco de ambiguidade.
