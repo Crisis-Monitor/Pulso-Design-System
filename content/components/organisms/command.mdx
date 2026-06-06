@@ -1,48 +1,213 @@
 ---
 title: Command
-description: Interface de comando com busca, lista de itens e atalhos de teclado.
+description: Paleta de comando para busca rápida, navegação e ações seguras por teclado.
 ---
 
 # Command
 
-Interface de comando com busca integrada e lista de itens navegáveis por teclado.
+> **Organism**
+>
+> Command acelera navegação e ações frequentes, mas não substitui confirmação quando há consequência operacional.
 
-## Import
+Use Command para abrir páginas, buscar casos, acionar comandos seguros e reduzir fricção para operadores experientes. A paleta deve deixar claro se o item navega, filtra, cria ou executa uma ação.
+
+## Blueprint React copiável
+
+<BlueprintNote />
 
 ```tsx
-import { Command, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, CommandShortcut } from "@/components/ui/command"
+import * as React from "react"
+
+type CommandItem = {
+  id: string
+  group: string
+  label: string
+  description?: string
+  shortcut?: string
+  disabled?: boolean
+  onSelect: () => void
+}
+
+type PulsoCommandProps = {
+  open: boolean
+  items: CommandItem[]
+  onOpenChange: (open: boolean) => void
+}
+
+export function PulsoCommand({ open, items, onOpenChange }: PulsoCommandProps) {
+  const [query, setQuery] = React.useState("")
+  const inputRef = React.useRef<HTMLInputElement>(null)
+  const normalizedQuery = query.trim().toLowerCase()
+  const filteredItems = items.filter((item) => {
+    const haystack = `${item.group} ${item.label} ${item.description ?? ""}`.toLowerCase()
+    return haystack.includes(normalizedQuery)
+  })
+  const groups = Array.from(new Set(filteredItems.map((item) => item.group)))
+
+  React.useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault()
+        onOpenChange(!open)
+      }
+
+      if (event.key === "Escape") {
+        onOpenChange(false)
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown)
+    return () => document.removeEventListener("keydown", onKeyDown)
+  }, [onOpenChange, open])
+
+  React.useEffect(() => {
+    if (open) inputRef.current?.focus()
+  }, [open])
+
+  if (!open) return null
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-start bg-black/40 p-4 pt-[12vh]">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Paleta de comandos"
+        className="mx-auto w-full max-w-2xl overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--popover)] shadow-[var(--shadow-lg)]"
+      >
+        <div className="border-b border-[var(--border)] p-3">
+          <label htmlFor="command-search" className="sr-only">
+            Buscar comando
+          </label>
+          <input
+            ref={inputRef}
+            id="command-search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Buscar caso, página ou ação segura…"
+            className="h-11 w-full bg-transparent px-2 text-base text-[var(--fg)] outline-none placeholder:text-[var(--fg-subtle)]"
+          />
+        </div>
+
+        <div className="max-h-[420px] overflow-y-auto p-2" role="listbox" aria-label="Resultados">
+          {filteredItems.length === 0 ? (
+            <p className="px-3 py-8 text-center text-sm text-[var(--fg-muted)]">
+              Nenhum comando encontrado.
+            </p>
+          ) : (
+            groups.map((group) => (
+              <section key={group} className="not-first:mt-2">
+                <h2 className="px-3 py-2 font-mono text-[10.5px] uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-subtle)]">
+                  {group}
+                </h2>
+                <div className="grid gap-1">
+                  {filteredItems
+                    .filter((item) => item.group === group)
+                    .map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        role="option"
+                        disabled={item.disabled}
+                        onClick={() => {
+                          item.onSelect()
+                          onOpenChange(false)
+                        }}
+                        className="grid grid-cols-[1fr_auto] gap-3 rounded-[var(--radius-md)] px-3 py-2 text-left hover:bg-[var(--muted)] focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <span>
+                          <span className="block text-sm font-medium text-[var(--fg)]">
+                            {item.label}
+                          </span>
+                          {item.description ? (
+                            <span className="mt-0.5 block text-xs text-[var(--fg-muted)]">
+                              {item.description}
+                            </span>
+                          ) : null}
+                        </span>
+                        {item.shortcut ? (
+                          <kbd className="self-center font-mono text-[11px] text-[var(--fg-muted)]">
+                            {item.shortcut}
+                          </kbd>
+                        ) : null}
+                      </button>
+                    ))}
+                </div>
+              </section>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
 ```
 
-## Uso básico
+### Exemplo de uso
 
 ```tsx
-<Command>
-  <CommandInput placeholder="Buscar comando..." />
-  <CommandList>
-    <CommandEmpty>Nenhum resultado encontrado.</CommandEmpty>
-    <CommandGroup heading="Crises">
-      <CommandItem><AlertTriangle className="size-4" /><span>Crises ativas</span></CommandItem>
-      <CommandItem><Plus className="size-4" /><span>Nova crise</span></CommandItem>
-    </CommandGroup>
-  </CommandList>
-</Command>
-```
+export function GlobalCommand() {
+  const [open, setOpen] = React.useState(false)
 
-## Como Dialog (⌘K)
-
-```tsx
-<CommandDialog open={open} onOpenChange={setOpen}>
-  <CommandInput placeholder="Buscar..." />
-  <CommandList>
-    <CommandGroup heading="Navegação">
-      <CommandItem onSelect={() => setOpen(false)}>Dashboard</CommandItem>
-    </CommandGroup>
-  </CommandList>
-</CommandDialog>
+  return (
+    <PulsoCommand
+      open={open}
+      onOpenChange={setOpen}
+      items={[
+        {
+          id: "cases",
+          group: "Navegação",
+          label: "Abrir casos ativos",
+          description: "Vai para a lista operacional de casos em monitoramento.",
+          shortcut: "G C",
+          onSelect: () => console.log("navigate /cases"),
+        },
+        {
+          id: "new-case",
+          group: "Ações seguras",
+          label: "Criar novo monitoramento",
+          description: "Abre formulário; não cria sem revisão humana.",
+          shortcut: "N",
+          onSelect: () => console.log("open new case form"),
+        },
+        {
+          id: "critical",
+          group: "Filtros",
+          label: "Filtrar risco critical",
+          description: "Aplica filtro na lista atual.",
+          onSelect: () => console.log("filter critical"),
+        },
+      ]}
+    />
+  )
+}
 ```
 
 ## Quando usar
 
-- Navegação rápida global (⌘K)
-- Busca de crises e alertas
-- Paleta de comandos
+- Paleta global `⌘K` / `Ctrl K`.
+- Busca rápida por casos, fontes, páginas e comandos seguros.
+- Navegação para telas frequentes.
+- Aplicação de filtros ou abertura de formulários.
+
+Não use Command para executar ação destrutiva sem confirmação. Encerrar crise, apagar fonte, enviar despacho ou alterar risco crítico deve abrir Dialog/Alert Dialog ou fluxo de revisão.
+
+## Anatomia
+
+| Parte | Papel | Regra |
+|---|---|---|
+| Input | Busca textual | Foco inicial ao abrir |
+| Group | Agrupa intenção | Navegação, filtros, ações seguras |
+| Item | Resultado acionável | Label com verbo real |
+| Description | Consequência ou destino | Obrigatória para ações menos óbvias |
+| Shortcut | Atalho real | Só mostrar se existir |
+| Empty | Sem resultado | Texto neutro, sem erro falso |
+
+## Regras
+
+1. Diferencie navegação, filtro e ação.
+2. Ação destrutiva não executa direto pela paleta.
+3. Atalhos exibidos precisam funcionar.
+4. Resultado assistido por IA deve indicar origem quando relevante.
+5. `Esc` fecha a paleta sem executar ação.
+6. Comandos devem ser pesquisáveis por termos do operador, não só nomes internos.
+7. Não esconda estado crítico atrás de busca; Command é aceleração, não superfície primária.
