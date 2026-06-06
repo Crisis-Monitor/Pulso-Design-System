@@ -13,6 +13,176 @@ Filter Bar é o padrão para listas, feeds e resultados de busca do Pulso. Ela c
 
 Use este padrão em superfícies onde a lista muda por critérios operacionais: fonte, nível de risco, sentimento, período, owner, status, origem ou preset salvo.
 
+
+## Blueprint React copiável
+
+<BlueprintNote />
+
+```tsx
+import * as React from "react"
+
+type FilterFacet = {
+  id: string
+  label: string
+  count?: number
+}
+
+type ActiveFilter = {
+  id: string
+  label: string
+  value: string
+}
+
+type PulsoFilterBarProps = {
+  query: string
+  period: "24h" | "7d" | "30d" | "90d"
+  facets: FilterFacet[]
+  activeFilters: ActiveFilter[]
+  onQueryChange: (query: string) => void
+  onPeriodChange: (period: PulsoFilterBarProps["period"]) => void
+  onOpenFacet: (facetId: string) => void
+  onRemoveFilter: (filterId: string) => void
+  onClearFilters: () => void
+}
+
+const periods: Array<{ value: PulsoFilterBarProps["period"]; label: string }> = [
+  { value: "24h", label: "24h" },
+  { value: "7d", label: "7d" },
+  { value: "30d", label: "30d" },
+  { value: "90d", label: "90d" },
+]
+
+export function PulsoFilterBar({
+  query,
+  period,
+  facets,
+  activeFilters,
+  onQueryChange,
+  onPeriodChange,
+  onOpenFacet,
+  onRemoveFilter,
+  onClearFilters,
+}: PulsoFilterBarProps) {
+  const hasActiveFilters = activeFilters.length > 0
+
+  return (
+    <section aria-label="Filtros da lista" className="grid gap-3">
+      <div className="flex flex-wrap items-center gap-2 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-2">
+        <label className="sr-only" htmlFor="filter-query">
+          Buscar casos
+        </label>
+        <input
+          id="filter-query"
+          value={query}
+          onChange={(event) => onQueryChange(event.target.value)}
+          placeholder="Buscar caso, fonte ou termo"
+          className="min-h-9 min-w-[220px] flex-1 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)] px-3 text-sm text-[var(--fg)] placeholder:text-[var(--fg-subtle)] focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
+        />
+
+        <div className="inline-flex rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--muted)] p-1" aria-label="Período">
+          {periods.map((item) => (
+            <button
+              key={item.value}
+              type="button"
+              aria-pressed={period === item.value}
+              onClick={() => onPeriodChange(item.value)}
+              className={[
+                "rounded-[var(--radius-sm)] px-3 py-1.5 text-sm transition-colors duration-[var(--motion-duration-fast)] ease-[var(--motion-easing)]",
+                period === item.value
+                  ? "bg-[var(--card)] text-[var(--fg)] shadow-sm"
+                  : "text-[var(--fg-muted)] hover:text-[var(--fg)]",
+              ].join(" ")}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {facets.map((facet) => (
+            <button
+              key={facet.id}
+              type="button"
+              onClick={() => onOpenFacet(facet.id)}
+              className="inline-flex min-h-9 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border)] px-3 text-sm font-medium text-[var(--fg)] hover:bg-[var(--muted)]"
+            >
+              {facet.label}
+              {facet.count ? (
+                <span className="rounded-full bg-[var(--primary-soft)] px-2 py-0.5 font-mono text-xs text-[var(--primary)]">
+                  {facet.count}
+                </span>
+              ) : null}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {hasActiveFilters ? (
+        <div className="flex flex-wrap items-center gap-2" aria-label="Filtros ativos">
+          {activeFilters.map((filter) => (
+            <button
+              key={filter.id}
+              type="button"
+              onClick={() => onRemoveFilter(filter.id)}
+              className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-xs text-[var(--fg)]"
+            >
+              <span className="font-mono uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-muted)]">
+                {filter.label}
+              </span>
+              {filter.value}
+              <span aria-hidden="true">×</span>
+            </button>
+          ))}
+
+          {activeFilters.length > 2 ? (
+            <button
+              type="button"
+              onClick={onClearFilters}
+              className="px-2 py-1 text-xs font-medium text-[var(--primary)]"
+            >
+              Limpar todos
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+    </section>
+  )
+}
+```
+
+### Exemplo de uso
+
+```tsx
+export function CasesFilterBar() {
+  const [query, setQuery] = React.useState("")
+  const [period, setPeriod] = React.useState<PulsoFilterBarProps["period"]>("7d")
+  const [activeFilters, setActiveFilters] = React.useState<ActiveFilter[]>([
+    { id: "risk-high", label: "Risco", value: "high" },
+    { id: "owner-cris", label: "Origem", value: "Cris" },
+  ])
+
+  return (
+    <PulsoFilterBar
+      query={query}
+      period={period}
+      facets={[
+        { id: "risk", label: "Risco", count: 1 },
+        { id: "source", label: "Fonte" },
+        { id: "owner", label: "Origem", count: 1 },
+      ]}
+      activeFilters={activeFilters}
+      onQueryChange={setQuery}
+      onPeriodChange={setPeriod}
+      onOpenFacet={(facetId) => console.log("open facet", facetId)}
+      onRemoveFilter={(filterId) =>
+        setActiveFilters((filters) => filters.filter((filter) => filter.id !== filterId))
+      }
+      onClearFilters={() => setActiveFilters([])}
+    />
+  )
+}
+```
+
 ## Anatomia
 
 | Parte | Papel | Regra |
