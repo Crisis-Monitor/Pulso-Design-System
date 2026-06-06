@@ -1,53 +1,188 @@
 ---
 title: Tabs
-description: Navegação por abas para alternar entre seções de conteúdo.
+description: Navegação por abas para alternar entre visões irmãs do mesmo escopo.
 ---
 
 # Tabs
 
-Navegação por abas para alternar entre seções de conteúdo relacionadas.
+> **Organism**
+>
+> Tabs alternam visões relacionadas sem trocar o objeto principal da página.
 
-## Import
+Use Tabs quando o operador precisa comparar ou alternar entre recortes irmãos: visão geral, evidências, histórico, auditoria, fontes ou configurações do mesmo caso. Tabs não devem esconder estado crítico nem substituir filtros operacionais.
+
+## Blueprint React copiável
+
+<BlueprintNote />
 
 ```tsx
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import * as React from "react"
+
+type PulsoTab = {
+  id: string
+  label: string
+  badge?: string | number
+  disabled?: boolean
+  content: React.ReactNode
+}
+
+type PulsoTabsProps = {
+  label: string
+  tabs: PulsoTab[]
+  defaultValue?: string
+  value?: string
+  onValueChange?: (value: string) => void
+}
+
+export function PulsoTabs({
+  label,
+  tabs,
+  defaultValue,
+  value,
+  onValueChange,
+}: PulsoTabsProps) {
+  const firstEnabledTab = tabs.find((tab) => !tab.disabled)?.id
+  const [internalValue, setInternalValue] = React.useState(
+    defaultValue ?? firstEnabledTab ?? tabs[0]?.id,
+  )
+  const selectedValue = value ?? internalValue
+  const selectedTab = tabs.find((tab) => tab.id === selectedValue) ?? tabs[0]
+
+  function selectTab(tab: PulsoTab) {
+    if (tab.disabled) return
+    setInternalValue(tab.id)
+    onValueChange?.(tab.id)
+  }
+
+  function onKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    const enabledTabs = tabs.filter((tab) => !tab.disabled)
+    const currentIndex = enabledTabs.findIndex((tab) => tab.id === selectedValue)
+    const lastIndex = enabledTabs.length - 1
+
+    if (event.key === "ArrowRight") {
+      event.preventDefault()
+      selectTab(enabledTabs[currentIndex === lastIndex ? 0 : currentIndex + 1])
+    }
+
+    if (event.key === "ArrowLeft") {
+      event.preventDefault()
+      selectTab(enabledTabs[currentIndex <= 0 ? lastIndex : currentIndex - 1])
+    }
+
+    if (event.key === "Home") {
+      event.preventDefault()
+      selectTab(enabledTabs[0])
+    }
+
+    if (event.key === "End") {
+      event.preventDefault()
+      selectTab(enabledTabs[lastIndex])
+    }
+  }
+
+  return (
+    <div className="grid gap-4">
+      <div
+        role="tablist"
+        aria-label={label}
+        onKeyDown={onKeyDown}
+        className="inline-flex w-fit rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--muted)] p-1"
+      >
+        {tabs.map((tab) => {
+          const selected = tab.id === selectedValue
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              id={`${tab.id}-tab`}
+              aria-selected={selected}
+              aria-controls={`${tab.id}-panel`}
+              disabled={tab.disabled}
+              tabIndex={selected ? 0 : -1}
+              onClick={() => selectTab(tab)}
+              className={[
+                "inline-flex min-h-9 items-center gap-2 rounded-[var(--radius-md)] px-3 text-sm font-medium transition-colors duration-[var(--motion-duration-fast)] ease-[var(--motion-easing)]",
+                selected
+                  ? "bg-[var(--card)] text-[var(--fg)] shadow-sm"
+                  : "text-[var(--fg-muted)] hover:text-[var(--fg)]",
+                "disabled:cursor-not-allowed disabled:text-[var(--fg-disabled)] disabled:hover:text-[var(--fg-disabled)]",
+              ].join(" ")}
+            >
+              {tab.label}
+              {tab.badge ? (
+                <span className="rounded-full border border-[var(--border)] px-1.5 py-0.5 font-mono text-[11px]">
+                  {tab.badge}
+                </span>
+              ) : null}
+            </button>
+          )
+        })}
+      </div>
+
+      <section
+        role="tabpanel"
+        id={`${selectedTab.id}-panel`}
+        aria-labelledby={`${selectedTab.id}-tab`}
+        className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-4"
+      >
+        {selectedTab.content}
+      </section>
+    </div>
+  )
+}
 ```
 
-## Uso básico
+### Exemplo de uso
 
 ```tsx
-<Tabs defaultValue="overview" className="w-full">
-  <TabsList>
-    <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-    <TabsTrigger value="analytics">Analytics</TabsTrigger>
-    <TabsTrigger value="reports">Relatórios</TabsTrigger>
-  </TabsList>
-  <TabsContent value="overview"><p>Visão geral.</p></TabsContent>
-  <TabsContent value="analytics"><p>Analytics.</p></TabsContent>
-  <TabsContent value="reports"><p>Relatórios.</p></TabsContent>
-</Tabs>
-```
-
-## Em Cards
-
-```tsx
-<Tabs defaultValue="active">
-  <Card>
-    <CardHeader>
-      <TabsList>
-        <TabsTrigger value="active">Ativas</TabsTrigger>
-        <TabsTrigger value="resolved">Resolvidas</TabsTrigger>
-      </TabsList>
-    </CardHeader>
-    <CardContent>
-      <TabsContent value="active">...</TabsContent>
-      <TabsContent value="resolved">...</TabsContent>
-    </CardContent>
-  </Card>
-</Tabs>
+<PulsoTabs
+  label="Visões do caso"
+  defaultValue="overview"
+  tabs={[
+    {
+      id: "overview",
+      label: "Resumo",
+      content: <p>Estado operacional, risco atual e próxima decisão.</p>,
+    },
+    {
+      id: "evidence",
+      label: "Evidências",
+      badge: 8,
+      content: <p>Fontes auditáveis relacionadas ao caso.</p>,
+    },
+    {
+      id: "audit",
+      label: "Auditoria",
+      content: <p>Histórico de ações humanas e assistidas pela Cris.</p>,
+    },
+  ]}
+/>
 ```
 
 ## Quando usar
 
-- Alternar entre views relacionadas
-- Filtros de status em dashboards
+- Visões irmãs do mesmo objeto ou escopo.
+- Alternância entre resumo, evidências, histórico e auditoria.
+- Páginas onde a troca de visão não deve resetar contexto.
+- Cards ou seções com conteúdo relacionado e volume moderado.
+
+Não use Tabs para navegação global, filtros críticos, status de risco ou etapas sequenciais obrigatórias. Para fluxo passo-a-passo, use Stepper/Wizard; para filtros, use `Filter Bar`.
+
+## Anatomia
+
+| Parte | Papel | Regra |
+|---|---|---|
+| Tablist | Agrupa opções | Precisa de label acessível |
+| Trigger | Seleciona uma visão | Label curto, sem ambiguidade |
+| Badge | Quantidade relacionada | Não use como alerta crítico isolado |
+| Panel | Conteúdo da visão | Mantém o mesmo escopo do tablist |
+
+## Regras
+
+1. Cada aba deve representar uma visão irmã, não uma ação.
+2. Estado crítico não pode ficar escondido apenas em aba inativa.
+3. Use teclado: setas, Home e End.
+4. Preserve seleção quando o operador volta para a página, se fizer parte da tarefa.
+5. Não use Tabs para risk levels; risco é dado operacional, não chrome de navegação.
+6. Badges mostram quantidade; severidade precisa de texto/estado explícito.
