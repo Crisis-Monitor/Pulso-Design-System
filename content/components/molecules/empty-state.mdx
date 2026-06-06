@@ -11,9 +11,14 @@ description: Estado vazio para ausência de dados, filtro sem resultado ou confi
 
 Use Empty State quando uma lista, card ou seção não tem dados para mostrar. O texto deve diferenciar ausência real de dados, filtros restritivos, falta de permissão ou configuração pendente.
 
-## Blueprint React copiável
+## Exemplos copiáveis
 
 <BlueprintNote />
+
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
 
 ```tsx
 import * as React from "react"
@@ -81,7 +86,10 @@ export function PulsoEmptyState({
 />
 ```
 
-## Exemplo HTML puro
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
 
 Use quando a implementação não está em React ou quando o time precisa de um ponto de partida estático.
 
@@ -151,6 +159,9 @@ Use quando a implementação não está em React ou quando o time precisa de um 
   margin-top: 24px;
 }
 ```
+
+  </Tabs.Tab>
+</Tabs>
 
 ## Quando usar
 
