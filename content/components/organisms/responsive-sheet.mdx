@@ -13,41 +13,150 @@ Responsive Sheet adapta dimensão e direção ao viewport. Em telas largas, pres
 
 Use quando o conteúdo precisa continuar conectado ao item de origem: detalhe de menção, filtros avançados, edição contextual, Cris embedding, handover ou ação assistida.
 
-## Import
+## Blueprint React copiável
+
+<BlueprintNote />
 
 ```tsx
-import { ResponsiveSheet } from "@/components/ui/responsive-sheet"
-```
+import * as React from "react"
 
-## Uso básico
+type PulsoResponsiveSheetProps = {
+  open: boolean
+  title: string
+  description?: string
+  children: React.ReactNode
+  controls?: React.ReactNode
+  onOpenChange: (open: boolean) => void
+}
 
-```tsx
-<ResponsiveSheet
-  trigger={<Button>Detalhes</Button>}
-  title="Detalhes da crise"
-  description="Contexto completo do item selecionado."
->
-  <div className="space-y-4">
-    <p>Conteúdo do sheet aqui.</p>
-  </div>
-</ResponsiveSheet>
-```
+export function PulsoResponsiveSheet({
+  open,
+  title,
+  description,
+  children,
+  controls,
+  onOpenChange,
+}: PulsoResponsiveSheetProps) {
+  const titleId = React.useId()
+  const descriptionId = description ? `${titleId}-description` : undefined
 
-## Com controles
+  React.useEffect(() => {
+    if (!open) return
 
-```tsx
-<ResponsiveSheet
-  trigger={<Button>Abrir</Button>}
-  title="Nova crise"
-  controls={
-    <div className="flex gap-2">
-      <Button variant="outline">Cancelar</Button>
-      <Button>Salvar</Button>
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") onOpenChange(false)
+    }
+
+    document.addEventListener("keydown", onKeyDown)
+    return () => document.removeEventListener("keydown", onKeyDown)
+  }, [onOpenChange, open])
+
+  if (!open) return null
+
+  return (
+    <div className="fixed inset-0 z-50">
+      <button
+        type="button"
+        aria-label="Fechar painel"
+        className="absolute inset-0 h-full w-full cursor-default bg-black/35"
+        onClick={() => onOpenChange(false)}
+      />
+
+      <aside
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={descriptionId}
+        className={[
+          "absolute bottom-0 left-0 right-0 max-h-[88dvh] rounded-t-[var(--radius-xl)] border border-[var(--border)] bg-[var(--popover)] shadow-[var(--shadow-lg)]",
+          "motion-safe:animate-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-[var(--motion-duration-base)]",
+          "md:bottom-0 md:left-auto md:top-0 md:h-full md:max-h-none md:w-[min(480px,calc(100vw-3rem))] md:rounded-none md:rounded-l-[var(--radius-xl)]",
+          "md:motion-safe:slide-in-from-right-4",
+        ].join(" ")}
+      >
+        <div className="mx-auto mt-3 h-1.5 w-10 rounded-full bg-[var(--border-strong)] md:hidden" />
+
+        <header className="flex items-start justify-between gap-4 border-b border-[var(--border)] p-5">
+          <div>
+            <h2 id={titleId} className="text-lg font-semibold text-[var(--fg)]">
+              {title}
+            </h2>
+            {description ? (
+              <p id={descriptionId} className="mt-1 text-sm leading-6 text-[var(--fg-muted)]">
+                {description}
+              </p>
+            ) : null}
+          </div>
+
+          <button
+            type="button"
+            aria-label="Fechar"
+            onClick={() => onOpenChange(false)}
+            className="rounded-[var(--radius-sm)] px-2 py-1 text-[var(--fg-muted)] hover:bg-[var(--muted)] hover:text-[var(--fg)] focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
+          >
+            ×
+          </button>
+        </header>
+
+        <div className="max-h-[calc(88dvh-9rem)] overflow-y-auto p-5 md:max-h-[calc(100dvh-9rem)]">
+          {children}
+        </div>
+
+        {controls ? (
+          <footer className="border-t border-[var(--border)] p-4">
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              {controls}
+            </div>
+          </footer>
+        ) : null}
+      </aside>
     </div>
-  }
->
-  <form className="space-y-4">{/* form fields */}</form>
-</ResponsiveSheet>
+  )
+}
+```
+
+### Exemplo de uso
+
+```tsx
+export function MentionDetailSheet() {
+  const [open, setOpen] = React.useState(false)
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="rounded-[var(--radius-md)] border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--fg)]"
+      >
+        Ver detalhes
+      </button>
+
+      <PulsoResponsiveSheet
+        open={open}
+        onOpenChange={setOpen}
+        title="Menção PLS-012"
+        description="Detalhe contextual sem perder a lista de origem."
+        controls={
+          <>
+            <button className="rounded-[var(--radius-md)] border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--fg)]">
+              Cancelar
+            </button>
+            <button className="rounded-[var(--radius-md)] bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-[var(--primary-fg)]">
+              Atribuir caso
+            </button>
+          </>
+        }
+      >
+        <div className="grid gap-4 text-sm text-[var(--fg)]">
+          <p>Fonte: clipping reputacional · atualizado há 4 min.</p>
+          <p className="text-[var(--fg-muted)]">
+            A Cris marcou esta menção como relacionada ao caso, mas a associação precisa de revisão humana.
+          </p>
+        </div>
+      </PulsoResponsiveSheet>
+    </>
+  )
+}
 ```
 
 ## Comportamento por viewport
