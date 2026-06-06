@@ -13,40 +13,151 @@ Dialog é uma janela modal centralizada para confirmações, formulários curtos
 
 Se a pessoa precisa comparar com a lista, revisar contexto lateral ou continuar explorando, use [`Sheet`](/components/atoms/sheet) ou [`Responsive Sheet`](/components/organisms/responsive-sheet). Se a ação é destrutiva ou irreversível, use `Alert Dialog`.
 
-## Import
+## Blueprint React copiável
+
+<BlueprintNote />
 
 ```tsx
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import * as React from "react"
+
+type PulsoDialogProps = {
+  open: boolean
+  title: string
+  description: string
+  children: React.ReactNode
+  primaryAction: React.ReactNode
+  secondaryAction?: React.ReactNode
+  onOpenChange: (open: boolean) => void
+  closeLabel?: string
+  closeOnEscape?: boolean
+}
+
+export function PulsoDialog({
+  open,
+  title,
+  description,
+  children,
+  primaryAction,
+  secondaryAction,
+  onOpenChange,
+  closeLabel = "Fechar",
+  closeOnEscape = true,
+}: PulsoDialogProps) {
+  const titleId = React.useId()
+  const descriptionId = React.useId()
+  const panelRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    if (!open) return
+
+    const previousActiveElement = document.activeElement as HTMLElement | null
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape" && closeOnEscape) {
+        onOpenChange(false)
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown)
+    panelRef.current?.focus()
+
+    return () => {
+      document.removeEventListener("keydown", onKeyDown)
+      previousActiveElement?.focus()
+    }
+  }, [closeOnEscape, onOpenChange, open])
+
+  if (!open) return null
+
+  return (
+    <div
+      role="presentation"
+      className="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onOpenChange(false)
+      }}
+    >
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={descriptionId}
+        tabIndex={-1}
+        className="w-full max-w-lg rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--popover)] shadow-[var(--shadow-lg)] outline-none"
+      >
+        <div className="flex items-start justify-between gap-4 border-b border-[var(--border)] p-5">
+          <div>
+            <h2 id={titleId} className="text-lg font-semibold text-[var(--fg)]">
+              {title}
+            </h2>
+            <p id={descriptionId} className="mt-1 text-sm leading-6 text-[var(--fg-muted)]">
+              {description}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            aria-label={closeLabel}
+            onClick={() => onOpenChange(false)}
+            className="rounded-[var(--radius-sm)] px-2 py-1 text-[var(--fg-muted)] hover:bg-[var(--muted)] hover:text-[var(--fg)] focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="p-5 text-sm text-[var(--fg)]">{children}</div>
+
+        <div className="flex items-center justify-end gap-2 border-t border-[var(--border)] p-4">
+          {secondaryAction}
+          {primaryAction}
+        </div>
+      </div>
+    </div>
+  )
+}
 ```
 
-## Uso básico
+### Exemplo de uso
 
 ```tsx
-<Dialog>
-  <DialogTrigger asChild>
-    <Button>Abrir</Button>
-  </DialogTrigger>
-  <DialogContent>
-    <DialogHeader>
-      <DialogTitle>Confirmar ação</DialogTitle>
-      <DialogDescription>
-        Revise as informações antes de continuar.
-      </DialogDescription>
-    </DialogHeader>
-    <DialogFooter>
-      <Button variant="outline">Cancelar</Button>
-      <Button>Continuar</Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>
+export function ConfirmDispatchDialog() {
+  const [open, setOpen] = React.useState(false)
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="rounded-[var(--radius-md)] bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-[var(--primary-fg)]"
+      >
+        Revisar despacho
+      </button>
+
+      <PulsoDialog
+        open={open}
+        onOpenChange={setOpen}
+        title="Confirmar despacho assistido"
+        description="Revise a recomendação da Cris antes de enviar. A decisão final continua humana e auditável."
+        secondaryAction={
+          <button className="rounded-[var(--radius-md)] border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--fg)]">
+            Voltar
+          </button>
+        }
+        primaryAction={
+          <button className="rounded-[var(--radius-md)] bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-[var(--primary-fg)]">
+            Confirmar despacho
+          </button>
+        }
+      >
+        <p>Origem: relatório reputacional validado há 2 min.</p>
+        <p className="mt-2 text-[var(--fg-muted)]">
+          Esta ação registra trilha de auditoria com usuário, horário e fonte.
+        </p>
+      </PulsoDialog>
+    </>
+  )
+}
 ```
 
 ## Quando usar
