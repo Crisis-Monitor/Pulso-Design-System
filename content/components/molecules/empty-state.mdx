@@ -1,48 +1,177 @@
 ---
 title: Empty State
-description: Tela ou seção para quando não há dados para exibir, com call-to-action.
+description: Estado vazio para ausência de dados, filtro sem resultado ou configuração pendente.
 ---
 
 # Empty State
 
-Componente que ocupa o espaço quando não há dados para exibir. Inclui ilustração, texto explicativo e call-to-action.
+> **Molecule**
+>
+> Empty State explica por que não há conteúdo e qual é a próxima ação segura.
 
-## Import
+Use Empty State quando uma lista, card ou seção não tem dados para mostrar. O texto deve diferenciar ausência real de dados, filtros restritivos, falta de permissão ou configuração pendente.
+
+## Blueprint React copiável
+
+<BlueprintNote />
 
 ```tsx
-import { Empty } from "@/components/ui/empty"
+import * as React from "react"
+
+type PulsoEmptyStateProps = {
+  eyebrow?: string
+  title: string
+  description: string
+  primaryAction?: React.ReactNode
+  secondaryAction?: React.ReactNode
+}
+
+export function PulsoEmptyState({
+  eyebrow,
+  title,
+  description,
+  primaryAction,
+  secondaryAction,
+}: PulsoEmptyStateProps) {
+  return (
+    <section className="grid place-items-center rounded-[var(--radius-lg)] border border-dashed border-[var(--border)] bg-[var(--card)] px-6 py-12 text-center">
+      <div className="max-w-md">
+        {eyebrow ? (
+          <p className="font-mono text-xs font-semibold uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-subtle)]">
+            {eyebrow}
+          </p>
+        ) : null}
+
+        <div aria-hidden="true" className="mx-auto mt-4 grid size-12 place-items-center rounded-full border border-[var(--border)] bg-[var(--muted)] text-[var(--fg-muted)]">
+          •
+        </div>
+
+        <h2 className="mt-5 text-xl font-semibold text-[var(--fg)]">{title}</h2>
+        <p className="mt-2 text-sm leading-6 text-[var(--fg-muted)]">{description}</p>
+
+        {(primaryAction || secondaryAction) ? (
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
+            {secondaryAction}
+            {primaryAction}
+          </div>
+        ) : null}
+      </div>
+    </section>
+  )
+}
 ```
 
-## Uso básico
+### Exemplo de uso
 
 ```tsx
-<Empty
-  title="Nenhuma crise encontrada"
-  description="Não há crises ativas no momento. Crie uma nova ou ajuste os filtros."
-/>
-```
-
-## Com ação
-
-```tsx
-import { Plus } from "lucide-react"
-
-<Empty
-  title="Nenhuma métrica configurada"
-  description="Adicione métricas para começar a monitorar."
-  action={
-    <Button><Plus className="size-4" /> Adicionar métrica</Button>
+<PulsoEmptyState
+  eyebrow="Filtros ativos"
+  title="Nenhum caso encontrado"
+  description="Não há casos com risco high no período selecionado. Ajuste filtros ou amplie a janela de tempo."
+  secondaryAction={
+    <button className="rounded-[var(--radius-md)] border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--fg)]">
+      Limpar filtros
+    </button>
+  }
+  primaryAction={
+    <button className="rounded-[var(--radius-md)] bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-[var(--primary-fg)]">
+      Criar monitoramento
+    </button>
   }
 />
 ```
 
+## Exemplo HTML puro
+
+Use quando a implementação não está em React ou quando o time precisa de um ponto de partida estático.
+
+```html
+<section class="empty-state" aria-labelledby="empty-cases-title">
+  <p class="empty-state__eyebrow">Filtros ativos</p>
+  <div class="empty-state__icon" aria-hidden="true">•</div>
+  <h2 id="empty-cases-title">Nenhum caso encontrado</h2>
+  <p>
+    Não há casos com risco high no período selecionado. Ajuste filtros ou amplie
+    a janela de tempo.
+  </p>
+  <div class="empty-state__actions">
+    <button type="button" class="button button--secondary">Limpar filtros</button>
+    <button type="button" class="button button--primary">Criar monitoramento</button>
+  </div>
+</section>
+```
+
+```css
+.empty-state {
+  display: grid;
+  place-items: center;
+  padding: 48px 24px;
+  text-align: center;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+}
+
+.empty-state__eyebrow {
+  margin: 0;
+  font: 600 12px/1 var(--font-mono);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+}
+
+.empty-state__icon {
+  display: grid;
+  place-items: center;
+  inline-size: 48px;
+  block-size: 48px;
+  margin: 16px auto 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--muted);
+  color: var(--fg-muted);
+}
+
+.empty-state h2 {
+  margin: 20px 0 0;
+  color: var(--fg);
+}
+
+.empty-state p:not(.empty-state__eyebrow) {
+  max-width: 440px;
+  margin: 8px 0 0;
+  color: var(--fg-muted);
+}
+
+.empty-state__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+}
+```
+
 ## Quando usar
 
-- Listas vazias
-- Resultados de busca sem matches
-- Dashboards sem dados configurados
+- Listas sem registros reais.
+- Resultado de busca sem correspondência.
+- Dashboard sem fonte ou métrica configurada.
+- Estado inicial antes da primeira configuração.
+- Falta de permissão quando a ação segura é solicitar acesso.
 
 ## Quando não usar
 
-- Para erros de carregamento (use Alert)
-- Para loading (use Skeleton ou Spinner)
+- Loading: use Skeleton ou Spinner.
+- Erro de carregamento: use Alert com ação de retry.
+- Confirmação destrutiva: use Dialog/Alert Dialog.
+- Informação crítica ativa: não esconda em estado vazio.
+
+## Regras
+
+1. Explique a causa provável do vazio.
+2. Dê no máximo uma ação primária.
+3. Se o vazio vem de filtro, ofereça limpar ou ajustar filtro.
+4. Se o vazio vem de permissão, diga como solicitar acesso.
+5. Não use ilustração decorativa que comunique estado operacional ambíguo.
+6. Não use risco como ornamento; risco continua sendo dado operacional.

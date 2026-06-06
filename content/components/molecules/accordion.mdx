@@ -1,61 +1,221 @@
 ---
 title: Accordion
-description: Seção colapsável vertical que revela conteúdo sob demanda.
+description: Seção colapsável vertical para revelar conteúdo secundário sob demanda.
 ---
 
 # Accordion
 
-Seções verticalmente empilhadas que expandem/colapsam para revelar conteúdo. Ideal para FAQs, configurações e detalhes.
+> **Molecule**
+>
+> Accordion reduz densidade visual sem esconder decisões críticas.
 
-## Import
+Use Accordion para conteúdo complementar, grupos de configuração, perguntas frequentes, evidências secundárias ou detalhes que não precisam estar todos abertos ao mesmo tempo. Conteúdo crítico deve aparecer fora do accordion ou ser sinalizado antes da dobra.
+
+## Blueprint React copiável
+
+<BlueprintNote />
 
 ```tsx
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import * as React from "react"
+
+type AccordionItem = {
+  id: string
+  title: string
+  description?: string
+  content: React.ReactNode
+}
+
+type PulsoAccordionProps = {
+  items: AccordionItem[]
+  defaultOpenId?: string
+  allowMultiple?: boolean
+}
+
+export function PulsoAccordion({
+  items,
+  defaultOpenId,
+  allowMultiple = false,
+}: PulsoAccordionProps) {
+  const [openIds, setOpenIds] = React.useState<string[]>(
+    defaultOpenId ? [defaultOpenId] : [],
+  )
+
+  function toggleItem(id: string) {
+    setOpenIds((current) => {
+      const isOpen = current.includes(id)
+      if (allowMultiple) {
+        return isOpen ? current.filter((itemId) => itemId !== id) : [...current, id]
+      }
+      return isOpen ? [] : [id]
+    })
+  }
+
+  return (
+    <div className="divide-y divide-[var(--border)] rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)]">
+      {items.map((item) => {
+        const isOpen = openIds.includes(item.id)
+        const triggerId = `${item.id}-trigger`
+        const panelId = `${item.id}-panel`
+
+        return (
+          <section key={item.id}>
+            <h3>
+              <button
+                id={triggerId}
+                type="button"
+                aria-expanded={isOpen}
+                aria-controls={panelId}
+                onClick={() => toggleItem(item.id)}
+                className="flex w-full items-start justify-between gap-4 px-4 py-3 text-left transition-colors duration-[var(--motion-duration-fast)] ease-[var(--motion-easing)] hover:bg-[var(--muted)] focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--ring)]"
+              >
+                <span>
+                  <span className="block text-sm font-semibold text-[var(--fg)]">
+                    {item.title}
+                  </span>
+                  {item.description ? (
+                    <span className="mt-1 block text-xs leading-5 text-[var(--fg-muted)]">
+                      {item.description}
+                    </span>
+                  ) : null}
+                </span>
+                <span aria-hidden="true" className="font-mono text-[var(--fg-muted)]">
+                  {isOpen ? "−" : "+"}
+                </span>
+              </button>
+            </h3>
+
+            {isOpen ? (
+              <div
+                id={panelId}
+                role="region"
+                aria-labelledby={triggerId}
+                className="border-t border-[var(--border)] px-4 py-4 text-sm leading-6 text-[var(--fg-muted)]"
+              >
+                {item.content}
+              </div>
+            ) : null}
+          </section>
+        )
+      })}
+    </div>
+  )
+}
 ```
 
-## Uso básico
+### Exemplo de uso
 
 ```tsx
-<Accordion type="single" collapsible>
-  <AccordionItem value="item-1">
-    <AccordionTrigger>O que é o Crisis Manager?</AccordionTrigger>
-    <AccordionContent>
-      Uma plataforma de gerenciamento de crises que usa IA para detectar,
-      monitorar e responder a incidentes em tempo real.
-    </AccordionContent>
-  </AccordionItem>
-  <AccordionItem value="item-2">
-    <AccordionTrigger>Como funciona o score de risco?</AccordionTrigger>
-    <AccordionContent>
-      O score é calculado com base em frequência, severidade e impacto
-      dos eventos detectados pelo sistema.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+<PulsoAccordion
+  defaultOpenId="sources"
+  items={[
+    {
+      id: "sources",
+      title: "Fontes auditáveis",
+      description: "Relatórios e evidências usados na análise.",
+      content: <p>Clipping reputacional, relatório interno e menções sociais.</p>,
+    },
+    {
+      id: "cris",
+      title: "Sugestão da Cris",
+      description: "Conteúdo assistido exige revisão humana.",
+      content: <p>Recomendação gerada com base nas fontes validadas às 14:32.</p>,
+    },
+  ]}
+/>
 ```
 
-## Múltipla abertura
+## Exemplo HTML puro
 
-```tsx
-<Accordion type="multiple">
-  <AccordionItem value="a">
-    <AccordionTrigger>Seção A</AccordionTrigger>
-    <AccordionContent>Conteúdo A</AccordionContent>
-  </AccordionItem>
-  <AccordionItem value="b">
-    <AccordionTrigger>Seção B</AccordionTrigger>
-    <AccordionContent>Conteúdo B</AccordionContent>
-  </AccordionItem>
-</Accordion>
+A versão HTML nativa com `details`/`summary` é boa para documentação, FAQ ou conteúdo simples sem estado customizado.
+
+```html
+<div class="accordion" aria-label="Detalhes do caso">
+  <details class="accordion__item" open>
+    <summary class="accordion__summary">
+      <span>
+        <strong>Fontes auditáveis</strong>
+        <small>Relatórios e evidências usados na análise.</small>
+      </span>
+    </summary>
+    <div class="accordion__content">
+      Clipping reputacional, relatório interno e menções sociais.
+    </div>
+  </details>
+
+  <details class="accordion__item">
+    <summary class="accordion__summary">
+      <span>
+        <strong>Sugestão da Cris</strong>
+        <small>Conteúdo assistido exige revisão humana.</small>
+      </span>
+    </summary>
+    <div class="accordion__content">
+      Recomendação gerada com base nas fontes validadas às 14:32.
+    </div>
+  </details>
+</div>
+```
+
+```css
+.accordion {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--card);
+}
+
+.accordion__item + .accordion__item {
+  border-top: 1px solid var(--border);
+}
+
+.accordion__summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  cursor: pointer;
+  color: var(--fg);
+}
+
+.accordion__summary small {
+  display: block;
+  margin-top: 4px;
+  color: var(--fg-muted);
+}
+
+.accordion__content {
+  padding: 16px;
+  border-top: 1px solid var(--border);
+  color: var(--fg-muted);
+}
 ```
 
 ## Quando usar
 
-- FAQs e documentação
-- Configurações agrupadas por categoria
-- Detalhes de crises em lista
+- FAQs e documentação.
+- Configurações agrupadas por categoria.
+- Evidências secundárias em detalhe de crise.
+- Conteúdo complementar dentro de Sheet ou página longa.
+
+## Quando não usar
+
+- Estado crítico que precisa estar sempre visível.
+- Fluxos sequenciais obrigatórios.
+- Menus de navegação global.
+- Conteúdo tão curto que não justifica colapso.
 
 ## Acessibilidade
 
-- `AccordionTrigger` é um botão com `aria-expanded`
-- Navegação por teclado (Tab, Enter, Space)
+- O trigger deve ser um botão ou `summary` nativo.
+- Exponha `aria-expanded` quando implementar manualmente.
+- Associe trigger e painel com `aria-controls`/`aria-labelledby` quando necessário.
+- Enter e Space precisam alternar abertura.
+- Respeite `prefers-reduced-motion` se animar altura/opacidade.
+
+## Regras
+
+1. Não esconda risco crítico dentro de painel fechado sem indicação externa.
+2. Títulos precisam descrever o conteúdo, não apenas “Detalhes”.
+3. Use abertura múltipla apenas quando comparar painéis for necessário.
+4. Conteúdo assistido por IA precisa manter origem e revisão humana visíveis.
+5. Não use Accordion para economizar espaço quando a informação é essencial para decisão.
