@@ -5,33 +5,77 @@ description: Card de métrica com valor, label, delta e indicador de tendência.
 
 # Metric Card
 
-Card para exibir métricas do dashboard com valor principal, label, delta de variação e indicador de tendência.
+Card para exibir métrica de dashboard com valor principal, label, delta de variação e contexto de leitura.
 
-## Import
+Delta é movimento de métrica; não é risco operacional. Para risco, use a taxonomia `stable / monitor / attention / high / critical`.
+
+## Blueprint React copiável
+
+<BlueprintNote />
 
 ```tsx
-import { MetricCard } from "@/components/ui/metric-card"
+import * as React from "react";
+
+type DeltaTone = "positive" | "neutral" | "warning" | "negative";
+
+type PulsoMetricCardProps = {
+  label: string;
+  value: string | number;
+  delta?: string;
+  deltaTone?: DeltaTone;
+  description?: string;
+};
+
+const deltaClass: Record<DeltaTone, string> = {
+  positive: "bg-[var(--delta-positive-bg)] text-[var(--delta-positive)]",
+  neutral: "bg-[var(--muted)] text-[var(--fg-muted)]",
+  warning: "bg-[var(--delta-warn-bg)] text-[var(--delta-warn)]",
+  negative: "bg-[var(--delta-negative-bg)] text-[var(--delta-negative)]",
+};
+
+export function PulsoMetricCard({
+  label,
+  value,
+  delta,
+  deltaTone = "neutral",
+  description,
+}: PulsoMetricCardProps) {
+  return (
+    <article className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] p-4">
+      <div className="flex items-start justify-between gap-3">
+        <p className="font-mono text-[10.5px] uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-subtle)]">
+          {label}
+        </p>
+        {delta ? (
+          <span className={["rounded-[var(--radius-xs)] px-2 py-0.5 font-mono text-[11px]", deltaClass[deltaTone]].join(" ")}>
+            {delta}
+          </span>
+        ) : null}
+      </div>
+
+      <strong className="mt-3 block font-mono text-4xl font-semibold tabular-nums text-[var(--fg-strong)]">
+        {value}
+      </strong>
+
+      {description ? (
+        <p className="mt-2 text-sm leading-6 text-[var(--fg-muted)]">
+          {description}
+        </p>
+      ) : null}
+    </article>
+  );
+}
 ```
 
-## Uso básico
+## Uso
 
 ```tsx
-<MetricCard
-  title="Crises Ativas"
-  value="12"
-  delta={{ value: 8.2, trend: "up" }}
-  icon={<AlertTriangle className="size-4" />}
-/>
-```
-
-## Com sparkline
-
-```tsx
-<MetricCard
-  title="Score Médio"
-  value="73"
-  delta={{ value: -2.1, trend: "down" }}
-  sparkline={[65, 70, 72, 68, 74, 73, 71, 73]}
+<PulsoMetricCard
+  label="Menções 24h"
+  value="1.247"
+  delta="+18% em 2h"
+  deltaTone="warning"
+  description="Crescimento acima da janela normal; revisar fontes primárias."
 />
 ```
 
@@ -39,15 +83,17 @@ import { MetricCard } from "@/components/ui/metric-card"
 
 ```tsx
 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-  <MetricCard title="Total" value="156" delta={{ value: 5.1, trend: "up" }} />
-  <MetricCard title="Ativas" value="12" delta={{ value: -3.2, trend: "down" }} />
-  <MetricCard title="Resolvidas" value="140" delta={{ value: 12.0, trend: "up" }} />
-  <MetricCard title="Tempo médio" value="4.2h" delta={{ value: 0, trend: "stable" }} />
+  <PulsoMetricCard label="Casos abertos" value="12" delta="+3" deltaTone="warning" />
+  <PulsoMetricCard label="Críticos" value="03" delta="+1" deltaTone="negative" />
+  <PulsoMetricCard label="Resolvidos" value="28" delta="+6" deltaTone="positive" />
+  <PulsoMetricCard label="Tempo médio" value="4.2h" delta="estável" />
 </div>
 ```
 
-## Quando usar
+## Regras
 
-- Métricas de dashboard
-- KPIs e indicadores de desempenho
-- Cards de resumo em relatórios
+- Valor principal deve ser numérico, escaneável e tabular.
+- Label usa kicker/mono para leitura rápida.
+- Delta comunica movimento da métrica, não severidade operacional.
+- Sempre declare janela temporal quando houver variação.
+- Evite sparkline sem eixo/contexto quando a decisão depende de magnitude real.
