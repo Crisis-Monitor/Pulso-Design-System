@@ -11,9 +11,14 @@ description: Seção colapsável vertical para revelar conteúdo secundário sob
 
 Use Accordion para conteúdo complementar, grupos de configuração, perguntas frequentes, evidências secundárias ou detalhes que não precisam estar todos abertos ao mesmo tempo. Conteúdo crítico deve aparecer fora do accordion ou ser sinalizado antes da dobra.
 
-## Blueprint React copiável
+## Exemplos copiáveis
 
 <BlueprintNote />
+
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
 
 ```tsx
 import * as React from "react"
@@ -124,7 +129,10 @@ export function PulsoAccordion({
 />
 ```
 
-## Exemplo HTML puro
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
 
 A versão HTML nativa com `details`/`summary` é boa para documentação, FAQ ou conteúdo simples sem estado customizado.
 
@@ -189,6 +197,9 @@ A versão HTML nativa com `details`/`summary` é boa para documentação, FAQ ou
   color: var(--fg-muted);
 }
 ```
+
+  </Tabs.Tab>
+</Tabs>
 
 ## Quando usar
 
