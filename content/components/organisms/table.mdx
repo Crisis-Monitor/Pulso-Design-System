@@ -13,42 +13,167 @@ Tabela organiza registros operacionais: crises, menções, logs, fontes, auditor
 
 A referência do Open Design reforça o contrato: tipografia mono para números, hover sutil, hairlines no lugar de linhas pesadas, toolbar acima, paginação abaixo e densidade configurável.
 
-## Import
+## Blueprint React copiável
+
+<BlueprintNote />
 
 ```tsx
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+type PulsoTableColumn<Row> = {
+  id: string
+  header: string
+  align?: "left" | "right"
+  render: (row: Row) => React.ReactNode
+}
+
+type PulsoTableProps<Row> = {
+  caption?: string
+  columns: PulsoTableColumn<Row>[]
+  rows: Row[]
+  getRowId: (row: Row) => string
+  emptyState?: string
+}
+
+export function PulsoTable<Row>({
+  caption,
+  columns,
+  rows,
+  getRowId,
+  emptyState = "Nenhum registro encontrado.",
+}: PulsoTableProps<Row>) {
+  return (
+    <div className="overflow-x-auto rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)]">
+      <table className="w-full min-w-[720px] border-collapse text-sm text-[var(--fg)]">
+        {caption ? (
+          <caption className="sr-only">{caption}</caption>
+        ) : null}
+
+        <thead className="border-b border-[var(--border)] bg-[var(--muted)]/45">
+          <tr>
+            {columns.map((column) => (
+              <th
+                key={column.id}
+                scope="col"
+                className={[
+                  "px-4 py-3 text-left font-mono text-[11px] font-semibold uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-muted)]",
+                  column.align === "right" ? "text-right" : "",
+                ].join(" ")}
+              >
+                {column.header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+
+        <tbody>
+          {rows.length === 0 ? (
+            <tr>
+              <td
+                colSpan={columns.length}
+                className="px-4 py-8 text-center text-[var(--fg-muted)]"
+              >
+                {emptyState}
+              </td>
+            </tr>
+          ) : (
+            rows.map((row) => (
+              <tr
+                key={getRowId(row)}
+                className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--muted)]/35"
+              >
+                {columns.map((column) => (
+                  <td
+                    key={column.id}
+                    className={[
+                      "px-4 py-3 align-middle text-[var(--fg)]",
+                      column.align === "right"
+                        ? "text-right font-mono tabular-nums"
+                        : "",
+                    ].join(" ")}
+                  >
+                    {column.render(row)}
+                  </td>
+                ))}
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  )
+}
 ```
 
-## Uso básico
+### Exemplo de uso
 
 ```tsx
-<Table>
-  <TableHeader>
-    <TableRow>
-      <TableHead>Nome</TableHead>
-      <TableHead>Status</TableHead>
-      <TableHead>Risco</TableHead>
-      <TableHead>Atualizado</TableHead>
-    </TableRow>
-  </TableHeader>
-  <TableBody>
-    <TableRow>
-      <TableCell>Monitoramento reputacional</TableCell>
-      <TableCell>Em análise</TableCell>
-      <TableCell className="mono font-bold" data-numeric>87</TableCell>
-      <TableCell>há 2 min</TableCell>
-    </TableRow>
-  </TableBody>
-</Table>
+type CaseRow = {
+  id: string
+  title: string
+  risk: "stable" | "monitor" | "attention" | "high" | "critical"
+  mentions: number
+  updatedAt: string
+}
+
+const rows: CaseRow[] = [
+  {
+    id: "PLS-012",
+    title: "Operação Água Nova",
+    risk: "high",
+    mentions: 1247,
+    updatedAt: "há 4 min",
+  },
+  {
+    id: "PLS-018",
+    title: "Regulação CVM",
+    risk: "attention",
+    mentions: 816,
+    updatedAt: "há 22 min",
+  },
+]
+
+const columns: PulsoTableColumn<CaseRow>[] = [
+  {
+    id: "case",
+    header: "Caso",
+    render: (row) => (
+      <div>
+        <strong className="block font-medium text-[var(--fg)]">{row.id}</strong>
+        <span className="text-[var(--fg-muted)]">{row.title}</span>
+      </div>
+    ),
+  },
+  {
+    id: "risk",
+    header: "Risco",
+    render: (row) => (
+      <span className="rounded-[var(--radius-sm)] border border-[var(--risk-high-border)] px-2 py-1 font-mono text-xs text-[var(--risk-high-text)]">
+        {row.risk}
+      </span>
+    ),
+  },
+  {
+    id: "mentions",
+    header: "Menções 24h",
+    align: "right",
+    render: (row) => row.mentions.toLocaleString("pt-BR"),
+  },
+  {
+    id: "updated",
+    header: "Atualizado",
+    render: (row) => row.updatedAt,
+  },
+]
+
+export function ActiveCasesTable() {
+  return (
+    <PulsoTable
+      caption="Casos ativos em monitoramento"
+      columns={columns}
+      rows={rows}
+      getRowId={(row) => row.id}
+    />
+  )
+}
 ```
 
 ## Quando usar
