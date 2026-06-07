@@ -1,49 +1,149 @@
 ---
 title: Chip
-description: Elemento de seleção e filtragem com estado ativo e removível.
+description: Elemento inline compacto para filtros ativos, tags e categorias removíveis.
 ---
 
 # Chip
 
-Elemento inline compacto usado para filtros, tags selecionáveis e categorias.
+> **Atom**
+>
+> Chip representa um valor curto aplicado, selecionado ou categorizado.
 
-## Import
+Use Chip para filtros ativos, tags, categorias e pequenos atributos removíveis. O chip deve carregar texto claro e, quando removível, expor uma ação acessível.
 
-```tsx
-import { Chip } from "@/components/ui/chip"
-```
+## Exemplos copiáveis
 
-## Uso básico
+<BlueprintNote />
 
-```tsx
-<Chip>Monitoramento</Chip>
-```
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-## Variantes
-
-| Variante | Uso |
-|----------|-----|
-| `default` | Tag neutra, filtro padrão |
-| `outline` | Filtro não selecionado |
-
-## Removível
+### React
 
 ```tsx
-<Chip onClose={() => console.log("removed")}>Crise ativa</Chip>
-```
+import * as React from "react"
 
-## Como filtro
+type PulsoChipProps = {
+  children: React.ReactNode
+  selected?: boolean
+  onRemove?: () => void
+  removeLabel?: string
+}
+
+export function PulsoChip({
+  children,
+  selected = false,
+  onRemove,
+  removeLabel,
+}: PulsoChipProps) {
+  return (
+    <span
+      data-selected={selected || undefined}
+      className={[
+        "inline-flex min-h-7 items-center gap-2 rounded-full border px-3 text-xs font-medium",
+        selected
+          ? "border-[var(--primary)] bg-[var(--primary-soft)] text-[var(--primary)]"
+          : "border-[var(--border)] bg-[var(--card)] text-[var(--fg-muted)]",
+      ].join(" ")}
+    >
+      {children}
+      {onRemove ? (
+        <button
+          type="button"
+          aria-label={removeLabel ?? `Remover ${children}`}
+          onClick={onRemove}
+          className="-mr-1 grid size-5 place-items-center rounded-full text-current hover:bg-black/10 focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-1 focus-visible:outline-[var(--ring)]"
+        >
+          ×
+        </button>
+      ) : null}
+    </span>
+  )
+}
+```
 
 ```tsx
 <div className="flex flex-wrap gap-2">
-  <Chip variant="default">Todas</Chip>
-  <Chip variant="outline">Ativas</Chip>
-  <Chip variant="outline">Resolvidas</Chip>
+  <PulsoChip selected>Risco high</PulsoChip>
+  <PulsoChip onRemove={() => console.log("remove source")}>Fonte: social</PulsoChip>
+  <PulsoChip>Período 7d</PulsoChip>
 </div>
 ```
 
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<span class="chip chip--selected">Risco high</span>
+
+<span class="chip">
+  Fonte: social
+  <button type="button" class="chip__remove" aria-label="Remover filtro Fonte: social">×</button>
+</span>
+```
+
+```css
+.chip {
+  display: inline-flex;
+  min-block-size: 28px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--fg-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.chip--selected,
+.chip[data-selected="true"] {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.chip__remove {
+  display: grid;
+  place-items: center;
+  inline-size: 20px;
+  block-size: 20px;
+  margin-right: -4px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: currentColor;
+}
+
+.chip__remove:hover {
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
 ## Quando usar
 
-- Filtros em dashboards e listas
-- Tags selecionáveis
-- Categorias com estado ativo/inativo
+- Filtros ativos em listas e dashboards.
+- Tags ou categorias curtas.
+- Valores removíveis abaixo de uma `Filter Bar`.
+- Metadados compactos em cards.
+
+## Quando não usar
+
+- Para botões primários ou ações de consequência.
+- Para risco operacional sem texto explícito.
+- Para mensagens longas.
+- Para status que precisa de explicação ou ícone semântico.
+
+## Regras
+
+1. Chip precisa ser curto e escaneável.
+2. Remoção deve ser um botão com `aria-label` específico.
+3. Não use apenas cor para comunicar seleção.
+4. Filtros ativos precisam continuar visíveis enquanto aplicados.
+5. Não confunda Chip com Badge: Chip é valor aplicado/selecionável; Badge é estado ou classificação.

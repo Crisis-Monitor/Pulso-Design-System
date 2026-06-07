@@ -1,45 +1,149 @@
 ---
 title: Delta Chip
-description: Indicador de variação numérica com direção (positivo/negativo/neutro).
+description: Indicador compacto de variação numérica, direção e comparação temporal.
 ---
 
 # Delta Chip
 
-Chip especializado que mostra variação numérica com direção e token delta. Delta descreve movimento de métrica; risco operacional usa `--risk-*`.
+> **Molecule**
+>
+> Delta Chip mostra movimento de métrica. Ele não representa risco operacional.
 
-## Import
+Use Delta Chip para variações período a período, crescimento, queda ou estabilidade de uma métrica. Risco operacional continua usando a escala `stable / monitor / attention / high / critical` e tokens `--risk-*`.
+
+## Exemplos copiáveis
+
+<BlueprintNote />
+
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
 
 ```tsx
-import { DeltaChip } from "@/components/ui/delta-chip"
+import * as React from "react"
+
+type DeltaTone = "up" | "down" | "flat"
+
+type PulsoDeltaChipProps = {
+  value: number
+  suffix?: string
+  label?: string
+  tone?: DeltaTone
+}
+
+function getDeltaTone(value: number, tone?: DeltaTone): DeltaTone {
+  if (tone) return tone
+  if (value > 0) return "up"
+  if (value < 0) return "down"
+  return "flat"
+}
+
+export function PulsoDeltaChip({
+  value,
+  suffix = "%",
+  label,
+  tone,
+}: PulsoDeltaChipProps) {
+  const resolvedTone = getDeltaTone(value, tone)
+  const sign = value > 0 ? "+" : ""
+  const icon = resolvedTone === "up" ? "↗" : resolvedTone === "down" ? "↘" : "→"
+
+  return (
+    <span
+      data-delta={resolvedTone}
+      aria-label={label ?? `Variação ${sign}${value}${suffix}`}
+      className={[
+        "inline-flex items-center gap-1 rounded-[var(--radius-sm)] border px-2 py-1 font-mono text-xs font-semibold tabular-nums",
+        resolvedTone === "up"
+          ? "border-[var(--delta-positive-border)] bg-[var(--delta-positive-bg)] text-[var(--delta-positive-text)]"
+          : "",
+        resolvedTone === "down"
+          ? "border-[var(--delta-negative-border)] bg-[var(--delta-negative-bg)] text-[var(--delta-negative-text)]"
+          : "",
+        resolvedTone === "flat"
+          ? "border-[var(--border)] bg-[var(--muted)] text-[var(--fg-muted)]"
+          : "",
+      ].join(" ")}
+    >
+      <span aria-hidden="true">{icon}</span>
+      {sign}{value}{suffix}
+    </span>
+  )
+}
 ```
-
-## Uso básico
-
-```tsx
-<DeltaChip value={12.5} />
-<DeltaChip value={-8.3} />
-<DeltaChip value={0} />
-```
-
-## Variantes automáticas
-
-| Valor | Cor | Ícone |
-|-------|-----|-------|
-| Positivo | `--delta-success` | ↑ |
-| Negativo | `--delta-error` | ↓ |
-| Zero | `--delta-neutral` | → |
-
-## Em Metric Cards
 
 ```tsx
 <div className="flex items-center gap-2">
-  <span className="mono text-2xl font-bold" data-numeric>1,234</span>
-  <DeltaChip value={12.5} size="sm" />
+  <strong className="font-mono text-2xl tabular-nums">1.247</strong>
+  <PulsoDeltaChip value={12} label="Menções subiram 12 por cento nas últimas 24 horas" />
 </div>
 ```
 
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<span
+  class="delta-chip delta-chip--up"
+  data-delta="up"
+  aria-label="Menções subiram 12 por cento nas últimas 24 horas"
+>
+  <span aria-hidden="true">↗</span>
+  +12%
+</span>
+```
+
+```css
+.delta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--muted);
+  color: var(--fg-muted);
+  font: 700 12px/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.delta-chip--up {
+  border-color: var(--delta-positive-border);
+  background: var(--delta-positive-bg);
+  color: var(--delta-positive-text);
+}
+
+.delta-chip--down {
+  border-color: var(--delta-negative-border);
+  background: var(--delta-negative-bg);
+  color: var(--delta-negative-text);
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
 ## Quando usar
 
-- Variações de métricas no dashboard
-- Tendências de score de risco
-- Comparativos período a período
+- Variações de métricas em cards e tabelas.
+- Comparativos período a período.
+- Tendência de volume, score, velocidade ou cobertura.
+- Complemento de gráficos pequenos, como sparkline.
+
+## Quando não usar
+
+- Para risco operacional.
+- Para status de crise.
+- Para sucesso/erro de ação.
+- Para prioridade ou severidade de incidente.
+
+## Regras
+
+1. Delta é movimento de métrica, não julgamento operacional.
+2. Sempre deixe claro o período ou baseline em contexto próximo.
+3. Use números tabulares.
+4. Sinal e ícone não substituem label acessível.
+5. Queda pode ser boa ou ruim dependendo da métrica; não assuma sem contexto.
