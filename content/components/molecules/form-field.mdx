@@ -1,43 +1,192 @@
 ---
 title: Form Field
-description: Wrapper para campos de formulário com label, input, descrição e mensagem de erro.
+description: Campo de formulário com label, ajuda, erro e contrato de acessibilidade.
 ---
 
 # Form Field
 
-Wrapper que organiza label, campo de entrada, descrição e mensagem de erro.
-
-## Import
-
-```tsx
-import { Field } from "@/components/ui/field"
-```
-
-## Uso básico
-
-```tsx
-<Field
-  label="Nome da crise"
-  description="Um nome descritivo para identificar a crise"
+> **Molecule**
 >
-  <Input placeholder="Ex: Incidente servidor principal" />
-</Field>
-```
+> Form Field conecta label, controle, descrição e erro para que o operador saiba o que preencher, por quê e como corrigir.
 
-## Com erro
+Use Form Field para qualquer entrada que precise de contexto, validação ou rastreabilidade. Placeholder não substitui label, e erro precisa estar próximo do controle.
+
+## Exemplos copiáveis
+
+<BlueprintNote />
+
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
 
 ```tsx
-<Field label="Email" error="Email inválido">
-  <Input type="email" aria-invalid="true" />
-</Field>
+import * as React from "react"
+
+type PulsoFormFieldProps = {
+  id?: string
+  label: string
+  description?: string
+  error?: string
+  required?: boolean
+  children: React.ReactElement<React.InputHTMLAttributes<HTMLInputElement>>
+}
+
+export function PulsoFormField({
+  id,
+  label,
+  description,
+  error,
+  required,
+  children,
+}: PulsoFormFieldProps) {
+  const reactId = React.useId()
+  const fieldId = id ?? reactId
+  const descriptionId = description ? `${fieldId}-description` : undefined
+  const errorId = error ? `${fieldId}-error` : undefined
+  const describedBy = [descriptionId, errorId].filter(Boolean).join(" ") || undefined
+
+  return (
+    <div className="grid gap-1.5">
+      <label
+        htmlFor={fieldId}
+        className="font-mono text-xs font-semibold uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-muted)]"
+      >
+        {label}
+        {required ? <span className="text-[var(--risk-critical-text)]"> *</span> : null}
+      </label>
+
+      {React.cloneElement(children, {
+        id: fieldId,
+        required,
+        "aria-invalid": Boolean(error),
+        "aria-describedby": describedBy,
+        className: [
+          "min-h-10 rounded-[var(--radius-md)] border bg-[var(--card)] px-3 text-sm text-[var(--fg)]",
+          error ? "border-[var(--risk-critical-border)]" : "border-[var(--border)]",
+          "focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]",
+          children.props.className,
+        ].filter(Boolean).join(" "),
+      })}
+
+      {description ? (
+        <p id={descriptionId} className="text-xs leading-5 text-[var(--fg-muted)]">
+          {description}
+        </p>
+      ) : null}
+
+      {error ? (
+        <p id={errorId} className="text-sm leading-5 text-[var(--risk-critical-text)]">
+          {error}
+        </p>
+      ) : null}
+    </div>
+  )
+}
 ```
+
+```tsx
+<PulsoFormField
+  label="Fonte principal"
+  description="Use URL, relatório ou origem auditável. Não use Cris como fonte final."
+  error="Informe a fonte para manter rastreabilidade."
+  required
+>
+  <input name="source" />
+</PulsoFormField>
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<div class="form-field">
+  <label class="form-field__label" for="case-source">
+    Fonte principal <span aria-hidden="true">*</span>
+  </label>
+
+  <input
+    id="case-source"
+    name="source"
+    class="form-field__control"
+    aria-invalid="true"
+    aria-describedby="case-source-help case-source-error"
+    required
+  />
+
+  <p id="case-source-help" class="form-field__description">
+    Use URL, relatório ou origem auditável. Não use Cris como fonte final.
+  </p>
+
+  <p id="case-source-error" class="form-field__error">
+    Informe a fonte para manter rastreabilidade.
+  </p>
+</div>
+```
+
+```css
+.form-field {
+  display: grid;
+  gap: 6px;
+}
+
+.form-field__label {
+  font: 600 12px/1 var(--font-mono);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.form-field__control {
+  min-block-size: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  color: var(--fg);
+}
+
+.form-field__control[aria-invalid="true"] {
+  border-color: var(--risk-critical-border);
+}
+
+.form-field__description {
+  margin: 0;
+  color: var(--fg-muted);
+  font-size: 12px;
+}
+
+.form-field__error {
+  margin: 0;
+  color: var(--risk-critical-text);
+  font-size: 14px;
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
 
 ## Quando usar
 
-- Campos de formulário com label e descrição
-- Para manter consistência visual em formulários
+- Campo de formulário com label visível.
+- Entrada que precisa de ajuda, regra de preenchimento ou erro.
+- Campos que podem receber sugestão da Cris, mas exigem revisão humana.
+- Superfícies de criação, edição, configuração ou revisão operacional.
 
 ## Acessibilidade
 
-- Label conectado ao input via `htmlFor`
-- Mensagem de erro conectada via `aria-describedby`
+- `label` conectado ao controle por `htmlFor`/`id`.
+- Descrição e erro conectados por `aria-describedby`.
+- Erro deve atualizar `aria-invalid` no controle.
+- Campo obrigatório precisa ser indicado visualmente e semanticamente.
+- Não dependa só de cor para comunicar erro.
+
+## Regras
+
+1. Todo campo editável precisa de label visível.
+2. Placeholder é exemplo, não nome do campo.
+3. Descrição explica regra, formato ou consequência.
+4. Erro deve dizer como corrigir.
+5. Conteúdo assistido por IA precisa mostrar origem e permitir edição.
