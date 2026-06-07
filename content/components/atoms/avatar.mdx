@@ -1,16 +1,158 @@
-# avatar
+---
+title: Avatar
+description: Representação compacta de pessoa, equipe ou assistente com nome acessível.
+---
 
-Documentação do componente avatar.
+# Avatar
 
-## Import
+> **Atom**
+>
+> Avatar representa identidade operacional. Use para pessoa, equipe ou assistente — nunca como decoração sem significado.
+
+Use Avatar quando a identidade ajuda a entender responsabilidade, autoria, revisão ou presença. Em contexto de auditoria, o nome textual deve aparecer próximo ou estar disponível de forma acessível.
+
+## Exemplos copiáveis
+
+<BlueprintNote />
+
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
 
 ```tsx
-import { avatar } from "@/components/ui/avatar";
-```
+import * as React from "react"
 
-## Uso
+type PulsoAvatarProps = {
+  name: string
+  initials: string
+  src?: string
+  tone?: "person" | "team" | "ai"
+  size?: "sm" | "md" | "lg"
+}
+
+const sizeClass = {
+  sm: "size-7 text-[10px]",
+  md: "size-9 text-xs",
+  lg: "size-12 text-sm",
+}
+
+export function PulsoAvatar({
+  name,
+  initials,
+  src,
+  tone = "person",
+  size = "md",
+}: PulsoAvatarProps) {
+  return (
+    <span
+      title={name}
+      data-avatar-tone={tone}
+      className={[
+        "inline-grid place-items-center overflow-hidden rounded-full border border-[var(--border)] font-mono font-semibold",
+        sizeClass[size],
+        tone === "ai"
+          ? "bg-[var(--primary-soft)] text-[var(--primary)]"
+          : "bg-[var(--muted)] text-[var(--fg)]",
+      ].join(" ")}
+    >
+      {src ? (
+        <img src={src} alt={name} className="size-full object-cover" />
+      ) : (
+        <>
+          <span aria-hidden="true">{initials}</span>
+          <span className="sr-only">{name}</span>
+        </>
+      )}
+    </span>
+  )
+}
+```
 
 ```tsx
-<avatar />
+<div className="flex items-center gap-3">
+  <PulsoAvatar name="Ana Souza" initials="AS" />
+  <span className="text-sm text-[var(--fg)]">Ana Souza revisou este caso.</span>
+</div>
+
+<div className="flex items-center gap-3">
+  <PulsoAvatar name="Cris Assistente" initials="CR" tone="ai" />
+  <span className="text-sm text-[var(--fg)]">Sugestão gerada pela Cris, pendente de revisão humana.</span>
+</div>
 ```
 
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<span class="avatar" title="Ana Souza">
+  <span aria-hidden="true">AS</span>
+  <span class="sr-only">Ana Souza</span>
+</span>
+
+<span class="avatar avatar--ai" title="Cris Assistente">
+  <span aria-hidden="true">CR</span>
+  <span class="sr-only">Cris Assistente</span>
+</span>
+```
+
+```css
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 36px;
+  block-size: 36px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--muted);
+  color: var(--fg);
+  font: 700 12px/1 var(--font-mono);
+}
+
+.avatar img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.avatar--ai {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Quando usar
+
+- Identificar responsável por caso, revisão ou ação.
+- Mostrar participante em card, tabela ou comentário.
+- Diferenciar pessoa, equipe ou assistente de IA quando isso afeta decisão.
+- Compor `Avatar Group` quando há múltiplos participantes.
+
+## Quando não usar
+
+- Como ornamento visual sem identidade real.
+- Para substituir nome textual em ações críticas.
+- Para representar status, risco ou prioridade.
+- Quando a identidade precisa de assinatura completa ou cargo.
+
+## Regras
+
+1. Avatar precisa ter nome acessível.
+2. Iniciais são fallback, não identificador suficiente para auditoria crítica.
+3. Diferencie pessoa humana, equipe e IA quando houver consequência operacional.
+4. Não use cor de risco em Avatar.
+5. Em fluxos auditáveis, mostre nome textual perto do avatar.
