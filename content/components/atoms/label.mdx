@@ -1,26 +1,116 @@
 ---
 title: Label
-description: Rótulo acessível para campos de formulário.
+description: Rótulo acessível para campos, controles e grupos de entrada.
 ---
 
 # Label
 
-Rótulo semântico para campos de formulário. Conecta-se ao input via \`htmlFor\`.
+> **Atom**
+>
+> Label nomeia o dado ou controle. Ele é parte do contrato de acessibilidade, não apenas texto pequeno.
 
-## Import
+Use Label para conectar um nome visível ao controle correspondente. Em formulários do Pulso, placeholder não substitui label.
+
+## Exemplos copiáveis
+
+<BlueprintNote />
+
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
 
 ```tsx
-import { Label } from "@/components/ui/label"
-```
+import * as React from "react"
 
-## Uso básico
+type PulsoLabelProps = React.LabelHTMLAttributes<HTMLLabelElement> & {
+  required?: boolean
+  optional?: boolean
+}
+
+export function PulsoLabel({
+  children,
+  required,
+  optional,
+  className,
+  ...props
+}: PulsoLabelProps) {
+  return (
+    <label
+      className={[
+        "font-mono text-xs font-semibold uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-muted)]",
+        className,
+      ].filter(Boolean).join(" ")}
+      {...props}
+    >
+      {children}
+      {required ? <span className="text-[var(--risk-critical-text)]"> *</span> : null}
+      {optional ? <span className="ml-1 normal-case tracking-normal text-[var(--fg-subtle)]">opcional</span> : null}
+    </label>
+  )
+}
+```
 
 ```tsx
-<Label htmlFor="email">Email</Label>
-<Input id="email" type="email" />
+<PulsoLabel htmlFor="case-title" required>
+  Nome do caso
+</PulsoLabel>
+<input id="case-title" name="title" />
 ```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<label class="label" for="case-title">
+  Nome do caso <span aria-hidden="true">*</span>
+</label>
+<input id="case-title" name="title" required />
+```
+
+```css
+.label {
+  font: 600 12px/1 var(--font-mono);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.label span {
+  color: var(--risk-critical-text);
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Quando usar
+
+- Campos de formulário.
+- Controles com nome visível.
+- Grupos quando cada controle precisa de rótulo próprio.
+- Inputs que podem ter erro, descrição ou obrigatoriedade.
+
+## Quando não usar
+
+- Como heading de seção.
+- Como badge/status.
+- Como placeholder visual dentro do input.
+- Para texto auxiliar; use descrição do `Form Field`.
 
 ## Acessibilidade
 
-- \`htmlFor\` deve corresponder ao \`id\` do input
-- Clique no label foca o input automaticamente
+- `htmlFor` deve corresponder ao `id` do controle.
+- Clique no label deve focar/alternar o controle.
+- Obrigatoriedade deve ser indicada visualmente e semanticamente no campo.
+- Label precisa continuar visível quando o campo tem valor.
+
+## Regras
+
+1. Todo campo editável precisa de label visível.
+2. Label deve ser curto, específico e orientado ao dado.
+3. Não use label para explicar consequência longa; use descrição.
+4. Não esconda label só para ganhar espaço em telas densas.
+5. Se o campo for assistido por IA, a origem aparece na descrição ou metadado, não no label.
