@@ -1,30 +1,179 @@
 ---
 title: Button Group
-description: Grupo de botões visualmente conectados para ações relacionadas.
+description: Grupo de botões relacionados para seleção única, visão ou período.
 ---
 
 # Button Group
 
-Agrupa botões visualmente conectados para ações relacionadas, como toggles de visualização ou seletores de período.
+> **Molecule**
+>
+> Button Group organiza opções relacionadas sem transformar cada opção em uma ação independente.
 
-## Import
+Use Button Group para alternar visão, período, ordenação simples ou modo de leitura. Ele funciona melhor quando as opções são mutuamente exclusivas e têm o mesmo peso visual.
+
+## Exemplos copiáveis
+
+<BlueprintNote />
+
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
 
 ```tsx
-import { ButtonGroup, ButtonGroupItem } from "@/components/ui/button-group"
-```
+import * as React from "react"
 
-## Uso básico
+type ButtonGroupOption = {
+  value: string
+  label: string
+  disabled?: boolean
+}
+
+type PulsoButtonGroupProps = {
+  label: string
+  value: string
+  options: ButtonGroupOption[]
+  onValueChange: (value: string) => void
+}
+
+export function PulsoButtonGroup({
+  label,
+  value,
+  options,
+  onValueChange,
+}: PulsoButtonGroupProps) {
+  return (
+    <div
+      role="radiogroup"
+      aria-label={label}
+      className="inline-flex rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--muted)] p-1"
+    >
+      {options.map((option) => {
+        const selected = option.value === value
+
+        return (
+          <button
+            key={option.value}
+            type="button"
+            role="radio"
+            aria-checked={selected}
+            disabled={option.disabled}
+            onClick={() => onValueChange(option.value)}
+            className={[
+              "min-h-9 rounded-[var(--radius-md)] px-3 text-sm font-medium transition-colors duration-[var(--motion-duration-fast)] ease-[var(--motion-easing)]",
+              selected
+                ? "bg-[var(--card)] text-[var(--fg)] shadow-sm"
+                : "text-[var(--fg-muted)] hover:text-[var(--fg)]",
+              "disabled:cursor-not-allowed disabled:text-[var(--fg-disabled)] disabled:hover:text-[var(--fg-disabled)]",
+              "focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]",
+            ].join(" ")}
+          >
+            {option.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+```
 
 ```tsx
-<ButtonGroup>
-  <ButtonGroupItem>Diário</ButtonGroupItem>
-  <ButtonGroupItem variant="active">Semanal</ButtonGroupItem>
-  <ButtonGroupItem>Mensal</ButtonGroupItem>
-</ButtonGroup>
+export function ViewModeControl() {
+  const [view, setView] = React.useState("list")
+
+  return (
+    <PulsoButtonGroup
+      label="Modo de visualização"
+      value={view}
+      onValueChange={setView}
+      options={[
+        { value: "list", label: "Lista" },
+        { value: "table", label: "Tabela" },
+        { value: "timeline", label: "Timeline" },
+      ]}
+    />
+  )
+}
 ```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<div class="button-group" role="radiogroup" aria-label="Modo de visualização">
+  <button class="button-group__item is-active" type="button" role="radio" aria-checked="true">
+    Lista
+  </button>
+  <button class="button-group__item" type="button" role="radio" aria-checked="false">
+    Tabela
+  </button>
+  <button class="button-group__item" type="button" role="radio" aria-checked="false">
+    Timeline
+  </button>
+</div>
+```
+
+```css
+.button-group {
+  display: inline-flex;
+  gap: 0;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--muted);
+}
+
+.button-group__item {
+  min-block-size: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--fg-muted);
+  font: inherit;
+  transition: color var(--motion-duration-fast) var(--motion-easing),
+    background-color var(--motion-duration-fast) var(--motion-easing);
+}
+
+.button-group__item:hover {
+  color: var(--fg);
+}
+
+.button-group__item.is-active,
+.button-group__item[aria-checked="true"] {
+  background: var(--card);
+  color: var(--fg);
+}
+
+.button-group__item:focus-visible {
+  outline: var(--ring-width) solid var(--ring);
+  outline-offset: 2px;
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
 
 ## Quando usar
 
-- Toggles de visualização (lista/grid/tabela)
-- Seletores de período (dia/semana/mês)
-- Ações mutuamente exclusivas
+- Alternar visão: lista, tabela, timeline.
+- Selecionar período curto: 24h, 7d, 30d, 90d.
+- Alternar escala de gráfico: linear/log.
+- Escolher modo de densidade quando isso é preferência do usuário.
+
+## Quando não usar
+
+- Ações independentes que podem acontecer em sequência.
+- Ação primária e secundária lado a lado; use botões separados.
+- Mais de cinco opções; prefira Select ou Tabs conforme contexto.
+- Opções que não são mutuamente exclusivas; use Checkbox ou Multi-select.
+
+## Regras
+
+1. Todos os itens devem ter altura e peso visual consistentes.
+2. Use `radiogroup` quando apenas uma opção pode estar ativa.
+3. A opção ativa precisa ter texto, não apenas cor.
+4. Não misture ação destrutiva dentro de Button Group.
+5. O grupo precisa de label acessível mesmo quando visualmente compacto.
