@@ -1,38 +1,199 @@
 ---
 title: Input Group
-description: Campo de input com elementos anexos (ícones, botões, prefixos, sufixos).
+description: Campo de input com prefixo, sufixo, ícone ou ação secundária acoplada.
 ---
 
 # Input Group
 
-Wrapper para inputs com elementos visuais anexos.
+> **Molecule**
+>
+> Input Group adiciona contexto ou ação secundária a um input sem tirar o foco do preenchimento.
 
-## Import
+Use Input Group para busca, URL, prefixos fixos, sufixos de unidade ou ações auxiliares como testar webhook. O elemento anexado não deve competir com a ação primária do formulário.
 
-```tsx
-import { InputGroup, InputGroupText, InputGroupButton } from "@/components/ui/input-group"
-```
+## Exemplos copiáveis
 
-## Com ícone
+<BlueprintNote />
 
-```tsx
-<InputGroup>
-  <SearchIcon className="size-4 text-muted-foreground" />
-  <Input placeholder="Buscar crises..." />
-</InputGroup>
-```
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-## Com botão
+### React
 
 ```tsx
-<InputGroup>
-  <Input placeholder="URL do webhook" />
-  <InputGroupButton><Button variant="ghost">Testar</Button></InputGroupButton>
-</InputGroup>
+import * as React from "react"
+
+type PulsoInputGroupProps = {
+  id?: string
+  label: string
+  prefix?: React.ReactNode
+  suffix?: React.ReactNode
+  action?: React.ReactNode
+} & React.InputHTMLAttributes<HTMLInputElement>
+
+export function PulsoInputGroup({
+  id,
+  label,
+  prefix,
+  suffix,
+  action,
+  className,
+  ...props
+}: PulsoInputGroupProps) {
+  const reactId = React.useId()
+  const inputId = id ?? reactId
+
+  return (
+    <div className="grid gap-1.5">
+      <label
+        htmlFor={inputId}
+        className="font-mono text-xs font-semibold uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-muted)]"
+      >
+        {label}
+      </label>
+
+      <div className="flex min-h-10 items-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] focus-within:outline focus-within:outline-[var(--ring-width)] focus-within:outline-offset-2 focus-within:outline-[var(--ring)]">
+        {prefix ? (
+          <span className="flex items-center border-r border-[var(--border)] px-3 text-sm text-[var(--fg-muted)]">
+            {prefix}
+          </span>
+        ) : null}
+
+        <input
+          id={inputId}
+          className={[
+            "min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-[var(--fg)] outline-none placeholder:text-[var(--fg-subtle)]",
+            className,
+          ].filter(Boolean).join(" ")}
+          {...props}
+        />
+
+        {suffix ? (
+          <span className="flex items-center border-l border-[var(--border)] px-3 text-sm text-[var(--fg-muted)]">
+            {suffix}
+          </span>
+        ) : null}
+
+        {action ? (
+          <div className="border-l border-[var(--border)] px-1">{action}</div>
+        ) : null}
+      </div>
+    </div>
+  )
+}
 ```
+
+```tsx
+<PulsoInputGroup
+  label="Webhook"
+  prefix="https://"
+  placeholder="example.com/pulso/webhook"
+  action={
+    <button className="rounded-[var(--radius-sm)] px-3 py-1.5 text-sm font-medium text-[var(--primary)] hover:bg-[var(--muted)]">
+      Testar
+    </button>
+  }
+/>
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<div class="input-group-field">
+  <label class="input-group-field__label" for="webhook-url">Webhook</label>
+
+  <div class="input-group">
+    <span class="input-group__prefix">https://</span>
+    <input
+      id="webhook-url"
+      class="input-group__control"
+      placeholder="example.com/pulso/webhook"
+    />
+    <button type="button" class="input-group__action">Testar</button>
+  </div>
+</div>
+```
+
+```css
+.input-group-field {
+  display: grid;
+  gap: 6px;
+}
+
+.input-group-field__label {
+  font: 600 12px/1 var(--font-mono);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.input-group {
+  display: flex;
+  min-block-size: 40px;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card);
+}
+
+.input-group:focus-within {
+  outline: var(--ring-width) solid var(--ring);
+  outline-offset: 2px;
+}
+
+.input-group__prefix,
+.input-group__action {
+  padding: 0 12px;
+  color: var(--fg-muted);
+}
+
+.input-group__prefix,
+.input-group__action {
+  border-right: 1px solid var(--border);
+}
+
+.input-group__control {
+  min-inline-size: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--fg);
+}
+
+.input-group__action {
+  border-right: 0;
+  border-left: 1px solid var(--border);
+  color: var(--primary);
+  background: transparent;
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
 
 ## Quando usar
 
-- Campos de busca com ícone
-- Inputs com ações secundárias
-- URLs com prefixo fixo
+- Busca com ícone ou prefixo visual.
+- URLs com protocolo ou domínio fixo.
+- Valores com unidade (`min`, `%`, `kg`, `menções/h`).
+- Ação secundária acoplada ao campo, como testar, copiar ou revelar.
+
+## Quando não usar
+
+- Para esconder ação primária dentro do campo.
+- Quando o prefixo altera o significado de forma ambígua.
+- Em campos onde a ação secundária pode disparar efeito destrutivo.
+- Para filtros complexos; use `Filter Bar`.
+
+## Regras
+
+1. O label continua fora do grupo.
+2. Prefixo/sufixo devem ser texto real quando fazem parte do valor esperado.
+3. Ícone sozinho precisa de nome acessível quando for acionável.
+4. Ação secundária não deve enviar formulário inteiro.
+5. Erro pertence ao Form Field que envolve o grupo.
