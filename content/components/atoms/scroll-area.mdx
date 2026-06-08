@@ -1,32 +1,60 @@
+---
+title: Scroll Area
+description: Região com rolagem interna para conteúdo longo sem perder contexto.
+---
+
 # Scroll Area
 
-> Container com scroll customizado e estilizado.
+> **Atom / layout primitive**
+>
+> Scroll Area limita rolagem a uma região. Use para preservar cabeçalho, ações ou contexto ao redor.
 
----
+## Exemplos copiáveis
 
-## Props
+<BlueprintNote />
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-## Uso
-
-```tsx
-import { ScrollArea } from "@/components/ui/scroll-area"
-
-// Exemplo de uso basico
-```
-
----
-
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+export function PulsoScrollArea({ children, label }: { children: React.ReactNode; label: string }) {
+  return (
+    <div role="region" aria-label={label} tabIndex={0} className="max-h-80 overflow-auto rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] p-3 focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]">
+      {children}
+    </div>
+  )
+}
 ```
 
-</details>
+```tsx
+<PulsoScrollArea label="Menções recentes"><ul>{mentions.map((mention) => <li>{mention.title}</li>)}</ul></PulsoScrollArea>
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<div class="scroll-area" role="region" aria-label="Menções recentes" tabindex="0"><ul><li>Menção crítica</li><li>Menção em atenção</li></ul></div>
+```
+
+```css
+.scroll-area { max-height:320px; overflow:auto; padding:12px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--card); }
+.scroll-area:focus-visible { outline:var(--ring-width) solid var(--ring); outline-offset:2px; }
+.scroll-area ul { margin:0; padding-left:20px; }
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Regras
+
+1. Use quando scroll interno preserva contexto.
+2. Região rolável precisa ser acessível por teclado quando focável.
+3. Não aninhe scrolls sem necessidade.
+4. Indique visualmente que há mais conteúdo quando isso afeta decisão.

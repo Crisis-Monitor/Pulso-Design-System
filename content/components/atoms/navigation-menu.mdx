@@ -1,32 +1,72 @@
+---
+title: Navigation Menu
+description: Navegação principal ou contextual com grupos e destinos claros.
+---
+
 # Navigation Menu
 
-> Menu de navegacao principal com dropdowns e transicoes.
+> **Atom**
+>
+> Navigation Menu leva a pessoa para outro destino. Ele não executa ação destrutiva.
 
----
+## Exemplos copiáveis
 
-## Props
+<BlueprintNote />
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-## Uso
-
-```tsx
-import { NavigationMenu } from "@/components/ui/navigation-menu"
-
-// Exemplo de uso basico
-```
-
----
-
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+type NavItem = { label: string; href: string; current?: boolean }
+
+export function PulsoNavigationMenu({ items }: { items: NavItem[] }) {
+  return (
+    <nav aria-label="Navegação principal">
+      <ul className="flex flex-wrap gap-2">
+        {items.map((item) => (
+          <li key={item.href}>
+            <a aria-current={item.current ? "page" : undefined} href={item.href} className={[
+              "inline-flex rounded-[var(--radius-sm)] px-3 py-2 text-sm font-medium",
+              item.current ? "bg-[var(--primary-soft)] text-[var(--primary)]" : "text-[var(--fg-muted)] hover:bg-[var(--muted)] hover:text-[var(--fg)]",
+            ].join(" ")}>{item.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
 ```
 
-</details>
+```tsx
+<PulsoNavigationMenu items={[{ label: "Foundations", href: "/foundations", current: true }, { label: "Components", href: "/components" }]} />
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<nav class="nav-menu" aria-label="Navegação principal"><a href="/foundations" aria-current="page">Foundations</a><a href="/components">Components</a></nav>
+```
+
+```css
+.nav-menu { display:flex; flex-wrap:wrap; gap:8px; }
+.nav-menu a { border-radius:var(--radius-sm); color:var(--fg-muted); padding:8px 12px; text-decoration:none; font-weight:600; }
+.nav-menu a:hover { background:var(--muted); color:var(--fg); }
+.nav-menu [aria-current="page"] { background:var(--primary-soft); color:var(--primary); }
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Regras
+
+1. Navigation Menu navega; não confirma ação.
+2. Use `aria-current` para página ativa.
+3. Labels precisam ser curtos e previsíveis.
+4. Não esconda destinos essenciais atrás de hover apenas.

@@ -1,32 +1,87 @@
+---
+title: Item
+description: Linha acionável ou selecionável para listas, menus e resultados.
+---
+
 # Item
 
-> Elemento generico de lista ou menu com estado de selecao.
+> **Atom**
+>
+> Item representa uma unidade em lista ou menu. Ele precisa deixar claro se é navegação, seleção ou ação.
 
----
+Use Item para resultados, menus, listas de fontes e opções contextuais. Em superfícies operacionais, o estado ativo/selecionado não pode depender só de cor.
 
-## Props
+## Exemplos copiáveis
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+<BlueprintNote />
 
-## Uso
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-```tsx
-import { Item } from "@/components/ui/item"
-
-// Exemplo de uso basico
-```
-
----
-
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+type PulsoItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  title: string
+  description?: string
+  selected?: boolean
+}
+
+export function PulsoItem({ title, description, selected = false, className, ...props }: PulsoItemProps) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      data-selected={selected}
+      className={[
+        "flex w-full items-start justify-between gap-3 rounded-[var(--radius-md)] border px-3 py-2 text-left transition-colors duration-[var(--motion-duration-fast)] ease-[var(--motion-easing)]",
+        selected ? "border-[var(--primary)] bg-[var(--primary-soft)]" : "border-[var(--border)] bg-[var(--card)] hover:bg-[var(--muted)]",
+        "focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]",
+        className,
+      ].filter(Boolean).join(" ")}
+      {...props}
+    >
+      <span>
+        <span className="block text-sm font-semibold text-[var(--fg-strong)]">{title}</span>
+        {description ? <span className="mt-0.5 block text-xs text-[var(--fg-muted)]">{description}</span> : null}
+      </span>
+    </button>
+  )
+}
 ```
 
-</details>
+```tsx
+<PulsoItem title="PLS-012" description="Vazamento — APP · risco high" selected />
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<button class="item" type="button" aria-pressed="true" data-selected="true">
+  <span><strong>PLS-012</strong><small>Vazamento — APP · risco high</small></span>
+</button>
+```
+
+```css
+.item { display:flex; width:100%; gap:12px; padding:8px 12px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--card); color:var(--fg); text-align:left; }
+.item:hover { background:var(--muted); }
+.item:focus-visible { outline:var(--ring-width) solid var(--ring); outline-offset:2px; }
+.item[data-selected="true"] { border-color:var(--primary); background:var(--primary-soft); }
+.item strong { display:block; color:var(--fg-strong); }
+.item small { display:block; margin-top:2px; color:var(--fg-muted); }
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Regras
+
+1. Item precisa ter papel claro: navegação, seleção ou ação.
+2. Estado selecionado usa texto/semântica além de cor.
+3. Não esconda risco ou consequência em metadado truncado.
+4. Item destrutivo exige confirmação proporcional.
