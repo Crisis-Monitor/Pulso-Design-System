@@ -13,10 +13,14 @@ Filter Bar é o padrão para listas, feeds e resultados de busca do Pulso. Ela c
 
 Use este padrão em superfícies onde a lista muda por critérios operacionais: fonte, nível de risco, sentimento, período, owner, status, origem ou preset salvo.
 
-
-## Blueprint React copiável
+## Exemplos copiáveis
 
 <BlueprintNote />
+
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
 
 ```tsx
 import * as React from "react"
@@ -68,9 +72,7 @@ export function PulsoFilterBar({
   return (
     <section aria-label="Filtros da lista" className="grid gap-3">
       <div className="flex flex-wrap items-center gap-2 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-2">
-        <label className="sr-only" htmlFor="filter-query">
-          Buscar casos
-        </label>
+        <label className="sr-only" htmlFor="filter-query">Buscar casos</label>
         <input
           id="filter-query"
           value={query}
@@ -88,9 +90,7 @@ export function PulsoFilterBar({
               onClick={() => onPeriodChange(item.value)}
               className={[
                 "rounded-[var(--radius-sm)] px-3 py-1.5 text-sm transition-colors duration-[var(--motion-duration-fast)] ease-[var(--motion-easing)]",
-                period === item.value
-                  ? "bg-[var(--card)] text-[var(--fg)] shadow-sm"
-                  : "text-[var(--fg-muted)] hover:text-[var(--fg)]",
+                period === item.value ? "bg-[var(--card)] text-[var(--fg)] shadow-sm" : "text-[var(--fg-muted)] hover:text-[var(--fg)]",
               ].join(" ")}
             >
               {item.label}
@@ -100,18 +100,9 @@ export function PulsoFilterBar({
 
         <div className="flex flex-wrap gap-2">
           {facets.map((facet) => (
-            <button
-              key={facet.id}
-              type="button"
-              onClick={() => onOpenFacet(facet.id)}
-              className="inline-flex min-h-9 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border)] px-3 text-sm font-medium text-[var(--fg)] hover:bg-[var(--muted)]"
-            >
+            <button key={facet.id} type="button" onClick={() => onOpenFacet(facet.id)} className="inline-flex min-h-9 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border)] px-3 text-sm font-medium text-[var(--fg)] hover:bg-[var(--muted)]">
               {facet.label}
-              {facet.count ? (
-                <span className="rounded-full bg-[var(--primary-soft)] px-2 py-0.5 font-mono text-xs text-[var(--primary)]">
-                  {facet.count}
-                </span>
-              ) : null}
+              {facet.count ? <span className="rounded-full bg-[var(--primary-soft)] px-2 py-0.5 font-mono text-xs text-[var(--primary)]">{facet.count}</span> : null}
             </button>
           ))}
         </div>
@@ -120,29 +111,13 @@ export function PulsoFilterBar({
       {hasActiveFilters ? (
         <div className="flex flex-wrap items-center gap-2" aria-label="Filtros ativos">
           {activeFilters.map((filter) => (
-            <button
-              key={filter.id}
-              type="button"
-              onClick={() => onRemoveFilter(filter.id)}
-              className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-xs text-[var(--fg)]"
-            >
-              <span className="font-mono uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-muted)]">
-                {filter.label}
-              </span>
+            <button key={filter.id} type="button" onClick={() => onRemoveFilter(filter.id)} className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-xs text-[var(--fg)]">
+              <span className="font-mono uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-muted)]">{filter.label}</span>
               {filter.value}
               <span aria-hidden="true">×</span>
             </button>
           ))}
-
-          {activeFilters.length > 2 ? (
-            <button
-              type="button"
-              onClick={onClearFilters}
-              className="px-2 py-1 text-xs font-medium text-[var(--primary)]"
-            >
-              Limpar todos
-            </button>
-          ) : null}
+          {activeFilters.length > 2 ? <button type="button" onClick={onClearFilters} className="px-2 py-1 text-xs font-medium text-[var(--primary)]">Limpar todos</button> : null}
         </div>
       ) : null}
     </section>
@@ -150,38 +125,100 @@ export function PulsoFilterBar({
 }
 ```
 
-### Exemplo de uso
-
 ```tsx
-export function CasesFilterBar() {
-  const [query, setQuery] = React.useState("")
-  const [period, setPeriod] = React.useState<PulsoFilterBarProps["period"]>("7d")
-  const [activeFilters, setActiveFilters] = React.useState<ActiveFilter[]>([
-    { id: "risk-high", label: "Risco", value: "high" },
-    { id: "owner-cris", label: "Origem", value: "Cris" },
-  ])
+<PulsoFilterBar
+  query={query}
+  period="7d"
+  facets={[{ id: "risk", label: "Risco", count: 1 }, { id: "source", label: "Fonte" }]}
+  activeFilters={[{ id: "risk-high", label: "Risco", value: "high" }]}
+  onQueryChange={setQuery}
+  onPeriodChange={setPeriod}
+  onOpenFacet={(facetId) => console.log("open facet", facetId)}
+  onRemoveFilter={(filterId) => console.log("remove", filterId)}
+  onClearFilters={() => console.log("clear")}
+/>
+```
 
-  return (
-    <PulsoFilterBar
-      query={query}
-      period={period}
-      facets={[
-        { id: "risk", label: "Risco", count: 1 },
-        { id: "source", label: "Fonte" },
-        { id: "owner", label: "Origem", count: 1 },
-      ]}
-      activeFilters={activeFilters}
-      onQueryChange={setQuery}
-      onPeriodChange={setPeriod}
-      onOpenFacet={(facetId) => console.log("open facet", facetId)}
-      onRemoveFilter={(filterId) =>
-        setActiveFilters((filters) => filters.filter((filter) => filter.id !== filterId))
-      }
-      onClearFilters={() => setActiveFilters([])}
-    />
-  )
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<section class="filter-bar" aria-label="Filtros da lista">
+  <div class="filter-bar__surface">
+    <label class="sr-only" for="filter-query">Buscar casos</label>
+    <input id="filter-query" placeholder="Buscar caso, fonte ou termo" />
+
+    <div class="filter-bar__period" aria-label="Período">
+      <button type="button" aria-pressed="false">24h</button>
+      <button type="button" aria-pressed="true">7d</button>
+      <button type="button" aria-pressed="false">30d</button>
+      <button type="button" aria-pressed="false">90d</button>
+    </div>
+
+    <button type="button" class="filter-bar__facet">Risco <span>1</span></button>
+    <button type="button" class="filter-bar__facet">Fonte</button>
+  </div>
+
+  <div class="filter-bar__active" aria-label="Filtros ativos">
+    <button type="button"><span>Risco</span> high <span aria-hidden="true">×</span></button>
+    <button type="button"><span>Origem</span> Cris <span aria-hidden="true">×</span></button>
+  </div>
+</section>
+```
+
+```css
+.filter-bar {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.filter-bar__surface {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  padding: var(--space-2);
+}
+
+.filter-bar input {
+  min-height: 36px;
+  min-width: 220px;
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--background);
+  color: var(--fg);
+  padding-inline: var(--space-3);
+}
+
+.filter-bar__period {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--muted);
+  padding: var(--space-1);
+}
+
+.filter-bar__period button[aria-pressed="true"] {
+  background: var(--card);
+  color: var(--fg);
+  box-shadow: var(--shadow-sm);
+}
+
+.filter-bar__active {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
 }
 ```
+
+  </Tabs.Tab>
+</Tabs>
 
 ## Anatomia
 
@@ -190,40 +227,8 @@ export function CasesFilterBar() {
 | Busca | Consulta textual | Debounce antes de aplicar; não limpe filtros existentes |
 | Período | Recorte temporal mais frequente | Deve ser visível, geralmente como segmented control |
 | Facetas | Critérios estruturados | Use botão/popover com contador quando houver seleção ativa |
-| Ações utilitárias | Exportar, salvar preset, limpar | Ficam à direita e não competem com filtros principais |
+| Ações utilitárias | Exportar, salvar preset, limpar | Não competem com filtros principais |
 | Filtros ativos | Estado aplicado | Aparecem como chips removíveis abaixo da barra |
-
-A barra não deve depender só do placeholder. Quando uma consulta está aplicada, o estado precisa sobreviver à rolagem mental do operador.
-
-## Variante padrão
-
-Use em páginas de lista completas.
-
-- Busca à esquerda.
-- Período visível como escolha rápida.
-- Facetas em botões com contador.
-- Strip de chips ativos abaixo.
-- `Limpar todos` quando houver mais de dois filtros ativos.
-- Preset salvo quando a combinação representa uma rotina recorrente.
-
-## Variante compacta
-
-Use em painéis laterais, drawers e áreas onde a lista é secundária.
-
-- Pode omitir a strip de chips.
-- O botão de faceta deve carregar contador.
-- O estado completo precisa estar disponível no popover.
-- Não esconda filtros críticos como risco ou período.
-
-## Filtros ativos
-
-| Estado | Comportamento |
-|---|---|
-| Nenhum filtro | Mostre busca/período padrão; não renderize strip vazia |
-| 1–2 filtros | Mostre chips individuais removíveis |
-| 3+ filtros | Mostre chips e ação `Limpar todos` |
-| Preset aplicado | Mostre nome do preset e filtros derivados |
-| Filtro inválido | Remova ou marque como indisponível; não aplique silenciosamente |
 
 ## Regras
 
