@@ -1,32 +1,98 @@
+---
+title: Resizable
+description: Divisor arrastável para painéis operacionais ajustáveis.
+---
+
 # Resizable
 
-> Painel redimensionavel com divider arrastavel para layouts split.
+> **Atom**
+>
+> Resizable permite ajustar espaço entre painéis sem perder contexto de decisão.
 
----
+Use em layouts split: lista + detalhe, timeline + evidência, briefing + fontes. O redimensionamento deve preservar mínimos úteis e oferecer alternativa por teclado quando usado em produto real.
 
-## Props
+## Exemplos copiáveis
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+<BlueprintNote />
 
-## Uso
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-```tsx
-import { Resizable } from "@/components/ui/resizable"
-
-// Exemplo de uso basico
-```
-
----
-
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+type PulsoResizableProps = {
+  left: React.ReactNode
+  right: React.ReactNode
+}
+
+export function PulsoResizable({ left, right }: PulsoResizableProps) {
+  const [leftWidth, setLeftWidth] = React.useState(38)
+
+  return (
+    <section className="grid min-h-72 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)]" style={{ gridTemplateColumns: `${leftWidth}% 10px 1fr` }}>
+      <aside className="min-w-48 p-4">{left}</aside>
+      <input
+        aria-label="Ajustar largura da lista"
+        type="range"
+        min={28}
+        max={55}
+        value={leftWidth}
+        onChange={(event) => setLeftWidth(Number(event.currentTarget.value))}
+        className="h-full cursor-col-resize appearance-none bg-[var(--border)]"
+      />
+      <main className="min-w-64 border-l border-[var(--border)] p-4">{right}</main>
+    </section>
+  )
+}
 ```
 
-</details>
+```tsx
+<PulsoResizable
+  left={<p>Lista de casos</p>}
+  right={<p>Detalhe do caso selecionado</p>}
+/>
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<section class="resizable-shell">
+  <aside>Lista de casos</aside>
+  <input type="range" min="28" max="55" value="38" aria-label="Ajustar largura da lista" />
+  <main>Detalhe do caso selecionado</main>
+</section>
+```
+
+```css
+.resizable-shell {
+  display: grid;
+  grid-template-columns: 38% 10px 1fr;
+  min-height: 18rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+}
+
+.resizable-shell > input {
+  appearance: none;
+  cursor: col-resize;
+  background: var(--border);
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Regras
+
+- Defina largura mínima para cada painel.
+- Não permita que evidência, ação crítica ou resumo desapareça.
+- Persistência de tamanho deve ser preferência do usuário, não regra global.
+- Em produto real, suporte teclado e leitores de tela para o divisor.

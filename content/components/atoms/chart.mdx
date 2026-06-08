@@ -1,32 +1,92 @@
+---
+title: Chart
+description: Wrapper semântico para visualizações de dados com legenda, descrição e fallback textual.
+---
+
 # Chart
 
-> Graficos de dados com suporte a tooltip, legendas e tooltips customizados.
+> **Atom**
+>
+> Chart é a superfície que dá contexto, legenda e fallback a uma visualização. O gráfico não é só decoração.
 
----
+Use Chart quando o número precisa virar leitura comparativa: tendência, distribuição, volume, score ou composição. Para Pulso, todo gráfico deve ter título, descrição curta e fallback textual para que a decisão não dependa apenas da cor ou do desenho.
 
-## Props
+## Exemplos copiáveis
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+<BlueprintNote />
 
-## Uso
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-```tsx
-import { Chart } from "@/components/ui/chart"
-
-// Exemplo de uso basico
-```
-
----
-
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+type PulsoChartProps = {
+  title: string
+  description: string
+  summary: string
+  children: React.ReactNode
+}
+
+export function PulsoChart({ title, description, summary, children }: PulsoChartProps) {
+  const descriptionId = React.useId()
+
+  return (
+    <figure className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-4">
+      <figcaption>
+        <h3 className="text-base font-semibold text-[var(--fg-strong)]">{title}</h3>
+        <p id={descriptionId} className="mt-1 text-sm text-[var(--fg-muted)]">{description}</p>
+      </figcaption>
+      <div role="img" aria-describedby={descriptionId} aria-label={summary} className="mt-4 rounded-[var(--radius-md)] bg-[var(--muted)] p-4">
+        {children}
+      </div>
+      <p className="sr-only">{summary}</p>
+    </figure>
+  )
+}
 ```
 
-</details>
+```tsx
+<PulsoChart
+  title="Menções por hora"
+  description="Últimas 6 horas, comparando volume monitorado e threshold de atenção."
+  summary="Menções subiram de 240 para 410 e cruzaram o threshold de atenção."
+>
+  <svg viewBox="0 0 240 80" aria-hidden="true" className="h-24 w-full">
+    <path d="M8 62 L52 58 L96 50 L140 36 L184 30 L232 18" fill="none" stroke="var(--primary)" strokeWidth="3" />
+    <line x1="8" x2="232" y1="38" y2="38" stroke="var(--risk-attention-border)" strokeDasharray="4 4" />
+  </svg>
+</PulsoChart>
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<figure class="chart-card">
+  <figcaption>
+    <h3>Menções por hora</h3>
+    <p id="mentions-desc">Últimas 6 horas, comparando volume monitorado e threshold de atenção.</p>
+  </figcaption>
+  <div class="chart-canvas" role="img" aria-describedby="mentions-desc" aria-label="Menções subiram de 240 para 410 e cruzaram o threshold de atenção.">
+    <svg viewBox="0 0 240 80" aria-hidden="true">
+      <path d="M8 62 L52 58 L96 50 L140 36 L184 30 L232 18"></path>
+      <line x1="8" x2="232" y1="38" y2="38"></line>
+    </svg>
+  </div>
+</figure>
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Regras
+
+- Sempre inclua título, descrição e resumo textual.
+- Não codifique risco apenas por cor; use label, legenda ou threshold textual.
+- Delta continua sendo movimento de métrica, não risco operacional.
+- Para receitas completas, use a seção Data Visualization.

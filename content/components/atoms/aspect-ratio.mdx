@@ -1,32 +1,101 @@
+---
+title: Aspect Ratio
+description: Container que preserva proporção visual para mídia, mapas e previews responsivos.
+---
+
 # Aspect Ratio
 
-> Container que mantem proporcao fixa para midia responsiva.
+> **Atom**
+>
+> Aspect Ratio mantém a proporção de uma superfície sem depender do tamanho final da viewport.
 
----
+Use para imagens, mapas, vídeos, thumbnails e previews que precisam ocupar largura fluida sem quebrar ritmo visual. A proporção é contrato de layout: não use para esconder conteúdo que precisa determinar a própria altura.
 
-## Props
+## Exemplos copiáveis
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+<BlueprintNote />
 
-## Uso
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-```tsx
-import { AspectRatio } from "@/components/ui/aspect-ratio"
-
-// Exemplo de uso basico
-```
-
----
-
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+type PulsoAspectRatioProps = {
+  ratio?: number
+  label: string
+  children: React.ReactNode
+}
+
+export function PulsoAspectRatio({ ratio = 16 / 9, label, children }: PulsoAspectRatioProps) {
+  return (
+    <figure className="space-y-2">
+      <div
+        aria-label={label}
+        className="overflow-hidden rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--muted)]"
+        style={{ aspectRatio: ratio }}
+      >
+        {children}
+      </div>
+      <figcaption className="text-sm text-[var(--fg-muted)]">{label}</figcaption>
+    </figure>
+  )
+}
 ```
 
-</details>
+```tsx
+<PulsoAspectRatio label="Mapa de menções por região" ratio={4 / 3}>
+  <div className="grid h-full place-items-center text-[var(--fg-muted)]">
+    Preview do mapa
+  </div>
+</PulsoAspectRatio>
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<figure class="aspect-example">
+  <div class="aspect-box" aria-label="Mapa de menções por região">
+    <span>Preview do mapa</span>
+  </div>
+  <figcaption>Mapa de menções por região</figcaption>
+</figure>
+```
+
+```css
+.aspect-example {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.aspect-box {
+  aspect-ratio: 4 / 3;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--muted);
+  color: var(--fg-muted);
+}
+
+.aspect-example figcaption {
+  color: var(--fg-muted);
+  font-size: var(--text-sm);
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Regras
+
+- Use proporções explícitas: `1 / 1`, `4 / 3`, `16 / 9`.
+- Não fixe altura e proporção ao mesmo tempo sem motivo.
+- Preserve legenda ou contexto quando a mídia informa decisão.
+- Não use para conteúdo textual longo; texto deve definir sua própria altura.
