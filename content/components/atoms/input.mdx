@@ -5,52 +5,49 @@ description: Campo de texto para coleta curta de informação operacional.
 
 # Input
 
-Campo de texto para entradas curtas: busca, nome de fonte, identificador de caso, e-mail ou filtro textual.
+> **Atom**
+>
+> Input coleta texto livre curto. Ele precisa de label, descrição quando houver consequência e erro textual quando a entrada falhar.
 
-Use `Input` quando a pessoa precisa digitar um valor livre. Para seleção entre opções conhecidas, prefira `Select`, `Radio Group` ou `Checkbox`.
+Use `Input` para busca, nome de fonte, identificador de caso, e-mail ou filtro textual. Para escolha entre opções conhecidas, prefira `Select`, `Radio Group` ou `Checkbox`.
 
-## Blueprint React copiável
+## Exemplos copiáveis
 
 <BlueprintNote />
 
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
+
 ```tsx
-import * as React from "react";
+import * as React from "react"
 
 type PulsoInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
-  label: string;
-  description?: string;
-  error?: string;
-};
+  label: string
+  description?: string
+  error?: string
+}
 
-export function PulsoInput({
-  id,
-  label,
-  description,
-  error,
-  className,
-  ...props
-}: PulsoInputProps) {
-  const reactId = React.useId();
-  const inputId = id ?? reactId;
-  const descriptionId = description ? `${inputId}-description` : undefined;
-  const errorId = error ? `${inputId}-error` : undefined;
+export function PulsoInput({ id, label, description, error, className, ...props }: PulsoInputProps) {
+  const reactId = React.useId()
+  const inputId = id ?? reactId
+  const descriptionId = description ? `${inputId}-description` : undefined
+  const errorId = error ? `${inputId}-error` : undefined
+  const describedBy = [descriptionId, errorId].filter(Boolean).join(" ") || undefined
 
   return (
     <div className="grid gap-1.5">
-      <label
-        htmlFor={inputId}
-        className="font-mono text-[10.5px] uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-subtle)]"
-      >
+      <label htmlFor={inputId} className="font-mono text-[10.5px] uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-subtle)]">
         {label}
       </label>
-
       <input
         id={inputId}
-        aria-describedby={[descriptionId, errorId].filter(Boolean).join(" ") || undefined}
+        aria-describedby={describedBy}
         aria-invalid={error ? true : undefined}
         className={[
-          "h-9 rounded-[var(--radius-md)] border bg-[var(--card)] px-3 text-sm text-[var(--fg)]",
-          "border-[var(--border-strong)] outline-none transition-colors duration-[var(--motion-duration-fast)] ease-[var(--motion-easing)]",
+          "h-9 rounded-[var(--radius-md)] border border-[var(--border-strong)] bg-[var(--card)] px-3 text-sm text-[var(--fg)]",
+          "outline-none transition-colors duration-[var(--motion-duration-fast)] ease-[var(--motion-easing)]",
           "placeholder:text-[var(--fg-subtle)] focus-visible:border-[var(--primary)] focus-visible:ring-[var(--ring-width)] focus-visible:ring-[var(--ring)]",
           "disabled:cursor-not-allowed disabled:text-[var(--fg-disabled)] disabled:opacity-60",
           error ? "border-[var(--destructive)]" : "",
@@ -58,24 +55,12 @@ export function PulsoInput({
         ].filter(Boolean).join(" ")}
         {...props}
       />
-
-      {description ? (
-        <p id={descriptionId} className="text-xs text-[var(--fg-muted)]">
-          {description}
-        </p>
-      ) : null}
-
-      {error ? (
-        <p id={errorId} className="text-xs text-[var(--destructive)]">
-          {error}
-        </p>
-      ) : null}
+      {description ? <p id={descriptionId} className="text-xs text-[var(--fg-muted)]">{description}</p> : null}
+      {error ? <p id={errorId} className="text-xs text-[var(--destructive)]">{error}</p> : null}
     </div>
-  );
+  )
 }
 ```
-
-## Uso
 
 ```tsx
 <PulsoInput
@@ -85,9 +70,58 @@ export function PulsoInput({
 />
 ```
 
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<div class="input-field">
+  <label for="source-name">Fonte monitorada</label>
+  <input
+    id="source-name"
+    name="sourceName"
+    placeholder="Ex.: Banco Central"
+    aria-describedby="source-name-help"
+  />
+  <p id="source-name-help">Use o nome público da fonte para facilitar auditoria.</p>
+</div>
+```
+
+```css
+.input-field {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.input-field label {
+  color: var(--fg-subtle);
+  font: var(--font-weight-medium) var(--text-xs) var(--font-mono);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.input-field input {
+  min-height: 36px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  color: var(--fg);
+  padding-inline: var(--space-3);
+}
+
+.input-field input[aria-invalid="true"] {
+  border-color: var(--destructive);
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
 ## Regras
 
-- Sempre associe `label` ao campo via `htmlFor`.
+- Sempre associe `label` ao campo via `htmlFor`/`for`.
 - Não use placeholder como label.
 - Mostre erro com texto, não apenas borda vermelha.
+- Use `aria-describedby` para conectar ajuda e erro.
 - Prefira descrições curtas que expliquem consequência ou formato esperado.
