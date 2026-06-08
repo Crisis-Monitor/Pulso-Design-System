@@ -1,32 +1,86 @@
+---
+title: Field
+description: Composição de label, controle, ajuda e erro para formulários rastreáveis.
+---
+
 # Field
 
-> Wrapper de campo de formulario com label, hint e estado de erro.
+> **Atom**
+>
+> Field conecta label, hint, controle e erro. Ele transforma input solto em contrato legível.
 
----
+Use Field em formulários, filtros e configurações quando o significado do dado precisa ser claro. O erro deve dizer o que aconteceu e como corrigir, não apenas pintar a borda.
 
-## Props
+## Exemplos copiáveis
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+<BlueprintNote />
 
-## Uso
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-```tsx
-import { Field } from "@/components/ui/field"
-
-// Exemplo de uso basico
-```
-
----
-
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+type PulsoFieldProps = {
+  label: string
+  hint?: string
+  error?: string
+  children: (ids: { inputId: string; hintId: string; errorId: string }) => React.ReactNode
+}
+
+export function PulsoField({ label, hint, error, children }: PulsoFieldProps) {
+  const inputId = React.useId()
+  const hintId = `${inputId}-hint`
+  const errorId = `${inputId}-error`
+
+  return (
+    <div className="grid gap-1.5">
+      <label htmlFor={inputId} className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-muted)]">
+        {label}
+      </label>
+      {children({ inputId, hintId, errorId })}
+      {hint ? <p id={hintId} className="text-sm text-[var(--fg-muted)]">{hint}</p> : null}
+      {error ? <p id={errorId} className="text-sm font-medium text-[var(--risk-critical-text)]">{error}</p> : null}
+    </div>
+  )
+}
 ```
 
-</details>
+```tsx
+<PulsoField label="Nome do monitoramento" hint="Use um nome curto e rastreável." error={undefined}>
+  {({ inputId, hintId, errorId }) => (
+    <input
+      id={inputId}
+      aria-describedby={`${hintId} ${errorId}`}
+      className="h-9 rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--card)] px-3"
+      placeholder="Operação Água"
+    />
+  )}
+</PulsoField>
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<div class="field">
+  <label for="monitor-name">Nome do monitoramento</label>
+  <input id="monitor-name" aria-describedby="monitor-name-hint monitor-name-error" placeholder="Operação Água" />
+  <p id="monitor-name-hint">Use um nome curto e rastreável.</p>
+  <p id="monitor-name-error" role="alert">Informe um nome antes de salvar.</p>
+</div>
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Regras
+
+- Todo controle precisa de label programático.
+- Hint explica formato, consequência ou critério; não repete placeholder.
+- Erro deve ser específico e acionável.
+- Use `aria-describedby` para conectar ajuda e erro ao controle.

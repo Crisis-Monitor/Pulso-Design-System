@@ -1,32 +1,95 @@
+---
+title: Sonner
+description: Toasts para feedback curto, não bloqueante e reversível.
+---
+
 # Sonner
 
-> Sistema de notificacoes toast para feedback de acoes.
+> **Atom**
+>
+> Sonner representa a camada de toast. Ele confirma feedback curto; não substitui alerta, diálogo ou log de auditoria.
 
----
+Use para ações concluídas, cópia, salvamento leve ou falhas recuperáveis. Em operações de crise, toasts não podem ser o único lugar onde risco, consequência ou ação obrigatória aparece.
 
-## Props
+## Exemplos copiáveis
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+<BlueprintNote />
 
-## Uso
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-```tsx
-import { Sonner } from "@/components/ui/sonner"
-
-// Exemplo de uso basico
-```
-
----
-
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+type ToastTone = "success" | "attention" | "critical"
+
+type PulsoToastProps = {
+  tone?: ToastTone
+  title: string
+  description?: string
+  actionLabel?: string
+  onAction?: () => void
+}
+
+export function PulsoToast({ tone = "success", title, description, actionLabel, onAction }: PulsoToastProps) {
+  return (
+    <section
+      role="status"
+      data-tone={tone}
+      className="w-80 rounded-[var(--radius-md)] border border-[var(--border-strong)] bg-[var(--popover)] p-4 shadow-[var(--shadow-lg)] data-[tone=critical]:border-[var(--risk-critical-border)]"
+    >
+      <h3 className="text-sm font-semibold text-[var(--fg-strong)]">{title}</h3>
+      {description ? <p className="mt-1 text-sm text-[var(--fg-muted)]">{description}</p> : null}
+      {actionLabel ? (
+        <button type="button" onClick={onAction} className="mt-3 text-sm font-medium text-[var(--primary)]">
+          {actionLabel}
+        </button>
+      ) : null}
+    </section>
+  )
+}
 ```
 
-</details>
+```tsx
+<PulsoToast
+  title="Filtro salvo"
+  description="A visualização foi atualizada para este monitoramento."
+  actionLabel="Desfazer"
+/>
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<section class="toast" role="status" data-tone="success">
+  <h3>Filtro salvo</h3>
+  <p>A visualização foi atualizada para este monitoramento.</p>
+  <button type="button">Desfazer</button>
+</section>
+```
+
+```css
+.toast {
+  width: 20rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--popover);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-4);
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Regras
+
+- Toast é curto, não bloqueante e desaparece.
+- Não use toast para confirmação destrutiva; use Alert Dialog.
+- Erros críticos precisam existir também na página ou no log.
+- Se houver ação “Desfazer”, ela deve ser segura e temporalmente clara.

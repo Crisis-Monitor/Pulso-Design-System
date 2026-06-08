@@ -1,32 +1,103 @@
+---
+title: Carousel
+description: Navegação sequencial para conjuntos curtos de evidências ou previews.
+---
+
 # Carousel
 
-> Galeria de imagens com navegacao por setas e indicadores.
+> **Atom**
+>
+> Carousel organiza itens sequenciais. Ele não deve esconder informação crítica para tomada de decisão.
 
----
+Use com poucas evidências, imagens, snapshots ou cards de apoio. Para listas operacionais, prefira tabela, lista ou timeline: operador não deve depender de “passar slides” para encontrar risco crítico.
 
-## Props
+## Exemplos copiáveis
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+<BlueprintNote />
 
-## Uso
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-```tsx
-import { Carousel } from "@/components/ui/carousel"
-
-// Exemplo de uso basico
-```
-
----
-
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+type CarouselItem = {
+  id: string
+  title: string
+  description: string
+}
+
+type PulsoCarouselProps = {
+  label: string
+  items: CarouselItem[]
+}
+
+export function PulsoCarousel({ label, items }: PulsoCarouselProps) {
+  const [index, setIndex] = React.useState(0)
+  const current = items[index]
+
+  return (
+    <section aria-roledescription="carousel" aria-label={label} className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-4">
+      <article className="min-h-32 rounded-[var(--radius-md)] bg-[var(--muted)] p-4">
+        <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-subtle)]">
+          {index + 1} de {items.length}
+        </p>
+        <h3 className="mt-2 text-lg font-semibold text-[var(--fg-strong)]">{current.title}</h3>
+        <p className="mt-1 text-sm text-[var(--fg-muted)]">{current.description}</p>
+      </article>
+
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <button type="button" onClick={() => setIndex(Math.max(0, index - 1))} disabled={index === 0} className="rounded-[var(--radius-sm)] border border-[var(--border-strong)] px-3 py-2 text-sm disabled:opacity-50">
+          Anterior
+        </button>
+        <span aria-live="polite" className="text-sm text-[var(--fg-muted)]">Item {index + 1}</span>
+        <button type="button" onClick={() => setIndex(Math.min(items.length - 1, index + 1))} disabled={index === items.length - 1} className="rounded-[var(--radius-sm)] bg-[var(--primary)] px-3 py-2 text-sm font-medium text-[var(--primary-foreground)] disabled:opacity-50">
+          Próximo
+        </button>
+      </div>
+    </section>
+  )
+}
 ```
 
-</details>
+```tsx
+<PulsoCarousel
+  label="Evidências do caso"
+  items={[
+    { id: "e1", title: "Pico de menções", description: "Volume subiu 42% na última hora." },
+    { id: "e2", title: "Fonte verificada", description: "Veículo primário confirmou a ocorrência." },
+  ]}
+/>
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<section class="carousel" aria-roledescription="carousel" aria-label="Evidências do caso">
+  <article class="carousel-card">
+    <p class="kicker">1 de 2</p>
+    <h3>Pico de menções</h3>
+    <p>Volume subiu 42% na última hora.</p>
+  </article>
+  <div class="carousel-controls">
+    <button type="button" disabled>Anterior</button>
+    <span aria-live="polite">Item 1</span>
+    <button type="button" class="primary">Próximo</button>
+  </div>
+</section>
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Regras
+
+- Não coloque P0, risco crítico ou ações obrigatórias apenas dentro de carousel.
+- Mostre posição atual e permita navegação por teclado.
+- Desative controles no limite em vez de criar loop implícito.
+- Prefira no máximo 5–7 itens; acima disso, use lista ou grid.

@@ -1,32 +1,94 @@
+---
+title: Section Rail
+description: Trilho lateral para navegar seções longas sem perder posição no documento.
+---
+
 # Section Rail
 
-> Layout de secoes com trilho de navegacao lateral.
+> **Atom**
+>
+> Section Rail mostra as seções de uma página longa e destaca onde a pessoa está.
 
----
+Use em documentação, detalhe de crise, relatórios ou formulários extensos. O rail orienta leitura; não deve competir com a navegação global nem esconder ações principais.
 
-## Props
+## Exemplos copiáveis
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+<BlueprintNote />
 
-## Uso
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-```tsx
-import { SectionRail } from "@/components/ui/section-rail"
-
-// Exemplo de uso basico
-```
-
----
-
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+type SectionRailItem = {
+  id: string
+  label: string
+}
+
+type PulsoSectionRailProps = {
+  items: SectionRailItem[]
+  activeId: string
+}
+
+export function PulsoSectionRail({ items, activeId }: PulsoSectionRailProps) {
+  return (
+    <nav aria-label="Seções desta página" className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] p-2">
+      <ol className="grid gap-1">
+        {items.map((item) => {
+          const active = item.id === activeId
+          return (
+            <li key={item.id}>
+              <a
+                href={`#${item.id}`}
+                aria-current={active ? "location" : undefined}
+                className="block rounded-[var(--radius-sm)] px-3 py-2 text-sm text-[var(--fg-muted)] hover:bg-[var(--muted)] aria-[current=location]:bg-[var(--primary-soft)] aria-[current=location]:font-medium aria-[current=location]:text-[var(--primary)]"
+              >
+                {item.label}
+              </a>
+            </li>
+          )
+        })}
+      </ol>
+    </nav>
+  )
+}
 ```
 
-</details>
+```tsx
+<PulsoSectionRail
+  activeId="evidencias"
+  items={[
+    { id: "resumo", label: "Resumo" },
+    { id: "evidencias", label: "Evidências" },
+    { id: "decisao", label: "Decisão" },
+  ]}
+/>
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<nav class="section-rail" aria-label="Seções desta página">
+  <ol>
+    <li><a href="#resumo">Resumo</a></li>
+    <li><a href="#evidencias" aria-current="location">Evidências</a></li>
+    <li><a href="#decisao">Decisão</a></li>
+  </ol>
+</nav>
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Regras
+
+- Use apenas para seções da página atual.
+- Destaque ativo com `aria-current="location"`, não só por cor.
+- Não coloque ações destrutivas no rail.
+- Em mobile, transforme em índice colapsável ou âncoras no topo.
