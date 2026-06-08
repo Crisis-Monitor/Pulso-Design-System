@@ -5,29 +5,36 @@ description: Seleção entre opções conhecidas quando o espaço é limitado.
 
 # Select
 
-Select permite escolher uma opção entre valores conhecidos. Use quando há mais opções do que caberia bem em `Radio Group` ou quando o espaço da interface é limitado.
+> **Atom**
+>
+> Select escolhe uma opção entre valores conhecidos quando não vale mostrar todas as opções na tela.
 
-Para 2–5 opções que precisam ser comparadas visualmente, prefira `Radio Group`. Para múltipla escolha, use `Checkbox` ou `Multi-select`.
+Use quando há mais opções do que caberia bem em `Radio Group` ou quando o espaço da interface é limitado. Para 2–5 opções que precisam ser comparadas visualmente, prefira `Radio Group`. Para múltipla escolha, use `Checkbox` ou `Multi-select`.
 
-## Blueprint React copiável
+## Exemplos copiáveis
 
 <BlueprintNote />
 
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
+
 ```tsx
-import * as React from "react";
+import * as React from "react"
 
 type SelectOption = {
-  value: string;
-  label: string;
-  disabled?: boolean;
-};
+  value: string
+  label: string
+  disabled?: boolean
+}
 
 type PulsoSelectProps = Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "children"> & {
-  label: string;
-  placeholder?: string;
-  description?: string;
-  options: SelectOption[];
-};
+  label: string
+  placeholder?: string
+  description?: string
+  options: SelectOption[]
+}
 
 export function PulsoSelect({
   id,
@@ -38,9 +45,9 @@ export function PulsoSelect({
   className,
   ...props
 }: PulsoSelectProps) {
-  const reactId = React.useId();
-  const selectId = id ?? reactId;
-  const descriptionId = description ? `${selectId}-description` : undefined;
+  const reactId = React.useId()
+  const selectId = id ?? reactId
+  const descriptionId = description ? `${selectId}-description` : undefined
 
   return (
     <div className="grid gap-1.5">
@@ -79,11 +86,9 @@ export function PulsoSelect({
         </p>
       ) : null}
     </div>
-  );
+  )
 }
 ```
-
-## Uso
 
 ```tsx
 <PulsoSelect
@@ -92,19 +97,108 @@ export function PulsoSelect({
   defaultValue="monitor"
   description="Use Crítico apenas quando há impacto operacional confirmado."
   options={[
-    { value: "stable", label: "Estável" },
+    { value: "stable", label: "Stable" },
     { value: "monitor", label: "Monitor" },
-    { value: "attention", label: "Atenção" },
-    { value: "high", label: "Alto" },
-    { value: "critical", label: "Crítico" },
+    { value: "attention", label: "Attention" },
+    { value: "high", label: "High" },
+    { value: "critical", label: "Critical" },
   ]}
 />
 ```
 
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<div class="select-field">
+  <label class="select-field__label" for="case-status">Status do caso</label>
+  <select id="case-status" class="select-field__control" aria-describedby="case-status-description">
+    <option value="" disabled>Selecione um status</option>
+    <option value="stable">Stable</option>
+    <option value="monitor" selected>Monitor</option>
+    <option value="attention">Attention</option>
+    <option value="high">High</option>
+    <option value="critical">Critical</option>
+  </select>
+  <p id="case-status-description" class="select-field__description">
+    Use Critical apenas quando há impacto operacional confirmado.
+  </p>
+</div>
+```
+
+```css
+.select-field {
+  display: grid;
+  gap: 6px;
+}
+
+.select-field__label {
+  color: var(--fg-subtle);
+  font: 600 10.5px/1 var(--font-mono);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.select-field__control {
+  min-block-size: 36px;
+  padding-inline: 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  color: var(--fg);
+  font: inherit;
+  transition: border-color var(--motion-duration-fast) var(--motion-easing);
+}
+
+.select-field__control:focus-visible {
+  border-color: var(--primary);
+  outline: var(--ring-width) solid var(--ring);
+  outline-offset: 2px;
+}
+
+.select-field__control:disabled {
+  cursor: not-allowed;
+  color: var(--fg-disabled);
+  opacity: 0.6;
+}
+
+.select-field__description {
+  margin: 0;
+  color: var(--fg-muted);
+  font-size: 12px;
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Quando usar
+
+- Seleção única entre opções conhecidas.
+- Listas com mais de 5 opções.
+- Espaço limitado em toolbar ou formulário compacto.
+- Escolha com valor salvo e auditável.
+
+## Quando não usar
+
+- Para comparar poucas opções importantes; use `Radio Group`.
+- Para múltipla seleção; use `Checkbox` ou `Multi-select`.
+- Para busca em listas longas; combine com combobox/search.
+- Para ação imediata; use `Button`.
+
+## Acessibilidade
+
+- Label visível é obrigatório; placeholder não substitui label.
+- Use `aria-describedby` para instrução ou consequência.
+- Opções desabilitadas precisam ser raras e justificáveis.
+- Não dependa de cor para comunicar opção crítica.
+
 ## Regras
 
-- Use para seleção única entre opções conhecidas.
-- Mais de 5 opções tende a Select; 2–5 opções visíveis tendem a Radio.
-- O placeholder não substitui o label.
-- Agrupe ou busque opções quando a lista ficar longa.
-- Para risco operacional, use a escala `stable / monitor / attention / high / critical`.
+1. Select é seleção única entre valores conhecidos.
+2. Use a escala de risco `stable / monitor / attention / high / critical` quando o campo for risco operacional.
+3. Agrupe, filtre ou busque quando a lista ficar longa.
+4. Placeholder é instrução inicial, não valor válido.
+5. Evite alterar estado operacional sem confirmação quando a escolha tiver consequência alta.

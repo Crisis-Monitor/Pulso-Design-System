@@ -5,31 +5,38 @@ description: Escolha exclusiva entre poucas opções visíveis.
 
 # Radio Group
 
-Radio é escolha exclusiva: exatamente uma opção do grupo. Use quando todas as opções precisam estar visíveis para comparação e o conjunto é pequeno.
+> **Atom**
+>
+> Radio Group representa escolha exclusiva. Exatamente uma opção do grupo deve ser escolhida.
 
-Se houver muitas opções, hierarquia complexa ou busca, use `Select`. Para múltipla escolha, use `Checkbox`. Para liga/desliga imediato, use `Switch`.
+Use quando todas as opções precisam estar visíveis para comparação e o conjunto é pequeno. Para muitas opções, hierarquia complexa ou busca, use `Select`. Para múltipla escolha, use `Checkbox`.
 
-## Blueprint React copiável
+## Exemplos copiáveis
 
 <BlueprintNote />
 
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
+
 ```tsx
-import * as React from "react";
+import * as React from "react"
 
 type RadioOption = {
-  value: string;
-  label: string;
-  description?: string;
-};
+  value: string
+  label: string
+  description?: string
+}
 
 type PulsoRadioGroupProps = {
-  legend: string;
-  name: string;
-  options: RadioOption[];
-  defaultValue?: string;
-  value?: string;
-  onChange?: (value: string) => void;
-};
+  legend: string
+  name: string
+  options: RadioOption[]
+  defaultValue?: string
+  value?: string
+  onChange?: (value: string) => void
+}
 
 export function PulsoRadioGroup({
   legend,
@@ -45,10 +52,10 @@ export function PulsoRadioGroup({
         {legend}
       </legend>
 
-      <div className="grid gap-2" role="radiogroup" aria-label={legend}>
+      <div className="grid gap-2">
         {options.map((option) => {
-          const optionId = `${name}-${option.value}`;
-          const descriptionId = option.description ? `${optionId}-description` : undefined;
+          const optionId = `${name}-${option.value}`
+          const descriptionId = option.description ? `${optionId}-description` : undefined
 
           return (
             <label key={option.value} htmlFor={optionId} className="inline-flex cursor-pointer select-none items-start gap-2.5">
@@ -73,15 +80,13 @@ export function PulsoRadioGroup({
                 ) : null}
               </span>
             </label>
-          );
+          )
         })}
       </div>
     </fieldset>
-  );
+  )
 }
 ```
-
-## Uso
 
 ```tsx
 <PulsoRadioGroup
@@ -108,13 +113,106 @@ export function PulsoRadioGroup({
 />
 ```
 
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<fieldset class="radio-group">
+  <legend class="radio-group__legend">Modo de alerta</legend>
+
+  <label class="radio-option">
+    <input type="radio" name="alert-mode" value="immediate" aria-describedby="alert-immediate-description" />
+    <span class="radio-option__content">
+      <span class="radio-option__label">Imediato</span>
+      <span id="alert-immediate-description" class="radio-option__description">
+        Notifica no momento em que o sinal cruzar o limiar.
+      </span>
+    </span>
+  </label>
+
+  <label class="radio-option">
+    <input type="radio" name="alert-mode" value="grouped" checked aria-describedby="alert-grouped-description" />
+    <span class="radio-option__content">
+      <span class="radio-option__label">Agrupado · 15 min</span>
+      <span id="alert-grouped-description" class="radio-option__description">
+        Consolida sinais para reduzir ruído operacional.
+      </span>
+    </span>
+  </label>
+</fieldset>
+```
+
+```css
+.radio-group {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.radio-group__legend {
+  color: var(--fg-subtle);
+  font: 600 10.5px/1 var(--font-mono);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.radio-option {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.radio-option input {
+  inline-size: 16px;
+  block-size: 16px;
+  margin-block-start: 2px;
+  accent-color: var(--primary);
+}
+
+.radio-option input:focus-visible {
+  outline: var(--ring-width) solid var(--ring);
+  outline-offset: 2px;
+}
+
+.radio-option__content {
+  display: grid;
+  gap: 2px;
+}
+
+.radio-option__label {
+  color: var(--fg-strong);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.radio-option__description {
+  color: var(--fg-muted);
+  font-size: 12px;
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
 ## Quando usar
 
 - 2–5 opções mutuamente exclusivas.
 - Quando todas as opções precisam ficar visíveis.
-- Configurações e preferências.
-- Escolhas com consequência operacional clara.
-- Segmented control para opções curtas e frequentes.
+- Configurações e preferências com consequência clara.
+- Escolhas frequentes em que comparar opções reduz erro.
+
+## Quando não usar
+
+- Para múltipla escolha; use `Checkbox`.
+- Para mais de 5 opções ou listas longas; use `Select`.
+- Para ação imediata avulsa; use `Button`.
+- Para liga/desliga binário com efeito imediato; use `Switch`.
 
 ## Variantes
 
@@ -125,11 +223,17 @@ export function PulsoRadioGroup({
 | Card | 2–4 escolhas com peso | Facilita comparação |
 | Segmented | 2–4 opções curtas e frequentes | Bom para período, modo, escala |
 
+## Acessibilidade
+
+- Use `fieldset` e `legend` para nomear o grupo.
+- Todas as opções compartilham o mesmo `name`.
+- Cada opção precisa de label clicável.
+- Descrição usa `aria-describedby` quando explica consequência.
+
 ## Regras
 
-1. Use Radio para 2–5 opções.
-2. Mais de 5 opções tende a Select.
-3. Card variant deve ter poucas opções e descrições curtas.
-4. Segmented é Radio com apresentação compacta, não Button Group genérico.
-5. Não use cor como único indicador de seleção.
-6. Cada opção precisa explicar consequência quando afeta operação.
+1. Uma escolha ativa por grupo.
+2. Mais de 5 opções tende a `Select`.
+3. Não use cor como único indicador de seleção.
+4. Card variant deve ter poucas opções e descrições curtas.
+5. Cada opção precisa explicar consequência quando afeta operação.

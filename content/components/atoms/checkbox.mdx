@@ -5,24 +5,33 @@ description: Seleção booleana para filtros, listas e consentimentos explícito
 
 # Checkbox
 
-Checkbox representa uma escolha independente ou múltipla seleção. Diferente de `Switch`, ele normalmente participa de uma submissão, filtro ou seleção em lote.
+> **Atom**
+>
+> Checkbox representa uma escolha independente. Use quando a seleção será aplicada, enviada ou combinada com outras decisões.
 
-## Blueprint React copiável
+Diferente de `Switch`, Checkbox normalmente participa de uma submissão, filtro, seleção em lote ou confirmação explícita. Em contexto operacional, o texto precisa deixar clara a consequência da seleção.
+
+## Exemplos copiáveis
 
 <BlueprintNote />
 
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
+
 ```tsx
-import * as React from "react";
+import * as React from "react"
 
 type PulsoCheckboxProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> & {
-  label: string;
-  description?: string;
-};
+  label: string
+  description?: string
+}
 
 export function PulsoCheckbox({ id, label, description, className, ...props }: PulsoCheckboxProps) {
-  const reactId = React.useId();
-  const checkboxId = id ?? reactId;
-  const descriptionId = description ? `${checkboxId}-description` : undefined;
+  const reactId = React.useId()
+  const checkboxId = id ?? reactId
+  const descriptionId = description ? `${checkboxId}-description` : undefined
 
   return (
     <label className="inline-flex cursor-pointer select-none items-start gap-2.5">
@@ -49,11 +58,9 @@ export function PulsoCheckbox({ id, label, description, className, ...props }: P
         ) : null}
       </span>
     </label>
-  );
+  )
 }
 ```
-
-## Uso
 
 ```tsx
 <PulsoCheckbox
@@ -62,9 +69,98 @@ export function PulsoCheckbox({ id, label, description, className, ...props }: P
 />
 ```
 
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<label class="checkbox-field">
+  <input
+    class="checkbox-field__control"
+    type="checkbox"
+    aria-describedby="archived-sources-description"
+  />
+  <span class="checkbox-field__content">
+    <span class="checkbox-field__label">Incluir fontes arquivadas</span>
+    <span id="archived-sources-description" class="checkbox-field__description">
+      Mostra fontes inativas apenas neste filtro.
+    </span>
+  </span>
+</label>
+```
+
+```css
+.checkbox-field {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-field__control {
+  inline-size: 16px;
+  block-size: 16px;
+  margin-block-start: 2px;
+  accent-color: var(--primary);
+}
+
+.checkbox-field__control:focus-visible {
+  outline: var(--ring-width) solid var(--ring);
+  outline-offset: 2px;
+}
+
+.checkbox-field__control:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.checkbox-field__content {
+  display: grid;
+  gap: 2px;
+}
+
+.checkbox-field__label {
+  color: var(--fg-strong);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.checkbox-field__description {
+  color: var(--fg-muted);
+  font-size: 12px;
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Quando usar
+
+- Seleção múltipla em filtros.
+- Seleção de linhas ou itens em lote.
+- Confirmação explícita antes de aplicar uma ação.
+- Preferências que serão salvas em formulário.
+
+## Quando não usar
+
+- Para ligar/desligar comportamento imediato; use `Switch`.
+- Para escolher exatamente uma opção; use `Radio Group` ou `Select`.
+- Para ação primária; use `Button`.
+- Para esconder uma consequência operacional importante.
+
+## Acessibilidade
+
+- Associe label e controle no mesmo `label` ou com `htmlFor`.
+- Use `aria-describedby` para descrição ou consequência.
+- Em tabelas, exponha seleção parcial como `aria-checked="mixed"` quando aplicável.
+- Não dependa apenas de cor para indicar selecionado.
+
 ## Regras
 
-- Use para seleção múltipla ou boolean que será aplicado em conjunto.
-- Para liga/desliga com efeito imediato, use `Switch`.
-- Em tabelas, sincronize seleção parcial com `aria-checked="mixed"`.
-- A descrição deve explicar consequência operacional quando houver risco de ambiguidade.
+1. Checkbox é escolha independente ou múltipla.
+2. Label deve dizer o que será selecionado.
+3. Descrição explica consequência, não repete o label.
+4. Seleção em lote precisa deixar claro o escopo afetado.
+5. Para risco operacional, não use checkbox sem texto de consequência.
