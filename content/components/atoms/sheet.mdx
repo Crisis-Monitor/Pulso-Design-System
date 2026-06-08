@@ -7,15 +7,18 @@ description: Overlay lateral para drill-down, filtros e edição contextual em d
 
 > **Atom / overlay primitive**
 >
-> Sheet é um painel deslizante a partir de uma borda. Ele preserva contexto; não interrompe como um Dialog.
+> Sheet é um painel lateral. Ele preserva contexto; não interrompe como um Dialog.
 
-Use Sheet quando a tarefa precisa de uma camada lateral conectada à página: drill-down de menção, filtros avançados, configuração contextual ou edição curta.
+Use Sheet quando a tarefa precisa de uma camada conectada à página: drill-down de menção, filtros avançados, configuração contextual ou edição curta. Para fluxos responsivos, prefira [`Responsive Sheet`](/components/organisms/responsive-sheet).
 
-Para fluxos que precisam funcionar igualmente em desktop e mobile, prefira [`Responsive Sheet`](/components/organisms/responsive-sheet). Ele adapta Sheet no desktop e bottom sheet no mobile.
-
-## Blueprint React copiável
+## Exemplos copiáveis
 
 <BlueprintNote />
+
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
 
 ```tsx
 import * as React from "react"
@@ -30,25 +33,15 @@ type PulsoSheetProps = {
   onOpenChange: (open: boolean) => void
 }
 
-export function PulsoSheet({
-  open,
-  title,
-  description,
-  side = "right",
-  children,
-  footer,
-  onOpenChange,
-}: PulsoSheetProps) {
+export function PulsoSheet({ open, title, description, side = "right", children, footer, onOpenChange }: PulsoSheetProps) {
   const titleId = React.useId()
   const descriptionId = description ? `${titleId}-description` : undefined
 
   React.useEffect(() => {
     if (!open) return
-
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") onOpenChange(false)
     }
-
     document.addEventListener("keydown", onKeyDown)
     return () => document.removeEventListener("keydown", onKeyDown)
   }, [onOpenChange, open])
@@ -57,149 +50,81 @@ export function PulsoSheet({
 
   return (
     <div className="fixed inset-0 z-50">
-      <button
-        type="button"
-        aria-label="Fechar painel"
-        className="absolute inset-0 h-full w-full cursor-default bg-black/30"
-        onClick={() => onOpenChange(false)}
-      />
-
-      <aside
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        aria-describedby={descriptionId}
-        className={[
-          "absolute top-0 h-full w-[min(480px,calc(100vw-3rem))] border border-[var(--border)] bg-[var(--popover)] shadow-[var(--shadow-lg)]",
-          "motion-safe:animate-in motion-safe:duration-[var(--motion-duration-base)]",
-          side === "right"
-            ? "right-0 rounded-l-[var(--radius-xl)] motion-safe:slide-in-from-right-4"
-            : "left-0 rounded-r-[var(--radius-xl)] motion-safe:slide-in-from-left-4",
-        ].join(" ")}
-      >
+      <button type="button" aria-label="Fechar painel" className="absolute inset-0 h-full w-full cursor-default bg-black/30" onClick={() => onOpenChange(false)} />
+      <aside role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId} className={[
+        "absolute top-0 h-full w-[min(480px,calc(100vw-3rem))] border border-[var(--border)] bg-[var(--popover)] shadow-[var(--shadow-lg)]",
+        side === "right" ? "right-0 rounded-l-[var(--radius-xl)]" : "left-0 rounded-r-[var(--radius-xl)]",
+      ].join(" ")}>
         <header className="flex items-start justify-between gap-4 border-b border-[var(--border)] p-5">
           <div>
-            <h2 id={titleId} className="text-lg font-semibold text-[var(--fg)]">
-              {title}
-            </h2>
-            {description ? (
-              <p id={descriptionId} className="mt-1 text-sm leading-6 text-[var(--fg-muted)]">
-                {description}
-              </p>
-            ) : null}
+            <h2 id={titleId} className="text-lg font-semibold text-[var(--fg)]">{title}</h2>
+            {description ? <p id={descriptionId} className="mt-1 text-sm leading-6 text-[var(--fg-muted)]">{description}</p> : null}
           </div>
-
-          <button
-            type="button"
-            aria-label="Fechar"
-            onClick={() => onOpenChange(false)}
-            className="rounded-[var(--radius-sm)] px-2 py-1 text-[var(--fg-muted)] hover:bg-[var(--muted)] hover:text-[var(--fg)] focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
-          >
-            ×
-          </button>
+          <button type="button" aria-label="Fechar" onClick={() => onOpenChange(false)} className="rounded-[var(--radius-sm)] px-2 py-1 text-[var(--fg-muted)] hover:bg-[var(--muted)] hover:text-[var(--fg)]">×</button>
         </header>
-
-        <div className="h-[calc(100dvh-9rem)] overflow-y-auto p-5 text-sm text-[var(--fg)]">
-          {children}
-        </div>
-
-        {footer ? (
-          <footer className="border-t border-[var(--border)] p-4">{footer}</footer>
-        ) : null}
+        <div className="h-[calc(100dvh-9rem)] overflow-y-auto p-5 text-sm text-[var(--fg)]">{children}</div>
+        {footer ? <footer className="border-t border-[var(--border)] p-4">{footer}</footer> : null}
       </aside>
     </div>
   )
 }
 ```
 
-### Exemplo de uso
-
 ```tsx
-export function CaseSourceSheet() {
-  const [open, setOpen] = React.useState(false)
-
-  return (
-    <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="rounded-[var(--radius-md)] border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--fg)]"
-      >
-        Fontes
-      </button>
-
-      <PulsoSheet
-        open={open}
-        onOpenChange={setOpen}
-        title="Fontes do caso"
-        description="Revise evidências sem perder a lista de origem."
-        footer={
-          <div className="flex justify-end gap-2">
-            <button className="rounded-[var(--radius-md)] border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--fg)]">
-              Fechar
-            </button>
-          </div>
-        }
-      >
-        <ul className="grid gap-3">
-          <li className="rounded-[var(--radius-md)] border border-[var(--border)] p-3">
-            Relatório reputacional · validado há 2 min
-          </li>
-          <li className="rounded-[var(--radius-md)] border border-[var(--border)] p-3">
-            Clipping social · aguardando revisão humana
-          </li>
-        </ul>
-      </PulsoSheet>
-    </>
-  )
-}
+<PulsoSheet open={open} onOpenChange={setOpen} title="Fontes do caso" description="Revise evidências sem perder a lista de origem.">
+  <p>Relatório reputacional · validado há 2 min</p>
+</PulsoSheet>
 ```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<div class="sheet-layer">
+  <button class="sheet-backdrop" type="button" aria-label="Fechar painel"></button>
+  <aside class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <header class="sheet__header">
+      <div><h2 id="sheet-title">Fontes do caso</h2><p>Revise evidências sem perder a lista de origem.</p></div>
+      <button type="button" aria-label="Fechar">×</button>
+    </header>
+    <div class="sheet__body">Relatório reputacional · validado há 2 min</div>
+  </aside>
+</div>
+```
+
+```css
+.sheet-layer { position: fixed; inset: 0; z-index: 50; }
+.sheet-backdrop { position: absolute; inset: 0; border: 0; background: rgb(0 0 0 / 30%); }
+.sheet { position: absolute; inset-block: 0; inset-inline-end: 0; inline-size: min(480px, calc(100vw - 48px)); border: 1px solid var(--border); border-radius: var(--radius-xl) 0 0 var(--radius-xl); background: var(--popover); box-shadow: var(--shadow-lg); }
+.sheet__header { display: flex; justify-content: space-between; gap: 16px; padding: 20px; border-bottom: 1px solid var(--border); }
+.sheet__header h2 { margin: 0; color: var(--fg); font-size: 18px; }
+.sheet__header p { margin: 4px 0 0; color: var(--fg-muted); }
+.sheet__body { overflow: auto; padding: 20px; color: var(--fg); }
+```
+
+  </Tabs.Tab>
+</Tabs>
 
 ## Quando usar
 
-- Drill-down de item mantendo a lista visível.
-- Filtros avançados acionados por `Filter Bar`.
+- Drill-down de item mantendo a lista como contexto.
+- Filtros avançados acionados por Filter Bar.
 - Configuração lateral que não exige página própria.
 - Formulários curtos que dependem do contexto de origem.
-- Navegação temporária em layouts específicos.
 
-Não use Sheet para confirmação crítica, alerta bloqueante ou decisão destrutiva. Nesses casos, use Dialog.
+## Quando não usar
 
-## Direções
-
-| Direção | Uso | Regra |
-|---|---|---|
-| Right | Drill-down, detalhe, edição | Padrão desktop |
-| Left | Navegação ou chrome temporário | Use com cuidado para não competir com sidebar |
-| Bottom | Ação mobile ou painel inferior | Em produto responsivo, prefira `Responsive Sheet` |
-| Top | Casos raros de sistema | Evite para conteúdo operacional longo |
-
-## Sheet vs Dialog
-
-| Superfície | Relação com contexto | Uso correto |
-|---|---|---|
-| Sheet | Mantém a página por trás como contexto | Explorar, filtrar, editar sem sair da lista |
-| Dialog | Interrompe e exige decisão | Confirmar, bloquear, resolver consequência crítica |
-
-Se o usuário precisa comparar com a lista de origem, use Sheet. Se precisa parar e decidir, use Dialog.
-
-## Anatomia
-
-| Parte | Papel |
-|---|---|
-| Trigger | Nomeia a ação que abre o painel |
-| Header | Explica o escopo do painel |
-| Body | Conteúdo contextual com scroll interno |
-| Footer/controls | Ações persistentes quando necessário |
-| Close | Saída clara via botão e `Esc` |
-| Backdrop | Separa camada sem apagar o contexto |
+- Para confirmação crítica; use Dialog/Alert Dialog.
+- Para conteúdo exploratório muito longo; use página dedicada.
+- Para mobile sem adaptação; use Responsive Sheet.
+- Para esconder ação destrutiva sem confirmação.
 
 ## Regras
 
-1. Não abra Sheet sobre Sheet sem decisão explícita de stack.
-2. Não use sombra forte para compensar hierarquia ruim; use superfície, borda e elevação correta.
-3. Filtros ativos dentro do Sheet precisam aparecer no trigger ou na `Filter Bar`.
-4. Conteúdo longo deve rolar dentro do Sheet, não a página por trás.
-5. Ações destrutivas dentro do Sheet exigem confirmação proporcional.
-6. Em mobile, prefira `Responsive Sheet` para adaptar a superfície.
-7. Conteúdo assistido por IA precisa mostrar origem, confiança e base.
+1. Conteúdo longo rola dentro do Sheet, não a página por trás.
+2. Filtros ativos no Sheet precisam aparecer fora dele também.
+3. Não abra Sheet sobre Sheet sem decisão explícita.
+4. Ações destrutivas dentro do Sheet exigem confirmação proporcional.
+5. Conteúdo assistido por IA mostra origem, confiança e base.
