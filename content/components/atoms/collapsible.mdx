@@ -1,32 +1,138 @@
+---
+title: Collapsible
+description: Região expansível para conteúdo secundário sob demanda.
+---
+
 # Collapsible
 
-> Container expansivel que mostra/esconde conteudo sob demanda.
+> **Atom**
+>
+> Collapsible revela ou oculta conteúdo secundário. O conteúdo essencial para a decisão deve permanecer visível.
 
----
+Use para detalhes progressivos, filtros avançados, listas de evidências ou explicações opcionais. Em operação de crise, não esconda status crítico, consequência ou ação necessária dentro de um Collapsible fechado.
 
-## Props
+## Exemplos copiáveis
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+<BlueprintNote />
 
-## Uso
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-```tsx
-import { Collapsible } from "@/components/ui/collapsible"
-
-// Exemplo de uso basico
-```
-
----
-
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+type PulsoCollapsibleProps = {
+  title: string
+  summary?: string
+  children: React.ReactNode
+  defaultOpen?: boolean
+}
+
+export function PulsoCollapsible({ title, summary, children, defaultOpen = false }: PulsoCollapsibleProps) {
+  const [open, setOpen] = React.useState(defaultOpen)
+  const panelId = React.useId()
+
+  return (
+    <section className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)]">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen((value) => !value)}
+        className="flex w-full items-center justify-between gap-4 px-4 py-3 text-left focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
+      >
+        <span>
+          <span className="block text-sm font-semibold text-[var(--fg-strong)]">{title}</span>
+          {summary ? <span className="mt-0.5 block text-xs text-[var(--fg-muted)]">{summary}</span> : null}
+        </span>
+        <span aria-hidden="true" className="font-mono text-[var(--fg-subtle)]">{open ? "−" : "+"}</span>
+      </button>
+      {open ? <div id={panelId} className="border-t border-[var(--border)] px-4 py-3 text-sm text-[var(--fg-muted)]">{children}</div> : null}
+    </section>
+  )
+}
 ```
 
+```tsx
+<PulsoCollapsible title="Evidências verificadas" summary="12 fontes · última atualização há 4 min">
+  Links, trechos e origem auditável da recomendação.
+</PulsoCollapsible>
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<details class="collapsible">
+  <summary class="collapsible__summary">
+    <span>
+      <strong>Evidências verificadas</strong>
+      <span>12 fontes · última atualização há 4 min</span>
+    </span>
+  </summary>
+  <div class="collapsible__panel">
+    Links, trechos e origem auditável da recomendação.
+  </div>
 </details>
+```
+
+```css
+.collapsible {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card);
+}
+.collapsible__summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  cursor: pointer;
+}
+.collapsible__summary strong { display: block; color: var(--fg-strong); }
+.collapsible__summary span span { display: block; margin-top: 2px; color: var(--fg-muted); font-size: 12px; }
+.collapsible__summary:focus-visible { outline: var(--ring-width) solid var(--ring); outline-offset: 2px; }
+.collapsible__panel {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  color: var(--fg-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Quando usar
+
+- Detalhes opcionais.
+- Filtros avançados.
+- Evidências secundárias.
+- Explicações longas que não precisam estar abertas por padrão.
+
+## Quando não usar
+
+- Para informação crítica ou ação obrigatória.
+- Para navegação principal.
+- Para resolver excesso de conteúdo que deveria ser reorganizado.
+- Para esconder erro ou permissão negada.
+
+## Acessibilidade
+
+- Trigger precisa ser botão ou `summary` nativo.
+- Use `aria-expanded` e `aria-controls` quando customizado.
+- Estado aberto/fechado deve ser visível.
+- Conteúdo essencial não deve depender de expansão.
+
+## Regras
+
+1. Título sempre visível.
+2. Resumo indica o valor do conteúdo oculto.
+3. Não esconda risco crítico fechado.
+4. Motion de abertura deve ser opcional e respeitar redução de movimento.
+5. Um Collapsible fechado não deve bloquear entendimento da página.
