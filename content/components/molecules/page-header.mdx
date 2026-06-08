@@ -9,13 +9,20 @@ description: Cabeçalho de página para nomear escopo, consequência e ações p
 >
 > Page Header ancora a leitura de uma superfície. Ele diz onde o operador está, qual decisão a página suporta e quais ações são seguras naquele contexto.
 
-Use Page Header em dashboards, detalhes de crise, listas operacionais, páginas de configuração e telas de relatório. Ele deve evitar título genérico: o cabeçalho precisa nomear escopo, estado e consequência.
+Use Page Header em dashboards, detalhes de crise, listas operacionais, páginas de configuração e relatórios. Evite títulos genéricos: o cabeçalho precisa nomear escopo, estado e consequência.
 
-## Blueprint React copiável
+## Exemplos copiáveis
 
 <BlueprintNote />
 
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
+
 ```tsx
+import * as React from "react"
+
 type PulsoPageHeaderProps = {
   eyebrow?: string
   title: string
@@ -44,121 +51,83 @@ export function PulsoPageHeader({
               {eyebrow}
             </p>
           ) : null}
-
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--fg)]">
-            {title}
-          </h1>
-
-          {description ? (
-            <p className="mt-3 max-w-3xl text-base leading-7 text-[var(--fg-muted)]">
-              {description}
-            </p>
-          ) : null}
-
-          {meta ? <div className="mt-4">{meta}</div> : null}
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--fg)]">{title}</h1>
+          {description ? <p className="mt-2 max-w-3xl text-[var(--fg-muted)]">{description}</p> : null}
+          {meta ? <div className="mt-3 flex flex-wrap gap-2">{meta}</div> : null}
         </div>
 
         {(primaryAction || secondaryAction) ? (
-          <div className="flex flex-wrap gap-2 lg:justify-end">
+          <div className="flex flex-wrap items-center gap-2 lg:justify-end">
             {secondaryAction}
             {primaryAction}
           </div>
         ) : null}
       </div>
-
-      {children ? <div className="mt-6">{children}</div> : null}
+      {children ? <div className="mt-5">{children}</div> : null}
     </header>
   )
 }
 ```
 
-### Exemplo de uso
-
 ```tsx
-export function CasesPageHeader() {
-  return (
-    <PulsoPageHeader
-      eyebrow="Monitoramento · Casos ativos"
-      title="Casos em monitoramento"
-      description="Acompanhe crises abertas, risco operacional e fontes que precisam de revisão humana antes de qualquer despacho."
-      meta={
-        <dl className="flex flex-wrap gap-4 text-sm text-[var(--fg-muted)]">
-          <div>
-            <dt className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)]">
-              Atualização
-            </dt>
-            <dd className="mt-1 text-[var(--fg)]">há 2 min</dd>
-          </div>
-          <div>
-            <dt className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)]">
-              Escopo
-            </dt>
-            <dd className="mt-1 text-[var(--fg)]">12 casos ativos</dd>
-          </div>
-        </dl>
-      }
-      secondaryAction={
-        <button className="rounded-[var(--radius-md)] border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--fg)]">
-          Exportar
-        </button>
-      }
-      primaryAction={
-        <button className="rounded-[var(--radius-md)] bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-[var(--primary-fg)]">
-          Novo monitoramento
-        </button>
-      }
-    />
-  )
+<PulsoPageHeader
+  eyebrow="Crisis · PLS-012"
+  title="Operação Água em atenção"
+  description="Volume de menções cresceu acima do baseline e exige revisão de evidências."
+  meta={<span data-risk="attention">attention</span>}
+  primaryAction={<button>Revisar evidências</button>}
+  secondaryAction={<button>Exportar</button>}
+/>
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<header class="page-header">
+  <div class="page-header__grid">
+    <div>
+      <p class="kicker">Crisis · PLS-012</p>
+      <h1>Operação Água em atenção</h1>
+      <p>Volume de menções cresceu acima do baseline e exige revisão de evidências.</p>
+      <span class="risk" data-risk="attention">attention</span>
+    </div>
+    <div class="page-header__actions">
+      <button type="button">Exportar</button>
+      <button type="button" class="primary">Revisar evidências</button>
+    </div>
+  </div>
+</header>
+```
+
+```css
+.page-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--space-6);
+}
+
+.page-header__grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+
+.page-header__actions {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
 }
 ```
 
-## Quando usar
-
-- Início de página com escopo operacional claro.
-- Superfícies que têm ação primária ou filtros abaixo.
-- Páginas de decisão, revisão, configuração ou relatório.
-- Contextos em que atualização, fonte ou status precisam aparecer antes do conteúdo.
-
-Não use Page Header para seções internas curtas; prefira um heading simples com descrição local.
-
-## Anatomia
-
-| Parte | Papel | Regra |
-|---|---|---|
-| Eyebrow | Localização e categoria | Use mono/kicker; não substitui breadcrumb |
-| Title | Nome da superfície | Específico, curto e orientado à tarefa |
-| Description | Escopo e consequência | Explique o que a página permite decidir |
-| Meta | Freshness, fonte, status ou escopo | Use quando impacta confiança operacional |
-| Actions | Comandos principais | Uma ação primária; secundárias com menor peso |
-| Children | Slot opcional | Use para KPIs, tabs ou filtros imediatamente relacionados |
-
-## Conteúdo
-
-- O título deve nomear o objeto: `Casos em monitoramento`, não `Dashboard`.
-- A descrição deve explicar consequência: o que muda se o operador agir.
-- Evite prometer automação quando a decisão final é humana.
-- Quando houver IA, explicite origem, revisão ou trilha auditável.
-- Se houver atraso de dados, mostre freshness no `meta`.
-
-## Ações
-
-1. Use no máximo uma ação primária.
-2. Ação destrutiva não deve ser a ação primária do cabeçalho.
-3. Botões lado a lado devem compartilhar altura e alinhamento de baseline.
-4. Ação primária deve estar relacionada ao escopo da página inteira.
-5. Se a ação depende de seleção, deixe-a no toolbar ou bulk action, não no Page Header.
-
-## Relação com outros padrões
-
-- Use `Filter Bar` abaixo quando filtros alteram o conjunto de dados.
-- Use `Tabs` no slot `children` quando a página tem visões irmãs do mesmo objeto.
-- Use `Metric Card` abaixo quando os KPIs resumem o mesmo escopo do título.
-- Use `AI Audit Trail` quando o cabeçalho introduz conteúdo assistido pela Cris.
+  </Tabs.Tab>
+</Tabs>
 
 ## Regras
 
-1. Não use título decorativo ou marketing em superfície operacional.
-2. Não esconda estado crítico apenas em badges abaixo da dobra.
-3. Não duplique breadcrumb no eyebrow.
-4. Não coloque múltiplas ações concorrentes com peso primário.
-5. Não use descrição como release note; ela precisa apoiar a decisão da página.
+- Título deve nomear escopo e estado, não apenas a seção.
+- Ação primária aparece uma vez e deve ser proporcional ao contexto.
+- Metadados de risco precisam usar label explícito além de cor.
+- Em mobile, ações podem quebrar linha, mas não devem sumir.
