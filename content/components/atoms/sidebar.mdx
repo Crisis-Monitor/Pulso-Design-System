@@ -1,32 +1,80 @@
+---
+title: Sidebar
+description: Navegação lateral persistente com grupos, hierarquia e item ativo.
+---
+
 # Sidebar
 
-> Navegacao lateral principal com grupos e itens colapsaveis.
+> **Atom / layout primitive**
+>
+> Sidebar organiza navegação persistente. Ela deve mostrar contexto e manter só o grupo ativo expandido quando a árvore é longa.
 
----
+## Exemplos copiáveis
 
-## Props
+<BlueprintNote />
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-## Uso
-
-```tsx
-import { Sidebar } from "@/components/ui/sidebar"
-
-// Exemplo de uso basico
-```
-
----
-
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+type SidebarLink = { label: string; href: string; current?: boolean }
+type SidebarGroup = { title: string; links: SidebarLink[] }
+
+export function PulsoSidebar({ groups }: { groups: SidebarGroup[] }) {
+  return (
+    <aside className="w-72 border-r border-[var(--border)] bg-[var(--card)] p-4">
+      <nav aria-label="Navegação lateral" className="grid gap-5">
+        {groups.map((group) => (
+          <section key={group.title}>
+            <h2 className="font-mono text-[10.5px] uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-subtle)]">{group.title}</h2>
+            <ul className="mt-2 grid gap-1">
+              {group.links.map((link) => (
+                <li key={link.href}><a href={link.href} aria-current={link.current ? "page" : undefined} className={[
+                  "block rounded-[var(--radius-sm)] px-3 py-2 text-sm",
+                  link.current ? "bg-[var(--primary-soft)] text-[var(--primary)]" : "text-[var(--fg-muted)] hover:bg-[var(--muted)] hover:text-[var(--fg)]",
+                ].join(" ")}>{link.label}</a></li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </nav>
+    </aside>
+  )
+}
 ```
 
-</details>
+```tsx
+<PulsoSidebar groups={[{ title: "Foundations", links: [{ label: "Colors", href: "/foundations/colors", current: true }] }]} />
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<aside class="sidebar"><nav aria-label="Navegação lateral"><h2>Foundations</h2><a href="/foundations/colors" aria-current="page">Colors</a></nav></aside>
+```
+
+```css
+.sidebar { width:288px; padding:16px; border-right:1px solid var(--border); background:var(--card); }
+.sidebar nav { display:grid; gap:8px; }
+.sidebar h2 { margin:0; color:var(--fg-subtle); font:600 10.5px/1 var(--font-mono); letter-spacing:var(--tracking-kicker); text-transform:uppercase; }
+.sidebar a { border-radius:var(--radius-sm); color:var(--fg-muted); padding:8px 12px; text-decoration:none; }
+.sidebar a:hover { background:var(--muted); color:var(--fg); }
+.sidebar [aria-current="page"] { background:var(--primary-soft); color:var(--primary); }
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Regras
+
+1. Sidebar é navegação persistente, não lista de ações.
+2. Use grupos para hierarquia real.
+3. Item ativo usa `aria-current`.
+4. Em árvores longas, colapse grupos inativos.

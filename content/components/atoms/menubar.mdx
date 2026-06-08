@@ -1,32 +1,71 @@
+---
+title: Menubar
+description: Barra de menus horizontal para comandos de aplicação.
+---
+
 # Menubar
 
-> Barra de menus horizontal no estilo aplicacao desktop.
+> **Atom**
+>
+> Menubar organiza comandos globais de aplicação. Use quando há modelo desktop claro, não como navegação comum.
 
----
+## Exemplos copiáveis
 
-## Props
+<BlueprintNote />
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-## Uso
-
-```tsx
-import { Menubar } from "@/components/ui/menubar"
-
-// Exemplo de uso basico
-```
-
----
-
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+type Menu = { label: string; items: string[] }
+
+export function PulsoMenubar({ menus }: { menus: Menu[] }) {
+  return (
+    <nav aria-label="Menu da aplicação" className="inline-flex rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] p-1">
+      {menus.map((menu) => (
+        <button key={menu.label} type="button" className="rounded-[var(--radius-sm)] px-3 py-1.5 text-sm text-[var(--fg-muted)] hover:bg-[var(--muted)] hover:text-[var(--fg)] focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]">
+          {menu.label}
+        </button>
+      ))}
+    </nav>
+  )
+}
 ```
 
-</details>
+```tsx
+<PulsoMenubar menus={[{ label: "Caso", items: ["Arquivar", "Escalar"] }, { label: "Exibir", items: ["Lista", "Timeline"] }]} />
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<nav class="menubar" aria-label="Menu da aplicação">
+  <button type="button">Caso</button>
+  <button type="button">Exibir</button>
+  <button type="button">Ajuda</button>
+</nav>
+```
+
+```css
+.menubar { display:inline-flex; gap:4px; padding:4px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--card); }
+.menubar button { border:0; border-radius:var(--radius-sm); background:transparent; color:var(--fg-muted); padding:6px 12px; font:inherit; }
+.menubar button:hover { background:var(--muted); color:var(--fg); }
+.menubar button:focus-visible { outline:var(--ring-width) solid var(--ring); outline-offset:2px; }
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Regras
+
+1. Menubar é para comandos, não para sidebar ou tabs.
+2. Precisa funcionar por teclado.
+3. Comandos destrutivos dentro de menus exigem confirmação.
+4. Não use se uma navegação simples resolve.

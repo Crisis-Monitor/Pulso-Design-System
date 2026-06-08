@@ -1,32 +1,68 @@
+---
+title: Context Menu
+description: Menu de ações contextualizadas acionado por clique direito ou alternativa visível.
+---
+
 # Context Menu
 
-> Menu acionado por clique direito com acoes contextualizadas.
+> **Atom**
+>
+> Context Menu oferece ações sobre um alvo específico. Toda ação precisa existir também por caminho visível/acessível.
 
----
+## Exemplos copiáveis
 
-## Props
+<BlueprintNote />
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-## Uso
-
-```tsx
-import { ContextMenu } from "@/components/ui/context-menu"
-
-// Exemplo de uso basico
-```
-
----
-
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+type ContextAction = { label: string; destructive?: boolean; onSelect: () => void }
+
+export function PulsoContextMenu({ actions }: { actions: ContextAction[] }) {
+  return (
+    <div role="menu" className="w-56 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--popover)] p-1 shadow-[var(--shadow-lg)]">
+      {actions.map((action) => (
+        <button key={action.label} role="menuitem" type="button" onClick={action.onSelect} className={[
+          "flex w-full rounded-[var(--radius-sm)] px-3 py-2 text-left text-sm hover:bg-[var(--muted)] focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]",
+          action.destructive ? "text-[var(--destructive)]" : "text-[var(--fg)]",
+        ].join(" ")}>{action.label}</button>
+      ))}
+    </div>
+  )
+}
 ```
 
-</details>
+```tsx
+<PulsoContextMenu actions={[{ label: "Ver evidências", onSelect: openEvidence }, { label: "Arquivar menção", onSelect: archive }]} />
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<div class="context-menu" role="menu"><button role="menuitem">Ver evidências</button><button role="menuitem" class="danger">Arquivar menção</button></div>
+```
+
+```css
+.context-menu { width:224px; padding:4px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--popover); box-shadow:var(--shadow-lg); }
+.context-menu button { display:flex; width:100%; border:0; border-radius:var(--radius-sm); background:transparent; color:var(--fg); padding:8px 12px; text-align:left; }
+.context-menu button:hover { background:var(--muted); }
+.context-menu .danger { color:var(--destructive); }
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Regras
+
+1. Não dependa só de clique direito.
+2. Ação destrutiva precisa confirmação proporcional.
+3. Menu contextual age sobre um alvo claro.
+4. Use atalhos apenas quando funcionam de fato.
