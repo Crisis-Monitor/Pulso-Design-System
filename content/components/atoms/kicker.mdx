@@ -1,36 +1,86 @@
 ---
 title: Kicker
-description: Rótulo curto e destacado que precede títulos para contextualizar o conteúdo.
+description: Rótulo curto que precede títulos para contextualizar seção, card ou métrica.
 ---
 
 # Kicker
 
-Texto curto e estilizado que aparece acima de títulos para fornecer contexto ou categorização.
+> **Atom**
+>
+> Kicker é contexto compacto antes de um título, valor ou bloco. Ele orienta a leitura; não deve carregar a decisão sozinho.
 
-## Import
+Use Kicker para categorizar seções, cards, métricas, estados e blocos assistidos pela Cris. No Pulso v3, ele usa tracking consistente (`--tracking-kicker`) e linguagem curta: escopo, tipo, janela ou origem.
 
-```tsx
-import { Kicker } from "@/components/ui/kicker"
-```
+## Exemplos copiáveis
 
-## Uso básico
+<BlueprintNote />
 
-```tsx
-<Kicker>Monitoramento</Kicker>
-<h2>Crise de segurança detectada</h2>
-```
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-## Em cards
+### React
 
 ```tsx
-<div className="p-6 border rounded-lg">
-  <Kicker>Nova crise</Kicker>
-  <h3 className="text-lg font-semibold">Incidente no servidor principal</h3>
-</div>
+import * as React from "react"
+
+type PulsoKickerProps = {
+  children: React.ReactNode
+  as?: "p" | "span"
+  tone?: "muted" | "primary" | "risk"
+}
+
+const toneClass = {
+  muted: "text-[var(--fg-subtle)]",
+  primary: "text-[var(--primary)]",
+  risk: "text-[var(--risk-high-text)]",
+}
+
+export function PulsoKicker({ children, as: Component = "p", tone = "muted" }: PulsoKickerProps) {
+  return (
+    <Component className={["font-mono text-[10.5px] font-semibold uppercase tracking-[var(--tracking-kicker)]", toneClass[tone]].join(" ")}>
+      {children}
+    </Component>
+  )
+}
 ```
 
-## Quando usar
+```tsx
+<PulsoKicker>Monitoramento · 24h</PulsoKicker>
+<h2>Operação reputacional em atenção</h2>
+```
 
-- Categorizar seções de conteúdo
-- Identificar o tipo de card ou bloco
-- Pré-títulos em métricas e alertas
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<p class="kicker">Monitoramento · 24h</p>
+<h2>Operação reputacional em atenção</h2>
+```
+
+```css
+.kicker {
+  color: var(--fg-subtle);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.kicker[data-tone="primary"] {
+  color: var(--primary);
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Regras
+
+- Seja curto: tipo, escopo, origem ou janela temporal.
+- Não use Kicker como único indicador de risco.
+- Use `--tracking-kicker`; não defina tracking solto.
+- Evite frases longas; o título carrega a mensagem principal.
+- Combine com texto visível quando a cor/tom indicar estado.
