@@ -1,44 +1,108 @@
 ---
 title: Card
-description: Container versátil com header, content, footer para agrupar conteúdo.
+description: Container com header, conteúdo e footer para agrupar informação relacionada.
 ---
 
 # Card
 
-Container flexível com header, content e footer. Base para métricas, formulários, listas e detalhes.
+> **Organism**
+>
+> Card cria uma unidade de leitura. Ele deve agrupar conteúdo por decisão, não por decoração.
 
-## Import
+Use Card para métricas, formulários curtos, blocos de configuração, resumos de caso e evidências relacionadas. Um card bom deixa claro: título, contexto, conteúdo principal e ações proporcionais.
+
+## Exemplos copiáveis
+
+<BlueprintNote />
+
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
 
 ```tsx
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
-```
+import * as React from "react"
 
-## Uso básico
+type PulsoCardProps = {
+  title: string
+  description?: string
+  children: React.ReactNode
+  footer?: React.ReactNode
+  interactive?: boolean
+}
+
+export function PulsoCard({ title, description, children, footer, interactive = false }: PulsoCardProps) {
+  return (
+    <article
+      data-interactive={interactive || undefined}
+      className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] data-[interactive=true]:transition-[border-color,box-shadow] data-[interactive=true]:duration-[var(--motion-duration-fast)] data-[interactive=true]:hover:border-[var(--border-strong)]"
+    >
+      <header className="border-b border-[var(--border)] p-4">
+        <h3 className="text-base font-semibold text-[var(--fg-strong)]">{title}</h3>
+        {description ? <p className="mt-1 text-sm text-[var(--fg-muted)]">{description}</p> : null}
+      </header>
+      <div className="p-4">{children}</div>
+      {footer ? <footer className="border-t border-[var(--border)] p-4">{footer}</footer> : null}
+    </article>
+  )
+}
+```
 
 ```tsx
-<Card>
-  <CardHeader>
-    <CardTitle>Configurações de Notificação</CardTitle>
-    <CardDescription>Gerencie como e quando receber alertas.</CardDescription>
-  </CardHeader>
-  <CardContent>
-    <p>Conteúdo do card aqui.</p>
-  </CardContent>
-  <CardFooter>
-    <Button>Salvar</Button>
-  </CardFooter>
-</Card>
+<PulsoCard
+  title="Configurações de notificação"
+  description="Canais ativos para alertas de alta prioridade."
+  footer={<button type="button">Salvar alterações</button>}
+>
+  <p>Email e Slack ativos para risco high e critical.</p>
+</PulsoCard>
 ```
 
-## Variantes
+  </Tabs.Tab>
+  <Tabs.Tab>
 
-| Variante | Uso |
-|----------|-----|
-| `default` | Card padrão com borda e fundo |
-| `interactive` | Card clicável com hover effect |
+### HTML puro
 
-## Quando usar
+```html
+<article class="card">
+  <header class="card__header">
+    <h3>Configurações de notificação</h3>
+    <p>Canais ativos para alertas de alta prioridade.</p>
+  </header>
+  <div class="card__content">
+    <p>Email e Slack ativos para risco high e critical.</p>
+  </div>
+  <footer class="card__footer">
+    <button type="button">Salvar alterações</button>
+  </footer>
+</article>
+```
 
-- Agrupar conteúdo relacionado
-- Formulários e configurações
-- Detalhes de crises
+```css
+.card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+}
+
+.card__header,
+.card__content,
+.card__footer {
+  padding: var(--space-4);
+}
+
+.card__header,
+.card__footer {
+  border-block-color: var(--border);
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Regras
+
+- Card deve representar uma unidade semântica, normalmente `article` ou `section`.
+- Não misture ações de pesos diferentes sem alinhamento visual consistente.
+- Footer deve conter ações do card, não navegação global.
+- Evite cards clicáveis com ações internas conflitantes.
