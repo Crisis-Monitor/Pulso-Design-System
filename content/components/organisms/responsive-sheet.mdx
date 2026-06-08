@@ -9,13 +9,16 @@ description: Overlay responsivo que adapta side sheet no desktop e bottom sheet 
 >
 > Mesma intenção, superfície diferente: side sheet no desktop, bottom sheet no mobile.
 
-Responsive Sheet adapta dimensão e direção ao viewport. Em telas largas, preserva o contexto da página com um painel lateral. Em telas pequenas, vira bottom sheet para respeitar polegar, altura útil e gesto de arrastar.
-
 Use quando o conteúdo precisa continuar conectado ao item de origem: detalhe de menção, filtros avançados, edição contextual, Cris embedding, handover ou ação assistida.
 
-## Blueprint React copiável
+## Exemplos copiáveis
 
 <BlueprintNote />
+
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
 
 ```tsx
 import * as React from "react"
@@ -29,209 +32,87 @@ type PulsoResponsiveSheetProps = {
   onOpenChange: (open: boolean) => void
 }
 
-export function PulsoResponsiveSheet({
-  open,
-  title,
-  description,
-  children,
-  controls,
-  onOpenChange,
-}: PulsoResponsiveSheetProps) {
+export function PulsoResponsiveSheet({ open, title, description, children, controls, onOpenChange }: PulsoResponsiveSheetProps) {
   const titleId = React.useId()
   const descriptionId = description ? `${titleId}-description` : undefined
 
   React.useEffect(() => {
     if (!open) return
-
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") onOpenChange(false)
     }
-
     document.addEventListener("keydown", onKeyDown)
     return () => document.removeEventListener("keydown", onKeyDown)
-  }, [onOpenChange, open])
+  }, [open, onOpenChange])
 
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50">
-      <button
-        type="button"
-        aria-label="Fechar painel"
-        className="absolute inset-0 h-full w-full cursor-default bg-black/35"
-        onClick={() => onOpenChange(false)}
-      />
-
-      <aside
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        aria-describedby={descriptionId}
-        className={[
-          "absolute bottom-0 left-0 right-0 max-h-[88dvh] rounded-t-[var(--radius-xl)] border border-[var(--border)] bg-[var(--popover)] shadow-[var(--shadow-lg)]",
-          "motion-safe:animate-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-[var(--motion-duration-base)]",
-          "md:bottom-0 md:left-auto md:top-0 md:h-full md:max-h-none md:w-[min(480px,calc(100vw-3rem))] md:rounded-none md:rounded-l-[var(--radius-xl)]",
-          "md:motion-safe:slide-in-from-right-4",
-        ].join(" ")}
-      >
+    <div className="fixed inset-0 z-50 bg-black/35" role="presentation">
+      <aside role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId} className="fixed inset-x-0 bottom-0 max-h-[88dvh] overflow-hidden rounded-t-[var(--radius-xl)] border border-[var(--border)] bg-[var(--popover)] shadow-[var(--shadow-lg)] motion-safe:duration-[var(--motion-duration-base)] md:inset-y-0 md:left-auto md:w-[min(480px,calc(100vw-3rem))] md:max-h-none md:rounded-none md:rounded-l-[var(--radius-xl)]">
         <div className="mx-auto mt-3 h-1.5 w-10 rounded-full bg-[var(--border-strong)] md:hidden" />
-
         <header className="flex items-start justify-between gap-4 border-b border-[var(--border)] p-5">
           <div>
-            <h2 id={titleId} className="text-lg font-semibold text-[var(--fg)]">
-              {title}
-            </h2>
-            {description ? (
-              <p id={descriptionId} className="mt-1 text-sm leading-6 text-[var(--fg-muted)]">
-                {description}
-              </p>
-            ) : null}
+            <h2 id={titleId} className="text-lg font-semibold text-[var(--fg)]">{title}</h2>
+            {description ? <p id={descriptionId} className="mt-1 text-sm leading-6 text-[var(--fg-muted)]">{description}</p> : null}
           </div>
-
-          <button
-            type="button"
-            aria-label="Fechar"
-            onClick={() => onOpenChange(false)}
-            className="rounded-[var(--radius-sm)] px-2 py-1 text-[var(--fg-muted)] hover:bg-[var(--muted)] hover:text-[var(--fg)] focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
-          >
-            ×
-          </button>
+          <button type="button" aria-label="Fechar" onClick={() => onOpenChange(false)} className="rounded-[var(--radius-sm)] px-2 py-1 text-[var(--fg-muted)] hover:bg-[var(--muted)]">×</button>
         </header>
-
-        <div className="max-h-[calc(88dvh-9rem)] overflow-y-auto p-5 md:max-h-[calc(100dvh-9rem)]">
-          {children}
-        </div>
-
-        {controls ? (
-          <footer className="border-t border-[var(--border)] p-4">
-            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-              {controls}
-            </div>
-          </footer>
-        ) : null}
+        <div className="max-h-[calc(88dvh-9rem)] overflow-y-auto p-5 md:max-h-[calc(100dvh-9rem)]">{children}</div>
+        {controls ? <footer className="border-t border-[var(--border)] p-4"><div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">{controls}</div></footer> : null}
       </aside>
     </div>
   )
 }
 ```
 
-### Exemplo de uso
+  </Tabs.Tab>
+  <Tabs.Tab>
 
-```tsx
-export function MentionDetailSheet() {
-  const [open, setOpen] = React.useState(false)
+### HTML puro
 
-  return (
-    <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="rounded-[var(--radius-md)] border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--fg)]"
-      >
-        Ver detalhes
-      </button>
+```html
+<div class="sheet-backdrop">
+  <aside class="responsive-sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" aria-describedby="sheet-desc">
+    <div class="responsive-sheet__handle" aria-hidden="true"></div>
+    <header>
+      <div>
+        <h2 id="sheet-title">Menção PLS-012</h2>
+        <p id="sheet-desc">Detalhe contextual sem perder a lista de origem.</p>
+      </div>
+      <button type="button" aria-label="Fechar">×</button>
+    </header>
+    <div class="responsive-sheet__body">Conteúdo contextual.</div>
+    <footer><button type="button">Cancelar</button><button type="button" class="primary">Atribuir caso</button></footer>
+  </aside>
+</div>
+```
 
-      <PulsoResponsiveSheet
-        open={open}
-        onOpenChange={setOpen}
-        title="Menção PLS-012"
-        description="Detalhe contextual sem perder a lista de origem."
-        controls={
-          <>
-            <button className="rounded-[var(--radius-md)] border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--fg)]">
-              Cancelar
-            </button>
-            <button className="rounded-[var(--radius-md)] bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-[var(--primary-fg)]">
-              Atribuir caso
-            </button>
-          </>
-        }
-      >
-        <div className="grid gap-4 text-sm text-[var(--fg)]">
-          <p>Fonte: clipping reputacional · atualizado há 4 min.</p>
-          <p className="text-[var(--fg-muted)]">
-            A Cris marcou esta menção como relacionada ao caso, mas a associação precisa de revisão humana.
-          </p>
-        </div>
-      </PulsoResponsiveSheet>
-    </>
-  )
+```css
+.sheet-backdrop { position: fixed; inset: 0; background: rgb(0 0 0 / 35%); }
+.responsive-sheet {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  max-height: 88dvh;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--popover);
+  box-shadow: var(--shadow-lg);
+}
+@media (min-width: 768px) {
+  .responsive-sheet { inset: 0 0 0 auto; width: min(480px, calc(100vw - 3rem)); max-height: none; border-radius: var(--radius-xl) 0 0 var(--radius-xl); }
 }
 ```
 
-## Comportamento por viewport
-
-| Viewport | Superfície | Direção | Uso |
-|---|---|---|---|
-| Desktop | Side sheet | Direita por padrão | Drill-down, filtros, edição contextual |
-| Tablet | Side sheet ou bottom sheet | Depende do espaço útil | Detalhe curto ou fluxo assistido |
-| Mobile | Bottom sheet | Baixo para cima | Ação contextual, filtros, Cris embedding |
-
-O conteúdo deve ser o mesmo. O que muda é a posição, altura/largura e gesto de fechamento.
-
-## Responsive Sheet vs Sheet vs Drawer
-
-| Componente | Quando usar | Regra |
-|---|---|---|
-| `ResponsiveSheet` | O mesmo fluxo precisa funcionar em desktop e mobile | Padrão preferido para produto responsivo |
-| `Sheet` | Desktop ou comportamento fixo de overlay lateral | Use quando a direção é parte do contrato |
-| `Drawer` | Mobile-first, ação secundária ou painel inferior | Use quando não há equivalente desktop direto |
-| `Dialog` | Decisão bloqueante ou confirmação | Não use para drill-down contextual |
-
-Se a superfície precisa preservar contexto visual da lista, prefira Sheet/Responsive Sheet. Se precisa interromper e exigir decisão, use Dialog.
-
-## Casos de uso
-
-- Detalhe de menção a partir de `Mention Card`.
-- Filtros avançados acionados por `Filter Bar`.
-- Fluxo de edição que não justifica página própria.
-- Recomendações ou explicações da Cris no contexto do item.
-- Handover mobile → desktop com deep-link para o mesmo registro.
-- Logs e auditoria com drill-down sem perder a lista de origem.
-
-## Anatomia
-
-| Parte | Papel | Regra |
-|---|---|---|
-| Trigger | Abre a superfície | Deve nomear a ação ou o destino |
-| Header | Título e descrição | Explique o escopo do conteúdo |
-| Body | Conteúdo contextual | Scroll interno; não mova a página por trás |
-| Controls | Ações persistentes | Ficam no rodapé ou header conforme densidade |
-| Close | Saída segura | Disponível por botão, `Esc` e gesto mobile |
-| Backdrop | Separação de camada | Não deve apagar totalmente o contexto |
-
-## Mobile
-
-Em mobile, o padrão vira bottom sheet.
-
-- Use grabber/handle quando o painel puder ser arrastado.
-- Ações primárias ficam na zona confortável do polegar.
-- Fechar por gesto não deve executar ação destrutiva.
-- Conteúdo longo deve ter scroll interno previsível.
-- Respeite `prefers-reduced-motion` para transições de abertura e detent.
-
-Quando houver detents, use alturas previsíveis: peek para resumo, half para revisão, full para formulário ou leitura longa.
-
-## Estados
-
-| Estado | Comportamento |
-|---|---|
-| Loading | Skeleton dentro do body, mantendo header e close disponíveis |
-| Empty | Explique por que não há conteúdo para o item atual |
-| Error | Preserve o sheet aberto e ofereça retry/voltar |
-| Dirty | Bloqueie fechamento acidental ou peça confirmação |
-| Offline | Indique fila local quando houver ação pendente |
-| Assisted by AI | Marque origem, confiança e base da sugestão |
+  </Tabs.Tab>
+</Tabs>
 
 ## Regras
 
 1. Não use Responsive Sheet para alerta bloqueante; use Dialog.
-2. Não duplique conteúdo entre desktop e mobile; adapte superfície, não contrato.
-3. Side sheet deve preservar o contexto da lista por trás.
+2. Adapte superfície, não duplique conteúdo entre desktop e mobile.
+3. Side sheet deve preservar contexto da lista por trás.
 4. Bottom sheet deve respeitar polegar, gesto de fechamento e scroll interno.
-5. Ações destrutivas precisam de confirmação proporcional.
-6. `Esc`, botão de fechar e gesto mobile devem ter comportamento consistente.
-7. Conteúdo assistido por IA precisa manter rastreabilidade e base visível.
-8. Não esconda filtros ativos dentro do sheet sem contador no trigger.
-9. Não abra sheet sobre sheet sem decisão explícita de stack.
-10. Handover/deep-link deve abrir no mesmo registro e estado esperado.
+5. Conteúdo assistido por IA precisa manter rastreabilidade visível.
