@@ -5,45 +5,52 @@ description: Seletor de data e range para filtros, relatórios e agendamentos.
 
 # Calendar
 
-Calendar resolve data. DatePicker resolve a experiência de escolher data dentro de um popover/trigger.
+> **Atom**
+>
+> Calendar resolve seleção de data. DatePicker é a experiência de trigger + popover que usa Calendar.
 
-Use Calendar para seleção de data em filtros temporais, relatórios, agendamentos, data de incidente e deadlines. Para produto, ele normalmente aparece como DatePicker: trigger de 36px, ícone de calendário e popover com calendário.
+Use Calendar para filtros temporais, relatórios, data de incidente e deadlines. Em produto, ele normalmente aparece como DatePicker: trigger de 36px, ícone de calendário e popover com calendário. Para `24h / 7d / 30d`, prefira Radio/Segmented.
 
-## Blueprint React copiável
+## Exemplos copiáveis
 
 <BlueprintNote />
 
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
+
 ```tsx
-import * as React from "react";
+import * as React from "react"
 
 type CalendarDay = {
-  date: Date;
-  outside?: boolean;
-  disabled?: boolean;
-};
+  date: Date
+  outside?: boolean
+  disabled?: boolean
+}
 
 type PulsoCalendarProps = {
-  label: string;
-  monthLabel: string;
-  days: CalendarDay[];
-  selectedDate?: Date;
-  onSelectDate: (date: Date) => void;
-};
+  label: string
+  monthLabel: string
+  days: CalendarDay[]
+  selectedDate?: Date
+  onSelectDate: (date: Date) => void
+}
 
 const formatter = new Intl.DateTimeFormat("pt-BR", {
   day: "2-digit",
   month: "short",
   year: "numeric",
-});
+})
 
 function isSameDay(a?: Date, b?: Date) {
   return Boolean(
     a &&
-    b &&
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate(),
-  );
+      b &&
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate(),
+  )
 }
 
 export function PulsoCalendar({
@@ -54,7 +61,10 @@ export function PulsoCalendar({
   onSelectDate,
 }: PulsoCalendarProps) {
   return (
-    <section aria-label={label} className="w-[280px] rounded-[var(--radius-md)] border border-[var(--border-strong)] bg-[var(--popover)] p-3 shadow-[var(--shadow-md)]">
+    <section
+      aria-label={label}
+      className="w-[280px] rounded-[var(--radius-md)] border border-[var(--border-strong)] bg-[var(--popover)] p-3 shadow-[var(--shadow-md)]"
+    >
       <header className="mb-3 flex items-center justify-between gap-3">
         <h2 className="text-sm font-semibold text-[var(--fg-strong)]">{monthLabel}</h2>
         <span className="font-mono text-[10px] uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-subtle)]">
@@ -63,14 +73,14 @@ export function PulsoCalendar({
       </header>
 
       <div className="grid grid-cols-7 gap-0.5 text-center font-mono text-[10px] uppercase tracking-[0.05em] text-[var(--fg-subtle)]">
-        {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((dayName, index) => (
+        {["D", "S", "T", "Q", "Q", "S", "S"].map((dayName, index) => (
           <div key={`${dayName}-${index}`}>{dayName}</div>
         ))}
       </div>
 
       <div className="mt-1 grid grid-cols-7 gap-0.5" role="grid" aria-label={monthLabel}>
         {days.map((day) => {
-          const selected = isSameDay(day.date, selectedDate);
+          const selected = isSameDay(day.date, selectedDate)
 
           return (
             <button
@@ -91,18 +101,16 @@ export function PulsoCalendar({
             >
               {day.date.getDate()}
             </button>
-          );
+          )
         })}
       </div>
     </section>
-  );
+  )
 }
 ```
 
-## Uso
-
 ```tsx
-const [selectedDate, setSelectedDate] = React.useState(new Date(2026, 4, 14));
+const [selectedDate, setSelectedDate] = React.useState(new Date(2026, 4, 14))
 
 <PulsoCalendar
   label="Data do incidente"
@@ -113,6 +121,109 @@ const [selectedDate, setSelectedDate] = React.useState(new Date(2026, 4, 14));
 />
 ```
 
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<section class="calendar" aria-label="Data do incidente">
+  <header class="calendar__header">
+    <h2 class="calendar__month">Maio 2026</h2>
+    <span class="calendar__selected">14 de mai. de 2026</span>
+  </header>
+
+  <div class="calendar__weekdays" aria-hidden="true">
+    <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+  </div>
+
+  <div class="calendar__grid" role="grid" aria-label="Maio 2026">
+    <button class="calendar__day calendar__day--outside" type="button">28</button>
+    <button class="calendar__day calendar__day--outside" type="button">29</button>
+    <button class="calendar__day" type="button">1</button>
+    <button class="calendar__day calendar__day--selected" type="button" aria-selected="true">14</button>
+  </div>
+</section>
+```
+
+```css
+.calendar {
+  inline-size: 280px;
+  padding: 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--popover);
+  box-shadow: var(--shadow-md);
+}
+
+.calendar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-block-end: 12px;
+}
+
+.calendar__month {
+  margin: 0;
+  color: var(--fg-strong);
+  font-size: 14px;
+}
+
+.calendar__selected,
+.calendar__weekdays {
+  color: var(--fg-subtle);
+  font: 600 10px/1 var(--font-mono);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.calendar__weekdays,
+.calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  text-align: center;
+}
+
+.calendar__grid {
+  margin-block-start: 4px;
+}
+
+.calendar__day {
+  block-size: 32px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  transition: background var(--motion-duration-fast) var(--motion-easing);
+}
+
+.calendar__day:hover {
+  background: var(--muted);
+}
+
+.calendar__day:focus-visible {
+  outline: var(--ring-width) solid var(--ring);
+  outline-offset: 2px;
+}
+
+.calendar__day--selected {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 700;
+}
+
+.calendar__day--outside {
+  color: var(--fg-disabled);
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
 ## DatePicker contract
 
 | Parte | Regra |
@@ -121,7 +232,7 @@ const [selectedDate, setSelectedDate] = React.useState(new Date(2026, 4, 14));
 | Single date | Um mês visível; hoje marcado sem competir com seleção |
 | Range | Dois meses lado a lado em desktop; presets para intervalos comuns |
 | Mobile | Popover vira superfície adequada ao viewport quando necessário |
-| Locale | pt-BR por padrão em produto Pulso |
+| Locale | `pt-BR` por padrão em produto Pulso |
 
 ## Quando usar
 
@@ -130,7 +241,19 @@ const [selectedDate, setSelectedDate] = React.useState(new Date(2026, 4, 14));
 - Range com presets para queries comuns.
 - Revisão de períodos de auditoria.
 
-Não use Calendar quando a escolha é uma das poucas opções fixas. Para `24h / 7d / 30d`, use segmented/radio. Para hora isolada, use input de horário específico.
+## Quando não usar
+
+- Para poucas opções fixas como `24h / 7d / 30d`; use Radio/Segmented.
+- Para hora isolada; use input específico.
+- Para datas em logs sem timezone explícito.
+- Para categorias sem ordem temporal.
+
+## Acessibilidade
+
+- Trigger precisa anunciar valor selecionado e abrir o calendário por teclado.
+- Dia selecionado usa `aria-selected`.
+- Dias indisponíveis usam `disabled` e não devem parecer selecionáveis.
+- Range precisa comunicar início e fim em texto, não só por cor.
 
 ## Regras
 

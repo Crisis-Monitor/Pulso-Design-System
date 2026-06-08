@@ -1,32 +1,186 @@
+---
+title: Textarea
+description: Campo multi-linha para conteúdo operacional mais longo.
+---
+
 # Textarea
 
-> Campo de texto multi-linha para descricoes longas.
+> **Atom**
+>
+> Textarea coleta texto livre longo. Use quando a pessoa precisa registrar contexto, justificativa ou observação auditável.
 
----
+Textarea deve favorecer clareza e revisão. Para dados curtos, identificadores, busca ou valores estruturados, use `Input`. Para decisões de crise, o texto auxiliar deve explicar formato, consequência ou limite esperado.
 
-## Props
+## Exemplos copiáveis
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+<BlueprintNote />
 
-## Uso
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-```tsx
-import { Textarea } from "@/components/ui/textarea"
-
-// Exemplo de uso basico
-```
-
----
-
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+type PulsoTextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  label: string
+  description?: string
+  error?: string
+}
+
+export function PulsoTextarea({
+  id,
+  label,
+  description,
+  error,
+  className,
+  ...props
+}: PulsoTextareaProps) {
+  const reactId = React.useId()
+  const textareaId = id ?? reactId
+  const descriptionId = description ? `${textareaId}-description` : undefined
+  const errorId = error ? `${textareaId}-error` : undefined
+
+  return (
+    <div className="grid gap-1.5">
+      <label
+        htmlFor={textareaId}
+        className="font-mono text-[10.5px] uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-subtle)]"
+      >
+        {label}
+      </label>
+
+      <textarea
+        id={textareaId}
+        aria-describedby={[descriptionId, errorId].filter(Boolean).join(" ") || undefined}
+        aria-invalid={error ? true : undefined}
+        className={[
+          "min-h-28 resize-y rounded-[var(--radius-md)] border bg-[var(--card)] px-3 py-2 text-sm leading-6 text-[var(--fg)]",
+          "border-[var(--border-strong)] outline-none transition-colors duration-[var(--motion-duration-fast)] ease-[var(--motion-easing)]",
+          "placeholder:text-[var(--fg-subtle)] focus-visible:border-[var(--primary)] focus-visible:ring-[var(--ring-width)] focus-visible:ring-[var(--ring)]",
+          "disabled:cursor-not-allowed disabled:text-[var(--fg-disabled)] disabled:opacity-60",
+          error ? "border-[var(--destructive)]" : "",
+          className,
+        ].filter(Boolean).join(" ")}
+        {...props}
+      />
+
+      {description ? (
+        <p id={descriptionId} className="text-xs text-[var(--fg-muted)]">
+          {description}
+        </p>
+      ) : null}
+
+      {error ? (
+        <p id={errorId} className="text-xs text-[var(--destructive)]">
+          {error}
+        </p>
+      ) : null}
+    </div>
+  )
+}
 ```
 
-</details>
+```tsx
+<PulsoTextarea
+  label="Resumo operacional"
+  placeholder="Descreva sinal, fonte e consequência observada."
+  description="Registre apenas fatos verificáveis; hipóteses devem ser marcadas como tal."
+/>
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<div class="textarea-field">
+  <label class="textarea-field__label" for="operational-summary">Resumo operacional</label>
+  <textarea
+    id="operational-summary"
+    class="textarea-field__control"
+    placeholder="Descreva sinal, fonte e consequência observada."
+    aria-describedby="operational-summary-description"
+  ></textarea>
+  <p id="operational-summary-description" class="textarea-field__description">
+    Registre apenas fatos verificáveis; hipóteses devem ser marcadas como tal.
+  </p>
+</div>
+```
+
+```css
+.textarea-field {
+  display: grid;
+  gap: 6px;
+}
+
+.textarea-field__label {
+  color: var(--fg-subtle);
+  font: 600 10.5px/1 var(--font-mono);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.textarea-field__control {
+  min-block-size: 112px;
+  resize: vertical;
+  padding: 8px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  color: var(--fg);
+  font: inherit;
+  line-height: 1.5;
+  transition: border-color var(--motion-duration-fast) var(--motion-easing);
+}
+
+.textarea-field__control::placeholder {
+  color: var(--fg-subtle);
+}
+
+.textarea-field__control:focus-visible {
+  border-color: var(--primary);
+  outline: var(--ring-width) solid var(--ring);
+  outline-offset: 2px;
+}
+
+.textarea-field__description {
+  margin: 0;
+  color: var(--fg-muted);
+  font-size: 12px;
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Quando usar
+
+- Resumo operacional, observação ou justificativa.
+- Registro de evidência textual.
+- Comentário com contexto que precisa ser auditável.
+- Campo com conteúdo de mais de uma linha.
+
+## Quando não usar
+
+- Para busca ou identificador curto; use `Input`.
+- Para listas estruturadas; use tabela, chips ou seleção apropriada.
+- Para decisão sem revisão; use controles explícitos.
+- Para esconder instruções longas dentro de placeholder.
+
+## Acessibilidade
+
+- Label visível é obrigatório.
+- Placeholder não substitui label nem instrução.
+- Use `aria-describedby` para instrução, limite ou erro.
+- Erro precisa explicar correção, não apenas indicar falha.
+
+## Regras
+
+1. Texto livre deve ter expectativa clara.
+2. Descrição deve orientar qualidade do registro.
+3. Use altura inicial suficiente para revisar o conteúdo.
+4. Não use Textarea para dados que precisam ser normalizados.
+5. Em contexto de IA, diferencie fato verificado, hipótese e sugestão.
