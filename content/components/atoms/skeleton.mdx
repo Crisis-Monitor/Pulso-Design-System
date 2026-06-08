@@ -1,16 +1,126 @@
-# skeleton
+---
+title: Skeleton
+description: Placeholder estrutural para conteúdo carregando sem layout shift.
+---
 
-Documentação do componente skeleton.
+# Skeleton
 
-## Import
+> **Atom**
+>
+> Skeleton reserva espaço enquanto conteúdo real carrega. Ele sugere estrutura, não progresso.
+
+Use Skeleton quando a forma do conteúdo é conhecida e o carregamento deve manter a estabilidade visual da página. Para espera sem estrutura previsível, use `Spinner`. Para avanço mensurável, use `Progress`.
+
+## Exemplos copiáveis
+
+<BlueprintNote />
+
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
 
 ```tsx
-import { skeleton } from "@/components/ui/skeleton";
-```
+import * as React from "react"
 
-## Uso
+type PulsoSkeletonProps = React.HTMLAttributes<HTMLDivElement> & {
+  shape?: "line" | "block" | "circle"
+}
+
+export function PulsoSkeleton({ shape = "line", className, ...props }: PulsoSkeletonProps) {
+  return (
+    <div
+      aria-hidden="true"
+      data-shape={shape}
+      className={[
+        "animate-pulse rounded-[var(--radius-sm)] bg-[var(--muted)]",
+        shape === "line" ? "h-4 w-full" : "",
+        shape === "block" ? "h-24 w-full rounded-[var(--radius-md)]" : "",
+        shape === "circle" ? "size-10 rounded-full" : "",
+        className,
+      ].filter(Boolean).join(" ")}
+      {...props}
+    />
+  )
+}
+```
 
 ```tsx
-<skeleton />
+<div className="grid gap-3" aria-label="Carregando resumo do caso">
+  <PulsoSkeleton className="w-32" />
+  <PulsoSkeleton shape="block" />
+  <PulsoSkeleton className="w-2/3" />
+</div>
 ```
 
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<div class="skeleton-stack" aria-label="Carregando resumo do caso">
+  <span class="skeleton skeleton--line skeleton--short" aria-hidden="true"></span>
+  <span class="skeleton skeleton--block" aria-hidden="true"></span>
+  <span class="skeleton skeleton--line skeleton--medium" aria-hidden="true"></span>
+</div>
+```
+
+```css
+.skeleton-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.skeleton {
+  display: block;
+  border-radius: var(--radius-sm);
+  background: var(--muted);
+  animation: skeleton-pulse var(--motion-duration-slow) var(--motion-easing) infinite;
+}
+
+.skeleton--line { block-size: 16px; inline-size: 100%; }
+.skeleton--short { inline-size: 128px; }
+.skeleton--medium { inline-size: 66%; }
+.skeleton--block { block-size: 96px; border-radius: var(--radius-md); }
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Quando usar
+
+- Conteúdo de card, tabela ou detalhe com estrutura previsível.
+- Evitar layout shift enquanto dados chegam.
+- Carregamento de listas onde a quantidade aproximada é conhecida.
+
+## Quando não usar
+
+- Para operação sem estrutura visual previsível; use `Spinner`.
+- Para progresso com percentual; use `Progress`.
+- Para esconder erro de carregamento.
+- Para conteúdo que aparece instantaneamente.
+
+## Acessibilidade
+
+- Skeleton normalmente é decorativo: use `aria-hidden="true"` nos blocos.
+- O container pode ter label ou status de carregamento quando necessário.
+- Respeite `prefers-reduced-motion`.
+- Não anuncie cada linha do skeleton para leitores de tela.
+
+## Regras
+
+1. Skeleton deve parecer a estrutura final.
+2. Não use shimmer agressivo.
+3. Reserve altura para evitar salto de layout.
+4. Troque por erro visível se o carregamento falhar.
+5. Conteúdo crítico não deve ficar preso em skeleton indefinidamente.

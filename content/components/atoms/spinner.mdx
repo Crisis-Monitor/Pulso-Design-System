@@ -1,50 +1,134 @@
 ---
 title: Spinner
-description: Indicador de carregamento circular animado para operações assíncronas.
+description: Indicador circular para espera indeterminada e assíncrona.
 ---
 
 # Spinner
 
-Indicador visual circular animado para operações em andamento.
+> **Atom**
+>
+> Spinner indica espera indeterminada. Ele diz que algo está acontecendo, mas não estima progresso.
 
-## Import
+Use Spinner em submissões, carregamento de seção ou operações assíncronas sem percentual conhecido. Para conteúdo com estrutura previsível, prefira `Skeleton`. Para avanço conhecido, use `Progress`.
 
-```tsx
-import { Spinner } from "@/components/ui/spinner"
-```
+## Exemplos copiáveis
 
-## Uso básico
+<BlueprintNote />
 
-```tsx
-<Spinner />
-```
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-## Tamanhos
-
-| Tamanho | Uso |
-|---------|-----|
-| `sm` | Inline com texto pequeno |
-| `default` | Loading de seção |
-| `lg` | Loading de página inteira |
+### React
 
 ```tsx
-<Spinner size="sm" />
-<Spinner size="default" />
-<Spinner size="lg" />
+import * as React from "react"
+
+type SpinnerSize = "sm" | "md" | "lg"
+
+type PulsoSpinnerProps = {
+  size?: SpinnerSize
+  label?: string
+}
+
+const sizeClass: Record<SpinnerSize, string> = {
+  sm: "size-4 border-2",
+  md: "size-6 border-2",
+  lg: "size-8 border-[3px]",
+}
+
+export function PulsoSpinner({ size = "md", label = "Carregando" }: PulsoSpinnerProps) {
+  return (
+    <span role="status" aria-label={label} className="inline-flex items-center gap-2 text-[var(--fg-muted)]">
+      <span
+        aria-hidden="true"
+        className={[
+          "inline-block animate-spin rounded-full border-current border-r-transparent",
+          sizeClass[size],
+        ].join(" ")}
+      />
+      <span className="sr-only">{label}</span>
+    </span>
+  )
+}
 ```
+
+```tsx
+<PulsoSpinner label="Carregando evidências" />
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<span class="spinner" role="status" aria-label="Carregando evidências">
+  <span class="spinner__mark" aria-hidden="true"></span>
+  <span class="sr-only">Carregando evidências</span>
+</span>
+```
+
+```css
+.spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--fg-muted);
+}
+
+.spinner__mark {
+  inline-size: 24px;
+  block-size: 24px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 999px;
+  animation: spinner-rotate var(--motion-duration-slow) linear infinite;
+}
+
+.sr-only {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+@keyframes spinner-rotate {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner__mark { animation-duration: 1.2s; }
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
 
 ## Quando usar
 
-- Operações assíncronas sem estimativa de tempo
-- Loading de página ou seção completa
-- Submissão de formulários
+- Submissão de formulário sem tempo estimado.
+- Carregamento de seção sem estrutura conhecida.
+- Operação curta enquanto resultado é confirmado.
 
 ## Quando não usar
 
-- Para dados que carregam rápido (use Skeleton)
-- Para progresso com percentual conhecido (use Progress)
+- Para progresso mensurável; use `Progress`.
+- Para layout conhecido carregando; use `Skeleton`.
+- Para estado persistente de sistema; use `Live Indicator` ou `Alert`.
+- Para bloquear ação crítica sem texto explicativo.
 
 ## Acessibilidade
 
-- \`role="status"\` no container
-- \`aria-label="Carregando"\` para screen readers
+- Use `role="status"` e label específico.
+- Não dependa só do movimento para comunicar estado.
+- Evite múltiplos spinners concorrendo na mesma superfície.
+- Respeite redução de movimento.
+
+## Regras
+
+1. Spinner precisa de contexto textual ou label acessível.
+2. Não use spinner infinito sem fallback de erro.
+3. Em botão, preserve o tamanho do botão ao carregar.
+4. Não use spinner para mascarar latência longa; explique o que está acontecendo.
+5. O inverse deve manter contraste em light e dark, sem inverter para chip branco no dark.

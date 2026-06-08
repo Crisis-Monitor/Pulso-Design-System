@@ -5,20 +5,29 @@ description: Rótulo curto para status, risco, origem e metadados sem assumir a�
 
 # Badge
 
-Badge comunica uma classificação curta: status, risco, origem ou metadado. Ele não substitui texto explicativo nem deve ser usado como botão disfarçado.
+> **Atom**
+>
+> Badge comunica uma classificação curta. Ele não é botão, não substitui texto explicativo e não carrega decisão sozinho.
 
-## Blueprint React copiável
+Use Badge para status, risco, origem de IA ou metadados compactos. A semântica vem antes da cor: risco usa `stable / monitor / attention / high / critical`; delta continua sendo movimento de métrica.
+
+## Exemplos copiáveis
 
 <BlueprintNote />
 
-```tsx
-import * as React from "react";
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-type BadgeTone = "neutral" | "stable" | "monitor" | "attention" | "high" | "critical" | "ai";
+### React
+
+```tsx
+import * as React from "react"
+
+type BadgeTone = "neutral" | "stable" | "monitor" | "attention" | "high" | "critical" | "ai"
 
 type PulsoBadgeProps = React.HTMLAttributes<HTMLSpanElement> & {
-  tone?: BadgeTone;
-};
+  tone?: BadgeTone
+}
 
 const toneClass: Record<BadgeTone, string> = {
   neutral: "border-[var(--border)] bg-[var(--muted)] text-[var(--fg-secondary)]",
@@ -28,7 +37,7 @@ const toneClass: Record<BadgeTone, string> = {
   high: "border-[var(--risk-high-border)] bg-[var(--risk-high-bg)] text-[var(--risk-high-text)]",
   critical: "border-[var(--risk-critical-border)] bg-[var(--risk-critical-bg)] text-[var(--risk-critical-text)]",
   ai: "border-[var(--border)] bg-[var(--primary-soft)] text-[var(--primary)]",
-};
+}
 
 export function PulsoBadge({ tone = "neutral", className, children, ...props }: PulsoBadgeProps) {
   return (
@@ -43,11 +52,9 @@ export function PulsoBadge({ tone = "neutral", className, children, ...props }: 
     >
       {children}
     </span>
-  );
+  )
 }
 ```
-
-## Uso
 
 ```tsx
 <PulsoBadge tone="high">◆ high</PulsoBadge>
@@ -55,16 +62,61 @@ export function PulsoBadge({ tone = "neutral", className, children, ...props }: 
 <PulsoBadge>12 fontes</PulsoBadge>
 ```
 
-## Semânticas v3
+  </Tabs.Tab>
+  <Tabs.Tab>
 
-Use a semântica correta antes de escolher a cor:
+### HTML puro
+
+```html
+<span class="badge badge--high">◆ high</span>
+<span class="badge badge--ai">◐ Escrito com Cris</span>
+<span class="badge">12 fontes</span>
+```
+
+```css
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--muted);
+  color: var(--fg-secondary);
+  font: 600 10.5px/1 var(--font-mono);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.badge--high {
+  border-color: var(--risk-high-border);
+  background: var(--risk-high-bg);
+  color: var(--risk-high-text);
+}
+
+.badge--critical {
+  border-color: var(--risk-critical-border);
+  background: var(--risk-critical-bg);
+  color: var(--risk-critical-text);
+}
+
+.badge--ai {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Semânticas v3
 
 | Uso | Tokens | Exemplo |
 |-----|--------|---------|
-| Status de fluxo | componente/padrão de status | `Em Execução` |
+| Status de fluxo | componente/padrão de status | `Em execução` |
 | Risco operacional | `--risk-*` | `◆ high` |
 | Delta de métrica | `--delta-*` | `+18%` |
-| Origem de IA | `--ai-marker-*` + kicker | `Escrito com Cris` |
+| Origem de IA | marcador + trilha auditável | `Escrito com Cris` |
 | Metadado neutro | `--muted`, `--border` | `12 fontes` |
 
 ## Regras
