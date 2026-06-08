@@ -1,32 +1,143 @@
+---
+title: Popover
+description: Superfície flutuante ancorada para conteúdo contextual curto e interativo.
+---
+
 # Popover
 
-> Popup posicional ancorado a um elemento trigger.
+> **Atom**
+>
+> Popover mostra conteúdo contextual ancorado a um trigger. Use quando o conteúdo é útil naquele ponto, mas não precisa ocupar a página.
 
----
+Diferente de Tooltip, Popover pode conter ações, campos ou links. Diferente de Dialog, ele não deve bloquear uma decisão crítica nem exigir foco prolongado.
 
-## Props
+## Exemplos copiáveis
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+<BlueprintNote />
 
-## Uso
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-```tsx
-import { Popover } from "@/components/ui/popover"
-
-// Exemplo de uso basico
-```
-
----
-
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+type PulsoPopoverProps = {
+  trigger: React.ReactNode
+  title: string
+  children: React.ReactNode
+}
+
+export function PulsoPopover({ trigger, title, children }: PulsoPopoverProps) {
+  const [open, setOpen] = React.useState(false)
+  const panelId = React.useId()
+
+  return (
+    <span className="relative inline-flex">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen((value) => !value)}
+        className="rounded-[var(--radius-sm)] focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
+      >
+        {trigger}
+      </button>
+      {open ? (
+        <section
+          id={panelId}
+          className="absolute right-0 top-full z-50 mt-2 w-72 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--popover)] p-4 text-sm text-[var(--fg)] shadow-[var(--shadow-lg)]"
+        >
+          <h2 className="text-sm font-semibold text-[var(--fg-strong)]">{title}</h2>
+          <div className="mt-2 text-[var(--fg-muted)]">{children}</div>
+        </section>
+      ) : null}
+    </span>
+  )
+}
 ```
 
-</details>
+```tsx
+<PulsoPopover trigger="Origem" title="Origem da recomendação">
+  Baseada em 12 fontes verificadas e registrada na trilha de auditoria.
+</PulsoPopover>
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<span class="popover-wrap">
+  <button class="popover-trigger" type="button" aria-expanded="true" aria-controls="origin-popover">
+    Origem
+  </button>
+  <section id="origin-popover" class="popover" role="dialog" aria-label="Origem da recomendação">
+    <h2>Origem da recomendação</h2>
+    <p>Baseada em 12 fontes verificadas e registrada na trilha de auditoria.</p>
+  </section>
+</span>
+```
+
+```css
+.popover-wrap { position: relative; display: inline-flex; }
+.popover-trigger {
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--primary);
+  font: inherit;
+  font-weight: 600;
+}
+.popover-trigger:focus-visible { outline: var(--ring-width) solid var(--ring); outline-offset: 2px; }
+.popover {
+  position: absolute;
+  inset-block-start: 100%;
+  inset-inline-end: 0;
+  z-index: 50;
+  inline-size: 288px;
+  margin-block-start: 8px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--popover);
+  color: var(--fg);
+  box-shadow: var(--shadow-lg);
+}
+.popover h2 { margin: 0; color: var(--fg-strong); font-size: 14px; }
+.popover p { margin: 8px 0 0; color: var(--fg-muted); line-height: 1.5; }
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Quando usar
+
+- Conteúdo contextual curto com ação.
+- Explicação de origem, filtros ou detalhes de item.
+- Pequenos formulários ou seleções ancoradas.
+- Conteúdo que pode fechar sem perda de trabalho crítica.
+
+## Quando não usar
+
+- Para informação essencial; deixe visível.
+- Para decisão destrutiva; use Dialog/Alert Dialog.
+- Para texto simples sem interação; use Tooltip.
+- Para conteúdo longo ou fluxo multi-etapa; use Sheet/Dialog.
+
+## Acessibilidade
+
+- Trigger precisa anunciar estado aberto.
+- Feche com `Escape` quando implementado em runtime.
+- Gerencie foco se houver campos ou ações dentro.
+- Não coloque conteúdo crítico apenas dentro do Popover.
+
+## Regras
+
+1. Popover é contextual e curto.
+2. Pode conter interação; Tooltip não.
+3. Não bloqueia decisão crítica.
+4. Deve fechar ao clicar fora/Escape no runtime.
+5. Em mobile, pode virar Sheet se não couber no viewport.

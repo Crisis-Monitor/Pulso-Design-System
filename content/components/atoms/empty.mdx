@@ -1,32 +1,123 @@
+---
+title: Empty
+description: Estado vazio com causa, orientação e ação opcional.
+---
+
 # Empty
 
-> Estado vazio generico com icone, titulo e acao opcional.
+> **Atom**
+>
+> Empty explica ausência de conteúdo. Ele deve dizer o que aconteceu e qual próximo passo faz sentido.
 
----
+Use Empty quando uma lista, busca, filtro ou seção não tem dados. Em Pulso, estado vazio não pode ser só “nada aqui”: ele precisa diferenciar ausência real, filtro restritivo, erro de fonte ou permissão.
 
-## Props
+## Exemplos copiáveis
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+<BlueprintNote />
 
-## Uso
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-```tsx
-import { Empty } from "@/components/ui/empty"
-
-// Exemplo de uso basico
-```
-
----
-
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+type PulsoEmptyProps = {
+  title: string
+  description: string
+  action?: React.ReactNode
+}
+
+export function PulsoEmpty({ title, description, action }: PulsoEmptyProps) {
+  return (
+    <section className="grid place-items-center rounded-[var(--radius-md)] border border-dashed border-[var(--border-strong)] bg-[var(--card)] px-6 py-10 text-center">
+      <div className="max-w-md">
+        <p className="font-mono text-[10.5px] uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-subtle)]">Estado vazio</p>
+        <h2 className="mt-2 text-lg font-semibold text-[var(--fg-strong)]">{title}</h2>
+        <p className="mt-2 text-sm leading-6 text-[var(--fg-muted)]">{description}</p>
+        {action ? <div className="mt-4">{action}</div> : null}
+      </div>
+    </section>
+  )
+}
 ```
 
-</details>
+```tsx
+<PulsoEmpty
+  title="Nenhuma menção encontrada"
+  description="Revise filtros ou amplie o período. Não há evidência nova para esta consulta."
+  action={<button className="text-sm font-medium text-[var(--primary)]">Limpar filtros</button>}
+/>
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<section class="empty-state">
+  <div class="empty-state__content">
+    <p class="empty-state__kicker">Estado vazio</p>
+    <h2>Nenhuma menção encontrada</h2>
+    <p>Revise filtros ou amplie o período. Não há evidência nova para esta consulta.</p>
+    <button type="button">Limpar filtros</button>
+  </div>
+</section>
+```
+
+```css
+.empty-state {
+  display: grid;
+  place-items: center;
+  padding: 40px 24px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  text-align: center;
+}
+.empty-state__content { max-inline-size: 448px; }
+.empty-state__kicker {
+  margin: 0;
+  color: var(--fg-subtle);
+  font: 600 10.5px/1 var(--font-mono);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+.empty-state h2 { margin: 8px 0 0; color: var(--fg-strong); font-size: 18px; }
+.empty-state p:not(.empty-state__kicker) { margin: 8px 0 0; color: var(--fg-muted); line-height: 1.5; }
+.empty-state button { margin-top: 16px; color: var(--primary); font-weight: 600; }
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Quando usar
+
+- Lista sem itens.
+- Busca sem resultado.
+- Filtro restritivo demais.
+- Primeiro uso antes de configurar fontes.
+
+## Quando não usar
+
+- Para erro técnico sem diagnóstico; use Alert/Error.
+- Para carregamento; use Skeleton ou Spinner.
+- Para esconder permissão negada.
+- Para substituir onboarding quando há fluxo de setup.
+
+## Acessibilidade
+
+- Use título claro e descrição curta.
+- Ação deve ser botão ou link real.
+- Não dependa só de ícone decorativo.
+- Diferencie “sem dados” de “não carregou”.
+
+## Regras
+
+1. Diga a causa provável do vazio.
+2. Ofereça próximo passo quando existir.
+3. Não culpe o usuário.
+4. Vazio por filtro deve permitir limpar filtros.
+5. Vazio por permissão precisa explicar acesso necessário.

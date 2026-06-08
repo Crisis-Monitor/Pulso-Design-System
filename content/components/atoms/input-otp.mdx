@@ -1,32 +1,157 @@
+---
+title: Input OTP
+description: Campo segmentado para códigos curtos de verificação.
+---
+
 # Input OTP
 
-> Campo de digitacao de codigo de verificacao (2FA, email, etc).
+> **Atom**
+>
+> Input OTP coleta códigos curtos e temporários. Use apenas quando há um fluxo real de verificação.
 
----
+Use para 2FA, confirmação por e-mail ou códigos de recuperação. O campo deve deixar claro o tamanho do código, a origem esperada e o que fazer quando o código expira.
 
-## Props
+## Exemplos copiáveis
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+<BlueprintNote />
 
-## Uso
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-```tsx
-import { InputOTP } from "@/components/ui/input-otp"
-
-// Exemplo de uso basico
-```
-
----
-
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+type PulsoInputOtpProps = {
+  length?: number
+  label: string
+  value: string
+  onChange: (value: string) => void
+  description?: string
+}
+
+export function PulsoInputOtp({ length = 6, label, value, onChange, description }: PulsoInputOtpProps) {
+  const descriptionId = React.useId()
+  const cells = Array.from({ length }, (_, index) => value[index] ?? "")
+
+  return (
+    <div className="grid gap-2">
+      <label className="font-mono text-[10.5px] uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-subtle)]">
+        {label}
+      </label>
+      <input
+        inputMode="numeric"
+        autoComplete="one-time-code"
+        maxLength={length}
+        value={value}
+        onChange={(event) => onChange(event.target.value.replace(/\D/g, "").slice(0, length))}
+        aria-describedby={description ? descriptionId : undefined}
+        className="sr-only"
+      />
+      <div aria-hidden="true" className="flex gap-2">
+        {cells.map((cell, index) => (
+          <span
+            key={index}
+            className="grid size-10 place-items-center rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--card)] font-mono text-lg font-semibold tabular-nums text-[var(--fg)]"
+          >
+            {cell || "–"}
+          </span>
+        ))}
+      </div>
+      {description ? <p id={descriptionId} className="text-xs text-[var(--fg-muted)]">{description}</p> : null}
+    </div>
+  )
+}
 ```
 
-</details>
+```tsx
+const [code, setCode] = React.useState("")
+
+<PulsoInputOtp
+  label="Código de verificação"
+  value={code}
+  onChange={setCode}
+  description="Digite os 6 números enviados para seu e-mail operacional."
+/>
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<div class="otp-field">
+  <label class="otp-field__label" for="otp-code">Código de verificação</label>
+  <input
+    id="otp-code"
+    class="otp-field__input"
+    inputmode="numeric"
+    autocomplete="one-time-code"
+    maxlength="6"
+    aria-describedby="otp-description"
+  />
+  <div class="otp-field__cells" aria-hidden="true">
+    <span>1</span><span>8</span><span>4</span><span>–</span><span>–</span><span>–</span>
+  </div>
+  <p id="otp-description" class="otp-field__description">
+    Digite os 6 números enviados para seu e-mail operacional.
+  </p>
+</div>
+```
+
+```css
+.otp-field { display: grid; gap: 8px; }
+.otp-field__label {
+  color: var(--fg-subtle);
+  font: 600 10.5px/1 var(--font-mono);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+.otp-field__input { position: absolute; inline-size: 1px; block-size: 1px; opacity: 0; }
+.otp-field__cells { display: flex; gap: 8px; }
+.otp-field__cells span {
+  display: grid;
+  inline-size: 40px;
+  block-size: 40px;
+  place-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--fg);
+  font: 700 18px/1 var(--font-mono);
+}
+.otp-field__description { margin: 0; color: var(--fg-muted); font-size: 12px; }
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Quando usar
+
+- Autenticação em dois fatores.
+- Código temporário enviado por canal conhecido.
+- Confirmação curta com expiração.
+
+## Quando não usar
+
+- Para senha permanente.
+- Para token longo ou chave secreta.
+- Para confirmação que pode ser um botão simples.
+- Para capturar dados sensíveis sem contexto de segurança.
+
+## Acessibilidade
+
+- Preserve um input real para teclado, autofill e leitores de tela.
+- Use `autocomplete="one-time-code"` quando aplicável.
+- Informe tamanho do código e canal de envio.
+- Erro deve explicar se o código expirou, está incompleto ou inválido.
+
+## Regras
+
+1. Código curto, temporário e com origem explícita.
+2. Não masque erro como “falha genérica”.
+3. Permita colar o código inteiro.
+4. Não espalhe foco em múltiplos inputs sem necessidade.
+5. Reenvio precisa ter cooldown claro.
