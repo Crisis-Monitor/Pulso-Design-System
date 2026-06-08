@@ -7,13 +7,18 @@ description: Estrutura de formulário para coleta, validação e revisão de dad
 
 > **Organism**
 >
-> Form é uma superfície de coleta e revisão. Use quando o operador precisa inserir, corrigir ou confirmar dados antes de uma ação rastreável.
+> Form é uma superfície de coleta e revisão antes de uma ação rastreável.
 
-Formulários no Pulso precisam ser explícitos sobre obrigatoriedade, erro, consequência e estado de envio. Eles não devem depender de placeholder como label nem esconder mensagens críticas abaixo da dobra.
+Formulários no Pulso precisam ser explícitos sobre obrigatoriedade, erro, consequência e estado de envio. Placeholder não substitui label, e mensagens críticas não devem ficar abaixo da dobra sem sinalização.
 
-## Blueprint React copiável
+## Exemplos copiáveis
 
 <BlueprintNote />
+
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
 
 ```tsx
 import * as React from "react"
@@ -30,44 +35,23 @@ type PulsoCrisisFormProps = {
   onSubmit: (values: CrisisFormValues) => Promise<void> | void
 }
 
-const defaultValues: CrisisFormValues = {
-  title: "",
-  source: "",
-  risk: "monitor",
-  summary: "",
-}
+const defaultValues: CrisisFormValues = { title: "", source: "", risk: "monitor", summary: "" }
 
 export function PulsoCrisisForm({ initialValues, onSubmit }: PulsoCrisisFormProps) {
-  const [values, setValues] = React.useState<CrisisFormValues>({
-    ...defaultValues,
-    ...initialValues,
-  })
+  const [values, setValues] = React.useState<CrisisFormValues>({ ...defaultValues, ...initialValues })
   const [errors, setErrors] = React.useState<Partial<Record<keyof CrisisFormValues, string>>>({})
   const [isSubmitting, setIsSubmitting] = React.useState(false)
 
-  function updateValue<Key extends keyof CrisisFormValues>(
-    key: Key,
-    value: CrisisFormValues[Key],
-  ) {
+  function updateValue<Key extends keyof CrisisFormValues>(key: Key, value: CrisisFormValues[Key]) {
     setValues((current) => ({ ...current, [key]: value }))
     setErrors((current) => ({ ...current, [key]: undefined }))
   }
 
   function validate(nextValues: CrisisFormValues) {
     const nextErrors: Partial<Record<keyof CrisisFormValues, string>> = {}
-
-    if (!nextValues.title.trim()) {
-      nextErrors.title = "Nomeie o caso antes de continuar."
-    }
-
-    if (!nextValues.source.trim()) {
-      nextErrors.source = "Informe a fonte para manter rastreabilidade."
-    }
-
-    if (nextValues.summary.trim().length < 24) {
-      nextErrors.summary = "Descreva contexto suficiente para revisão humana."
-    }
-
+    if (!nextValues.title.trim()) nextErrors.title = "Nomeie o caso antes de continuar."
+    if (!nextValues.source.trim()) nextErrors.source = "Informe a fonte para manter rastreabilidade."
+    if (nextValues.summary.trim().length < 24) nextErrors.summary = "Descreva contexto suficiente para revisão humana."
     return nextErrors
   }
 
@@ -75,147 +59,86 @@ export function PulsoCrisisForm({ initialValues, onSubmit }: PulsoCrisisFormProp
     event.preventDefault()
     const nextErrors = validate(values)
     setErrors(nextErrors)
-
     if (Object.keys(nextErrors).length > 0) return
-
     setIsSubmitting(true)
-    try {
-      await onSubmit(values)
-    } finally {
-      setIsSubmitting(false)
-    }
+    try { await onSubmit(values) } finally { setIsSubmitting(false) }
   }
 
   return (
     <form onSubmit={handleSubmit} noValidate className="grid gap-5">
       <div className="grid gap-1.5">
-        <label htmlFor="case-title" className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-muted)]">
-          Nome do caso
-        </label>
-        <input
-          id="case-title"
-          value={values.title}
-          onChange={(event) => updateValue("title", event.target.value)}
-          aria-invalid={Boolean(errors.title)}
-          aria-describedby={errors.title ? "case-title-error" : undefined}
-          className="min-h-10 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 text-sm text-[var(--fg)] focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
-        />
-        {errors.title ? (
-          <p id="case-title-error" className="text-sm text-[var(--risk-critical-text)]">
-            {errors.title}
-          </p>
-        ) : null}
+        <label htmlFor="case-title" className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-muted)]">Nome do caso</label>
+        <input id="case-title" value={values.title} onChange={(event) => updateValue("title", event.target.value)} aria-invalid={Boolean(errors.title)} aria-describedby={errors.title ? "case-title-error" : undefined} className="min-h-10 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 text-sm" />
+        {errors.title ? <p id="case-title-error" className="text-sm text-[var(--risk-critical-text)]">{errors.title}</p> : null}
       </div>
-
       <div className="grid gap-1.5">
-        <label htmlFor="case-source" className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-muted)]">
-          Fonte principal
-        </label>
-        <input
-          id="case-source"
-          value={values.source}
-          onChange={(event) => updateValue("source", event.target.value)}
-          aria-invalid={Boolean(errors.source)}
-          aria-describedby="case-source-help"
-          className="min-h-10 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 text-sm text-[var(--fg)] focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
-        />
-        <p id="case-source-help" className="text-xs text-[var(--fg-muted)]">
-          Use URL, relatório ou origem auditável. Não use “Cris” como fonte final.
-        </p>
-        {errors.source ? (
-          <p className="text-sm text-[var(--risk-critical-text)]">{errors.source}</p>
-        ) : null}
-      </div>
-
-      <div className="grid gap-1.5">
-        <label htmlFor="case-risk" className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-muted)]">
-          Risco operacional
-        </label>
-        <select
-          id="case-risk"
-          value={values.risk}
-          onChange={(event) => updateValue("risk", event.target.value as CrisisFormValues["risk"])}
-          className="min-h-10 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 text-sm text-[var(--fg)] focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
-        >
-          <option value="stable">stable</option>
-          <option value="monitor">monitor</option>
-          <option value="attention">attention</option>
-          <option value="high">high</option>
-          <option value="critical">critical</option>
+        <label htmlFor="case-risk" className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-muted)]">Risco operacional</label>
+        <select id="case-risk" value={values.risk} onChange={(event) => updateValue("risk", event.target.value as CrisisFormValues["risk"])} className="min-h-10 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 text-sm">
+          <option value="stable">stable</option><option value="monitor">monitor</option><option value="attention">attention</option><option value="high">high</option><option value="critical">critical</option>
         </select>
       </div>
-
       <div className="grid gap-1.5">
-        <label htmlFor="case-summary" className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-muted)]">
-          Contexto para decisão
-        </label>
-        <textarea
-          id="case-summary"
-          value={values.summary}
-          onChange={(event) => updateValue("summary", event.target.value)}
-          aria-invalid={Boolean(errors.summary)}
-          aria-describedby={errors.summary ? "case-summary-error" : undefined}
-          rows={4}
-          className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm leading-6 text-[var(--fg)] focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
-        />
-        {errors.summary ? (
-          <p id="case-summary-error" className="text-sm text-[var(--risk-critical-text)]">
-            {errors.summary}
-          </p>
-        ) : null}
+        <label htmlFor="case-summary" className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-muted)]">Contexto para decisão</label>
+        <textarea id="case-summary" value={values.summary} onChange={(event) => updateValue("summary", event.target.value)} aria-invalid={Boolean(errors.summary)} aria-describedby={errors.summary ? "case-summary-error" : undefined} rows={4} className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm" />
+        {errors.summary ? <p id="case-summary-error" className="text-sm text-[var(--risk-critical-text)]">{errors.summary}</p> : null}
       </div>
-
-      <div className="flex items-center justify-end gap-2 border-t border-[var(--border)] pt-4">
-        <button type="button" className="rounded-[var(--radius-md)] border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--fg)]">
-          Cancelar
-        </button>
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="rounded-[var(--radius-md)] bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-[var(--primary-fg)] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isSubmitting ? "Salvando…" : "Criar caso"}
-        </button>
-      </div>
+      <footer className="flex justify-end gap-2 border-t border-[var(--border)] pt-4">
+        <button type="button" className="rounded-[var(--radius-md)] border border-[var(--border)] px-4 py-2 text-sm">Cancelar</button>
+        <button type="submit" disabled={isSubmitting} className="rounded-[var(--radius-md)] bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-[var(--primary-fg)]">{isSubmitting ? "Salvando…" : "Salvar caso"}</button>
+      </footer>
     </form>
   )
 }
 ```
 
-## Quando usar
+  </Tabs.Tab>
+  <Tabs.Tab>
 
-- Criação e edição de crises, fontes, regras, usuários ou configurações.
-- Revisão humana antes de uma ação assistida pela Cris.
-- Entrada de dados que precisa de validação, mensagem de erro e trilha auditável.
-- Fluxos em Sheet/Dialog quando o formulário é curto e contextual.
+### HTML puro
 
-Não use Form para navegação, filtros simples ou seleção rápida. Para filtros, use `Filter Bar`; para confirmação crítica, use `Dialog` ou `Alert Dialog`.
+```html
+<form class="form" novalidate>
+  <div class="field">
+    <label for="case-title">Nome do caso</label>
+    <input id="case-title" name="title" aria-invalid="true" aria-describedby="case-title-error" />
+    <p id="case-title-error">Nomeie o caso antes de continuar.</p>
+  </div>
+  <div class="field">
+    <label for="case-risk">Risco operacional</label>
+    <select id="case-risk" name="risk">
+      <option value="stable">stable</option>
+      <option value="monitor">monitor</option>
+      <option value="attention">attention</option>
+      <option value="high">high</option>
+      <option value="critical">critical</option>
+    </select>
+  </div>
+  <footer class="form__actions">
+    <button type="button">Cancelar</button>
+    <button type="submit" class="primary">Salvar caso</button>
+  </footer>
+</form>
+```
 
-## Anatomia
+```css
+.form { display: grid; gap: var(--space-5); }
+.field { display: grid; gap: var(--space-1); }
+.field label {
+  color: var(--fg-muted);
+  font: var(--font-weight-semibold) var(--text-xs) var(--font-mono);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+.form__actions { display: flex; justify-content: flex-end; gap: var(--space-2); }
+```
 
-| Parte | Papel | Regra |
-|---|---|---|
-| Label | Nomeia o dado | Obrigatório; placeholder não substitui label |
-| Control | Entrada ou seleção | Deve expor estado disabled, invalid e focus |
-| Description | Ajuda de decisão | Explique formato, origem ou consequência |
-| Error | Correção acionável | Texto específico, próximo ao campo |
-| Section | Agrupamento | Use quando há etapas ou temas distintos |
-| Footer | Ações persistentes | Cancelar + ação primária com verbo real |
-
-## Validação
-
-- Valide antes de enviar e mostre erro próximo ao campo.
-- Preserve dados preenchidos quando houver erro.
-- Diferencie erro do usuário, falha de rede e permissão insuficiente.
-- Se a Cris sugerir valores, marque origem e mantenha revisão humana.
-- Não use risco para colorir formulário inteiro; risco é dado operacional.
+  </Tabs.Tab>
+</Tabs>
 
 ## Regras
 
-1. Todo campo precisa de label visível.
-2. Mensagens de erro dizem como corrigir, não apenas “inválido”.
-3. Ação primária usa verbo específico: `Criar caso`, `Salvar regra`, `Enviar revisão`.
-4. Formulário longo deve virar página ou fluxo em etapas, não Dialog.
-5. Não descarte dados preenchidos sem confirmação.
-6. Estados loading/disabled precisam bloquear múltiplos envios.
-7. Conteúdo assistido por IA precisa mostrar origem, base e possibilidade de edição.
+1. Todo campo precisa de label programático.
+2. Erros devem ser próximos, específicos e conectados por `aria-describedby`.
+3. Risco usa `stable / monitor / attention / high / critical`.
+4. Estado de envio precisa bloquear duplicidade e manter feedback claro.
+5. Ações destrutivas exigem confirmação fora do form comum.
