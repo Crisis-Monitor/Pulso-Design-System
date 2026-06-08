@@ -1,32 +1,136 @@
+---
+title: Hover Card
+description: Cartão contextual aberto por hover/focus para preview curto.
+---
+
 # Hover Card
 
-> Popup que aparece ao passar o mouse sobre um elemento.
+> **Atom / overlay primitive**
+>
+> Hover Card mostra preview contextual. Ele complementa a informação visível; não deve esconder ação necessária.
 
----
+Use Hover Card para preview de fonte, pessoa, caso ou evidência quando a pessoa precisa de contexto rápido sem sair da página. Diferente de Tooltip, pode ter título e descrição. Diferente de Popover, não deve depender de clique nem conter fluxo interativo relevante.
 
-## Props
+## Exemplos copiáveis
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+<BlueprintNote />
 
-## Uso
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-```tsx
-import { HoverCard } from "@/components/ui/hover-card"
-
-// Exemplo de uso basico
-```
-
----
-
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+type PulsoHoverCardProps = {
+  trigger: React.ReactNode
+  title: string
+  description: string
+  meta?: string
+}
+
+export function PulsoHoverCard({ trigger, title, description, meta }: PulsoHoverCardProps) {
+  const [open, setOpen] = React.useState(false)
+  const cardId = React.useId()
+
+  return (
+    <span className="relative inline-flex" onMouseLeave={() => setOpen(false)}>
+      <span
+        tabIndex={0}
+        aria-describedby={open ? cardId : undefined}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
+        onMouseEnter={() => setOpen(true)}
+        className="rounded-[var(--radius-xs)] focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
+      >
+        {trigger}
+      </span>
+      {open ? (
+        <section id={cardId} className="absolute left-0 top-full z-50 mt-2 w-72 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--popover)] p-4 text-sm shadow-[var(--shadow-lg)]">
+          {meta ? <p className="font-mono text-[10.5px] uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-subtle)]">{meta}</p> : null}
+          <h2 className="mt-1 font-semibold text-[var(--fg-strong)]">{title}</h2>
+          <p className="mt-2 leading-6 text-[var(--fg-muted)]">{description}</p>
+        </section>
+      ) : null}
+    </span>
+  )
+}
 ```
 
-</details>
+```tsx
+<PulsoHoverCard
+  trigger={<a href="/sources/relatorio-reputacional">Relatório reputacional</a>}
+  meta="Fonte · verificada"
+  title="Relatório reputacional"
+  description="Atualizado há 2 min. Usado como base para a recomendação assistida pela Cris."
+/>
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<span class="hover-card-wrap">
+  <a href="/sources/relatorio-reputacional" aria-describedby="source-preview">Relatório reputacional</a>
+  <section id="source-preview" class="hover-card">
+    <p class="hover-card__meta">Fonte · verificada</p>
+    <h2>Relatório reputacional</h2>
+    <p>Atualizado há 2 min. Usado como base para a recomendação assistida pela Cris.</p>
+  </section>
+</span>
+```
+
+```css
+.hover-card-wrap { position: relative; display: inline-flex; }
+.hover-card {
+  position: absolute;
+  inset-block-start: 100%;
+  inset-inline-start: 0;
+  z-index: 50;
+  inline-size: 288px;
+  margin-block-start: 8px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--popover);
+  box-shadow: var(--shadow-lg);
+}
+.hover-card-wrap:not(:hover):not(:focus-within) .hover-card { display: none; }
+.hover-card__meta { margin: 0; color: var(--fg-subtle); font: 600 10.5px/1 var(--font-mono); letter-spacing: var(--tracking-kicker); text-transform: uppercase; }
+.hover-card h2 { margin: 4px 0 0; color: var(--fg-strong); font-size: 14px; }
+.hover-card p:not(.hover-card__meta) { margin: 8px 0 0; color: var(--fg-muted); line-height: 1.5; }
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Quando usar
+
+- Preview rápido de fonte, pessoa, caso ou evidência.
+- Contexto adicional em listas densas.
+- Informação útil, mas não essencial para completar a tarefa.
+
+## Quando não usar
+
+- Para informação obrigatória.
+- Para conteúdo interativo complexo; use Popover.
+- Para confirmação ou decisão; use Dialog/Alert Dialog.
+- Para mobile quando hover não existe; ofereça alternativa por toque.
+
+## Acessibilidade
+
+- Deve abrir em hover e focus.
+- Conteúdo essencial precisa existir fora do Hover Card.
+- Não prenda foco dentro do card.
+- Em mobile, forneça alternativa clicável.
+
+## Regras
+
+1. Preview curto, sem fluxo multi-etapa.
+2. Não esconda risco ou ação obrigatória.
+3. Use meta para origem/freshness quando relevante.
+4. Não dependa apenas de hover para mobile.
+5. Se tem botões/campos, provavelmente é Popover.

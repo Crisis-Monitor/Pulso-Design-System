@@ -9,60 +9,100 @@ description: Painel mobile-first para ações secundárias, navegação temporá
 >
 > Drawer é um painel deslizante mobile-first. Use quando o gesto e a posição inferior fazem parte da experiência.
 
-Drawer serve para ações secundárias, menus contextuais mobile, navegação temporária e bottom sheets simples. Ele não deve virar um substituto genérico para Dialog.
+Drawer serve para ações secundárias, menus contextuais mobile, navegação temporária e bottom sheets simples. Para fluxos com paridade desktop/mobile, prefira [`Responsive Sheet`](/components/organisms/responsive-sheet).
 
-Para fluxos que precisam ter paridade desktop/mobile, prefira [`Responsive Sheet`](/components/organisms/responsive-sheet).
+## Exemplos copiáveis
 
-## Import
+<BlueprintNote />
+
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
 
 ```tsx
-import { Drawer } from "@/components/ui/drawer"
+import * as React from "react"
+
+type PulsoDrawerProps = {
+  open: boolean
+  title: string
+  description?: string
+  children: React.ReactNode
+  onOpenChange: (open: boolean) => void
+}
+
+export function PulsoDrawer({ open, title, description, children, onOpenChange }: PulsoDrawerProps) {
+  const titleId = React.useId()
+  const descriptionId = description ? `${titleId}-description` : undefined
+
+  if (!open) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end bg-black/35 p-2" role="presentation">
+      <button aria-label="Fechar painel" className="absolute inset-0" onClick={() => onOpenChange(false)} />
+      <section role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId} className="relative w-full rounded-t-[var(--radius-xl)] border border-[var(--border)] bg-[var(--popover)] p-4 shadow-[var(--shadow-lg)]">
+        <div aria-hidden="true" className="mx-auto mb-3 h-1 w-10 rounded-full bg-[var(--border-strong)]" />
+        <h2 id={titleId} className="text-lg font-semibold text-[var(--fg)]">{title}</h2>
+        {description ? <p id={descriptionId} className="mt-1 text-sm text-[var(--fg-muted)]">{description}</p> : null}
+        <div className="mt-4 text-sm text-[var(--fg)]">{children}</div>
+      </section>
+    </div>
+  )
+}
 ```
+
+```tsx
+<PulsoDrawer open={open} onOpenChange={setOpen} title="Ações da menção" description="Escolha uma ação segura para este item.">
+  <button>Arquivar menção</button>
+</PulsoDrawer>
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<div class="drawer-layer">
+  <button class="drawer-backdrop" type="button" aria-label="Fechar painel"></button>
+  <section class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+    <div class="drawer__handle" aria-hidden="true"></div>
+    <h2 id="drawer-title">Ações da menção</h2>
+    <p>Escolha uma ação segura para este item.</p>
+  </section>
+</div>
+```
+
+```css
+.drawer-layer { position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-end; padding: 8px; background: rgb(0 0 0 / 35%); }
+.drawer-backdrop { position: absolute; inset: 0; border: 0; background: transparent; }
+.drawer { position: relative; inline-size: 100%; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-xl) var(--radius-xl) 0 0; background: var(--popover); box-shadow: var(--shadow-lg); }
+.drawer__handle { inline-size: 40px; block-size: 4px; margin: 0 auto 12px; border-radius: 999px; background: var(--border-strong); }
+.drawer h2 { margin: 0; color: var(--fg); font-size: 18px; }
+.drawer p { margin: 4px 0 0; color: var(--fg-muted); }
+```
+
+  </Tabs.Tab>
+</Tabs>
 
 ## Quando usar
 
 - Ações secundárias em mobile.
 - Bottom sheet simples com opções contextuais.
 - Navegação temporária em telas pequenas.
-- Long-press menu quando a ação precisa de mais contexto.
 - Painel inferior com gesto de arrastar.
 
-Não use Drawer para decisões críticas sem confirmação. Não use em desktop quando Sheet comunica melhor a relação com a página.
+## Quando não usar
 
-## Drawer vs Sheet vs Responsive Sheet
-
-| Componente | Uso | Regra |
-|---|---|---|
-| `Drawer` | Mobile-first, painel inferior, ação secundária | Gesto e thumb zone importam |
-| `Sheet` | Desktop side panel ou direção fixa | Preserva contexto lateral |
-| `Responsive Sheet` | Mesmo fluxo em desktop e mobile | Padrão para produto responsivo |
-| `Dialog` | Confirmação ou bloqueio | Interrompe a tarefa |
-
-## Mobile
-
-- Use grabber/handle quando o painel puder ser arrastado.
-- Respeite zona confortável do polegar.
-- Não coloque ação destrutiva isolada no canto inferior direito.
-- Mantenha alternativa acessível para gestos.
-- Respeite `prefers-reduced-motion`.
-- Fechar por gesto não pode executar ação destrutiva.
-
-## Estados
-
-| Estado | Comportamento |
-|---|---|
-| Peek | Mostra resumo ou primeira ação segura |
-| Half | Mostra opções principais e contexto curto |
-| Full | Leitura longa, formulário ou lista interna |
-| Dirty | Pede confirmação antes de fechar |
-| Offline | Expõe fila local ou indisponibilidade |
+- Para decisões críticas sem confirmação.
+- Para desktop quando Sheet comunica melhor o contexto.
+- Para conteúdo longo sem estrutura de scroll clara.
+- Para ação destrutiva isolada na thumb zone.
 
 ## Regras
 
-1. Drawer é mobile-first; não use como overlay desktop por conveniência.
-2. Toda ação por gesto precisa de alternativa visível ou acessível.
-3. Scroll interno só deve competir com drag quando o detent estiver claro.
-4. Ações destrutivas exigem confirmação explícita.
-5. Não esconda contexto crítico abaixo da dobra inicial.
-6. Para filtros e drill-down responsivos, use `Responsive Sheet`.
-7. Para menus curtos, prefira ação simples antes de abrir Drawer complexo.
+1. Drawer é mobile-first.
+2. Toda ação por gesto precisa de alternativa visível.
+3. Ações destrutivas exigem confirmação explícita.
+4. Não esconda contexto crítico abaixo da dobra inicial.
+5. Para filtros e drill-down responsivos, use `Responsive Sheet`.

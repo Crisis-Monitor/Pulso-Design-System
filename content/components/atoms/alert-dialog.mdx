@@ -7,65 +7,96 @@ description: Confirmação modal para ações destrutivas, irreversíveis ou de 
 
 > **Atom / modal primitive**
 >
-> Alert Dialog é para consequência. Ele deve deixar explícito o que será afetado e por que a confirmação é necessária.
+> Alert Dialog é para consequência. Ele deve dizer exatamente o que será afetado e por que confirmar é necessário.
 
-Use Alert Dialog quando a ação pode destruir, encerrar, publicar, escalar, sobrescrever ou afetar muitos registros. Ele é mais rígido que Dialog porque a saída errada tem custo operacional.
+Use quando a ação pode destruir, encerrar, publicar, escalar, sobrescrever ou afetar muitos registros. Para informação persistente não bloqueante, use `Alert`. Para foco curto sem alto risco, use [`Dialog`](/components/organisms/dialog).
 
-Para informação persistente não bloqueante, use `Alert`. Para foco curto sem risco alto, use [`Dialog`](/components/organisms/dialog).
+## Exemplos copiáveis
 
-## Import
+<BlueprintNote />
+
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
 
 ```tsx
-import { AlertDialog } from "@/components/ui/alert-dialog"
+import * as React from "react"
+
+type PulsoAlertDialogProps = {
+  open: boolean
+  title: string
+  description: string
+  confirmLabel: string
+  cancelLabel?: string
+  onConfirm: () => void
+  onOpenChange: (open: boolean) => void
+}
+
+export function PulsoAlertDialog({ open, title, description, confirmLabel, cancelLabel = "Cancelar", onConfirm, onOpenChange }: PulsoAlertDialogProps) {
+  const titleId = React.useId()
+  const descriptionId = React.useId()
+  if (!open) return null
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4">
+      <section role="alertdialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId} className="w-full max-w-md rounded-[var(--radius-lg)] border border-[var(--destructive-border)] bg-[var(--popover)] p-5 shadow-[var(--shadow-lg)]">
+        <h2 id={titleId} className="text-lg font-semibold text-[var(--fg)]">{title}</h2>
+        <p id={descriptionId} className="mt-2 text-sm leading-6 text-[var(--fg-muted)]">{description}</p>
+        <div className="mt-5 flex justify-end gap-2">
+          <button type="button" onClick={() => onOpenChange(false)} className="rounded-[var(--radius-md)] border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--fg)]">{cancelLabel}</button>
+          <button type="button" onClick={onConfirm} className="rounded-[var(--radius-md)] bg-[var(--destructive)] px-4 py-2 text-sm font-semibold text-[var(--destructive-foreground)]">{confirmLabel}</button>
+        </div>
+      </section>
+    </div>
+  )
+}
 ```
 
-## Quando usar
+```tsx
+<PulsoAlertDialog
+  open={open}
+  onOpenChange={setOpen}
+  title="Encerrar caso PLS-012?"
+  description="Esta ação encerra o caso para todos os operadores e registra a decisão no audit trail."
+  confirmLabel="Encerrar caso"
+  onConfirm={closeCase}
+/>
+```
 
-- Excluir, encerrar ou arquivar item crítico.
-- Aplicar ação em massa em página ou filtro inteiro.
-- Publicar, enviar push ou disparar comunicação externa.
-- Aceitar recomendação decisiva da Cris.
-- Descartar alterações não salvas.
+  </Tabs.Tab>
+  <Tabs.Tab>
 
-Não use Alert Dialog para confirmação trivial. Confirmação demais reduz confiança e cria fadiga.
+### HTML puro
 
-## Confirmação proporcional
+```html
+<div class="alert-dialog-layer">
+  <section class="alert-dialog" role="alertdialog" aria-modal="true" aria-labelledby="ad-title" aria-describedby="ad-description">
+    <h2 id="ad-title">Encerrar caso PLS-012?</h2>
+    <p id="ad-description">Esta ação encerra o caso para todos os operadores e registra a decisão no audit trail.</p>
+    <div class="alert-dialog__actions"><button>Cancelar</button><button class="danger">Encerrar caso</button></div>
+  </section>
+</div>
+```
 
-| Escopo | Confirmação |
-|---|---|
-| 1 item reversível | Preferir undo/toast quando seguro |
-| 1 item destrutivo | Confirmar consequência |
-| Página inteira | Nomear quantidade e escopo |
-| Filtro inteiro | Confirmação dupla ou digitar número |
-| Comunicação externa | Nomear canal, audiência e irreversibilidade |
+```css
+.alert-dialog-layer { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: rgb(0 0 0 / 45%); }
+.alert-dialog { inline-size: min(100%, 448px); padding: 20px; border: 1px solid var(--destructive-border); border-radius: var(--radius-lg); background: var(--popover); box-shadow: var(--shadow-lg); }
+.alert-dialog h2 { margin: 0; color: var(--fg); font-size: 18px; }
+.alert-dialog p { margin: 8px 0 0; color: var(--fg-muted); line-height: 1.5; }
+.alert-dialog__actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+.alert-dialog button { min-block-size: 36px; padding-inline: 16px; border-radius: var(--radius-md); }
+.alert-dialog .danger { border: 0; background: var(--destructive); color: var(--destructive-foreground); font-weight: 700; }
+```
 
-## Anatomia
-
-| Parte | Papel | Regra |
-|---|---|---|
-| Ícone semântico | Reforça severidade | Não depende só de cor |
-| Title | Nomeia ação | Use verbo específico |
-| Description | Nomeia consequência | Inclua quantidade, escopo e irreversibilidade |
-| Evidence | Mostra base quando houver | Especialmente para ação assistida por IA |
-| Cancel | Saída segura | Deve estar sempre disponível |
-| Confirm | Ação final | Variante destrutiva quando aplicável |
-
-## AI e auditoria
-
-Quando a ação vem de sugestão da Cris:
-
-- Mostre que a ação foi assistida por IA.
-- Exponha confiança, base e limites da recomendação.
-- Registre aceite/rejeição no audit trail.
-- Não permita confirmação automática para alto impacto.
+  </Tabs.Tab>
+</Tabs>
 
 ## Regras
 
-1. O título deve dizer o que vai acontecer.
-2. A descrição deve dizer quem/quantos/o quê será afetado.
+1. Título diz o que vai acontecer.
+2. Descrição diz quem/quantos/o quê será afetado.
 3. Botão destrutivo não pode ter label genérico.
-4. Cancelar deve ser visualmente claro e seguro.
-5. Ação em massa precisa nomear escopo real: alguns, página ou filtro inteiro.
-6. Para operação irreversível ampla, exija confirmação dupla.
-7. Não esconda incerteza de IA dentro de texto secundário.
-8. Não use Alert Dialog para aviso que pode viver como Alert inline.
+4. Cancelar deve ser claro e seguro.
+5. Ação em massa nomeia o escopo real.
+6. Não esconda incerteza de IA em texto secundário.

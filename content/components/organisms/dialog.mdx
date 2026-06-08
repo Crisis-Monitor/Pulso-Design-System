@@ -9,13 +9,16 @@ description: Modal bloqueante para confirmação, foco curto e decisões de cons
 >
 > Dialog interrompe o fluxo. Use só quando a tarefa exige atenção exclusiva ou decisão explícita.
 
-Dialog é uma janela modal centralizada para confirmações, formulários curtos e revelações focadas. Diferente de `Sheet`, ele bloqueia o contexto por trás e pede que o usuário resolva a tarefa antes de voltar.
+Dialog é uma janela modal centralizada para confirmações, formulários curtos e revelações focadas. Diferente de `Sheet`, ele bloqueia o contexto por trás. Se a ação é destrutiva ou irreversível, use `Alert Dialog`.
 
-Se a pessoa precisa comparar com a lista, revisar contexto lateral ou continuar explorando, use [`Sheet`](/components/atoms/sheet) ou [`Responsive Sheet`](/components/organisms/responsive-sheet). Se a ação é destrutiva ou irreversível, use `Alert Dialog`.
-
-## Blueprint React copiável
+## Exemplos copiáveis
 
 <BlueprintNote />
+
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
 
 ```tsx
 import * as React from "react"
@@ -28,137 +31,91 @@ type PulsoDialogProps = {
   primaryAction: React.ReactNode
   secondaryAction?: React.ReactNode
   onOpenChange: (open: boolean) => void
-  closeLabel?: string
-  closeOnEscape?: boolean
 }
 
-export function PulsoDialog({
-  open,
-  title,
-  description,
-  children,
-  primaryAction,
-  secondaryAction,
-  onOpenChange,
-  closeLabel = "Fechar",
-  closeOnEscape = true,
-}: PulsoDialogProps) {
+export function PulsoDialog({ open, title, description, children, primaryAction, secondaryAction, onOpenChange }: PulsoDialogProps) {
   const titleId = React.useId()
   const descriptionId = React.useId()
   const panelRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
     if (!open) return
-
     const previousActiveElement = document.activeElement as HTMLElement | null
-
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape" && closeOnEscape) {
-        onOpenChange(false)
-      }
+      if (event.key === "Escape") onOpenChange(false)
     }
-
     document.addEventListener("keydown", onKeyDown)
     panelRef.current?.focus()
-
     return () => {
       document.removeEventListener("keydown", onKeyDown)
       previousActiveElement?.focus()
     }
-  }, [closeOnEscape, onOpenChange, open])
+  }, [onOpenChange, open])
 
   if (!open) return null
 
   return (
-    <div
-      role="presentation"
-      className="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onOpenChange(false)
-      }}
-    >
-      <div
-        ref={panelRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        aria-describedby={descriptionId}
-        tabIndex={-1}
-        className="w-full max-w-lg rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--popover)] shadow-[var(--shadow-lg)] outline-none"
-      >
-        <div className="flex items-start justify-between gap-4 border-b border-[var(--border)] p-5">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4">
+      <div ref={panelRef} role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId} tabIndex={-1} className="w-full max-w-lg rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--popover)] shadow-[var(--shadow-lg)] outline-none">
+        <header className="flex items-start justify-between gap-4 border-b border-[var(--border)] p-5">
           <div>
-            <h2 id={titleId} className="text-lg font-semibold text-[var(--fg)]">
-              {title}
-            </h2>
-            <p id={descriptionId} className="mt-1 text-sm leading-6 text-[var(--fg-muted)]">
-              {description}
-            </p>
+            <h2 id={titleId} className="text-lg font-semibold text-[var(--fg)]">{title}</h2>
+            <p id={descriptionId} className="mt-1 text-sm leading-6 text-[var(--fg-muted)]">{description}</p>
           </div>
-
-          <button
-            type="button"
-            aria-label={closeLabel}
-            onClick={() => onOpenChange(false)}
-            className="rounded-[var(--radius-sm)] px-2 py-1 text-[var(--fg-muted)] hover:bg-[var(--muted)] hover:text-[var(--fg)] focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
-          >
-            ×
-          </button>
-        </div>
-
+          <button type="button" aria-label="Fechar" onClick={() => onOpenChange(false)} className="rounded-[var(--radius-sm)] px-2 py-1 text-[var(--fg-muted)] hover:bg-[var(--muted)]">×</button>
+        </header>
         <div className="p-5 text-sm text-[var(--fg)]">{children}</div>
-
-        <div className="flex items-center justify-end gap-2 border-t border-[var(--border)] p-4">
-          {secondaryAction}
-          {primaryAction}
-        </div>
+        <footer className="flex items-center justify-end gap-2 border-t border-[var(--border)] p-4">{secondaryAction}{primaryAction}</footer>
       </div>
     </div>
   )
 }
 ```
 
-### Exemplo de uso
-
 ```tsx
-export function ConfirmDispatchDialog() {
-  const [open, setOpen] = React.useState(false)
-
-  return (
-    <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="rounded-[var(--radius-md)] bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-[var(--primary-fg)]"
-      >
-        Revisar despacho
-      </button>
-
-      <PulsoDialog
-        open={open}
-        onOpenChange={setOpen}
-        title="Confirmar despacho assistido"
-        description="Revise a recomendação da Cris antes de enviar. A decisão final continua humana e auditável."
-        secondaryAction={
-          <button className="rounded-[var(--radius-md)] border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--fg)]">
-            Voltar
-          </button>
-        }
-        primaryAction={
-          <button className="rounded-[var(--radius-md)] bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-[var(--primary-fg)]">
-            Confirmar despacho
-          </button>
-        }
-      >
-        <p>Origem: relatório reputacional validado há 2 min.</p>
-        <p className="mt-2 text-[var(--fg-muted)]">
-          Esta ação registra trilha de auditoria com usuário, horário e fonte.
-        </p>
-      </PulsoDialog>
-    </>
-  )
-}
+<PulsoDialog
+  open={open}
+  onOpenChange={setOpen}
+  title="Confirmar despacho assistido"
+  description="Revise a recomendação da Cris antes de enviar. A decisão final continua humana e auditável."
+  secondaryAction={<button>Voltar</button>}
+  primaryAction={<button>Confirmar despacho</button>}
+>
+  Origem: relatório reputacional validado há 2 min.
+</PulsoDialog>
 ```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<div class="dialog-layer">
+  <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-description">
+    <header class="dialog__header">
+      <div><h2 id="dialog-title">Confirmar despacho assistido</h2><p id="dialog-description">Revise a recomendação da Cris antes de enviar.</p></div>
+      <button type="button" aria-label="Fechar">×</button>
+    </header>
+    <div class="dialog__body">Origem: relatório reputacional validado há 2 min.</div>
+    <footer class="dialog__footer"><button>Voltar</button><button class="primary">Confirmar despacho</button></footer>
+  </section>
+</div>
+```
+
+```css
+.dialog-layer { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: rgb(0 0 0 / 45%); }
+.dialog { inline-size: min(100%, 512px); border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--popover); box-shadow: var(--shadow-lg); }
+.dialog__header { display: flex; justify-content: space-between; gap: 16px; padding: 20px; border-bottom: 1px solid var(--border); }
+.dialog h2 { margin: 0; color: var(--fg); font-size: 18px; }
+.dialog p { margin: 4px 0 0; color: var(--fg-muted); line-height: 1.5; }
+.dialog__body { padding: 20px; color: var(--fg); }
+.dialog__footer { display: flex; justify-content: flex-end; gap: 8px; padding: 16px; border-top: 1px solid var(--border); }
+.dialog .primary { background: var(--primary); color: var(--primary-foreground); }
+```
+
+  </Tabs.Tab>
+</Tabs>
 
 ## Quando usar
 
@@ -166,8 +123,6 @@ export function ConfirmDispatchDialog() {
 - Formulários curtos, com até quatro campos.
 - Revelação focada que precisa de leitura exclusiva.
 - Decisão que precisa pausar o fluxo antes de continuar.
-
-Não use Dialog para drill-down, filtros avançados, navegação lateral ou conteúdo longo. Nesses casos, use Sheet/Responsive Sheet ou página dedicada.
 
 ## Dialog vs Sheet vs Alert Dialog
 
@@ -178,30 +133,10 @@ Não use Dialog para drill-down, filtros avançados, navegação lateral ou cont
 | `Responsive Sheet` | Mesmo fluxo em desktop/mobile | Adapta side/bottom sheet |
 | `Alert Dialog` | Ação destrutiva ou irreversível | Nomeia consequência e exige confirmação explícita |
 
-## Variantes
-
-| Variante | Uso | Regra |
-|---|---|---|
-| Informacional | Mensagem focada com ação simples | Evite se um Alert inline resolve |
-| Confirmação | Continuar/cancelar com consequência clara | Descrição deve explicar impacto |
-| Formulário curto | Até quatro campos | Mais que isso vira Sheet ou página |
-| Largo com evidências | Lista curta de evidências ou preview | Não transforme em dashboard |
-
-## Anatomia
-
-| Parte | Papel |
-|---|---|
-| Kicker opcional | Contextualiza tipo de decisão |
-| Title | Nomeia a decisão ou conteúdo |
-| Description | Explica consequência, limite ou incerteza |
-| Body | Conteúdo curto e focado |
-| Footer | Cancelar à esquerda, ação primária à direita |
-| Close | Disponível quando a saída é segura |
-
 ## Acessibilidade
 
 - Focus trap dentro do Dialog.
-- `Esc` fecha apenas quando não houver perda de dados ou ação crítica pendente.
+- `Esc` fecha apenas quando não há perda de dados ou ação crítica pendente.
 - Focus retorna ao trigger ao fechar.
 - Título e descrição precisam estar associados ao modal.
 - Não use apenas cor para comunicar severidade.
@@ -211,8 +146,5 @@ Não use Dialog para drill-down, filtros avançados, navegação lateral ou cont
 1. Dialog bloqueia; não use para conteúdo exploratório.
 2. Formulários longos vão para Sheet ou página dedicada.
 3. Ação primária precisa nomear o verbo real, não “OK”.
-4. Descrição deve nomear consequência quando houver risco.
-5. Ação destrutiva ou irreversível usa `Alert Dialog`.
-6. Não abra Dialog sobre Dialog sem decisão explícita de stack.
-7. Conteúdo assistido por IA precisa indicar base e incerteza.
-8. Fechar não pode executar ação nem descartar dado sem confirmação.
+4. Ação destrutiva ou irreversível usa `Alert Dialog`.
+5. Conteúdo assistido por IA precisa indicar base e incerteza.
