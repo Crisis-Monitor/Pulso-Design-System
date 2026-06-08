@@ -1,32 +1,113 @@
-# Kbd
-
-> Atalho de teclado estilizado para documentacao e hints de UI.
-
+---
+title: Keyboard Shortcut
+description: Token visual para atalhos de teclado, hints de comando e mapas de operação.
 ---
 
-## Props
+# Keyboard Shortcut
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+> **Atom**
+>
+> KBD mostra uma tecla ou combinação de teclas. Ele documenta acesso rápido, não substitui label, botão ou instrução visível.
 
-## Uso
+Use KBD para atalhos em command palettes, tooltips, menus e documentação. Em operação de crise, atalhos precisam ser previsíveis, acessíveis e equivalentes às ações visíveis na interface.
 
-```tsx
-import { Kbd } from "@/components/ui/kbd"
+## Exemplos copiáveis
 
-// Exemplo de uso basico
-```
+<BlueprintNote />
 
----
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+type PulsoKbdProps = {
+  keys: string[]
+  label?: string
+}
+
+export function PulsoKbd({ keys, label }: PulsoKbdProps) {
+  return (
+    <kbd
+      aria-label={label ?? keys.join(" ")}
+      className="inline-flex items-center gap-1 rounded-[var(--radius-xs)] border border-[var(--border)] bg-[var(--muted)] px-1.5 py-0.5 font-mono text-[11px] font-semibold leading-none text-[var(--fg-muted)] shadow-[inset_0_-1px_0_var(--border)]"
+    >
+      {keys.map((key, index) => (
+        <React.Fragment key={`${key}-${index}`}>
+          {index > 0 ? <span className="text-[var(--fg-subtle)]">+</span> : null}
+          <span>{key}</span>
+        </React.Fragment>
+      ))}
+    </kbd>
+  )
+}
 ```
 
-</details>
+```tsx
+<PulsoKbd keys={["⌘", "K"]} label="Command K" />
+<PulsoKbd keys={["⌥", "Enter"]} label="Option Enter" />
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<kbd class="kbd" aria-label="Command K">
+  <span>⌘</span><span class="kbd__join">+</span><span>K</span>
+</kbd>
+```
+
+```css
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--muted);
+  color: var(--fg-muted);
+  box-shadow: inset 0 -1px 0 var(--border);
+  font: 700 11px/1 var(--font-mono);
+}
+
+.kbd__join {
+  color: var(--fg-subtle);
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Quando usar
+
+- Atalhos de command palette.
+- Menus com ações repetidas.
+- Tooltips de controles compactos.
+- Documentação de keyboard map por componente.
+
+## Quando não usar
+
+- Para substituir botão ou link.
+- Para esconder uma ação sem equivalente clicável.
+- Para decorar texto técnico.
+- Para atalhos que não funcionam de fato.
+
+## Acessibilidade
+
+- A ação precisa existir sem teclado também.
+- Use `aria-label` quando o símbolo não for lido claramente.
+- Atalhos globais devem ser documentados e não conflitar com navegador/SO.
+- Não use apenas KBD para comunicar estado.
+
+## Regras
+
+1. Atalho mostrado precisa funcionar.
+2. Combine no máximo 3 teclas por hint.
+3. Use símbolos conhecidos (`⌘`, `⌥`, `⇧`) com label acessível.
+4. Atalho acelera; não bloqueia o fluxo sem mouse/touch.
+5. Em mobile, substitua por gesto ou ação visível equivalente.

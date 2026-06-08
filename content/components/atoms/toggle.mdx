@@ -1,32 +1,137 @@
+---
+title: Toggle
+description: Botão de estado pressionado/não pressionado para preferências compactas.
+---
+
 # Toggle
 
-> Botao de estado on/off com visual persistente.
+> **Atom**
+>
+> Toggle é um botão com estado persistente. Use para alternar uma preferência visual ou modo reversível sem trocar de página.
 
----
+Toggle é diferente de `Switch`: Switch liga/desliga comportamento imediato com semântica de chave; Toggle representa estado pressionado de um botão. Para escolhas mutuamente exclusivas em grupo, use `Toggle Group` ou `Radio Group`.
 
-## Props
+## Exemplos copiáveis
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+<BlueprintNote />
 
-## Uso
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-```tsx
-import { Toggle } from "@/components/ui/toggle"
-
-// Exemplo de uso basico
-```
-
----
-
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+type PulsoToggleProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  pressed: boolean
+  children: React.ReactNode
+}
+
+export function PulsoToggle({ pressed, children, className, ...props }: PulsoToggleProps) {
+  return (
+    <button
+      type="button"
+      aria-pressed={pressed}
+      data-state={pressed ? "on" : "off"}
+      className={[
+        "inline-flex h-9 items-center justify-center rounded-[var(--radius-sm)] border border-[var(--border)] px-3 text-sm font-medium transition-colors duration-[var(--motion-duration-fast)] ease-[var(--motion-easing)]",
+        "focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]",
+        pressed
+          ? "border-[var(--primary)] bg-[var(--primary-soft)] text-[var(--primary)]"
+          : "bg-[var(--card)] text-[var(--fg-muted)] hover:text-[var(--fg)]",
+        className,
+      ].filter(Boolean).join(" ")}
+      {...props}
+    >
+      {children}
+    </button>
+  )
+}
 ```
 
-</details>
+```tsx
+const [dense, setDense] = React.useState(false)
+
+<PulsoToggle pressed={dense} onClick={() => setDense((value) => !value)}>
+  Modo denso
+</PulsoToggle>
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<button class="toggle" type="button" aria-pressed="true" data-state="on">
+  Modo denso
+</button>
+```
+
+```css
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: 36px;
+  padding-inline: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--fg-muted);
+  font: inherit;
+  font-weight: 600;
+  transition:
+    color var(--motion-duration-fast) var(--motion-easing),
+    background var(--motion-duration-fast) var(--motion-easing),
+    border-color var(--motion-duration-fast) var(--motion-easing);
+}
+
+.toggle:hover {
+  color: var(--fg);
+}
+
+.toggle:focus-visible {
+  outline: var(--ring-width) solid var(--ring);
+  outline-offset: 2px;
+}
+
+.toggle[aria-pressed="true"] {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Quando usar
+
+- Preferência visual reversível.
+- Modo compacto/expandido em uma área.
+- Botão de estado em toolbar.
+- Alternância simples que não exige formulário.
+
+## Quando não usar
+
+- Para liga/desliga sistêmico; use `Switch`.
+- Para múltiplas opções relacionadas; use `Toggle Group`.
+- Para navegação; use Link/Tabs.
+- Para ação momentânea sem estado; use `Button`.
+
+## Acessibilidade
+
+- Use `button` com `aria-pressed`.
+- O label deve continuar fazendo sentido nos dois estados.
+- Estado visual precisa ter contraste e não depender só de cor.
+- Teclado deve ativar com Space/Enter naturalmente.
+
+## Regras
+
+1. Toggle tem estado persistente.
+2. Estado pressionado não significa risco.
+3. Não use Toggle para confirmar decisão crítica.
+4. Use motion curto e tokenizado.
+5. Se houver mais de uma opção conectada, avalie Toggle Group.

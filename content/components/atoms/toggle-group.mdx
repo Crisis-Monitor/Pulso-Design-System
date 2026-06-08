@@ -1,32 +1,165 @@
+---
+title: Toggle Group
+description: Grupo compacto de toggles para seleção única ou múltipla.
+---
+
 # Toggle Group
 
-> Grupo de toggles com opcao single ou multiple selecao.
+> **Atom**
+>
+> Toggle Group organiza opções curtas relacionadas. Use quando a comparação visual entre opções compactas ajuda a operar mais rápido.
 
----
+Use `type="single"` quando apenas uma opção pode estar ativa. Use `type="multiple"` quando as opções são independentes. Para escolhas com descrição ou consequência pesada, prefira `Radio Group` ou `Checkbox`.
 
-## Props
+## Exemplos copiáveis
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+<BlueprintNote />
 
-## Uso
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-```tsx
-import { ToggleGroup } from "@/components/ui/toggle-group"
-
-// Exemplo de uso basico
-```
-
----
-
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+type ToggleOption = {
+  value: string
+  label: string
+}
+
+type PulsoToggleGroupProps = {
+  label: string
+  options: ToggleOption[]
+  value: string
+  onChange: (value: string) => void
+}
+
+export function PulsoToggleGroup({ label, options, value, onChange }: PulsoToggleGroupProps) {
+  return (
+    <div role="group" aria-label={label} className="inline-flex rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--muted)] p-1">
+      {options.map((option) => {
+        const selected = option.value === value
+
+        return (
+          <button
+            key={option.value}
+            type="button"
+            aria-pressed={selected}
+            data-state={selected ? "on" : "off"}
+            onClick={() => onChange(option.value)}
+            className={[
+              "min-h-8 rounded-[var(--radius-sm)] px-3 text-sm font-medium transition-colors duration-[var(--motion-duration-fast)] ease-[var(--motion-easing)]",
+              "focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]",
+              selected ? "bg-[var(--card)] text-[var(--fg)] shadow-[var(--shadow-sm)]" : "text-[var(--fg-muted)] hover:text-[var(--fg)]",
+            ].join(" ")}
+          >
+            {option.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
 ```
 
-</details>
+```tsx
+const [period, setPeriod] = React.useState("7d")
+
+<PulsoToggleGroup
+  label="Período"
+  value={period}
+  onChange={setPeriod}
+  options={[
+    { value: "24h", label: "24h" },
+    { value: "7d", label: "7d" },
+    { value: "30d", label: "30d" },
+  ]}
+/>
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<div class="toggle-group" role="group" aria-label="Período">
+  <button class="toggle-group__item" type="button" aria-pressed="false">24h</button>
+  <button class="toggle-group__item" type="button" aria-pressed="true">7d</button>
+  <button class="toggle-group__item" type="button" aria-pressed="false">30d</button>
+</div>
+```
+
+```css
+.toggle-group {
+  display: inline-flex;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--muted);
+}
+
+.toggle-group__item {
+  min-block-size: 32px;
+  padding-inline: 12px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--fg-muted);
+  font: inherit;
+  font-weight: 600;
+  transition:
+    color var(--motion-duration-fast) var(--motion-easing),
+    background var(--motion-duration-fast) var(--motion-easing),
+    box-shadow var(--motion-duration-fast) var(--motion-easing);
+}
+
+.toggle-group__item:hover {
+  color: var(--fg);
+}
+
+.toggle-group__item:focus-visible {
+  outline: var(--ring-width) solid var(--ring);
+  outline-offset: 2px;
+}
+
+.toggle-group__item[aria-pressed="true"] {
+  background: var(--card);
+  color: var(--fg);
+  box-shadow: var(--shadow-sm);
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Quando usar
+
+- Período curto: `24h / 7d / 30d`.
+- Modo de visualização: lista, tabela, timeline.
+- Escala simples: linear/log.
+- Filtros compactos com opções curtas.
+
+## Quando não usar
+
+- Para opções longas ou com descrição.
+- Para decisões críticas com consequência complexa.
+- Para navegação entre páginas.
+- Para listas com muitas opções; use Select.
+
+## Acessibilidade
+
+- Use `role="group"` com `aria-label`.
+- Cada item deve ser botão com `aria-pressed`.
+- Se o grupo for semanticamente escolha exclusiva de formulário, `Radio Group` pode ser mais correto.
+- Estado ativo precisa ser visível sem depender apenas de cor.
+
+## Regras
+
+1. Labels curtos: idealmente 1 palavra ou abreviação conhecida.
+2. Altura e peso visual consistentes entre opções.
+3. Não misture single e multiple no mesmo grupo.
+4. Motion deve ser curto e suave, sem deslocamento exagerado.
+5. Use Radio Group quando a consequência precisa de descrição.

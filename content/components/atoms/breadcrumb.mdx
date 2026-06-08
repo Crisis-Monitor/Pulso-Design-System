@@ -1,32 +1,161 @@
+---
+title: Breadcrumb
+description: Navegação hierárquica que mostra contexto e caminho até a página atual.
+---
+
 # Breadcrumb
 
-> Navegacao hierarquica que mostra o caminho ate a pagina atual.
+> **Atom**
+>
+> Breadcrumb mostra localização hierárquica. Ele orienta contexto; não substitui navegação principal.
 
----
+Use Breadcrumb quando a pessoa precisa entender onde está dentro de uma estrutura profunda: área, caso, template, componente ou documento. O último item representa a página atual e não deve parecer um link comum.
 
-## Props
+## Exemplos copiáveis
 
-| Prop | Tipo | Obrigatorio | Default |
-|------|------|-------------|---------|
-| asChild | boolean | Nao | false |
+<BlueprintNote />
 
-## Uso
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-```tsx
-import { Breadcrumb } from "@/components/ui/breadcrumb"
-
-// Exemplo de uso basico
-```
-
----
-
-<details>
-<summary>Exemplos</summary>
-
-### Basico
+### React
 
 ```tsx
-{/* TODO: adicionar exemplo de uso */}
+import * as React from "react"
+
+type BreadcrumbItem = {
+  label: string
+  href?: string
+}
+
+type PulsoBreadcrumbProps = {
+  items: BreadcrumbItem[]
+  label?: string
+}
+
+export function PulsoBreadcrumb({ items, label = "Breadcrumb" }: PulsoBreadcrumbProps) {
+  return (
+    <nav aria-label={label} className="text-sm text-[var(--fg-muted)]">
+      <ol className="flex flex-wrap items-center gap-1.5">
+        {items.map((item, index) => {
+          const current = index === items.length - 1
+
+          return (
+            <li key={`${item.label}-${index}`} className="inline-flex items-center gap-1.5">
+              {index > 0 ? <span aria-hidden="true" className="text-[var(--fg-subtle)]">/</span> : null}
+              {current || !item.href ? (
+                <span aria-current={current ? "page" : undefined} className={current ? "font-medium text-[var(--fg)]" : undefined}>
+                  {item.label}
+                </span>
+              ) : (
+                <a href={item.href} className="rounded-[var(--radius-xs)] hover:text-[var(--fg)] focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]">
+                  {item.label}
+                </a>
+              )}
+            </li>
+          )
+        })}
+      </ol>
+    </nav>
+  )
+}
 ```
 
-</details>
+```tsx
+<PulsoBreadcrumb
+  items={[
+    { label: "Components", href: "/components" },
+    { label: "Atoms", href: "/components/atoms" },
+    { label: "Breadcrumb" },
+  ]}
+/>
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <ol class="breadcrumb__list">
+    <li class="breadcrumb__item"><a href="/components">Components</a></li>
+    <li class="breadcrumb__item"><a href="/components/atoms">Atoms</a></li>
+    <li class="breadcrumb__item" aria-current="page">Breadcrumb</li>
+  </ol>
+</nav>
+```
+
+```css
+.breadcrumb {
+  color: var(--fg-muted);
+  font-size: 14px;
+}
+
+.breadcrumb__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.breadcrumb__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.breadcrumb__item + .breadcrumb__item::before {
+  content: "/";
+  color: var(--fg-subtle);
+}
+
+.breadcrumb a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  color: var(--fg);
+}
+
+.breadcrumb [aria-current="page"] {
+  color: var(--fg);
+  font-weight: 600;
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Quando usar
+
+- Estruturas com 2+ níveis de profundidade.
+- Páginas de documentação, casos, templates e componentes.
+- Contexto de drill-down onde voltar um nível é comum.
+- Rotas estáveis que representam hierarquia real.
+
+## Quando não usar
+
+- Como menu lateral ou navegação principal.
+- Para sequência temporal ou workflow; use Steps/Timeline.
+- Em páginas rasas onde só repete o título.
+- Quando a hierarquia é falsa ou muda conforme filtro.
+
+## Acessibilidade
+
+- Use `nav` com `aria-label`.
+- Use lista ordenada ou não ordenada para sequência.
+- Marque item atual com `aria-current="page"`.
+- Separadores devem ser decorativos (`aria-hidden`) ou via CSS.
+
+## Regras
+
+1. Último item é a página atual.
+2. Não use cor de risco no breadcrumb.
+3. Labels devem ser curtos e reconhecíveis.
+4. Breadcrumb não substitui título da página.
+5. Se não há hierarquia real, não use breadcrumb.
