@@ -5,26 +5,41 @@ description: Toggle booleano para ligar ou desligar um comportamento imediato.
 
 # Switch
 
-Switch é uma chave binária para comportamento reversível com efeito imediato: ativar notificações, modo de visualização, auto-save ou preferências pessoais.
+> **Atom**
+>
+> Switch altera um comportamento reversível com efeito imediato. Use quando a mudança acontece agora.
 
-Use `Checkbox` quando a decisão faz parte de um formulário ou seleção em lote. Use `Switch` quando a mudança acontece agora.
+Use `Checkbox` quando a decisão faz parte de um formulário, seleção em lote ou confirmação aplicada depois. Switch deve deixar explícito o que liga, o que desliga e qual consequência operacional muda.
 
-## Blueprint React copiável
+## Exemplos copiáveis
 
 <BlueprintNote />
 
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
+
 ```tsx
-import * as React from "react";
+import * as React from "react"
 
 type PulsoSwitchProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> & {
-  label: string;
-  description?: string;
-};
+  label: string
+  description?: string
+}
 
-export function PulsoSwitch({ id, label, description, checked, defaultChecked, onChange, ...props }: PulsoSwitchProps) {
-  const reactId = React.useId();
-  const switchId = id ?? reactId;
-  const descriptionId = description ? `${switchId}-description` : undefined;
+export function PulsoSwitch({
+  id,
+  label,
+  description,
+  checked,
+  defaultChecked,
+  onChange,
+  ...props
+}: PulsoSwitchProps) {
+  const reactId = React.useId()
+  const switchId = id ?? reactId
+  const descriptionId = description ? `${switchId}-description` : undefined
 
   return (
     <label className="flex cursor-pointer select-none items-start justify-between gap-6">
@@ -60,23 +75,139 @@ export function PulsoSwitch({ id, label, description, checked, defaultChecked, o
         ].join(" ")}
       />
     </label>
-  );
+  )
 }
 ```
-
-## Uso
 
 ```tsx
 <PulsoSwitch
   label="Alertas críticos por e-mail"
-  description="Dispara quando um sinal cruza o nível Crítico."
+  description="Dispara quando um sinal cruza o nível critical."
   defaultChecked
 />
 ```
 
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<label class="switch-field">
+  <span class="switch-field__content">
+    <span class="switch-field__label">Alertas críticos por e-mail</span>
+    <span id="critical-email-description" class="switch-field__description">
+      Dispara quando um sinal cruza o nível critical.
+    </span>
+  </span>
+  <input
+    class="switch-field__input"
+    type="checkbox"
+    role="switch"
+    checked
+    aria-describedby="critical-email-description"
+  />
+  <span class="switch-field__track" aria-hidden="true"></span>
+</label>
+```
+
+```css
+.switch-field {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.switch-field__content {
+  display: grid;
+  gap: 2px;
+}
+
+.switch-field__label {
+  color: var(--fg-strong);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.switch-field__description {
+  color: var(--fg-muted);
+  font-size: 12px;
+}
+
+.switch-field__input {
+  position: absolute;
+  opacity: 0;
+}
+
+.switch-field__track {
+  position: relative;
+  flex: 0 0 auto;
+  inline-size: 32px;
+  block-size: 18px;
+  margin-block-start: 2px;
+  border-radius: 999px;
+  background: var(--border-strong);
+  transition: background var(--motion-duration-default) var(--motion-easing);
+}
+
+.switch-field__track::after {
+  content: "";
+  position: absolute;
+  inset-block-start: 2px;
+  inset-inline-start: 2px;
+  inline-size: 14px;
+  block-size: 14px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--motion-duration-default) var(--motion-easing);
+}
+
+.switch-field__input:checked + .switch-field__track {
+  background: var(--primary);
+}
+
+.switch-field__input:checked + .switch-field__track::after {
+  transform: translateX(14px);
+}
+
+.switch-field__input:focus-visible + .switch-field__track {
+  outline: var(--ring-width) solid var(--ring);
+  outline-offset: 2px;
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Quando usar
+
+- Preferência pessoal com efeito imediato.
+- Ativar/desativar automação reversível.
+- Modo de visualização ou atualização automática.
+- Notificação que pode ser ligada ou desligada sem submissão.
+
+## Quando não usar
+
+- Para aceitar termos; use `Checkbox`.
+- Para selecionar múltiplos itens.
+- Para ação destrutiva sem confirmação.
+- Para opção cujo efeito só acontece após salvar formulário.
+
+## Acessibilidade
+
+- Use `role="switch"` quando implementar com checkbox customizado.
+- O estado precisa ser programaticamente legível.
+- Explique consequência no texto auxiliar quando houver impacto operacional.
+- Movimento do thumb deve ser curto e respeitar tokens de motion.
+
 ## Regras
 
-- Use para comportamento imediato e reversível.
-- Explique consequência no texto auxiliar quando a chave tiver impacto operacional.
-- Exponha `role="switch"` e mantenha estado programático sincronizado.
-- Não use Switch para aceitar termos ou selecionar múltiplos itens.
+1. Switch muda algo agora.
+2. O label deve descrever o estado ligado.
+3. Descrição deve explicar efeito, não repetir o label.
+4. Mudança crítica pode exigir confirmação além do switch.
+5. Não use Switch para decisões irreversíveis.
