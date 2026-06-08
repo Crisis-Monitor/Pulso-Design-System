@@ -5,40 +5,48 @@ description: Mensagem persistente e não-bloqueante para estado, evidência e at
 
 # Alert
 
-Alert vive na página. Ele informa, orienta ou evidencia sem interromper o fluxo como um Dialog.
+> **Atom**
+>
+> Alert vive na página. Ele informa, orienta ou evidencia sem interromper o fluxo como um Dialog.
 
-Use Alert quando a informação precisa permanecer visível até ser resolvida, dispensada ou substituída por um estado novo.
+Use Alert quando a informação precisa permanecer visível até ser resolvida, dispensada ou substituída por um estado novo. Para feedback efêmero, use Toast. Para decisão bloqueante, use Dialog ou Alert Dialog.
 
-## Blueprint React copiável
+## Exemplos copiáveis
 
 <BlueprintNote />
 
-```tsx
-import * as React from "react";
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-type AlertTone = "info" | "success" | "warning" | "destructive" | "evidence";
+### React
+
+```tsx
+import * as React from "react"
+
+type AlertTone = "info" | "success" | "warning" | "destructive" | "evidence"
 
 type PulsoAlertProps = React.HTMLAttributes<HTMLDivElement> & {
-  tone?: AlertTone;
-  title: string;
-  action?: React.ReactNode;
-};
+  tone?: AlertTone
+  title: string
+  action?: React.ReactNode
+}
 
 const toneClass: Record<AlertTone, string> = {
   info: "border-[var(--border-strong)] bg-[var(--card)] text-[var(--fg)]",
-  success: "border-[var(--success-border)] bg-[var(--success-bg)] text-[var(--success-text)]",
+  success: "border-[var(--risk-stable-border)] bg-[var(--risk-stable-bg)] text-[var(--risk-stable-text)]",
   warning: "border-[var(--risk-attention-border)] bg-[var(--risk-attention-bg)] text-[var(--risk-attention-text)]",
-  destructive: "border-[var(--destructive-border)] bg-[var(--destructive-bg)] text-[var(--destructive-text)]",
+  destructive: "border-[var(--destructive-border)] bg-[var(--destructive-bg)] text-[var(--destructive)]",
   evidence: "border-[var(--border)] bg-[var(--muted)] text-[var(--fg)]",
-};
+}
 
 export function PulsoAlert({ tone = "info", title, action, children, className, ...props }: PulsoAlertProps) {
+  const urgent = tone === "destructive" || tone === "warning"
+
   return (
     <div
-      role={tone === "destructive" || tone === "warning" ? "alert" : "status"}
+      role={urgent ? "alert" : "status"}
       className={[
-        "grid gap-2 rounded-[var(--radius-md)] border p-4",
-        "text-sm leading-6",
+        "grid gap-2 rounded-[var(--radius-md)] border p-4 text-sm leading-6",
         toneClass[tone],
         className,
       ].filter(Boolean).join(" ")}
@@ -50,11 +58,9 @@ export function PulsoAlert({ tone = "info", title, action, children, className, 
       </div>
       {children ? <div className="text-[var(--fg-muted)]">{children}</div> : null}
     </div>
-  );
+  )
 }
 ```
-
-## Uso
 
 ```tsx
 <PulsoAlert title="Fonte temporariamente indisponível" tone="warning">
@@ -66,6 +72,67 @@ export function PulsoAlert({ tone = "info", title, action, children, className, 
 </PulsoAlert>
 ```
 
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<div class="alert alert--warning" role="alert">
+  <div class="alert__header">
+    <strong class="alert__title">Fonte temporariamente indisponível</strong>
+  </div>
+  <p class="alert__body">
+    Os dados desta fonte podem estar atrasados. Última sincronização há 18 min.
+  </p>
+</div>
+```
+
+```css
+.alert {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  color: var(--fg);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.alert__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.alert__title {
+  color: var(--fg-strong);
+  font-weight: 700;
+}
+
+.alert__body {
+  margin: 0;
+  color: var(--fg-muted);
+}
+
+.alert--warning {
+  border-color: var(--risk-attention-border);
+  background: var(--risk-attention-bg);
+  color: var(--risk-attention-text);
+}
+
+.alert--evidence {
+  border-color: var(--border);
+  background: var(--muted);
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
 ## Alert vs Toast vs Dialog
 
 | Superfície | Persistência | Bloqueia? | Uso |
@@ -75,15 +142,32 @@ export function PulsoAlert({ tone = "info", title, action, children, className, 
 | `Dialog` | Até decisão | Sim | Foco curto e bloqueante |
 | `Alert Dialog` | Até confirmação | Sim | Ação destrutiva ou irreversível |
 
+## Quando usar
+
+- Estado que precisa permanecer visível.
+- Evidência assistida pela Cris que exige revisão.
+- Degradação de fonte ou sincronização atrasada.
+- Próxima ação clara sem bloquear fluxo.
+
+## Quando não usar
+
+- Para feedback efêmero.
+- Para decisão bloqueante.
+- Para substituir erro inline de campo.
+- Para empilhar múltiplos banners competindo pela atenção.
+
+## Acessibilidade
+
+- Use `role="alert"` para atenção imediata.
+- Use `role="status"` para estado informativo não urgente.
+- Título nomeia o estado; descrição explica consequência ou próxima ação.
+- Não dependa só de cor para severidade.
+
 ## Regras
 
 1. Alert não bloqueia fluxo.
 2. Use Dialog quando a tarefa precisa parar.
 3. Use Alert Dialog quando há ação destrutiva ou irreversível.
-4. Não use Alert para feedback efêmero; use Toast.
-5. Um banner sólido de alta atenção por página, no máximo.
-6. Título deve nomear o estado; descrição deve explicar consequência ou próxima ação.
-7. Não dependa só de cor para severidade.
-8. Alert de evidência precisa apontar origem ou base verificável.
-9. Alert dispensável não pode esconder problema ainda ativo.
-10. Alert persistente precisa ter condição clara de resolução.
+4. Um banner sólido de alta atenção por página, no máximo.
+5. Alert de evidência precisa apontar origem ou base verificável.
+6. Alert dispensável não pode esconder problema ainda ativo.

@@ -1,42 +1,51 @@
 ---
 title: Button
-description: Ação principal para interações do usuário.
+description: Ação explícita para submissão, confirmação, navegação ou operação contextual.
 category: Atoms
 ---
 
 # Button
 
-Botão comunica ação. Use para submissão, navegação, confirmação ou ação contextual. Em telas operacionais, o texto precisa deixar claro **o que acontece depois do clique**.
+> **Atom**
+>
+> Button comunica ação. O texto precisa deixar claro o que acontece depois do clique.
 
-## Blueprint React copiável
+Use Button para submissão, confirmação, navegação ou ação contextual. Em telas operacionais, hierarquia e tamanho precisam evitar ambiguidade: uma ação primária por superfície e ações lado a lado com altura consistente.
+
+## Exemplos copiáveis
 
 <BlueprintNote />
 
-```tsx
-import * as React from "react";
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "destructive";
-type ButtonSize = "sm" | "md" | "lg" | "icon";
+### React
+
+```tsx
+import * as React from "react"
+
+type ButtonVariant = "primary" | "secondary" | "ghost" | "destructive"
+type ButtonSize = "sm" | "md" | "lg" | "icon"
 
 type PulsoButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  isLoading?: boolean;
-};
+  variant?: ButtonVariant
+  size?: ButtonSize
+  isLoading?: boolean
+}
 
 const variantClass: Record<ButtonVariant, string> = {
   primary: "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)]",
   secondary: "border border-[var(--border-strong)] bg-[var(--card)] text-[var(--fg)] hover:bg-[var(--muted)]",
   ghost: "bg-transparent text-[var(--fg-muted)] hover:bg-[var(--muted)] hover:text-[var(--fg)]",
   destructive: "bg-[var(--destructive)] text-[var(--destructive-foreground)] hover:opacity-90",
-};
+}
 
 const sizeClass: Record<ButtonSize, string> = {
   sm: "h-8 px-3 text-xs",
   md: "h-9 px-4 text-sm",
   lg: "h-10 px-5 text-sm",
   icon: "h-9 w-9 p-0",
-};
+}
 
 export function PulsoButton({
   variant = "primary",
@@ -63,32 +72,110 @@ export function PulsoButton({
       ].filter(Boolean).join(" ")}
       {...props}
     >
-      {isLoading ? <span aria-hidden="true">Carregando…</span> : children}
+      {isLoading ? "Carregando…" : children}
     </button>
-  );
+  )
 }
 ```
 
-## Uso
-
 ```tsx
-<PulsoButton onClick={acknowledgeAlert}>
-  Reconhecer alerta
-</PulsoButton>
-
-<PulsoButton variant="secondary">
-  Ver evidências
-</PulsoButton>
-
-<PulsoButton variant="destructive">
-  Encerrar caso
-</PulsoButton>
+<PulsoButton onClick={acknowledgeAlert}>Reconhecer alerta</PulsoButton>
+<PulsoButton variant="secondary">Ver evidências</PulsoButton>
+<PulsoButton variant="destructive">Encerrar caso</PulsoButton>
 ```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<div class="button-row">
+  <button class="button button--secondary" type="button">Ver evidências</button>
+  <button class="button button--primary" type="button">Reconhecer alerta</button>
+</div>
+```
+
+```css
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: 36px;
+  padding-inline: 16px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  transition:
+    background var(--motion-duration-fast) var(--motion-easing),
+    border-color var(--motion-duration-fast) var(--motion-easing),
+    color var(--motion-duration-fast) var(--motion-easing);
+}
+
+.button:focus-visible {
+  outline: var(--ring-width) solid var(--ring);
+  outline-offset: 2px;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.button--primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.button--secondary {
+  border-color: var(--border-strong);
+  background: var(--card);
+  color: var(--fg);
+}
+
+.button--destructive {
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Quando usar
+
+- Confirmar ou submeter uma decisão.
+- Abrir uma próxima superfície clara.
+- Executar ação contextual em card, toolbar ou formulário.
+- Tornar uma ação operacional rastreável.
+
+## Quando não usar
+
+- Para estado persistente; use Toggle/Switch/Badge conforme o caso.
+- Para navegação textual secundária; use Link.
+- Para escolhas entre opções; use Radio/Select/Toggle Group.
+- Para ação destrutiva sem confirmação quando a consequência é alta.
+
+## Acessibilidade
+
+- Use verbo específico no label.
+- Botão icon-only precisa de `aria-label`.
+- Loading usa `aria-busy` e mantém dimensão estável.
+- Foco visível é obrigatório.
 
 ## Regras
 
-- Uma ação primária por superfície.
-- Use verbos claros: `Reconhecer alerta`, `Ver evidências`, `Encerrar caso`.
-- Não use cor como único indicador de risco; o texto precisa indicar consequência.
-- Use `isLoading` apenas quando há espera real.
-- Botões destrutivos devem deixar a consequência explícita.
+1. Uma ação primária por superfície.
+2. Ações lado a lado mantêm mesma altura.
+3. Destructive precisa deixar consequência explícita.
+4. Cor não substitui texto.
+5. Loading só aparece quando há espera real.
