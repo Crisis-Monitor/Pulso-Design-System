@@ -1,41 +1,160 @@
 ---
 title: Tooltip
-description: Informação contextual que aparece ao hover ou focus sobre um elemento.
+description: Ajuda contextual curta revelada por hover, foco ou toque assistido.
 ---
 
 # Tooltip
 
-Revela informações adicionais quando o usuário passa o mouse ou foca em um elemento.
+> **Atom**
+>
+> Tooltip explica um detalhe pontual. Ele não deve carregar decisão, erro crítico ou instrução essencial.
 
-## Import
+Use Tooltip para rótulos abreviados, significado de ícones, atalhos ou microexplicações. Se a informação é necessária para completar uma tarefa, deixe-a visível como texto, descrição ou ajuda inline.
 
-```tsx
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-```
+## Exemplos copiáveis
 
-## Uso básico
+<BlueprintNote />
 
-```tsx
-<TooltipProvider>
-  <Tooltip>
-    <TooltipTrigger><button>Hover me</button></TooltipTrigger>
-    <TooltipContent><p>Informação adicional aqui</p></TooltipContent>
-  </Tooltip>
-</TooltipProvider>
-```
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
 
-## Posições
+### React
 
 ```tsx
-<TooltipContent side="top">Top</TooltipContent>
-<TooltipContent side="right">Right</TooltipContent>
-<TooltipContent side="bottom">Bottom</TooltipContent>
-<TooltipContent side="left">Left</TooltipContent>
+import * as React from "react"
+
+type PulsoTooltipProps = {
+  label: string
+  children: React.ReactElement
+  side?: "top" | "right" | "bottom" | "left"
+}
+
+export function PulsoTooltip({ label, children, side = "top" }: PulsoTooltipProps) {
+  const [open, setOpen] = React.useState(false)
+  const tooltipId = React.useId()
+
+  return (
+    <span className="relative inline-flex" onMouseLeave={() => setOpen(false)}>
+      {React.cloneElement(children, {
+        "aria-describedby": open ? tooltipId : undefined,
+        onFocus: () => setOpen(true),
+        onBlur: () => setOpen(false),
+        onMouseEnter: () => setOpen(true),
+        onKeyDown: (event: React.KeyboardEvent) => {
+          if (event.key === "Escape") setOpen(false)
+        },
+      })}
+
+      {open ? (
+        <span
+          id={tooltipId}
+          role="tooltip"
+          data-side={side}
+          className={[
+            "absolute z-50 max-w-64 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--popover)] px-3 py-2 text-xs leading-5 text-[var(--fg)] shadow-[var(--shadow-lg)]",
+            side === "top" ? "bottom-full left-1/2 mb-2 -translate-x-1/2" : "",
+            side === "bottom" ? "left-1/2 top-full mt-2 -translate-x-1/2" : "",
+            side === "right" ? "left-full top-1/2 ml-2 -translate-y-1/2" : "",
+            side === "left" ? "right-full top-1/2 mr-2 -translate-y-1/2" : "",
+          ].join(" ")}
+        >
+          {label}
+        </span>
+      ) : null}
+    </span>
+  )
+}
 ```
+
+```tsx
+<PulsoTooltip label="Última atualização recebida da fonte auditável." side="top">
+  <button className="rounded-[var(--radius-sm)] px-2 py-1 text-sm text-[var(--fg-muted)]">
+    Atualizado há 2 min
+  </button>
+</PulsoTooltip>
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<span class="tooltip-wrap">
+  <button class="tooltip-trigger" aria-describedby="freshness-tip">
+    Atualizado há 2 min
+  </button>
+  <span id="freshness-tip" class="tooltip" role="tooltip">
+    Última atualização recebida da fonte auditável.
+  </span>
+</span>
+```
+
+```css
+.tooltip-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.tooltip-trigger {
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--fg-muted);
+}
+
+.tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  z-index: 50;
+  max-inline-size: 256px;
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  transform: translateX(-50%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--popover);
+  color: var(--fg);
+  box-shadow: var(--shadow-lg);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.tooltip-wrap:not(:hover):not(:focus-within) .tooltip {
+  display: none;
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Quando usar
+
+- Explicar ícone, atalho ou termo curto.
+- Complementar dado com origem ou freshness breve.
+- Mostrar microajuda que não é essencial para a tarefa.
+- Apoiar controles compactos em tabelas ou toolbars.
+
+## Quando não usar
+
+- Para erro, alerta ou estado crítico.
+- Para instrução obrigatória.
+- Para conteúdo longo ou interativo.
+- Para esconder informação necessária em mobile.
 
 ## Acessibilidade
 
-- Acessível via hover E focus
-- Delay padrão de 700ms para evitar flash
-- Fecha com ESC
-- \`TooltipProvider\` é obrigatório no parent
+- Deve aparecer em hover e focus.
+- Deve fechar com `Escape`.
+- Trigger usa `aria-describedby` quando o tooltip está visível.
+- Conteúdo essencial precisa estar visível fora do tooltip.
+- Não coloque botões ou links dentro de Tooltip; use Popover/Sheet.
+
+## Regras
+
+1. Texto curto: uma frase, sem parágrafo longo.
+2. Tooltip não substitui label.
+3. Tooltip não comunica risco operacional sozinho.
+4. Em mobile, prefira ajuda inline se o conteúdo for necessário.
+5. Não use delay/motion que atrapalhe leitura em plantão.
