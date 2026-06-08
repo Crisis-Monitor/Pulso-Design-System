@@ -1,16 +1,144 @@
-# separator
+---
+title: Separator
+description: Divisor semântico para separar grupos relacionados sem criar ruído visual.
+---
 
-Documentação do componente separator.
+# Separator
 
-## Import
+> **Atom**
+>
+> Separator cria pausa visual entre grupos. Ele não substitui título, card ou estrutura de navegação.
+
+Use Separator quando a relação entre blocos já é clara, mas o conteúdo precisa de uma divisão leve. Em interfaces de crise, prefira divisores discretos a sombras decorativas.
+
+## Exemplos copiáveis
+
+<BlueprintNote />
+
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
 
 ```tsx
-import { separator } from "@/components/ui/separator";
-```
+import * as React from "react"
 
-## Uso
+type PulsoSeparatorProps = {
+  orientation?: "horizontal" | "vertical"
+  decorative?: boolean
+  label?: string
+}
+
+export function PulsoSeparator({
+  orientation = "horizontal",
+  decorative = true,
+  label,
+}: PulsoSeparatorProps) {
+  return (
+    <div
+      role={decorative ? "none" : "separator"}
+      aria-orientation={decorative ? undefined : orientation}
+      aria-label={decorative ? undefined : label}
+      data-orientation={orientation}
+      className="shrink-0 bg-[var(--border)] data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-6 data-[orientation=vertical]:w-px"
+    />
+  )
+}
+```
 
 ```tsx
-<separator />
+<section className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] p-4">
+  <header>
+    <p className="text-sm font-medium">PLS-012</p>
+    <p className="text-xs text-[var(--fg-muted)]">Última evidência há 4 min</p>
+  </header>
+  <PulsoSeparator />
+  <p className="mt-4 text-sm text-[var(--fg)]">Risco high por crescimento de menções auditáveis.</p>
+</section>
 ```
 
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<section class="case-card">
+  <header>
+    <p class="case-card__title">PLS-012</p>
+    <p class="case-card__meta">Última evidência há 4 min</p>
+  </header>
+
+  <hr class="separator" />
+
+  <p class="case-card__body">Risco high por crescimento de menções auditáveis.</p>
+</section>
+```
+
+```css
+.case-card {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card);
+}
+
+.case-card__title,
+.case-card__meta,
+.case-card__body {
+  margin: 0;
+}
+
+.case-card__title {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.case-card__meta {
+  margin-top: 2px;
+  color: var(--fg-muted);
+  font-size: 12px;
+}
+
+.separator {
+  margin-block: 16px;
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+.case-card__body {
+  color: var(--fg);
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Quando usar
+
+- Separar cabeçalho e corpo dentro de card.
+- Separar grupos de controles relacionados.
+- Criar pausa entre blocos densos de informação.
+- Dividir itens em toolbar quando a proximidade pode confundir.
+
+## Quando não usar
+
+- Para compensar falta de hierarquia textual.
+- Para separar cada linha de uma lista densa sem necessidade.
+- Como decoração repetitiva.
+- Para substituir espaçamento ou título de seção.
+
+## Acessibilidade
+
+- Use `<hr>` para separação horizontal com significado estrutural.
+- Use `role="separator"` quando a separação precisa ser percebida por tecnologia assistiva.
+- Use divisor decorativo sem role quando ele é apenas ritmo visual.
+- Divisor vertical precisa ter contraste suficiente, mas não competir com foco ou risco.
+
+## Regras
+
+1. Separator é hairline: uma linha, sem sombra.
+2. O espaçamento ao redor é tão importante quanto a linha.
+3. Não use cor de risco para divisores neutros.
+4. Divisores não carregam estado.
+5. Se a separação precisa de título, use uma seção nomeada.

@@ -1,29 +1,144 @@
 ---
 title: Controls
-description: Wrapper para grupos de controles de formulário com espaçamento consistente.
+description: Agrupamento de controles relacionados com ritmo, alinhamento e hierarquia consistentes.
 ---
 
 # Controls
 
-Container para agrupar controles de formulário com espaçamento e alinhamento consistentes.
+> **Atom**
+>
+> Controls organiza filtros, buscas e ações relacionadas. Ele não decide prioridade: a hierarquia vem dos botões, labels e estados dentro do grupo.
 
-## Import
+Use Controls para manter ritmo entre campos compactos, botões de ação e seletores em toolbars operacionais. O grupo deve deixar claro o que é entrada, o que é filtro e o que executa uma ação.
+
+## Exemplos copiáveis
+
+<BlueprintNote />
+
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
 
 ```tsx
-import { Controls } from "@/components/ui/controls"
-```
+import * as React from "react"
 
-## Uso básico
+type PulsoControlsProps = {
+  children: React.ReactNode
+  label?: string
+  align?: "start" | "center" | "end"
+}
+
+export function PulsoControls({ children, label = "Controles", align = "center" }: PulsoControlsProps) {
+  return (
+    <div
+      role="group"
+      aria-label={label}
+      data-align={align}
+      className="flex flex-wrap items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] p-2 data-[align=end]:justify-end data-[align=start]:items-start"
+    >
+      {children}
+    </div>
+  )
+}
+```
 
 ```tsx
-<Controls>
-  <Input placeholder="Buscar..." />
-  <Select><SelectTrigger><SelectValue placeholder="Filtrar" /></SelectTrigger></Select>
-  <Button>Aplicar</Button>
-</Controls>
+<PulsoControls label="Filtros do monitoramento">
+  <input
+    aria-label="Buscar caso"
+    placeholder="Buscar caso"
+    className="h-9 min-w-56 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--background)] px-3 text-sm"
+  />
+  <button className="h-9 rounded-[var(--radius-sm)] border border-[var(--border)] px-3 text-sm">
+    Período: 7d
+  </button>
+  <button className="h-9 rounded-[var(--radius-sm)] bg-[var(--primary)] px-3 text-sm font-medium text-[var(--primary-foreground)]">
+    Aplicar
+  </button>
+</PulsoControls>
 ```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<div class="controls" role="group" aria-label="Filtros do monitoramento">
+  <input class="control-input" aria-label="Buscar caso" placeholder="Buscar caso" />
+  <button class="control-button" type="button">Período: 7d</button>
+  <button class="control-button control-button--primary" type="button">Aplicar</button>
+</div>
+```
+
+```css
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card);
+}
+
+.control-input,
+.control-button {
+  min-block-size: 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--background);
+  color: var(--fg);
+  font: inherit;
+}
+
+.control-input {
+  min-inline-size: 224px;
+  padding-inline: 12px;
+}
+
+.control-button {
+  padding-inline: 12px;
+}
+
+.control-button--primary {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 600;
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
 
 ## Quando usar
 
-- Toolbars de filtro e busca
-- Grupos de ação em formulários
+- Toolbars de busca, filtro e ordenação.
+- Ações secundárias agrupadas por contexto.
+- Controles compactos acima de tabela, lista ou painel.
+- Preferências temporárias de visualização.
+
+## Quando não usar
+
+- Para agrupar ações sem relação entre si.
+- Para esconder hierarquia entre ação primária e secundária.
+- Como substituto de formulário completo com labels, ajuda e validação.
+- Para navegação persistente; use menu, tabs ou sidebar.
+
+## Acessibilidade
+
+- Use `role="group"` com `aria-label` quando o agrupamento ajuda a compreensão.
+- Cada controle interno precisa de label próprio.
+- Mantenha foco visível em todos os elementos do grupo.
+- Preserve altura consistente para evitar desequilíbrio visual entre ações lado a lado.
+
+## Regras
+
+1. Um grupo deve ter um objetivo claro.
+2. Ação primária aparece no fim do fluxo do grupo.
+3. Não misture filtros permanentes com ações destrutivas.
+4. Use wrap em telas estreitas; não reduza labels até ficarem ambíguas.
+5. Mantenha o mesmo ritmo de altura entre input, select e button.
