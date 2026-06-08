@@ -1,42 +1,194 @@
 ---
 title: Progress
-description: Barra de progresso linear para indicar o avanço de uma operação.
+description: Barra de progresso linear para avanço conhecido, cobertura ou conclusão parcial.
 ---
 
 # Progress
 
-Barra de progresso linear que indica o andamento de uma operação com valor conhecido.
+> **Atom**
+>
+> Progress mostra avanço mensurável. Use apenas quando existe total conhecido ou critério claro de conclusão.
 
-## Import
+Use Progress para upload, processamento, onboarding, cobertura de checklist ou sincronização com percentual conhecido. Para espera indeterminada, use Spinner ou Skeleton.
+
+## Exemplos copiáveis
+
+<BlueprintNote />
+
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
 
 ```tsx
-import { Progress } from "@/components/ui/progress"
+import * as React from "react"
+
+type PulsoProgressProps = {
+  value: number
+  max?: number
+  label: string
+  description?: string
+  showValue?: boolean
+}
+
+export function PulsoProgress({
+  value,
+  max = 100,
+  label,
+  description,
+  showValue = true,
+}: PulsoProgressProps) {
+  const safeValue = Math.min(Math.max(value, 0), max)
+  const percent = Math.round((safeValue / max) * 100)
+
+  return (
+    <div className="grid gap-2">
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium text-[var(--fg)]">{label}</p>
+          {description ? (
+            <p className="mt-0.5 text-xs text-[var(--fg-muted)]">{description}</p>
+          ) : null}
+        </div>
+        {showValue ? (
+          <span className="font-mono text-sm font-semibold tabular-nums text-[var(--fg-muted)]">
+            {percent}%
+          </span>
+        ) : null}
+      </div>
+
+      <div
+        role="progressbar"
+        aria-label={label}
+        aria-valuemin={0}
+        aria-valuemax={max}
+        aria-valuenow={safeValue}
+        className="h-2 overflow-hidden rounded-full bg-[var(--muted)]"
+      >
+        <div
+          className="h-full rounded-full bg-[var(--primary)] transition-[width] duration-[var(--motion-duration-base)] ease-[var(--motion-easing)]"
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+    </div>
+  )
+}
 ```
 
-## Uso básico
-
 ```tsx
-<Progress value={66} />
+<PulsoProgress
+  label="Cobertura de fontes"
+  description="Fontes auditáveis verificadas para o caso PLS-012."
+  value={72}
+/>
 ```
 
-## Com Label
+  </Tabs.Tab>
+  <Tabs.Tab>
 
-```tsx
-<div className="space-y-2">
-  <div className="flex justify-between text-sm">
-    <span>Upload</span>
-    <span>66%</span>
+### HTML puro
+
+```html
+<div class="progress-field">
+  <div class="progress-field__header">
+    <div>
+      <p class="progress-field__label">Cobertura de fontes</p>
+      <p class="progress-field__description">Fontes auditáveis verificadas para o caso PLS-012.</p>
+    </div>
+    <span class="progress-field__value">72%</span>
   </div>
-  <Progress value={66} />
+
+  <div
+    class="progress"
+    role="progressbar"
+    aria-label="Cobertura de fontes"
+    aria-valuemin="0"
+    aria-valuemax="100"
+    aria-valuenow="72"
+  >
+    <div class="progress__bar" style="width: 72%"></div>
+  </div>
 </div>
 ```
 
+```css
+.progress-field {
+  display: grid;
+  gap: 8px;
+}
+
+.progress-field__header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.progress-field__label,
+.progress-field__description {
+  margin: 0;
+}
+
+.progress-field__label {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.progress-field__description {
+  margin-top: 2px;
+  color: var(--fg-muted);
+  font-size: 12px;
+}
+
+.progress-field__value {
+  color: var(--fg-muted);
+  font: 700 14px/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.progress {
+  block-size: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--muted);
+}
+
+.progress__bar {
+  block-size: 100%;
+  border-radius: inherit;
+  background: var(--primary);
+  transition: width var(--motion-duration-base) var(--motion-easing);
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
 ## Quando usar
 
-- Upload de arquivos
-- Processamento de dados com progresso conhecido
-- Onboarding multi-step
+- Upload, importação ou processamento com total conhecido.
+- Cobertura de checklist, fontes ou etapas concluídas.
+- Onboarding com número finito de passos.
+- Sincronização quando há percentual real.
+
+## Quando não usar
+
+- Espera indeterminada; use Spinner ou Skeleton.
+- Métrica de risco ou severidade.
+- Comparação entre categorias; use chart/bar adequado.
+- Progresso falso sem base mensurável.
 
 ## Acessibilidade
 
-- \`role="progressbar"\` com \`aria-valuenow\`
+- Use `role="progressbar"`.
+- Informe `aria-valuemin`, `aria-valuemax` e `aria-valuenow` quando determinado.
+- Mantenha label visível ou `aria-label` específico.
+- Mostre percentual textual quando ele ajuda decisão.
+
+## Regras
+
+1. Valor deve refletir total conhecido.
+2. Não use Progress como decoração de card.
+3. Não confunda cobertura com confiança de IA.
+4. Motion deve ser suave e respeitar `prefers-reduced-motion`.
+5. Se o processo travar, troque para estado de erro/partial com explicação.
