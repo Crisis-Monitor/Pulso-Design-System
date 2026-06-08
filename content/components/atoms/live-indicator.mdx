@@ -1,34 +1,150 @@
 ---
 title: Live Indicator
-description: Indicador visual de status em tempo real com ponto pulsante animado.
+description: Indicador compacto de atualização, conexão ou monitoramento ativo.
 ---
 
 # Live Indicator
 
-Indicador visual que mostra se um dado ou monitoramento está ativo e em tempo real. Usa um ponto pulsante animado.
+> **Atom**
+>
+> Live Indicator mostra estado de atividade em tempo real. Ele precisa ter texto; o ponto sozinho não é suficiente.
 
-## Import
+Use Live Indicator para sinalizar monitoramento ativo, conexão em andamento ou dado recente. O componente comunica disponibilidade operacional, não severidade de risco.
+
+## Exemplos copiáveis
+
+<BlueprintNote />
+
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
 
 ```tsx
-import { LiveIndicator } from "@/components/ui/live-indicator"
-```
+import * as React from "react"
 
-## Uso básico
+type LiveStatus = "live" | "connecting" | "offline"
+
+const statusLabel: Record<LiveStatus, string> = {
+  live: "Ao vivo",
+  connecting: "Conectando",
+  offline: "Offline",
+}
+
+export function PulsoLiveIndicator({ status = "live" }: { status?: LiveStatus }) {
+  return (
+    <span
+      data-status={status}
+      className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)] px-2.5 py-1 text-xs font-medium text-[var(--fg-muted)]"
+    >
+      <span
+        aria-hidden="true"
+        className="size-2 rounded-full bg-[var(--fg-muted)] data-[status=live]:bg-[var(--risk-stable-text)] data-[status=connecting]:bg-[var(--risk-attention-text)] data-[status=offline]:bg-[var(--fg-disabled)]"
+        data-status={status}
+      />
+      <span>{statusLabel[status]}</span>
+    </span>
+  )
+}
+```
 
 ```tsx
-<LiveIndicator label="Ao vivo" />
+<PulsoLiveIndicator status="live" />
+<PulsoLiveIndicator status="connecting" />
+<PulsoLiveIndicator status="offline" />
 ```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<span class="live-indicator" data-status="live">
+  <span class="live-indicator__dot" aria-hidden="true"></span>
+  <span>Ao vivo</span>
+</span>
+```
+
+```css
+.live-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--fg-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.live-indicator__dot {
+  inline-size: 8px;
+  block-size: 8px;
+  border-radius: 999px;
+  background: var(--fg-disabled);
+}
+
+.live-indicator[data-status="live"] .live-indicator__dot {
+  background: var(--risk-stable-text);
+}
+
+.live-indicator[data-status="connecting"] .live-indicator__dot {
+  background: var(--risk-attention-text);
+}
+
+.live-indicator[data-status="live"] .live-indicator__dot {
+  animation: live-pulse var(--motion-duration-slow) var(--motion-easing) infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--risk-stable-text) 28%, transparent); }
+  50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--risk-stable-text) 0%, transparent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-indicator__dot {
+    animation: none !important;
+  }
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
 
 ## Estados
 
-```tsx
-<LiveIndicator status="live" label="Ao vivo" />
-<LiveIndicator status="offline" label="Offline" />
-<LiveIndicator status="connecting" label="Conectando..." />
-```
+- `live`: monitoramento ativo e recebendo atualização.
+- `connecting`: tentativa de conexão ou sincronização em curso.
+- `offline`: sem atualização em tempo real; use texto de apoio quando isso afeta decisão.
 
 ## Quando usar
 
-- Mostrar que dados estão sendo atualizados em tempo real
-- Status de conexão com serviços
-- Indicador de monitoramento ativo
+- Header de painel com stream ativo.
+- Linha de fonte com conexão em tempo real.
+- Estado de sincronização de monitoramento.
+- Confirmação de que uma visão está sendo atualizada automaticamente.
+
+## Quando não usar
+
+- Para indicar risco operacional.
+- Para substituir timestamp de freshness.
+- Para comunicar erro; use Alert ou status explícito.
+- Para decorar títulos estáticos.
+
+## Acessibilidade
+
+- Sempre inclua texto visível junto ao ponto.
+- Não dependa apenas de cor ou pulso.
+- Respeite `prefers-reduced-motion`.
+- Se o estado mudar automaticamente, avalie se precisa de região `aria-live` fora do indicador.
+
+## Regras
+
+1. Live não significa confiável; freshness e origem continuam explícitos.
+2. Movimento é sutil e dispensável.
+3. Offline não é risco; é estado de conexão.
+4. Use o mesmo vocabulário em toda a superfície.
+5. Em listas densas, prefira texto curto e ponto estático.
