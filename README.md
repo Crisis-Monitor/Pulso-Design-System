@@ -1,181 +1,160 @@
 # Pulso Design System
 
-> Sistema de design do **Crisis Monitor** - plataforma de gestao de crises reputacionais e monitoramento de midia social.
+> Sistema de design do **Crisis Monitor** — plataforma de gestão de crises reputacionais e monitoramento de mídia social. Design system para **operações de crise, IA auditável e decisão humana**.
+
+📖 **Documentação publicada**: https://crisis-monitor.github.io/Pulso-Design-System/
 
 ---
 
-## Para quem e este projeto
+## Para quem é este projeto
 
 - **Devs do Crisis Monitor**: consultar antes de criar qualquer componente novo
-- **Designers**: referencia de tokens, padroes e regras de composicao
+- **Designers**: referência de tokens, padrões e regras de composição
 - **QA**: validar comportamento visual e acessibilidade
-- **Newcomers**: onboarding rapido na stack e convencoes
+- **Newcomers**: onboarding rápido na stack e convenções
 
 ---
 
 ## Arquitetura
 
 ```
+content/                     # Fonte da documentação (MDX + _meta.ts por seção)
+├── getting-started/         # Instalação e quick start
+├── showcase/                # Camada visual HTML (Open Design) + visão geral
+├── release/                 # Release notes (v3.0)
+├── roadmap/                 # Roadmaps (v3 concluído, v2/próximo ciclo)
+├── conceitual/              # Modelo conceitual, princípios e regras de IA
+├── foundations/             # Tokens: cores, tipografia, ritmo, densidade, shapes...
+├── accessibility/           # Contraste, teclado, leitores de tela, reduced motion
+├── data-visualization/      # Primitivas, eixos, cor de dados, realtime, receitas
+├── voice/                   # Vocabulário, microcopy, voz de IA, localização
+├── patterns/                # Padrões de crise, IA (β) e mobile (γ)
+├── templates/               # Layouts de página completos
+├── governance/              # Token architecture, RFC, states matrix, adoção
+├── brand/                   # Toolkit de marca
+└── components/
+    ├── atoms/               # 47 componentes base
+    ├── molecules/           # 9 composições
+    └── organisms/           # 9 seções complexas
+
 src/
 ├── app/
 │   ├── globals.css          # Design tokens reais (cores, tipografia, motion)
-│   └── design-system/       # Paginas de documentacao Nextra (espelho -> Pulso DS)
-├── components/
-│   ├── ui/                  # Base: todos os componentes shadcn/ui usados no produto
-│   ├── crisis-view/         # Visualizacao de crise (Claude Code domain)
-│   └── app-sidebar.tsx      # Layout de navegacao
-└── lib/
-    └── utils.ts             # cn() - tailwind-merge + clsx
+│   ├── [[...mdxPath]]/      # Catch-all que renderiza o content/ via Nextra
+│   └── docs/                # Rotas auxiliares de docs
+├── components/              # Componentes do site de documentação
+└── lib/utils.ts             # cn() — tailwind-merge + clsx
+
+DESIGN.md                    # Contrato canônico de tokens e changelog (v3.0)
+public/visual/pulso-ds/      # Versão visual HTML criada no Open Design
+docs/audits/                 # Auditorias (ex.: open-design-zip-audit)
 ```
+
+### Camadas da documentação
+
+| Camada | Papel |
+|--------|-------|
+| **Versão visual HTML** (`public/visual/pulso-ds/`) | Navegação visual completa — densidade, componentes, templates |
+| **MDX** (`content/`) | Contrato canônico — anatomia, regras, blueprints React + HTML |
+| **DESIGN.md + globals.css** | Fonte de verdade de tokens |
+
+> Os componentes são **blueprints, não pacote runtime**: cada página traz contrato + exemplos copiáveis em React e HTML puro, sem acoplar o produto a uma lib publicada.
 
 ### Hierarquia de Componentes (Atomic Design)
 
-| Nivel | Definicao | Exemplos |
+| Nível | Definição | Exemplos |
 |-------|-----------|----------|
-| **Foundations** | Tokens puros - cores, tipografia, espacamento, motion, sombras | - |
-| **Atoms** | Componente indivisivel mais simples | `Button`, `Badge`, `Input`, `Chip`, `Label` |
-| **Molecules** | Composicao de 2+ atomos com proposito unico | `FormField`, `InputGroup`, `DeltaChip`, `AvatarGroup`, `MetricCard` |
-| **Organisms** | Secoes completas e complexas | `Form`, `DataTable`, `Tabs`, `Card`, `Dialog` |
-| **Templates** | Montagem de organisms em layout de pagina | `Dashboard`, `CrisisDetail`, `Settings` |
-| **Patterns** | Combinacoes recorrentes de componentes | `CrisisStatus`, `RiskLevels` |
+| **Foundations** | Tokens puros — cores, tipografia, ritmo, densidade, motion, shapes | — |
+| **Atoms** | Componente indivisível mais simples | `Button`, `Badge`, `Input`, `Chip`, `Kicker` |
+| **Molecules** | Composição de 2+ átomos com propósito único | `FormField`, `InputGroup`, `DeltaChip`, `MetricCard`, `PageHeader` |
+| **Organisms** | Seções completas e complexas | `Form`, `Table`, `Tabs`, `Card`, `Dialog`, `Command` |
+| **Templates** | Montagem de organisms em layout de página | `Dashboard`, `CrisisDetail`, `Settings`, `Auth`, `Onboarding` |
+| **Patterns** | Combinações recorrentes de componentes | `CrisisStatus`, `RiskLevels`, padrões de IA, padrões mobile |
 
 ---
 
 ## Getting Started
 
-### Pre-requisitos
+### Pré-requisitos
 
 - Node.js >= 18
 - Bun >= 1.2
 
-### Instalacao
+### Instalação
 
 ```bash
 bun install
-bun dev
+bun dev          # Nextra em http://localhost:3000
 ```
 
-O Nextra roda em `http://localhost:3002`.
+### Build e busca
+
+```bash
+bun run build         # build estático + índice Pagefind
+bun run build:pages   # build para GitHub Pages (GITHUB_PAGES=true + .nojekyll)
+bun run dev:search    # dev com índice de busca local
+```
+
+O deploy é automático: push em `main` dispara `.github/workflows/pages.yml`, que builda com Bun, gera o índice Pagefind e publica o diretório `out/` no GitHub Pages.
 
 ---
 
-## Stack Tecnica
+## Stack Técnica
 
-| Tecnologia | Versao | Uso |
+| Tecnologia | Versão | Uso |
 |-----------|--------|-----|
-| Next.js | 15 | Framework de aplicacao |
+| Next.js | 15 | Framework (static export) |
 | React | 19 | UI library |
-| Nextra | 4 | Documentacao/docs site |
+| Nextra | 4 | Documentação/docs site |
 | Tailwind CSS | 4 | Styling |
-| shadcn/ui | latest | Base de componentes |
-| Radix UI | latest | Primitivos acessiveis |
+| Pagefind | 1.5 | Busca client-side |
+| Radix UI | latest | Primitivos acessíveis |
 | Lucide icons | latest | Iconografia |
 
 ---
 
-## Catalogo de Componentes
+## Catálogo de Conteúdo
 
-### Status legendas
+### Componentes — 65 documentados
 
-| Status | Significado |
-|--------|-------------|
-| Documentado | MDX completo no Pulso DS |
-| Stubs | MDX placeholder criado, falta conteudo detalhado |
-| Pendente | Existe no Crisis Monitor, sem MDX no Pulso DS |
+Todos os componentes de `src/components/ui/` do Crisis Monitor possuem MDX, exceto `pagination` (pendente).
 
-### Foundations
+| Nível | Pasta | Componentes |
+|-------|-------|-------------|
+| **Atoms** (47) | `content/components/atoms/` | alert, alert-dialog, aspect-ratio, avatar, badge, breadcrumb, button, calendar, carousel, chart, checkbox, chip, collapsible, context-menu, controls, drawer, empty, field, hover-card, input, input-otp, item, kbd, kicker, label, live-indicator, menubar, navigation-menu, popover, progress, radio-group, resizable, scroll-area, section-rail, select, separator, sheet, sidebar, skeleton, slider, sonner, spinner, switch, textarea, toggle, toggle-group, tooltip |
+| **Molecules** (9) | `content/components/molecules/` | accordion, avatar-group, button-group, delta-chip, empty-state, form-field, input-group, metric-card, page-header |
+| **Organisms** (9) | `content/components/organisms/` | card, collapsible-card, command, dialog, dropdown-menu, form, responsive-sheet, table, tabs |
 
-| Componente | Status | Arquivo |
-|-----------|--------|---------|
-| Cores | Documentado | `content/foundations/colors.mdx` |
-| Tipografia | Documentado | `content/foundations/typography.mdx` |
-| Espacamento | Documentado | `content/foundations/spacing.mdx` |
-| Motion | Documentado | `content/foundations/motion.mdx` |
-| Icones | Documentado | `content/foundations/icons.mdx` |
+### Foundations — 15 páginas
 
-### Atoms (base - `src/components/ui/`)
+colors, typography, spacing, radii, density, elevation, motion, icons, responsive, **rhythm** (α.3), **signature-shapes** (α.4), **type-confidence** (α.2), **identity-audit** (α.1), **mobile-native-tokens** (γ.4)
 
-| Componente | Status | MDX Pulso DS |
-|-----------|--------|-------------|
-| alert | Documentado | `atoms/alert.mdx` |
-| alert-dialog | Pendente | - |
-| aspect-ratio | Pendente | - |
-| avatar | Documentado | `atoms/avatar.mdx` |
-| badge | Documentado | `atoms/badge.mdx` |
-| breadcrumb | Pendente | - |
-| button | Documentado | `atoms/controls.mdx` |
-| calendar | Pendente | - |
-| carousel | Pendente | - |
-| chart | Pendente | - |
-| checkbox | Pendente | - |
-| chip | Documentado | `atoms/chip.mdx` |
-| collapsible | Pendente | - |
-| delta-chip | Documentado | `molecules/delta-chip.mdx` |
-| input | Documentado | `atoms/input.mdx` |
-| input-otp | Pendente | - |
-| kicker | Documentado | `atoms/kicker.mdx` |
-| kbd | Pendente | - |
-| label | Documentado | `atoms/label.mdx` |
-| live-indicator | Documentado | `atoms/live-indicator.mdx` |
-| progress | Documentado | `atoms/progress.mdx` |
-| radio-group | Documentado | `atoms/radio-group.mdx` |
-| select | Documentado | `atoms/select.mdx` |
-| separator | Documentado | `atoms/separator.mdx` |
-| skeleton | Documentado | `atoms/skeleton.mdx` |
-| slider | Pendente | - |
-| spinner | Documentado | `atoms/spinner.mdx` |
-| switch | Pendente | - |
-| textarea | Pendente | - |
-| toggle | Pendente | - |
-| toggle-group | Pendente | - |
-| tooltip | Documentado | `atoms/tooltip.mdx` |
+### Patterns — 13 páginas
 
-### Molecules
+| Grupo | Páginas |
+|-------|---------|
+| Semântica de crise | crisis-status, risk-levels, mention-card, multi-select, filter-bar |
+| IA (fase β) | ai-origin-tracking, ai-audit-trail, ai-recommendation, ai-embedding, ai-draft-regenerate |
+| Mobile (fase γ) | mobile-gestures, mobile-offline, mobile-handover |
 
-| Componente | Status | MDX Pulso DS |
-|-----------|--------|-------------|
-| accordion | Documentado | `molecules/accordion.mdx` |
-| avatar-group | Documentado | `molecules/avatar-group.mdx` |
-| button-group | Documentado | `molecules/button-group.mdx` |
-| delta-chip | Documentado | `molecules/delta-chip.mdx` |
-| empty-state | Documentado | `molecules/empty-state.mdx` |
-| form-field | Documentado | `molecules/form-field.mdx` |
-| input-group | Documentado | `molecules/input-group.mdx` |
-| metric-card | Documentado | `molecules/metric-card.mdx` |
-| page-header | Pendente | - |
+### Templates — 8 páginas
 
-### Organisms
+dashboard, crisis-detail, settings, auth, onboarding, search, notifications, audit-log
 
-| Componente | Status | MDX Pulso DS |
-|-----------|--------|-------------|
-| card | Documentado | `organisms/card.mdx` |
-| collapsible-card | Documentado | `organisms/collapsible-card.mdx` |
-| command | Documentado | `organisms/command.mdx` |
-| dialog | Documentado | `organisms/dialog.mdx` |
-| dropdown-menu | Documentado | `organisms/dropdown-menu.mdx` |
-| form | Documentado | `organisms/form.mdx` |
-| responsive-sheet | Documentado | `organisms/responsive-sheet.mdx` |
-| table | Documentado | `organisms/table.mdx` |
-| tabs | Documentado | `organisms/tabs.mdx` |
+### Demais seções
 
-### Templates
-
-| Template | Status | MDX Pulso DS |
-|---------|--------|-------------|
-| Dashboard | Documentado | `templates/dashboard.mdx` |
-| Crisis Detail | Documentado | `templates/crisis-detail.mdx` |
-| Settings | Documentado | `templates/settings.mdx` |
-
-### Patterns
-
-| Pattern | Status | MDX Pulso DS |
-|---------|--------|-------------|
-| Crisis Status | Documentado | `patterns/crisis-status.mdx` |
-| Risk Levels | Documentado | `patterns/risk-levels.mdx` |
+| Seção | Páginas |
+|-------|---------|
+| Accessibility | contrast, focus-keyboard, screen-readers, reduced-motion, risk-redundancy |
+| Data Visualization | primitives, axes, data-color, realtime, recipes, score-ring, sentiment-bar |
+| Voice | vocabulary, microcopy, ai-voice, localization |
+| Governance | token-architecture, rfc-process, states-matrix, figma-parity, adoption-metrics |
+| Conceitual | conceito, princípios, padrões, ai-rules |
+| Brand | toolkit |
 
 ---
 
-## Convencoes do Time
+## Convenções do Time
 
 ### Nomenclatura
 
@@ -185,7 +164,7 @@ O Nextra roda em `http://localhost:3002`.
 - **Utils**: camelCase (`formatDelta`, `cn`)
 - **Tipos**: Prefixo `T` ou sufixo `Props`/`State` (`TCrisis`, `ButtonProps`)
 
-### Commits - Conventional Commits
+### Commits — Conventional Commits
 
 ```
 <type>(<scope>): <description>
@@ -200,53 +179,56 @@ O Nextra roda em `http://localhost:3002`.
 
 ### Pull Requests
 
-- Titulo: `feat(design-system): add breadcrumb documentation`
-- Incluir: screenshots, checklist, referencia a issue
+- Título: `docs(design-system): add breadcrumb documentation`
+- Incluir: screenshots, checklist, referência a issue
 
 ---
 
-## Integracao com Crisis Monitor
+## Integração com Crisis Monitor
 
-O Pulso DS e o **espelho de documentacao** do design system real que vive em `orchids-crisis-manager`.
+O Pulso DS é o **espelho de documentação** do design system real que vive em `orchids-crisis-manager`.
 
-### Fluxo de sincronizacao
+### Fluxo de sincronização
 
 ```
-Crisis Monitor (local)          Pulso DS (GitHub)
-[Componentes ui/]        --->   [content/components/]
-[src/app/design-sys/]    --->   [*.mdx]
-[src/app/globals.css]    --->   [DESIGN.md]
+Crisis Monitor (local)               Pulso DS (GitHub)
+[src/components/ui/]          --->   [content/components/<nível>/]
+[src/app/globals.css]         --->   [DESIGN.md + src/app/globals.css]
+[Claude Design / Open Design] --->   [public/visual/pulso-ds/ + content/]
 ```
 
 ### Regras
 
 1. Componentes novos primeiro no Crisis Monitor (`src/components/ui/`)
-2. Depois adicionar pagina no design system (`src/app/design-system/<tipo>/<nome>/page.tsx`)
-3. Por fim, espelhar o MDX no Pulso DS (`content/components/<tipo>/<nome>.mdx`)
+2. Depois espelhar o MDX no Pulso DS (`content/components/<nível>/<nome>.mdx`) com blueprints React + HTML
+3. Tokens novos entram primeiro no `globals.css` do produto e são formalizados no `DESIGN.md`
 
 ---
 
-## Decisoes de Design
+## Decisões de Design
 
-| Decisao | Justificativa |
+| Decisão | Justificativa |
 |---------|--------------|
 | OKLCH para cores | Perceptualmente uniforme, melhor para acessibilidade |
-| color-mix() | Manipulacao de cor no browser, sem build step |
-| 5 niveis de risco | Granularidade suficiente sem complexidade |
-| Manrope como fonte principal | Alta legibilidade em numeros e UI text |
-| IBM Plex Mono | Monospace para dados tecnicos e codigo |
-| Nextra para docs | MDX nativo, integracao com Next.js |
+| color-mix() | Manipulação de cor no browser, sem build step |
+| 5 níveis de risco | Granularidade suficiente sem complexidade |
+| Manrope como fonte principal | Alta legibilidade em números e UI text |
+| IBM Plex Mono | Monospace para dados técnicos e código |
+| Nextra para docs | MDX nativo, integração com Next.js |
+| Blueprints, não pacote npm | Contratos copiáveis; produto não depende de lib publicada |
+| Identidade por estrutura (v3) | Pulso sem o roxo ainda é Pulso — shapes, ritmo e tipografia carregam a marca |
 
 ---
 
 ## Troubleshooting
 
-| Problema | Solucao |
+| Problema | Solução |
 |----------|---------|
-| `bun dev` nao abre na porta 3002 | Verificar se outra instancia esta rodando (`lsof -i :3002`) |
-| Cores nao batem com o produto | Confirmar que esta lendo o `globals.css` do Crisis Monitor |
-| Componente nao existe no Pulso | Verificar tabela de status - pode estar Pendente |
-| Font nao carrega | Verificar `next.config.ts` e `next/font/google` imports |
+| Cores não batem com o produto | Confirmar que está lendo o `globals.css` do Crisis Monitor |
+| Componente não existe no Pulso | Verificar catálogo — apenas `pagination` está pendente |
+| Font não carrega | Verificar `next.config.ts` e imports de fonte |
+| Busca não funciona em dev | Rodar `bun run dev:search` para gerar o índice Pagefind local |
+| Build do Pages divergente do local | Usar `bun run build:pages` (seta `GITHUB_PAGES=true`) |
 
 ---
 
@@ -254,21 +236,24 @@ Crisis Monitor (local)          Pulso DS (GitHub)
 
 1. Criar branch: `codex/nome-da-feature` ou `claude/nome-da-feature`
 2. Implementar componente no Crisis Monitor
-3. Adicionar pagina no design system local
-4. Criar/atualizar MDX no Pulso DS
-5. Testar visualmente e em mobile
-6. Abrir Pull Request
+3. Criar/atualizar MDX no Pulso DS com blueprint React + HTML
+4. Testar visualmente e em mobile
+5. Abrir Pull Request — merge em `main` publica automaticamente
 
 ---
 
-## Historico de Versoes
+## Histórico de Versões
 
-| Data | Versao | Mudanca |
+| Data | Versão | Mudança |
 |------|--------|---------|
-| 2026-04-27 | 1.0.0 | Catalogo completo + DESIGN.md + convencoes |
+| 2026-05-25 | 3.0.0 | Identidade por estrutura (α), padrões de IA auditável (β), paridade mobile (γ) — 14 iniciativas. Breaking moderado: `--text-display-lg` 28→34px, numerais tabulares default |
+| 2026-05-18 | 2.x | Fase α sincronizada com Claude Design; infra do sistema operacional (v2) consolidada |
+| 2026-04-27 | 1.0.0 | Catálogo completo + DESIGN.md + convenções |
+
+Detalhes em [Release v3.0](https://crisis-monitor.github.io/Pulso-Design-System/release/v3) e no `DESIGN.md`.
 
 ---
 
-## Licenca
+## Licença
 
-Privado - uso interno.
+Privado — uso interno.
