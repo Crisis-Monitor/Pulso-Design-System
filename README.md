@@ -115,13 +115,13 @@ O deploy é automático: push em `main` dispara `.github/workflows/pages.yml`, q
 
 ## Catálogo de Conteúdo
 
-### Componentes — 65 documentados
+### Componentes — 66 documentados
 
-Todos os componentes de `src/components/ui/` do Crisis Monitor possuem MDX, exceto `pagination` (pendente).
+Todos os componentes de `src/components/ui/` do Crisis Monitor possuem MDX.
 
 | Nível | Pasta | Componentes |
 |-------|-------|-------------|
-| **Atoms** (47) | `content/components/atoms/` | alert, alert-dialog, aspect-ratio, avatar, badge, breadcrumb, button, calendar, carousel, chart, checkbox, chip, collapsible, context-menu, controls, drawer, empty, field, hover-card, input, input-otp, item, kbd, kicker, label, live-indicator, menubar, navigation-menu, popover, progress, radio-group, resizable, scroll-area, section-rail, select, separator, sheet, sidebar, skeleton, slider, sonner, spinner, switch, textarea, toggle, toggle-group, tooltip |
+| **Atoms** (48) | `content/components/atoms/` | alert, alert-dialog, aspect-ratio, avatar, badge, breadcrumb, button, calendar, carousel, chart, checkbox, chip, collapsible, context-menu, controls, drawer, empty, field, hover-card, input, input-otp, item, kbd, kicker, label, live-indicator, menubar, navigation-menu, pagination, popover, progress, radio-group, resizable, scroll-area, section-rail, select, separator, sheet, sidebar, skeleton, slider, sonner, spinner, switch, textarea, toggle, toggle-group, tooltip |
 | **Molecules** (9) | `content/components/molecules/` | accordion, avatar-group, button-group, delta-chip, empty-state, form-field, input-group, metric-card, page-header |
 | **Organisms** (9) | `content/components/organisms/` | card, collapsible-card, command, dialog, dropdown-menu, form, responsive-sheet, table, tabs |
 
@@ -225,7 +225,7 @@ Crisis Monitor (local)               Pulso DS (GitHub)
 | Problema | Solução |
 |----------|---------|
 | Cores não batem com o produto | Confirmar que está lendo o `globals.css` do Crisis Monitor |
-| Componente não existe no Pulso | Verificar catálogo — apenas `pagination` está pendente |
+| Componente não existe no Pulso | Verificar catálogo — todos os componentes do produto têm MDX |
 | Font não carrega | Verificar `next.config.ts` e imports de fonte |
 | Busca não funciona em dev | Rodar `bun run dev:search` para gerar o índice Pagefind local |
 | Build do Pages divergente do local | Usar `bun run build:pages` (seta `GITHUB_PAGES=true`) |
