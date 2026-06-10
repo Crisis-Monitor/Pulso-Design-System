@@ -58,6 +58,7 @@
     { name: 'Alert',          href: pg('alert.html') },
     { name: 'Tooltip',        href: pg('tooltip.html') },
     { name: 'Progress',       href: pg('progress.html') },
+    { name: 'Pagination',     href: pg('pagination.html') },
     { name: 'Controls',       href: pg('controls.html') },
     { section: 'Form Atoms' },
     { name: 'Checkbox',       href: pg('checkbox.html') },
