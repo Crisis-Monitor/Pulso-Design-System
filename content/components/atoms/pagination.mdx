@@ -1,0 +1,198 @@
+---
+title: Pagination
+description: Navegação entre páginas de uma lista longa, com página atual explícita e alvos de toque adequados.
+---
+
+# Pagination
+
+> **Atom**
+>
+> Pagination divide listas longas em páginas navegáveis. Ele dá controle e contexto de posição; não substitui busca nem filtro.
+
+Use Pagination quando a pessoa precisa percorrer um conjunto grande e estável de itens — resultados de busca, audit log, histórico de menções. A página atual deve ser inequívoca (`aria-current="page"`) e os controles de anterior/próximo sempre visíveis.
+
+## Exemplos copiáveis
+
+<BlueprintNote />
+
+<Tabs items={["React", "HTML puro"]}>
+  <Tabs.Tab>
+
+### React
+
+```tsx
+import * as React from "react"
+
+type PulsoPaginationProps = {
+  page: number
+  totalPages: number
+  onPageChange: (page: number) => void
+  label?: string
+}
+
+function pageRange(page: number, totalPages: number): (number | "ellipsis")[] {
+  if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1)
+
+  const middle = [page - 1, page, page + 1].filter((p) => p > 1 && p < totalPages)
+  const range: (number | "ellipsis")[] = [1]
+
+  if (middle[0] > 2) range.push("ellipsis")
+  range.push(...middle)
+  if (middle[middle.length - 1] < totalPages - 1) range.push("ellipsis")
+  range.push(totalPages)
+
+  return range
+}
+
+export function PulsoPagination({ page, totalPages, onPageChange, label = "Paginação" }: PulsoPaginationProps) {
+  const base =
+    "inline-flex h-9 min-w-9 items-center justify-center rounded-[var(--radius-md)] px-2 text-sm transition-colors hover:bg-[var(--muted)] focus-visible:outline focus-visible:outline-[var(--ring-width)] focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)] disabled:pointer-events-none disabled:opacity-50"
+
+  return (
+    <nav role="navigation" aria-label={label} className="mx-auto flex w-full justify-center">
+      <ul className="flex flex-row items-center gap-1">
+        <li>
+          <button type="button" className={base} disabled={page <= 1} onClick={() => onPageChange(page - 1)}>
+            ‹ <span className="hidden sm:inline">Anterior</span>
+          </button>
+        </li>
+        {pageRange(page, totalPages).map((item, index) =>
+          item === "ellipsis" ? (
+            <li key={`ellipsis-${index}`} aria-hidden="true" className="flex size-9 items-center justify-center text-[var(--fg-muted)]">
+              …
+            </li>
+          ) : (
+            <li key={item}>
+              <button
+                type="button"
+                aria-current={item === page ? "page" : undefined}
+                className={`${base} ${item === page ? "border border-[var(--border-strong)] bg-[var(--card)] font-medium text-[var(--fg)]" : "text-[var(--fg-muted)]"}`}
+                onClick={() => onPageChange(item)}
+              >
+                {item}
+              </button>
+            </li>
+          )
+        )}
+        <li>
+          <button type="button" className={base} disabled={page >= totalPages} onClick={() => onPageChange(page + 1)}>
+            <span className="hidden sm:inline">Próxima</span> ›
+          </button>
+        </li>
+      </ul>
+    </nav>
+  )
+}
+```
+
+```tsx
+<PulsoPagination page={4} totalPages={12} onPageChange={setPage} />
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### HTML puro
+
+```html
+<nav class="pagination" role="navigation" aria-label="Paginação">
+  <ul class="pagination__list">
+    <li><a class="pagination__link pagination__link--nav" href="?page=3">‹ Anterior</a></li>
+    <li><a class="pagination__link" href="?page=1">1</a></li>
+    <li class="pagination__ellipsis" aria-hidden="true">…</li>
+    <li><a class="pagination__link" href="?page=3">3</a></li>
+    <li><a class="pagination__link" aria-current="page" href="?page=4">4</a></li>
+    <li><a class="pagination__link" href="?page=5">5</a></li>
+    <li class="pagination__ellipsis" aria-hidden="true">…</li>
+    <li><a class="pagination__link" href="?page=12">12</a></li>
+    <li><a class="pagination__link pagination__link--nav" href="?page=5">Próxima ›</a></li>
+  </ul>
+</nav>
+```
+
+```css
+.pagination {
+  display: flex;
+  justify-content: center;
+}
+
+.pagination__list {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pagination__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 8px;
+  border-radius: var(--radius-md);
+  color: var(--fg-muted);
+  font-size: 14px;
+  text-decoration: none;
+  transition: background-color var(--motion-duration-fast) var(--motion-easing);
+}
+
+.pagination__link:hover {
+  background: var(--muted);
+  color: var(--fg);
+}
+
+.pagination__link:focus-visible {
+  outline: var(--ring-width) solid var(--ring);
+  outline-offset: 2px;
+}
+
+.pagination__link[aria-current="page"] {
+  border: 1px solid var(--border-strong);
+  background: var(--card);
+  color: var(--fg);
+  font-weight: 500;
+}
+
+.pagination__ellipsis {
+  display: flex;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg-muted);
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Quando usar
+
+- Listas longas e estáveis onde posição importa: audit log, histórico, resultados de busca.
+- Tabelas operacionais com ordenação onde a pessoa volta a páginas específicas.
+- Conjuntos cuja contagem total é conhecida e útil de comunicar.
+
+## Quando não usar
+
+- Feeds em tempo real; use scroll contínuo com indicador de freshness.
+- Listas curtas (uma página) — não renderize paginação com página única.
+- Como substituto de filtro ou busca quando o conjunto é grande demais para percorrer.
+
+## Acessibilidade
+
+- Use `nav` com `role="navigation"` e `aria-label`.
+- Marque a página atual com `aria-current="page"`.
+- Ellipsis é decorativa: `aria-hidden="true"` com alternativa para leitores de tela se necessário.
+- Anterior/Próxima precisam de rótulo textual (visível ou `aria-label`), nunca só o glifo.
+- Hit target mínimo de 44×44px em contexto mobile (`--touch-target`).
+
+## Regras
+
+1. Página atual sempre visível e inequívoca — nunca dependa só de cor.
+2. Anterior/Próxima sempre presentes; desabilitados nos extremos, nunca ocultos.
+3. Mostre primeira e última página; comprima o meio com ellipsis a partir de 8 páginas.
+4. Não use cor de risco em paginação.
+5. Preserve a página na URL (`?page=`) para deep-link e voltar do navegador.

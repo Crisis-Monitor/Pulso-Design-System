@@ -19,6 +19,7 @@ export default {
   kbd: { title: "Keyboard Shortcut" },
   label: { title: "Label" },
   "live-indicator": { title: "Live Indicator" },
+  pagination: { title: "Pagination" },
   progress: { title: "Progress" },
   "radio-group": { title: "Radio Group" },
   select: { title: "Select" },
