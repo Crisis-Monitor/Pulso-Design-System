@@ -1,6 +1,6 @@
 ---
 name: Pulso Design System
-version: "1.0.0"
+version: "3.0.0"
 description: Sistema de design para interfaces de gerenciamento de crises com monitoramento em tempo real
 
 # Changelog

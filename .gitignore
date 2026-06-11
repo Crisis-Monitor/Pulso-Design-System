@@ -5,3 +5,4 @@ dist
 public/_pagefind
 .env
 .DS_Store
+tsconfig.tsbuildinfo
