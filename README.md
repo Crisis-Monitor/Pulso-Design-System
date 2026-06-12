@@ -33,15 +33,14 @@ content/                     # Fonte da documentação (MDX + _meta.ts por seç�
 ├── governance/              # Token architecture, RFC, states matrix, adoção
 ├── brand/                   # Toolkit de marca
 └── components/
-    ├── atoms/               # 47 componentes base
+    ├── atoms/               # 48 componentes base
     ├── molecules/           # 9 composições
     └── organisms/           # 9 seções complexas
 
 src/
 ├── app/
 │   ├── globals.css          # Design tokens reais (cores, tipografia, motion)
-│   ├── [[...mdxPath]]/      # Catch-all que renderiza o content/ via Nextra
-│   └── docs/                # Rotas auxiliares de docs
+│   └── [[...mdxPath]]/      # Catch-all que renderiza o content/ via Nextra
 ├── components/              # Componentes do site de documentação
 └── lib/utils.ts             # cn() — tailwind-merge + clsx
 

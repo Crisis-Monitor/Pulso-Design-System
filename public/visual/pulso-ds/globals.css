@@ -96,6 +96,7 @@
 
   /* ── Type scale ────────────────────────────────────────────── */
   --text-display-lg:   2.125rem;  /* 34px — hero page titles */
+  --text-display-lg-v2: 1.75rem;  /* 28px — temporary migration alias */
   --text-display:      1.5rem;    /* 24px — page title */
   --text-h1:           1.125rem;  /* 18px — section header */
   --text-h2:           0.9375rem; /* 15px — card title */
@@ -110,7 +111,7 @@
 
   --tracking-tight:   -0.02em;
   --tracking-normal:  -0.005em;
-  --tracking-kicker:   0.08em;
+  --tracking-kicker:   0.12em;  /* v3 α.2 — formalizado, was 0.08em */
 
   /* ── Radius scale — sharper, more confident ─────────────── */
   --radius-xs: 0.25rem;   /* 4px  — chips, small toggles */
@@ -138,6 +139,9 @@
   --rhythm-tight:     1.5rem;   /* 24px — dense dashboards */
   --rhythm-comfort:   2.5rem;   /* 40px — standard surfaces */
   --rhythm-editorial: 4.5rem;   /* 72px — marketing */
+  --rhythm-cadence-tight:  0.75rem; /* 12px — compact intra-block spacing */
+  --rhythm-cadence-beat:   1.25rem; /* 20px — related block spacing */
+  --rhythm-cadence-breath: 2.5rem;  /* 40px — section spacing */
 
   /* ── Density tokens (overridable per surface) ────────────── */
   /* Default = comfortable */
@@ -158,8 +162,14 @@
   --motion-duration-fast:    120ms;
   --motion-duration-default: 200ms;
   --motion-duration-slow:    320ms;
+  --motion-haptic-light:     8ms;
   --motion-easing:           cubic-bezier(0.2, 0.9, 0.3, 1);
   --motion-easing-emphasized: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ── AI + mobile foundations (v3 additive) ─────────────── */
+  --ai-marker-border: 2px solid var(--primary);
+  --ai-marker-bg-mix: 4%;
+  --touch-target-critical: 48px;
 
   /* ── Z-index scale ───────────────────────────────────────── */
   --z-base:    0;

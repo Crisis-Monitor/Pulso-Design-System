@@ -1,6 +1,6 @@
 ---
 name: Pulso Design System
-version: "1.0.0"
+version: "3.0.0"
 description: Sistema de design para interfaces de gerenciamento de crises com monitoramento em tempo real
 
 # Changelog
@@ -156,17 +156,17 @@ colors:
       dark: "#F6F3FF"
   semantic:
     info:
-      light: "#4F7DF5"
-      dark: "#78A0FF"
+      light: "#3B4D9F"
+      dark: "#7A8CF0"
     info-bg:
-      light: "#EEF3FF"
-      dark: "#18253D"
+      light: "#EDEFF9"
+      dark: "rgba(122, 140, 240, 0.10)"
     success:
-      light: "#2FA36B"
-      dark: "#44B97B"
+      light: "#14753A"
+      dark: "#4ECB7C"
     success-bg:
-      light: "#E8F7EF"
-      dark: "#13281D"
+      light: "#E8F4ED"
+      dark: "rgba(78, 203, 124, 0.10)"
     attention:
       light: "#D18B2F"
       dark: "#E0A144"
@@ -180,14 +180,14 @@ colors:
       light: "#FCE8EE"
       dark: "#351522"
     destructive:
-      light: "oklch(0.577 0.245 27.325)"
-      dark: "oklch(0.704 0.191 22.216)"
+      light: "#C53341"
+      dark: "#F47080"
     evidence:
-      light: "#1A756D"
-      dark: "#49C0B8"
+      light: "#0F766E"
+      dark: "#5DCAB8"
     evidence-bg:
-      light: "#E8F8F7"
-      dark: "#142B2A"
+      light: "#E6F4F2"
+      dark: "rgba(93, 202, 184, 0.10)"
     ring:
       light: "color-mix(in oklab, #6C46F5 32%, transparent)"
       dark: "color-mix(in oklab, #8A63FF 40%, transparent)"
@@ -373,11 +373,11 @@ colors:
       - light: "#74E0D8"
         dark: "#49C0B8"
     positive:
-      light: "#2FA36B"
-      dark: "#44B97B"
+      light: "#15803D"
+      dark: "#4ECB7C"
     negative:
-      light: "#C4516C"
-      dark: "#DA6A88"
+      light: "#D63D4E"
+      dark: "#F47080"
     neutral:
       light: "#73718A"
       dark: "#9891B8"
@@ -399,9 +399,9 @@ colors:
   sidebar:
     background: "#0F0C1A"
     foreground: "#F6F3FF"
-    accent: "color-mix(in oklab, var(--primary) 72%, #0F0C1A 28%)"
-    accent-foreground: "#ffffff"
-    border: "color-mix(in oklab, #0F0C1A 78%, #ffffff 22%)"
+    accent: "#2A1F55"
+    accent-foreground: "#FFFFFF"
+    border: "#2A2540"
     primary:
       light: "#6C46F5"
       dark: "#8A63FF"
@@ -439,8 +439,8 @@ colors:
       light: "#73718A"
       dark: "#9891B8"
     fg-subtle:
-      light: "#A09CB4"
-      dark: "#6E678E"
+      light: "#706C88"
+      dark: "#9189B5"
     fg-disabled:
       light: "#d5cec5"
       dark: "#3D3660"
@@ -521,11 +521,11 @@ shapes:
 
 motion:
   duration:
-    fast: "100ms"
-    default: "150ms"
-    slow: "300ms"
+    fast: "120ms"
+    default: "200ms"
+    slow: "320ms"
   easing:
-    default: "cubic-bezier(0.4, 0, 0.2, 1)"
+    default: "cubic-bezier(0.2, 0.9, 0.3, 1)"
     emphasized: "cubic-bezier(0.22, 1, 0.36, 1)"
 
 components:
@@ -602,7 +602,7 @@ A cor primária é o motor de interação e identidade visual do sistema.
 | `--primary-hover` | `#5C39DA` | `#9B7BFF` | Hover state |
 | `--primary-soft` | `#EEE8FF` | `#2A1F55` | Backgrounds suaves de marca |
 | `--primary-strong` | `#4D2FD0` | `#6C46F5` | Estados enfáticos |
-| `--brand-muted` | `10% primary` | `14% primary` | Bordas, backgrounds decorativos |
+| `--brand-muted` | `color-mix(in oklab, var(--primary) 10%, transparent)` | `color-mix(in oklab, var(--primary) 14%, transparent)` | Bordas, backgrounds decorativos |
 
 **Gradiente de marca:**
 - Light: `linear-gradient(135deg, #32256D 0%, #6C46F5 50%, #6FD6CF 100%)`
@@ -614,12 +614,11 @@ Cores de ação e feedback. Cada cor tem seu par `*-bg` para backgrounds.
 
 | Token | Light | Dark | Uso |
 |-------|-------|------|-----|
-| `--info` | `#4F7DF5` | `#78A0FF` | Informações, links, tooltips |
-| `--success` | `#2FA36B` | `#44B97B` | Confirmações, status OK |
-| `--attention` | `#D18B2F` | `#E0A144` | Atenção, warnings moderados |
-| `--critical` | `#C4516C` | `#DA6A88` | Erros críticos, alertas graves |
-| `--destructive` | `oklch(0.577 0.245 27.325)` | `oklch(0.704 0.191 22.216)` | Ações destrutivas (delete, remove) |
-| `--evidence` | `#1A756D` | `#49C0B8` | Evidências, dados verificados |
+| `--info` | `#3B4D9F` | `#7A8CF0` | Informações, links, tooltips |
+| `--success` | `#14753A` | `#4ECB7C` | Confirmações, status OK |
+| `--warning` | `#9F4A07` | `#F5A23B` | Atenção, warnings moderados |
+| `--destructive` | `#C53341` | `#F47080` | Ações destrutivas (delete, remove) |
+| `--evidence` | `#0F766E` | `#5DCAB8` | Evidências, dados verificados |
 
 ### Níveis de Risco
 
@@ -674,11 +673,11 @@ Indicadores de variação métrica (mudança em relação a baseline).
 | 8 | `#74E0D8` | `#49C0B8` |
 
 **Chart semânticos:**
-- `--chart-positive`: `#2FA36B` / `#44B97B`
-- `--chart-negative`: `#C4516C` / `#DA6A88`
-- `--chart-neutral`: `#73718A` / `#9891B8`
-- `--chart-attention`: `#D18B2F` / `#E0A144`
-- `--chart-critical`: `#8F3349` / `#F2AEC0`
+- `--chart-positive`: `#15803D` / `#4ECB7C`
+- `--chart-negative`: `#D63D4E` / `#F47080`
+- `--chart-neutral`: `#5E5D68` / `#A1A0AD`
+- `--chart-attention`: `#D97706` / `#F5A23B`
+- `--chart-critical`: `#B91C1C` / `#F47080`
 - `--chart-grid`: `color-mix(in oklab, var(--border) 84%, #d8d2c8 16%)` (light) / `72% border + 28% #94a3b8` (dark)
 - `--chart-fill-soft`: `color-mix(in oklab, var(--chart-1) 18%, white)` (light) / `24% + black` (dark)
 - `--chart-fill-strong`: `color-mix(in oklab, var(--chart-1) 65%, white)` (light) / `70% + black` (dark)
@@ -692,7 +691,7 @@ Indicadores de variação métrica (mudança em relação a baseline).
 | `--fg` | `#171629` | `#F6F3FF` | Texto principal |
 | `--fg-secondary` | `#4A4961` | `#C9C3E6` | Texto secundário |
 | `--fg-muted` | `#73718A` | `#9891B8` | Descrições, labels |
-| `--fg-subtle` | `#A09CB4` | `#6E678E` | Placeholders, metadados |
+| `--fg-subtle` | `#706C88` | `#9189B5` | Placeholders, metadados |
 | `--fg-disabled` | `#d5cec5` | `#3D3660` | Estados desabilitados |
 
 ### Cores Auxiliares
@@ -712,9 +711,9 @@ Indicadores de variação métrica (mudança em relação a baseline).
 |-------|-------|-----|
 | `--sidebar` | `#0F0C1A` | Fundo da sidebar (sempre dark) |
 | `--sidebar-foreground` | `#F6F3FF` | Texto da sidebar |
-| `--sidebar-accent` | `color-mix(primary 72%, #0F0C1A 28%)` | Item ativo |
+| `--sidebar-accent` | `#2A1F55` | Item ativo |
 | `--sidebar-primary` | `#6C46F5` / `#8A63FF` | Item primário |
-| `--sidebar-ring` | `color-mix(#8A63FF 45%, transparent)` | Focus ring |
+| `--sidebar-ring` | `color-mix(in oklab, #8A63FF 45%, transparent)` | Focus ring |
 
 ## Typography
 
@@ -807,15 +806,15 @@ Todos os elementos interativos devem ter `focus-visible:outline-none focus-visib
 
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--motion-duration-fast` | `100ms` | Hover states, micro-interações |
-| `--motion-duration-default` | `150ms` | Transições de componente |
-| `--motion-duration-slow` | `300ms` | Transições de layout, page transitions |
+| `--motion-duration-fast` | `120ms` | Hover states, micro-interações |
+| `--motion-duration-default` | `200ms` | Transições de componente |
+| `--motion-duration-slow` | `320ms` | Transições de layout, page transitions |
 
 ### Easing
 
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--motion-easing` | `cubic-bezier(0.4, 0, 0.2, 1)` | Transições padrão (Material) |
+| `--motion-easing` | `cubic-bezier(0.2, 0.9, 0.3, 1)` | Transições padrão (assinatura Pulso) |
 | `--motion-easing-emphasized` | `cubic-bezier(0.22, 1, 0.36, 1)` | Animações enfáticas, entrances |
 
 ### Animações Globais

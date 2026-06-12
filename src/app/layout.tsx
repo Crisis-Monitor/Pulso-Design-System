@@ -9,7 +9,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: { template: '%s – Pulso DS', default: 'Pulso Design System' },
-  description: 'Design tokens, components and patterns for crisis management interfaces',
+  description: 'Design tokens, componentes e padrões para interfaces de gestão de crises',
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
@@ -24,13 +24,13 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           navbar={
             <Navbar
               logo={<b>Pulso DS</b>}
-              projectLink="https://github.com/nevton/pulso-design-system"
+              projectLink="https://github.com/Crisis-Monitor/Pulso-Design-System"
             />
           }
           footer={<Footer>Pulso Design System</Footer>}
           pageMap={pageMap}
-          docsRepositoryBase="https://github.com/nevton/pulso-design-system/tree/main"
-          editLink="Edit this page on GitHub"
+          docsRepositoryBase="https://github.com/Crisis-Monitor/Pulso-Design-System/tree/main"
+          editLink="Editar esta página no GitHub"
         >
           {children}
         </Layout>
