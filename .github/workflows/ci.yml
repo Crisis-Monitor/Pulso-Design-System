@@ -26,6 +26,9 @@ jobs:
       - name: Token consistency
         run: bun scripts/check-tokens.mjs --strict
 
+      - name: Token artifact up to date
+        run: bun scripts/build-tokens.mjs --check
+
       - name: Build static site
         run: bun run build
 

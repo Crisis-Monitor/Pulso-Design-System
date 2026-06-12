@@ -96,6 +96,29 @@ bun run dev:search    # dev com índice de busca local
 
 O deploy é automático: push em `main` dispara `.github/workflows/pages.yml`, que builda com Bun, gera o índice Pagefind e publica o diretório `out/` no GitHub Pages.
 
+### Tokens (artefato consumível)
+
+Os tokens publicados em [`tokens/`](tokens/) são **gerados** a partir da fonte canônica `src/app/globals.css` — não edite à mão:
+
+```bash
+bun run build:tokens   # regenera tokens/pulso-tokens.css e tokens/pulso-tokens.tailwind.css
+bun run check:tokens   # consistência das 3 fontes + artefato em dia (roda na CI)
+```
+
+| Arquivo | Para quem |
+|---------|-----------|
+| `tokens/pulso-tokens.css` | Qualquer app — CSS puro com `:root`, `.dark` e `[data-density]` |
+| `tokens/pulso-tokens.tailwind.css` | Apps com Tailwind 4 — inclui o anterior + bridge `@theme inline` |
+
+Consumo num app Tailwind 4 (ex.: Crisis Monitor), no CSS de entrada:
+
+```css
+@import "tailwindcss";
+@import "<caminho>/pulso-tokens.tailwind.css";
+```
+
+As versões seguem as tags do repositório (`v3.0.0` = Pulso DS v3).
+
 ---
 
 ## Stack Técnica
