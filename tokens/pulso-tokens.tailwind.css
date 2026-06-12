@@ -1,0 +1,79 @@
+/**
+ * Pulso Design System — Tokens · bridge Tailwind 4 · v3.0.0
+ *
+ * GERADO a partir de src/app/globals.css — não edite à mão.
+ * Regenerar: bun scripts/build-tokens.mjs
+ *
+ * Para apps com Tailwind 4: importa os tokens e expõe as utilities via
+ * @theme inline (bg-background, text-foreground, border-border etc.).
+ *
+ * Uso no CSS de entrada do app:
+ *   @import "tailwindcss";
+ *   @import "<caminho>/pulso-tokens.tailwind.css";
+ */
+
+@import "./pulso-tokens.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* Type */
+  --font-sans: var(--font-pulso-sans);
+  --font-mono: var(--font-pulso-mono);
+
+  /* Surfaces */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  /* Brand */
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  /* Semantic */
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+
+  /* Borders + ring */
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Charts */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+  --color-chart-7: var(--chart-7);
+  --color-chart-8: var(--chart-8);
+
+  /* Sidebar */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Radii */
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+}

@@ -1,9 +1,11 @@
 {
   "name": "@pulso/design-system",
-  "version": "0.1.0",
+  "version": "3.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "build:tokens": "bun scripts/build-tokens.mjs",
+    "check:tokens": "bun scripts/check-tokens.mjs --strict && bun scripts/build-tokens.mjs --check",
     "build": "next build && pagefind --site out --output-subdir _pagefind",
     "build:pages": "GITHUB_PAGES=true next build && pagefind --site out --output-subdir _pagefind && touch out/.nojekyll",
     "search:index": "pagefind --site out --output-subdir _pagefind",
