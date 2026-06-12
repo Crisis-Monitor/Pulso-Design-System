@@ -61,8 +61,32 @@ ganha um banner.
 
 Recomendação: padronizar o DESIGN.md para sempre citar o valor CSS literal.
 
-## Próximo passo
+## Resolução — 2026-06-12
 
-1. Dono do DS decide os canônicos dos grupos 2 e 3 (grupo 1 e 4 são mecânicos).
-2. Corrigir as fontes; rodar `bun scripts/check-tokens.mjs` até zerar.
-3. Promover o passo do CI para `--strict` (hoje roda em modo warn).
+Decisões do dono do DS (Neviton): `src/app/globals.css` é canônico; contraste de
+acessibilidade prevalece quando necessário; a camada visual evolui junto (não é snapshot).
+
+Aplicado:
+
+1. **Refator a11y v2 portado para o canônico** — descobriu-se que a camada visual havia
+   passado por um refator deliberado de contraste (documentado em
+   `public/visual/pulso-ds/pages/accessibility-contrast.html`, "cinco tokens realinhados
+   para AA") que nunca chegou ao `src/app/globals.css`. Portados:
+   `--fg-subtle` light `#A09CB4→#706C88` (2.43:1→4.58:1) e dark `#6E678E→#9189B5`
+   (3.67:1→5.93:1); `--warning` `#D97706→#9F4A07` (2.91:1→5.56:1, falhava AA);
+   `--destructive` `#D63D4E→#C53341` (4.14:1→4.89:1); `--success` `#15803D→#14753A`;
+   bordas rgba correspondentes.
+2. **Camada visual alinhada ao v3**: `--tracking-kicker 0.08em→0.12em`.
+3. **DESIGN.md atualizado integralmente** (YAML + tabelas + bullets de chart): resíduos
+   oklch do shadcn removidos, `--info/--success/--evidence/--fg-subtle/--destructive`,
+   motion (120/200/320ms, easing assinatura Pulso), `--sidebar-accent/-ring/-border`,
+   `--brand-muted` em CSS literal, chart semânticos.
+4. **`content/foundations/colors.mdx`** atualizado (`--fg-subtle`).
+5. `scripts/check-tokens.mjs --strict` zerado; passo do CI promovido a bloqueante.
+
+Pendências conhecidas (fora deste ciclo):
+- DESIGN.md documenta `--attention`/`--critical` (+ pares `-bg`) que **não existem** no
+  globals.css — decidir: criar os tokens ou remover da doc (mapeiam à risk palette).
+- O YAML do DESIGN.md duplica as tabelas e não é coberto pelo check (que lê só tabelas);
+  candidato a geração automática a partir do globals.css no futuro.
+- Frontmatter do DESIGN.md não fecha com `---`.

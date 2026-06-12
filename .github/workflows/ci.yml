@@ -23,8 +23,8 @@ jobs:
       - name: Typecheck
         run: bunx tsc --noEmit
 
-      - name: Token consistency (warn mode)
-        run: bun scripts/check-tokens.mjs
+      - name: Token consistency
+        run: bun scripts/check-tokens.mjs --strict
 
       - name: Build static site
         run: bun run build

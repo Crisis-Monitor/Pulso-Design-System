@@ -249,7 +249,7 @@
   --fg-strong:   #0A0A14;
   --fg-secondary:#4A4961;
   --fg-muted:    #73718A;
-  --fg-subtle:   #A09CB4;
+  --fg-subtle:   #706C88;  /* was #A09CB4 — darkened for AA on body text */
   --fg-ghost:    #C5C2D2;
   --fg-disabled: #D5CEC5;
 
@@ -276,20 +276,20 @@
   --ring: color-mix(in oklab, #6C46F5 32%, transparent);
 
   /* Semantic — calibrated, matte (not neon) */
-  --destructive:        #D63D4E;
+  --destructive:        #C53341;  /* was #D63D4E — darkened for AA body text */
   --destructive-foreground: #FFFFFF;
   --destructive-bg:     #FBEEF0;
-  --destructive-border: rgba(214, 61, 78, 0.22);
+  --destructive-border: rgba(197, 51, 65, 0.22);
 
-  --success:        #15803D;
+  --success:        #14753A;  /* was #15803D — darkened for AA body text */
   --success-foreground: #FFFFFF;
   --success-bg:     #E8F4ED;
-  --success-border: rgba(21, 128, 61, 0.22);
+  --success-border: rgba(20, 117, 58, 0.22);
 
-  --warning:        #D97706;
+  --warning:        #9F4A07;  /* was #D97706 — 2.91:1 failed AA, now 5.56:1 */
   --warning-foreground: #FFFFFF;
   --warning-bg:     #FCF3E8;
-  --warning-border: rgba(217, 119, 6, 0.22);
+  --warning-border: rgba(159, 74, 7, 0.22);
 
   --info:        #3B4D9F;
   --info-foreground: #FFFFFF;
@@ -446,7 +446,7 @@
   --fg-strong:   #FFFFFF;
   --fg-secondary:#C9C3E6;
   --fg-muted:    #9891B8;
-  --fg-subtle:   #6E678E;
+  --fg-subtle:   #9189B5;  /* was #6E678E — lightened for AA on body text */
   --fg-ghost:    #4E4775;
   --fg-disabled: #3D3660;
 

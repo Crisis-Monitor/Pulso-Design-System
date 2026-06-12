@@ -110,7 +110,7 @@
 
   --tracking-tight:   -0.02em;
   --tracking-normal:  -0.005em;
-  --tracking-kicker:   0.08em;
+  --tracking-kicker:   0.12em;  /* v3 α.2 — formalizado, was 0.08em */
 
   /* ── Radius scale — sharper, more confident ─────────────── */
   --radius-xs: 0.25rem;   /* 4px  — chips, small toggles */
