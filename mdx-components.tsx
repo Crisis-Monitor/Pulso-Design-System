@@ -1,4 +1,4 @@
-import { Tabs } from "nextra/components";
+import { Anchor, Tabs } from "nextra/components";
 import { useMDXComponents as getDocsMDXComponents } from "nextra-theme-docs";
 
 const docsComponents = getDocsMDXComponents();
@@ -15,6 +15,9 @@ function BlueprintNote() {
 export function useMDXComponents(components: Record<string, React.ComponentType<any>>) {
   return {
     ...docsComponents,
+    // Âncora interna com basePath aplicado (GitHub Pages). Use <A href="/..."> em vez
+    // de <a> cru para links internos estilizados — <a> literal não recebe basePath.
+    A: Anchor,
     BlueprintNote,
     Tabs,
     ...components,

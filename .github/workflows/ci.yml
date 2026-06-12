@@ -32,5 +32,6 @@ jobs:
       - name: Check internal links
         uses: lycheeverse/lychee-action@v2
         with:
-          args: --offline --root-dir ${{ github.workspace }}/out --fallback-extensions html --include-fragments out
+          # 404.html excluída: o tema gera o link skip-nav sem o target na página de erro
+          args: --offline --root-dir ${{ github.workspace }}/out --fallback-extensions html --include-fragments --exclude-path out/404.html out
           fail: true
