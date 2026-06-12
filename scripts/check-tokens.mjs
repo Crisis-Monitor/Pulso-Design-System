@@ -115,19 +115,43 @@ for (const mode of ["light", "dark"]) {
   }
 }
 
-const blocking = divergences.filter((d) => !(d.token in ALLOWLIST));
+// Inverso: a camada visual evolui junto com o canônico, então todo token canônico
+// precisa existir nela. (DESIGN.md é isento: as tabelas são curadas, não exaustivas.)
+const VISUAL = "public/visual/pulso-ds/globals.css";
+const missing = [];
+for (const mode of ["light", "dark"]) {
+  for (const token of sources[CANONICAL][mode].keys()) {
+    if (!sources[VISUAL][mode].has(token)) missing.push({ mode, token });
+  }
+}
 
-if (divergences.length === 0) {
+const blocking = [
+  ...divergences.filter((d) => !(d.token in ALLOWLIST)),
+  ...missing.filter((m) => !(m.token in ALLOWLIST)),
+];
+
+if (divergences.length === 0 && missing.length === 0) {
   console.log("✓ Tokens consistentes entre as três fontes.");
 } else {
-  console.log(`Divergências de token vs ${CANONICAL}:\n`);
-  for (const d of divergences) {
-    const allowed = d.token in ALLOWLIST ? "  [allowlist]" : "";
-    console.log(`  [${d.mode}] ${d.token}${allowed}`);
-    console.log(`      canônico: ${d.canonValue}`);
-    console.log(`      ${d.source}: ${d.value}`);
+  if (divergences.length > 0) {
+    console.log(`Divergências de token vs ${CANONICAL}:\n`);
+    for (const d of divergences) {
+      const allowed = d.token in ALLOWLIST ? "  [allowlist]" : "";
+      console.log(`  [${d.mode}] ${d.token}${allowed}`);
+      console.log(`      canônico: ${d.canonValue}`);
+      console.log(`      ${d.source}: ${d.value}`);
+    }
   }
-  console.log(`\n${divergences.length} divergência(s), ${blocking.length} fora do allowlist.`);
+  if (missing.length > 0) {
+    console.log(`\nTokens canônicos ausentes em ${VISUAL}:\n`);
+    for (const m of missing) {
+      const allowed = m.token in ALLOWLIST ? "  [allowlist]" : "";
+      console.log(`  [${m.mode}] ${m.token}${allowed}`);
+    }
+  }
+  console.log(
+    `\n${divergences.length} divergência(s), ${missing.length} ausência(s), ${blocking.length} fora do allowlist.`
+  );
 }
 
 if (STRICT && blocking.length > 0) process.exit(1);

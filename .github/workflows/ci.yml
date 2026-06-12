@@ -32,5 +32,5 @@ jobs:
       - name: Check internal links
         uses: lycheeverse/lychee-action@v2
         with:
-          args: --offline --root-dir ${{ github.workspace }}/out --include-fragments out
+          args: --offline --root-dir ${{ github.workspace }}/out --fallback-extensions html --include-fragments out
           fail: true
