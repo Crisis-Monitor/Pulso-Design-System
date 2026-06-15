@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "kicker",
+  "registryDependencies": [
+    "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+  ],
+  "files": [
+    {
+      "path": "registry/pulso/ui/kicker.tsx",
+      "content": "import { cn } from \"@/lib/utils\"\n\ntype KickerProps = {\n  children: React.ReactNode\n  className?: string\n  /** Elemento HTML renderizado — padrão \"p\" */\n  as?: \"p\" | \"div\" | \"span\"\n}\n\n/**\n * Rótulo de seção: 11px, uppercase, tracking wide.\n * Padrão visual mais recorrente do Design System (100+ ocorrências).\n *\n * Use acima de valores métricos, grupos de conteúdo ou títulos de seção.\n * Não use para títulos de página — use <h1> ou <PageHeader>.\n */\nexport function Kicker({ children, className, as: Tag = \"p\" }: KickerProps) {\n  return (\n    <Tag\n      className={cn(\n        \"text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground\",\n        className\n      )}\n    >\n      {children}\n    </Tag>\n  )\n}\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

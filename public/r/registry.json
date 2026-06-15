@@ -1,0 +1,265 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "pulso",
+  "homepage": "https://crisis-monitor.github.io/Pulso-Design-System/",
+  "items": [
+    {
+      "name": "utils",
+      "type": "registry:lib",
+      "dependencies": [
+        "clsx",
+        "tailwind-merge"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/lib/utils.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "alert-dialog",
+      "type": "registry:ui",
+      "dependencies": [
+        "@radix-ui/react-alert-dialog"
+      ],
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/button.json",
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/alert-dialog.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "alert",
+      "type": "registry:ui",
+      "dependencies": [
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/alert.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "badge",
+      "type": "registry:ui",
+      "dependencies": [
+        "@radix-ui/react-slot",
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/badge.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "breadcrumb",
+      "type": "registry:ui",
+      "dependencies": [
+        "@radix-ui/react-slot",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/breadcrumb.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "button",
+      "type": "registry:ui",
+      "dependencies": [
+        "@radix-ui/react-slot",
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/button.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "card",
+      "type": "registry:ui",
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/card.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "checkbox",
+      "type": "registry:ui",
+      "dependencies": [
+        "@radix-ui/react-checkbox",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/checkbox.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "input",
+      "type": "registry:ui",
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/input.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "kicker",
+      "type": "registry:ui",
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/kicker.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "label",
+      "type": "registry:ui",
+      "dependencies": [
+        "@radix-ui/react-label"
+      ],
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/label.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "metric-card",
+      "type": "registry:ui",
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/card.json",
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/metric-card.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "page-header",
+      "type": "registry:ui",
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/breadcrumb.json",
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/page-header.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "select",
+      "type": "registry:ui",
+      "dependencies": [
+        "@radix-ui/react-select",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/select.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "sheet",
+      "type": "registry:ui",
+      "dependencies": [
+        "@radix-ui/react-dialog",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/sheet.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "skeleton",
+      "type": "registry:ui",
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/skeleton.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "textarea",
+      "type": "registry:ui",
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/textarea.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "page-header",
+  "registryDependencies": [
+    "https://crisis-monitor.github.io/Pulso-Design-System/r/breadcrumb.json",
+    "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+  ],
+  "files": [
+    {
+      "path": "registry/pulso/ui/page-header.tsx",
+      "content": "import type { ReactNode } from \"react\";\nimport { Fragment } from \"react\";\nimport Link from \"next/link\";\n\nimport { cn } from \"@/lib/utils\";\nimport {\n  Breadcrumb,\n  BreadcrumbItem,\n  BreadcrumbLink,\n  BreadcrumbList,\n  BreadcrumbPage,\n  BreadcrumbSeparator,\n} from \"@/components/ui/breadcrumb\";\n\nexport type BreadcrumbEntry = { label: string; href?: string };\n\ntype PageHeaderProps = {\n  title: ReactNode;\n  description?: ReactNode;\n  eyebrow?: ReactNode;\n  actions?: ReactNode;\n  /** Breadcrumbs de navegação acima do título */\n  breadcrumbs?: BreadcrumbEntry[];\n  className?: string;\n  dividerClassName?: string;\n};\n\nexport function PageHeader({\n  title,\n  description,\n  eyebrow,\n  actions,\n  breadcrumbs,\n  className,\n  dividerClassName,\n}: PageHeaderProps) {\n  return (\n    <header className={cn(\"space-y-3 pb-2\", dividerClassName, className)}>\n      {breadcrumbs && breadcrumbs.length > 0 ? (\n        <Breadcrumb>\n          <BreadcrumbList>\n            {breadcrumbs.map((item, idx) => (\n              <Fragment key={item.label}>\n                {idx > 0 ? <BreadcrumbSeparator /> : null}\n                <BreadcrumbItem>\n                  {idx < breadcrumbs.length - 1 && item.href ? (\n                    <BreadcrumbLink asChild>\n                      <Link href={item.href}>{item.label}</Link>\n                    </BreadcrumbLink>\n                  ) : (\n                    <BreadcrumbPage>{item.label}</BreadcrumbPage>\n                  )}\n                </BreadcrumbItem>\n              </Fragment>\n            ))}\n          </BreadcrumbList>\n        </Breadcrumb>\n      ) : null}\n\n      <div className=\"flex flex-col gap-4 md:flex-row md:items-start md:justify-between\">\n        <div className=\"min-w-0 space-y-1.5\">\n          {eyebrow ? (\n            <div className=\"text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground\">\n              {eyebrow}\n            </div>\n          ) : null}\n          <h1 className=\"text-2xl font-semibold tracking-tight text-foreground md:text-[2rem]\">{title}</h1>\n          {description ? (\n            <p className=\"max-w-2xl text-sm leading-relaxed text-muted-foreground\">{description}</p>\n          ) : null}\n        </div>\n        {actions ? <div className=\"flex shrink-0 flex-wrap items-center gap-2\">{actions}</div> : null}\n      </div>\n    </header>\n  );\n}\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

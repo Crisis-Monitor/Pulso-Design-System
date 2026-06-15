@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "skeleton",
+  "registryDependencies": [
+    "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+  ],
+  "files": [
+    {
+      "path": "registry/pulso/ui/skeleton.tsx",
+      "content": "import { cn } from \"@/lib/utils\"\n\nfunction Skeleton({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"skeleton\"\n      className={cn(\n        \"animate-pulse rounded-[calc(var(--radius-lg)-2px)] border border-white/35 bg-[linear-gradient(90deg,color-mix(in_oklab,var(--muted)_78%,white)_0%,color-mix(in_oklab,var(--muted)_92%,white)_50%,color-mix(in_oklab,var(--muted)_78%,white)_100%)] dark:border-white/8 dark:bg-[linear-gradient(90deg,color-mix(in_oklab,var(--muted)_82%,black)_0%,color-mix(in_oklab,var(--muted)_94%,black)_50%,color-mix(in_oklab,var(--muted)_82%,black)_100%)]\",\n        className\n      )}\n      {...props}\n    />\n  )\n}\n\nexport { Skeleton }\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}
