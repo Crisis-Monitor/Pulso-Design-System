@@ -5,14 +5,20 @@ Componentes instaláveis via `shadcn`, **gerados a partir do runtime do produto*
 `content/components/` é a referência de design; o código aqui é a versão
 completa e testada em produção (CVA, `asChild`, variantes reais).
 
-## Conjunto core (16)
+## Conjunto (30 componentes + `utils` + hook)
 
-`button` · `page-header` · `kicker` · `badge` · `input` · `textarea` ·
-`select` · `label` · `card` · `alert` · `skeleton` · `alert-dialog` ·
-`sheet` · `metric-card` · `checkbox` · `breadcrumb` (+ `utils`)
+Selecionado pelo uso real no produto (button 89×, page-header 55×, kicker 49×…),
+fechado sob dependências internas (componentes, hooks e `utils`).
 
-Seleção pelo uso real no produto (button 89×, page-header 55×, kicker 49×…),
-fechada sob dependências internas.
+**Core (16):** `button` · `page-header` · `kicker` · `badge` · `input` ·
+`textarea` · `select` · `label` · `card` · `alert` · `skeleton` ·
+`alert-dialog` · `sheet` · `metric-card` · `checkbox` · `breadcrumb`
+
+**Extensão (14):** `dialog` · `empty` · `switch` · `delta-chip` · `avatar` ·
+`avatar-group` · `table` · `responsive-sheet` · `tooltip` · `tabs` ·
+`section-rail` · `pagination` · `drawer` · `scroll-area`
+
+**Suporte:** `utils` (cn) · `use-media-query` (hook, dep do `responsive-sheet`)
 
 ## Pré-requisito: tokens
 

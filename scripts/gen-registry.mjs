@@ -3,9 +3,11 @@
  * Deps (npm + internas via URL) são derivadas dos imports. Rode via:
  *   bun run build:registry   (gen + shadcn build → public/r/*.json)
  */
-import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { readFileSync, readdirSync, writeFileSync, existsSync } from "node:fs";
 const DIR = "registry/pulso/ui";
+const HOOKS_DIR = "registry/pulso/hooks";
 const core = new Set(readdirSync(DIR).map(f => f.replace(/\.tsx$/, "")));
+const hooks = new Set(existsSync(HOOKS_DIR) ? readdirSync(HOOKS_DIR).map(f => f.replace(/\.tsx?$/, "")) : []);
 const BASE = "https://crisis-monitor.github.io/Pulso-Design-System/r";
 const items = [];
 const externalDeps = new Set();
@@ -19,6 +21,10 @@ for (const file of readdirSync(DIR).sort()) {
       const dep = p.replace("@/components/ui/", "");
       reg.add(dep);
       if (!core.has(dep)) externalDeps.add(`${name} → ${dep}`);
+    } else if (p.startsWith("@/hooks/")) {
+      const dep = p.replace("@/hooks/", "");
+      reg.add(dep);
+      if (!hooks.has(dep)) externalDeps.add(`${name} → hook ${dep}`);
     } else if (p === "@/lib/utils") {
       reg.add("utils");
     } else if (!p.startsWith("@/") && p !== "react" && !p.startsWith("react/") && p !== "react-dom" && p !== "next" && !p.startsWith("next/")) {
@@ -31,6 +37,11 @@ for (const file of readdirSync(DIR).sort()) {
     ...(reg.size ? { registryDependencies: [...reg].sort().map(d => `${BASE}/${d}.json`) } : {}),
     files: [{ path: `registry/pulso/ui/${file}`, type: "registry:ui" }],
   });
+}
+// hooks items
+for (const hook of [...hooks].sort()) {
+  const file = readdirSync(HOOKS_DIR).find(f => f.replace(/\.tsx?$/, "") === hook);
+  items.push({ name: hook, type: "registry:hook", files: [{ path: `${HOOKS_DIR}/${file}`, type: "registry:hook" }] });
 }
 // utils item
 items.unshift({ name: "utils", type: "registry:lib", dependencies: ["clsx", "tailwind-merge"], files: [{ path: "registry/pulso/lib/utils.ts", type: "registry:lib" }] });

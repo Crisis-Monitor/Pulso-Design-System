@@ -1,0 +1,12 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "use-media-query",
+  "files": [
+    {
+      "path": "registry/pulso/hooks/use-media-query.ts",
+      "content": "\"use client\"\n\nimport { useEffect, useState } from \"react\"\n\n/**\n * Hook que escuta uma media query CSS e retorna true/false.\n * Usado para decidir layout responsivo no client (ex: Drawer vs Sheet).\n */\nexport function useMediaQuery(query: string): boolean {\n  const [matches, setMatches] = useState(false)\n\n  useEffect(() => {\n    const mql = window.matchMedia(query)\n    setMatches(mql.matches)\n\n    const handler = (e: MediaQueryListEvent) => setMatches(e.matches)\n    mql.addEventListener(\"change\", handler)\n    return () => mql.removeEventListener(\"change\", handler)\n  }, [query])\n\n  return matches\n}\n\n/** Atalho: retorna true quando a viewport é >= 768px (md do Tailwind) */\nexport function useIsDesktop(): boolean {\n  return useMediaQuery(\"(min-width: 768px)\")\n}\n",
+      "type": "registry:hook"
+    }
+  ],
+  "type": "registry:hook"
+}

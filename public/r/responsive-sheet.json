@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "responsive-sheet",
+  "registryDependencies": [
+    "https://crisis-monitor.github.io/Pulso-Design-System/r/drawer.json",
+    "https://crisis-monitor.github.io/Pulso-Design-System/r/scroll-area.json",
+    "https://crisis-monitor.github.io/Pulso-Design-System/r/sheet.json",
+    "https://crisis-monitor.github.io/Pulso-Design-System/r/use-media-query.json"
+  ],
+  "files": [
+    {
+      "path": "registry/pulso/ui/responsive-sheet.tsx",
+      "content": "\"use client\"\n\nimport type { ReactNode } from \"react\"\nimport { useIsDesktop } from \"@/hooks/use-media-query\"\nimport {\n  Sheet,\n  SheetContent,\n} from \"@/components/ui/sheet\"\nimport {\n  Drawer,\n  DrawerContent,\n  DrawerDescription,\n  DrawerTitle,\n} from \"@/components/ui/drawer\"\nimport { ScrollArea } from \"@/components/ui/scroll-area\"\n\ntype Size = \"default\" | \"regular\" | \"wide\"\n\ntype ResponsiveSheetProps = {\n  open: boolean\n  onOpenChange: (open: boolean) => void\n  /** Tamanho do Sheet no desktop (ignorado no mobile) */\n  size?: Size\n  /** Label de acessibilidade para o Drawer (sr-only) */\n  accessibilityLabel?: string\n  children: ReactNode\n}\n\n/**\n * Padrão responsivo: Sheet lateral no desktop, Drawer (bottom sheet) no mobile.\n *\n * No desktop: painel lateral que desliza da direita (Sheet).\n * No mobile: bottom sheet que sobe de baixo com drag-to-dismiss (Drawer/vaul).\n *\n * O conteúdo filho (children) é renderizado igual nos dois modos.\n * SheetHeader/SheetTitle/SheetDescription funcionam em ambos os contextos\n * porque são apenas divs estilizados (não dependem de provider específico).\n */\nexport function ResponsiveSheet({\n  open,\n  onOpenChange,\n  size = \"wide\",\n  accessibilityLabel = \"Painel de conteúdo\",\n  children,\n}: ResponsiveSheetProps) {\n  const isDesktop = useIsDesktop()\n\n  if (isDesktop) {\n    return (\n      <Sheet open={open} onOpenChange={onOpenChange}>\n        <SheetContent\n          side=\"right\"\n          size={size === \"default\" ? \"sm\" : size}\n          className=\"flex h-full w-full flex-col overflow-hidden\"\n        >\n          {children}\n        </SheetContent>\n      </Sheet>\n    )\n  }\n\n  // Mobile — Drawer (bottom sheet com vaul)\n  return (\n    <Drawer open={open} onOpenChange={onOpenChange}>\n      <DrawerContent className=\"max-h-[85vh]\">\n        {/* Acessibilidade: vaul exige Title/Description no DOM */}\n        <DrawerTitle className=\"sr-only\">{accessibilityLabel}</DrawerTitle>\n        <DrawerDescription className=\"sr-only\">{accessibilityLabel}</DrawerDescription>\n        <ScrollArea className=\"flex-1\">\n          <div className=\"px-2 pb-4\">{children}</div>\n        </ScrollArea>\n      </DrawerContent>\n    </Drawer>\n  )\n}\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

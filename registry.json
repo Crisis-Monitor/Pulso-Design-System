@@ -51,6 +51,36 @@
       ]
     },
     {
+      "name": "avatar-group",
+      "type": "registry:ui",
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/avatar.json",
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/tooltip.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/avatar-group.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "avatar",
+      "type": "registry:ui",
+      "dependencies": [
+        "@radix-ui/react-avatar"
+      ],
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/avatar.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "badge",
       "type": "registry:ui",
       "dependencies": [
@@ -132,6 +162,69 @@
       ]
     },
     {
+      "name": "delta-chip",
+      "type": "registry:ui",
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/badge.json",
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/delta-chip.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "dialog",
+      "type": "registry:ui",
+      "dependencies": [
+        "@radix-ui/react-dialog",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/dialog.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "drawer",
+      "type": "registry:ui",
+      "dependencies": [
+        "vaul"
+      ],
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/drawer.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "empty",
+      "type": "registry:ui",
+      "dependencies": [
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/empty.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "input",
       "type": "registry:ui",
       "registryDependencies": [
@@ -202,6 +295,68 @@
       ]
     },
     {
+      "name": "pagination",
+      "type": "registry:ui",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/button.json",
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/pagination.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "responsive-sheet",
+      "type": "registry:ui",
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/drawer.json",
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/scroll-area.json",
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/sheet.json",
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/use-media-query.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/responsive-sheet.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "scroll-area",
+      "type": "registry:ui",
+      "dependencies": [
+        "@radix-ui/react-scroll-area"
+      ],
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/scroll-area.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "section-rail",
+      "type": "registry:ui",
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/section-rail.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "select",
       "type": "registry:ui",
       "dependencies": [
@@ -249,6 +404,51 @@
       ]
     },
     {
+      "name": "switch",
+      "type": "registry:ui",
+      "dependencies": [
+        "@radix-ui/react-switch"
+      ],
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/switch.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "table",
+      "type": "registry:ui",
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/table.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "tabs",
+      "type": "registry:ui",
+      "dependencies": [
+        "@radix-ui/react-tabs"
+      ],
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/tabs.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "textarea",
       "type": "registry:ui",
       "registryDependencies": [
@@ -258,6 +458,32 @@
         {
           "path": "registry/pulso/ui/textarea.tsx",
           "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "tooltip",
+      "type": "registry:ui",
+      "dependencies": [
+        "@radix-ui/react-tooltip"
+      ],
+      "registryDependencies": [
+        "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+      ],
+      "files": [
+        {
+          "path": "registry/pulso/ui/tooltip.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "use-media-query",
+      "type": "registry:hook",
+      "files": [
+        {
+          "path": "registry/pulso/hooks/use-media-query.ts",
+          "type": "registry:hook"
         }
       ]
     }
