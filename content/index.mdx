@@ -1,74 +1,102 @@
 ---
 title: Pulso Design System
-description: Design system para operações de crise, IA auditável e decisão humana.
+description: Biblioteca instalável de tokens e 63 componentes para operações de crise, IA auditável e decisão humana.
+theme:
+  layout: full
+  toc: false
+  breadcrumb: false
 ---
 
-# Pulso Design System
+<div className="not-prose mx-auto w-full max-w-6xl px-4">
 
-Design system para **operações de crise, IA auditável e decisão humana**.
-
-Pulso é a linguagem visual do Orchids Crisis Manager: estrutura, tokens,
-componentes e padrões para transformar sinais de reputação em leitura operacional
-clara, rastreável e acionável.
-
-<div className="not-prose my-8 rounded-2xl border border-primary/40 bg-card p-8">
-  <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">open design visual layer</p>
-  <h2 className="mt-3 text-3xl font-bold tracking-tight">Explore o Pulso DS pela experiência visual completa</h2>
-  <p className="mt-4 max-w-3xl text-muted-foreground">A versão HTML criada no Open Design é a melhor forma de navegar visualmente por densidade, componentes, padrões, templates e comportamento. A documentação MDX continua como contrato canônico.</p>
-  <div className="mt-6 flex flex-wrap gap-3">
-    <A className="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground no-underline" href="/visual/pulso-ds/index.html">Explorar versão visual →</A>
-    <A className="rounded-md border bg-background px-4 py-2 font-medium no-underline" href="/showcase/html">Entender as camadas</A>
-    <A className="rounded-md border bg-background px-4 py-2 font-medium no-underline" href="/getting-started/installation">Ler documentação técnica</A>
+{/* ─── Hero ─────────────────────────────────────────────────────── */}
+<section className="relative overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--card)] px-6 py-16 sm:px-12 sm:py-20">
+  <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[var(--primary)] opacity-[0.06] blur-3xl" />
+  <div className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-[var(--primary)]">Pulso Design System · v3</div>
+  <h1 className="mt-5 max-w-3xl text-4xl font-extrabold leading-[1.1] tracking-tight text-[var(--fg-strong)] sm:text-6xl">A linguagem visual do Crisis Manager, agora <span className="text-[var(--primary)]">instalável</span>.</h1>
+  <div className="mt-6 max-w-2xl text-lg leading-relaxed text-[var(--fg-muted)]"><span>Tokens versionados e <strong className="text-[var(--fg)]">63 componentes</strong> prontos para <code className="mx-1 rounded bg-[var(--muted)] px-1.5 py-0.5 text-[0.85em]">shadcn add</code>. Clareza operacional, IA auditável e paridade mobile — como contrato, não como sugestão.</span></div>
+  <div className="mt-9 flex flex-wrap gap-3">
+    <A className="rounded-md bg-[var(--primary)] px-5 py-2.5 font-semibold text-[var(--primary-foreground)] no-underline shadow-[var(--shadow-md)] transition hover:opacity-95" href="/getting-started/installation">Começar →</A>
+    <A className="rounded-md border border-[var(--border)] bg-[var(--background)] px-5 py-2.5 font-semibold no-underline transition hover:border-[var(--primary)]" href="/components/atoms/button">Ver componentes</A>
+    <A className="rounded-md border border-[var(--border)] bg-[var(--background)] px-5 py-2.5 font-semibold no-underline transition hover:border-[var(--primary)]" href="/visual/pulso-ds/index.html">Experiência visual</A>
   </div>
-</div>
+</section>
 
-<div className="mt-8 grid gap-4 md:grid-cols-3">
-  <A className="rounded-xl border bg-card p-6 no-underline transition hover:border-primary" href="/visual/pulso-ds/pages/density.html">
-    <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">Visual</p>
-    <h2 className="mt-3 text-2xl font-bold">Densidade e componentes</h2>
-    <p className="mt-3 text-sm text-muted-foreground">Abra a experiência HTML original para navegar como no Open Design.</p>
+{/* ─── Stats ────────────────────────────────────────────────────── */}
+<section className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+  {[
+    ["63", "componentes instaláveis"],
+    ["260+", "design tokens"],
+    ["2", "temas — claro e escuro"],
+    ["3", "densidades de layout"],
+  ].map(([n, label]) => (
+    <div key={label} className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
+      <div className="font-mono text-3xl font-bold tabular-nums text-[var(--fg-strong)]">{n}</div>
+      <div className="mt-1 text-sm text-[var(--fg-muted)]">{label}</div>
+    </div>
+  ))}
+</section>
+
+{/* ─── Install ──────────────────────────────────────────────────── */}
+<section className="mt-12 grid gap-6 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+  <div>
+    <div className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-muted)]">Instalação</div>
+    <h2 className="mt-3 text-3xl font-bold tracking-tight text-[var(--fg-strong)]">Tokens primeiro, depois os componentes</h2>
+    <div className="mt-4 text-[var(--fg-muted)]"><span>Importe o artefato de tokens (<code className="rounded bg-[var(--muted)] px-1 text-[0.85em]">pulso-tokens.css</code>) no CSS de entrada do app e instale qualquer componente pelo registry. As dependências internas (outros componentes, hooks, <code className="rounded bg-[var(--muted)] px-1 text-[0.85em]">cn</code>) são resolvidas automaticamente.</span></div>
+    <div className="mt-5 flex flex-wrap gap-3 text-sm">
+      <A className="font-medium text-[var(--primary)] no-underline hover:underline" href="/getting-started/installation">Guia de instalação →</A>
+      <A className="font-medium text-[var(--primary)] no-underline hover:underline" href="/governance/token-architecture">Arquitetura de tokens →</A>
+    </div>
+  </div>
+
+```bash
+# 1. Tokens — no CSS de entrada (Tailwind 4)
+#    @import "tailwindcss";
+#    @import ".../tokens/pulso-tokens.tailwind.css";
+
+# 2. Componentes — via registry shadcn
+npx shadcn@latest add \
+  https://crisis-monitor.github.io/Pulso-Design-System/r/metric-card.json
+
+# resolve card + cn automaticamente, já com os tokens Pulso
+```
+</section>
+
+{/* ─── Garantias / value props ──────────────────────────────────── */}
+<section className="mt-12">
+  <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-muted)]">O que o Pulso garante</p>
+  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+    {[
+      ["Clareza operacional", "Estado, risco, prioridade e consequência aparecem antes de ornamento visual."],
+      ["IA auditável", "Conteúdo da Cris declara origem, confiança, fontes e trilha de decisão."],
+      ["Identidade sem depender de cor", "Tipografia, ritmo, assinatura numérica e formas carregam reconhecimento."],
+      ["Paridade mobile", "Gestos, offline, handover e alvos de toque críticos são parte do contrato."],
+    ].map(([title, body]) => (
+      <div key={title} className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 transition hover:border-[var(--primary)]">
+        <strong className="text-[var(--fg-strong)]">{title}</strong>
+        <p className="mt-2 text-sm text-[var(--fg-muted)]">{body}</p>
+      </div>
+    ))}
+  </div>
+</section>
+
+{/* ─── Caminhos ─────────────────────────────────────────────────── */}
+<section className="mt-12 mb-4 grid gap-4 md:grid-cols-3">
+  <A className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 no-underline transition hover:border-[var(--primary)]" href="/foundations/colors">
+    <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-muted)]">Foundations</p>
+    <h3 className="mt-3 text-xl font-bold text-[var(--fg-strong)]">Tokens e fundamentos</h3>
+    <p className="mt-2 text-sm text-[var(--fg-muted)]">Cor, tipo, ritmo, densidade e elevação — a base canônica.</p>
   </A>
-
-  <A className="rounded-xl border bg-card p-6 no-underline transition hover:border-primary" href="/release/v3">
-    <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">Release</p>
-    <h2 className="mt-3 text-2xl font-bold">Pulso v3.0</h2>
-    <p className="mt-3 text-sm text-muted-foreground">Identidade por estrutura, padrões de IA e paridade mobile.</p>
+  <A className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 no-underline transition hover:border-[var(--primary)]" href="/components/atoms/button">
+    <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-muted)]">Components</p>
+    <h3 className="mt-3 text-xl font-bold text-[var(--fg-strong)]">63 componentes</h3>
+    <p className="mt-2 text-sm text-[var(--fg-muted)]">Átomos, moléculas e organismos com blueprint e código instalável.</p>
   </A>
-
-  <A className="rounded-xl border bg-card p-6 no-underline transition hover:border-primary" href="/foundations/colors">
-    <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-muted-foreground">Contrato</p>
-    <h2 className="mt-3 text-2xl font-bold">Tokens e fundamentos</h2>
-    <p className="mt-3 text-sm text-muted-foreground"><code>globals.css</code>, DESIGN.md e páginas MDX seguem como fonte canônica.</p>
+  <A className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 no-underline transition hover:border-[var(--primary)]" href="/patterns/crisis-status">
+    <p className="font-mono text-xs uppercase tracking-[var(--tracking-kicker)] text-[var(--fg-muted)]">Patterns</p>
+    <h3 className="mt-3 text-xl font-bold text-[var(--fg-strong)]">Padrões de crise</h3>
+    <p className="mt-2 text-sm text-[var(--fg-muted)]">Composições para cenários reais de operação e decisão.</p>
   </A>
+</section>
+
 </div>
-
-## O que o Pulso garante
-
-<div className="grid gap-3 md:grid-cols-2">
-  <div className="rounded-lg border bg-card p-5">
-    <strong>Clareza operacional</strong>
-    <p className="mt-2 text-sm text-muted-foreground">Estado, risco, prioridade e consequência aparecem antes de ornamento visual.</p>
-  </div>
-  <div className="rounded-lg border bg-card p-5">
-    <strong>IA auditável</strong>
-    <p className="mt-2 text-sm text-muted-foreground">Conteúdo da Cris declara origem, confiança, fontes e trilha de decisão.</p>
-  </div>
-  <div className="rounded-lg border bg-card p-5">
-    <strong>Identidade sem depender de cor</strong>
-    <p className="mt-2 text-sm text-muted-foreground">Tipografia, ritmo, assinatura numérica e formas carregam reconhecimento.</p>
-  </div>
-  <div className="rounded-lg border bg-card p-5">
-    <strong>Paridade mobile</strong>
-    <p className="mt-2 text-sm text-muted-foreground">Gestos, offline, handover e alvos críticos são parte do contrato.</p>
-  </div>
-</div>
-
-## Caminhos principais
-
-- [Experiência visual HTML](/visual/pulso-ds/index.html) — camada Open Design completa.
-- [Showcase](/showcase) — ponte entre a camada visual e a documentação MDX.
-- [Foundations](/foundations/colors) — tokens, tipo, cor, ritmo e densidade.
-- [Components](/components/atoms/button) — componentes documentados.
-- [Patterns](/patterns/crisis-status) — composições para cenários reais.
-- [Accessibility](/accessibility/contrast) — contraste, foco, movimento e redundância.
-- [Governance](/governance/token-architecture) — arquitetura, RFC e adoção.
