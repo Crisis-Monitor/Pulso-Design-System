@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "live-indicator",
+  "dependencies": [
+    "lucide-react"
+  ],
+  "registryDependencies": [
+    "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+  ],
+  "files": [
+    {
+      "path": "registry/pulso/ui/live-indicator.tsx",
+      "content": "import * as React from \"react\"\nimport { RefreshCw } from \"lucide-react\"\nimport { cn } from \"@/lib/utils\"\n\n// LiveIndicator: sinaliza feed em tempo real\n// Uso: aba Cobertura, seções com atualização automática\nexport interface LiveIndicatorProps {\n  // Label exibido ao lado do dot (padrão: \"Ao vivo\")\n  label?: string\n  // Esconde o label, exibe só o dot\n  dotOnly?: boolean\n  // Callback para o botão de refresh manual\n  onRefresh?: () => void\n  // Está carregando (ex: durante o refresh)\n  refreshing?: boolean\n  // Desativa o indicador (dot cinza, sem pulse)\n  inactive?: boolean\n  className?: string\n}\n\nexport function LiveIndicator({\n  label = \"Ao vivo\",\n  dotOnly = false,\n  onRefresh,\n  refreshing = false,\n  inactive = false,\n  className,\n}: LiveIndicatorProps) {\n  return (\n    <span\n      className={cn(\"inline-flex items-center gap-1.5\", className)}\n      aria-label={inactive ? \"Inativo\" : label}\n    >\n      {/* Dot animado */}\n      <span className=\"relative flex size-2 shrink-0\">\n        {!inactive && (\n          <span className=\"absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-60\" />\n        )}\n        <span\n          className={cn(\n            \"relative inline-flex size-2 rounded-full\",\n            inactive ? \"bg-muted-foreground/40\" : \"bg-emerald-500\"\n          )}\n        />\n      </span>\n\n      {/* Label */}\n      {!dotOnly && (\n        <span className=\"text-[11px] font-medium text-muted-foreground\">\n          {inactive ? \"Pausado\" : label}\n        </span>\n      )}\n\n      {/* Botão refresh opcional */}\n      {onRefresh && !inactive && (\n        <button\n          type=\"button\"\n          onClick={onRefresh}\n          disabled={refreshing}\n          className={cn(\n            \"rounded p-0.5 text-muted-foreground/60 transition-colors\",\n            \"hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50\",\n            refreshing && \"animate-spin text-muted-foreground/40\"\n          )}\n          aria-label=\"Atualizar\"\n        >\n          <RefreshCw className=\"size-3\" />\n        </button>\n      )}\n    </span>\n  )\n}\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

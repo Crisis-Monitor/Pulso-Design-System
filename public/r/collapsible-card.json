@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "collapsible-card",
+  "dependencies": [
+    "lucide-react"
+  ],
+  "registryDependencies": [
+    "https://crisis-monitor.github.io/Pulso-Design-System/r/collapsible.json",
+    "https://crisis-monitor.github.io/Pulso-Design-System/r/utils.json"
+  ],
+  "files": [
+    {
+      "path": "registry/pulso/ui/collapsible-card.tsx",
+      "content": "\"use client\"\n\nimport type { ReactNode } from \"react\"\nimport { useState } from \"react\"\nimport { ChevronDown } from \"lucide-react\"\nimport { cn } from \"@/lib/utils\"\nimport {\n  Collapsible,\n  CollapsibleContent,\n  CollapsibleTrigger,\n} from \"@/components/ui/collapsible\"\n\ntype CollapsibleCardProps = {\n  /** ID do elemento (para âncoras e scroll-to) */\n  id?: string\n  /** Se começa aberto */\n  defaultOpen?: boolean\n  /** Conteúdo do header (kicker, título, badges) */\n  header: ReactNode\n  /** Conteúdo colapsável */\n  children: ReactNode\n  className?: string\n}\n\n/**\n * Card com header clicável que recolhe/expande o conteúdo.\n * Usa Radix Collapsible por baixo com animação de chevron.\n */\nexport function CollapsibleCard({\n  id,\n  defaultOpen = true,\n  header,\n  children,\n  className,\n}: CollapsibleCardProps) {\n  const [open, setOpen] = useState(defaultOpen)\n\n  return (\n    <Collapsible open={open} onOpenChange={setOpen}>\n      <div\n        id={id}\n        className={cn(\n          \"rounded-[calc(var(--radius-lg)+0.375rem)] border-none bg-card/96 shadow-none\",\n          className\n        )}\n      >\n        {/* Header clicável */}\n        <CollapsibleTrigger asChild>\n          <button\n            type=\"button\"\n            className=\"flex w-full items-start justify-between gap-3 px-6 pb-0 pt-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45 focus-visible:ring-offset-2 rounded-t-[calc(var(--radius-lg)+0.375rem)]\"\n          >\n            <div className=\"flex-1\">{header}</div>\n            <ChevronDown\n              className={cn(\n                \"mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200\",\n                open && \"rotate-180\"\n              )}\n            />\n          </button>\n        </CollapsibleTrigger>\n\n        {/* Separador sempre visível */}\n        <div className=\"mx-6 mt-3 border-t border-border/45\" />\n\n        {/* Conteúdo colapsável */}\n        <CollapsibleContent>\n          <div className=\"px-6 pb-6 pt-4\">{children}</div>\n        </CollapsibleContent>\n      </div>\n    </Collapsible>\n  )\n}\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

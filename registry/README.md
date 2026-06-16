@@ -5,20 +5,18 @@ Componentes instaláveis via `shadcn`, **gerados a partir do runtime do produto*
 `content/components/` é a referência de design; o código aqui é a versão
 completa e testada em produção (CVA, `asChild`, variantes reais).
 
-## Conjunto (30 componentes + `utils` + hook)
+## Catálogo completo — 63 componentes + 2 hooks + `utils` (66 itens)
 
-Selecionado pelo uso real no produto (button 89×, page-header 55×, kicker 49×…),
-fechado sob dependências internas (componentes, hooks e `utils`).
+Paridade total com o `src/components/ui/` do produto: **todos os 63 componentes**,
+cada um com blueprint MDX no Pulso (gate de paridade, 0 gaps). O manifesto e as
+dependências (npm + internas via URL) são derivados automaticamente dos imports —
+adicionar/atualizar um componente é copiar o `.tsx` e rodar `build:registry`.
 
-**Core (16):** `button` · `page-header` · `kicker` · `badge` · `input` ·
-`textarea` · `select` · `label` · `card` · `alert` · `skeleton` ·
-`alert-dialog` · `sheet` · `metric-card` · `checkbox` · `breadcrumb`
+**Suporte:** `utils` (cn) · hooks `use-media-query` (dep do `responsive-sheet`)
+e `use-mobile` (dep do `sidebar`).
 
-**Extensão (14):** `dialog` · `empty` · `switch` · `delta-chip` · `avatar` ·
-`avatar-group` · `table` · `responsive-sheet` · `tooltip` · `tabs` ·
-`section-rail` · `pagination` · `drawer` · `scroll-area`
-
-**Suporte:** `utils` (cn) · `use-media-query` (hook, dep do `responsive-sheet`)
+As composições resolvem a árvore inteira automaticamente, ex.:
+`sidebar` → button + input + separator + sheet + skeleton + tooltip + use-mobile + utils.
 
 ## Pré-requisito: tokens
 
