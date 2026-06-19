@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="pm" data-pm="light">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../tokens-premium.css">
+<style>
+body { background: var(--pm-bg); padding: 56px 48px; min-height: 100vh; }
+.max { max-width: 1180px; margin: 0 auto; }
+
+.kicker { font-family: var(--font-mono); font-size: var(--pm-text-micro); font-weight: 500; text-transform: uppercase; letter-spacing: var(--pm-tracking-kicker); color: var(--pm-fg-subtle); margin-bottom: 12px; }
+.kicker-dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--pm-accent); margin-right: 8px; vertical-align: middle; }
+
+h1.display { font-size: var(--pm-text-display-lg); font-weight: 700; letter-spacing: var(--pm-tracking-tight); line-height: var(--pm-leading-tight); color: var(--pm-fg-strong); margin-bottom: 16px; max-width: 680px; }
+p.lede { font-size: 16px; color: var(--pm-fg-muted); line-height: var(--pm-leading-relaxed); max-width: 640px; }
+
+/* ── Philosophy ── */
+.philosophy { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin: 72px 0; }
+.philos-card { padding: 28px 24px; border: 1px solid var(--pm-border); border-radius: var(--pm-radius-md); background: var(--pm-surface); }
+.philos-num { font-family: var(--font-mono); font-size: var(--pm-text-micro); font-weight: 600; color: var(--pm-accent); margin-bottom: 16px; letter-spacing: 0.1em; }
+.philos-title { font-size: var(--pm-text-h2); font-weight: 600; color: var(--pm-fg-strong); margin-bottom: 8px; letter-spacing: var(--pm-tracking-tight); }
+.philos-body { font-size: var(--pm-text-support); color: var(--pm-fg-muted); line-height: var(--pm-leading-relaxed); }
+
+/* ── Before/After ── */
+.section-label { font-family: var(--font-mono); font-size: var(--pm-text-micro); text-transform: uppercase; letter-spacing: var(--pm-tracking-kicker); color: var(--pm-fg-subtle); margin-bottom: 20px; font-weight: 500; }
+.section-title { font-size: var(--pm-text-display); font-weight: 700; letter-spacing: var(--pm-tracking-tight); color: var(--pm-fg-strong); margin-bottom: 8px; }
+.section-desc { font-size: var(--pm-text-body); color: var(--pm-fg-muted); line-height: var(--pm-leading-relaxed); max-width: 580px; margin-bottom: 40px; }
+
+.ba-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 72px; }
+.ba-cell { border: 1px solid var(--pm-border); border-radius: var(--pm-radius-md); overflow: hidden; background: var(--pm-surface); }
+.ba-header { padding: 12px 20px; border-bottom: 1px solid var(--pm-border-faint); display: flex; align-items: center; justify-content: space-between; }
+.ba-label { font-family: var(--font-mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+.ba-label.before { color: var(--pm-fg-subtle); }
+.ba-label.after { color: var(--pm-accent); }
+.ba-tag { font-size: 11px; color: var(--pm-fg-subtle); }
+.ba-body { padding: 32px 28px; min-height: 180px; display: flex; align-items: center; justify-content: center; background: var(--pm-bg-subtle); }
+
+/* Sample components — BEFORE (current, heavy) */
+.old-card { background: #fff; border-radius: 18px; padding: 20px 22px; box-shadow: 0 16px 36px -24px rgba(23,22,31,0.18); border: 1px solid rgba(0,0,0,0.05); width: 280px; }
+.old-badge { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:20px; background:linear-gradient(135deg,#6C46F5,#8A63FF); color:#fff; font-size:11px; font-weight:700; box-shadow: 0 0 14px rgba(108,70,245,0.4); }
+.old-score { font-size:36px; font-weight:800; background: linear-gradient(135deg,#c4b8ff,#7568f6); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; margin:10px 0 6px; letter-spacing:-0.02em; }
+.old-label { font-size:11px; color:rgba(23,22,41,0.5); text-transform:uppercase; letter-spacing:0.06em; }
+.old-btn { margin-top: 14px; background: linear-gradient(135deg,#6C46F5,#7568f6,#8A63FF); color:#fff; padding: 9px 18px; border-radius: 12px; font-weight: 700; font-size: 12px; border:none; box-shadow: 0 0 18px rgba(108,70,245,0.35); }
+
+/* AFTER (premium) */
+.new-card { background: var(--pm-surface); border: 1px solid var(--pm-border); border-radius: var(--pm-radius-md); padding: 20px 22px; width: 280px; box-shadow: var(--pm-shadow-sm); }
+.new-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.new-badge { font-family: var(--font-mono); font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: var(--pm-radius-xs); background: var(--pm-risk-critical-bg); color: var(--pm-risk-critical); border: 1px solid var(--pm-risk-critical-border); }
+.new-label { font-size: 12px; color: var(--pm-fg-muted); letter-spacing: 0.02em; }
+.new-score { font-family: var(--font-mono); font-size: 32px; font-weight: 600; color: var(--pm-fg-strong); letter-spacing: -0.02em; line-height: 1; margin-bottom: 4px; }
+.new-score .sub { font-size: 14px; color: var(--pm-fg-subtle); font-weight: 400; }
+.new-trend { font-size: 12px; color: var(--pm-risk-critical); display: flex; align-items: center; gap: 4px; margin-top: 6px; }
+.new-bar { height: 2px; background: var(--pm-border-faint); margin-top: 14px; border-radius: 1px; overflow: hidden; }
+.new-bar-fill { height: 100%; width: 74%; background: var(--pm-risk-critical); }
+.new-btn { margin-top: 14px; background: var(--pm-fg-strong); color: var(--pm-surface); padding: 8px 14px; border-radius: var(--pm-radius-sm); font-weight: 500; font-size: 13px; border: none; letter-spacing: -0.005em; display: inline-flex; align-items: center; gap: 6px; }
+
+/* ── Token tables ── */
+.tokens-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 72px; }
+.tokens-title { font-size: 15px; font-weight: 600; color: var(--pm-fg-strong); margin-bottom: 14px; letter-spacing: var(--pm-tracking-tight); }
+.tokens-row { display: grid; grid-template-columns: 80px 1fr 1fr; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--pm-border-faint); align-items: center; font-size: 13px; }
+.tokens-row:last-child { border-bottom: none; }
+.tk-name { font-family: var(--font-mono); font-size: 11px; color: var(--pm-fg-subtle); }
+.tk-before { color: var(--pm-fg-muted); text-decoration: line-through; text-decoration-color: rgba(214,61,78,0.4); }
+.tk-after { color: var(--pm-fg-strong); font-weight: 500; }
+.tk-swatch { display: inline-flex; align-items: center; gap: 8px; }
+.tk-dot { width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--pm-border); flex-shrink: 0; }
+
+/* ── Principles ── */
+.principles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; border: 1px solid var(--pm-border); border-radius: var(--pm-radius-md); overflow: hidden; background: var(--pm-surface); }
+.prin { padding: 24px 28px; border-right: 1px solid var(--pm-border-faint); border-bottom: 1px solid var(--pm-border-faint); }
+.prin:nth-child(2n) { border-right: none; }
+.prin:nth-last-child(-n+2) { border-bottom: none; }
+.prin-num { font-family: var(--font-mono); font-size: 10px; font-weight: 600; color: var(--pm-accent); letter-spacing: 0.1em; margin-bottom: 10px; }
+.prin-title { font-size: 14px; font-weight: 600; color: var(--pm-fg-strong); margin-bottom: 6px; letter-spacing: var(--pm-tracking-tight); }
+.prin-body { font-size: 12.5px; color: var(--pm-fg-muted); line-height: var(--pm-leading-relaxed); }
+</style>
+</head>
+<body>
+<div class="max">
+
+  <div class="kicker"><span class="kicker-dot"></span>Pulso · Direção Premium · Proposta</div>
+  <h1 class="display">Uma linguagem visual que passa<br>confiança por disciplina — não por decoração.</h1>
+  <p class="lede">Reduz ruído, respeita o olhar e deixa o conteúdo falar mais alto. Bordas afiadas, hierarquia firme, acento único com parcimônia. Menos gradiente, menos brilho, menos esforço decorativo. Mais ritmo, mais legibilidade, mais valor percebido.</p>
+
+  <!-- Philosophy -->
+  <div class="philosophy">
+    <div class="philos-card">
+      <div class="philos-num">01 — Rigor</div>
+      <div class="philos-title">Grid de 8pt, sem exceção.</div>
+      <div class="philos-body">Todo espaçamento é múltiplo de 4 ou 8. Todo raio vem de uma escala única. Nada de "parece bom aqui". Regras substituem improviso e o resultado é visualmente coeso em qualquer tela.</div>
+    </div>
+    <div class="philos-card">
+      <div class="philos-num">02 — Moderação</div>
+      <div class="philos-title">Acento é ferramenta, não cenário.</div>
+      <div class="philos-body">Roxo só aparece para ações primárias, foco, e destacar um KPI. O resto é neutro frio. Gradientes, glows e tints coloridos ficam para marketing — a UI operacional é matte.</div>
+    </div>
+    <div class="philos-card">
+      <div class="philos-num">03 — Densidade</div>
+      <div class="philos-title">Whitespace cria foco, não vazio.</div>
+      <div class="philos-body">Ritmo vertical consistente (24/40/72). Cards respiram com padding generoso. Tabelas ganham ar. Menos itens por tela, mas cada um legível à primeira leitura.</div>
+    </div>
+  </div>
+
+  <!-- Before / After -->
+  <div class="section-label">Mudança concreta</div>
+  <div class="section-title">Antes e depois</div>
+  <div class="section-desc">O mesmo card de KPI. A versão atual grita; a nova fala. Mesmo conteúdo, presença muito diferente.</div>
+
+  <div class="ba-grid">
+    <div class="ba-cell">
+      <div class="ba-header"><span class="ba-label before">Antes — atual</span><span class="ba-tag">gradiente · sombra · raio 18px</span></div>
+      <div class="ba-body" style="background:#F5F4FA">
+        <div class="old-card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start"><div class="old-label">Score de risco</div><span class="old-badge">● Alto</span></div>
+          <div class="old-score">74<span style="font-size:16px;opacity:0.5">/100</span></div>
+          <div style="font-size:11px;color:#ef4444">▲ +12 nas últimas 6h</div>
+          <button class="old-btn">Ver detalhes →</button>
+        </div>
+      </div>
+    </div>
+    <div class="ba-cell">
+      <div class="ba-header"><span class="ba-label after">Depois — premium</span><span class="ba-tag">hairline · raio 8px · monospace</span></div>
+      <div class="ba-body">
+        <div class="new-card">
+          <div class="new-head"><span class="new-label">Score de risco</span><span class="new-badge">Alto</span></div>
+          <div class="new-score">74<span class="sub"> / 100</span></div>
+          <div class="new-trend">↑ 12 nas últimas 6h</div>
+          <div class="new-bar"><div class="new-bar-fill"></div></div>
+          <button class="new-btn">Ver detalhes <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Token comparison -->
+  <div class="section-label">Tokens ajustados</div>
+  <div class="section-title">O que muda nos fundamentos</div>
+  <div class="section-desc">Pequenos ajustes com impacto grande. Raios menores, neutros mais frios, tipografia mais confiante, ritmo de espaçamento rígido.</div>
+
+  <div class="tokens-grid">
+    <div>
+      <div class="tokens-title">Raios</div>
+      <div class="tokens-row"><span class="tk-name">surface</span><span class="tk-before">1.1rem · 18px</span><span class="tk-after">8px</span></div>
+      <div class="tokens-row"><span class="tk-name">control</span><span class="tk-before">0.625rem · 10px</span><span class="tk-after">6px</span></div>
+      <div class="tokens-row"><span class="tk-name">badge</span><span class="tk-before">9999px · pill</span><span class="tk-after">4px</span></div>
+      <div class="tokens-row"><span class="tk-name">menu</span><span class="tk-before">1rem · 16px</span><span class="tk-after">8px</span></div>
+    </div>
+    <div>
+      <div class="tokens-title">Espaçamentos canônicos</div>
+      <div class="tokens-row"><span class="tk-name">rhythm</span><span class="tk-before">improvisado</span><span class="tk-after">24 · 40 · 72</span></div>
+      <div class="tokens-row"><span class="tk-name">card pad</span><span class="tk-before">1rem · 16px</span><span class="tk-after">20 · 24</span></div>
+      <div class="tokens-row"><span class="tk-name">section gap</span><span class="tk-before">irregular</span><span class="tk-after">48 · 72</span></div>
+      <div class="tokens-row"><span class="tk-name">control h</span><span class="tk-before">36 · 38 · 44</span><span class="tk-after">28 · 32 · 36 · 44</span></div>
+    </div>
+    <div>
+      <div class="tokens-title">Fundo & borda</div>
+      <div class="tokens-row"><span class="tk-name"><span class="tk-swatch"><span class="tk-dot" style="background:#F5F4FA"></span>bg</span></span><span class="tk-before">#F5F4FA tinta roxa</span><span class="tk-after"><span class="tk-swatch"><span class="tk-dot" style="background:#FAFAFB"></span>#FAFAFB neutro</span></span></div>
+      <div class="tokens-row"><span class="tk-name"><span class="tk-swatch"><span class="tk-dot" style="background:#DDD7EE"></span>border</span></span><span class="tk-before">#DDD7EE sólido</span><span class="tk-after"><span class="tk-swatch"><span class="tk-dot" style="background:rgba(14,15,20,0.08)"></span>rgba 8%</span></span></div>
+      <div class="tokens-row"><span class="tk-name">shadow</span><span class="tk-before">pesada · glow</span><span class="tk-after">quase imperceptível</span></div>
+      <div class="tokens-row"><span class="tk-name">dark bg</span><span class="tk-before">#0D0C17</span><span class="tk-after">#0A0B0F editorial</span></div>
+    </div>
+    <div>
+      <div class="tokens-title">Tipografia</div>
+      <div class="tokens-row"><span class="tk-name">display</span><span class="tk-before">28 · gradiente</span><span class="tk-after">24 · sólido firme</span></div>
+      <div class="tokens-row"><span class="tk-name">numerics</span><span class="tk-before">sans · bold</span><span class="tk-after">mono · medium</span></div>
+      <div class="tokens-row"><span class="tk-name">kicker</span><span class="tk-before">10px · 0.2em</span><span class="tk-after">11px · 0.08em</span></div>
+      <div class="tokens-row"><span class="tk-name">leading body</span><span class="tk-before">1.5</span><span class="tk-after">1.6 relaxed</span></div>
+    </div>
+  </div>
+
+  <!-- Principles -->
+  <div class="section-label">Os 6 princípios</div>
+  <div class="section-title">Como aplicar — sempre</div>
+  <div class="section-desc">Usados como checklist ao desenhar qualquer nova tela. Se alguma decisão briga com um princípio, o princípio ganha.</div>
+
+  <div class="principles">
+    <div class="prin"><div class="prin-num">01 · HAIRLINES</div><div class="prin-title">Borda no lugar de sombra</div><div class="prin-body">Superfícies se diferenciam por linha de 1px em 8% de preto. Sombra só para menus e modais.</div></div>
+    <div class="prin"><div class="prin-num">02 · MONOSPACE</div><div class="prin-title">Mono para tudo que é número</div><div class="prin-body">IBM Plex Mono em scores, datas, métricas, IDs. Transmite precisão sem precisar de cor.</div></div>
+    <div class="prin"><div class="prin-num">03 · UM ACENTO</div><div class="prin-title">Roxo é evento, não tinta</div><div class="prin-body">Aparece no CTA primário, foco, link e uma métrica de destaque. Acima disso, volta ao neutro.</div></div>
+    <div class="prin"><div class="prin-num">04 · RITMO</div><div class="prin-title">Vertical consistente</div><div class="prin-body">24 dentro de cards, 40 entre cards, 72 entre seções. Não misturar valores no meio do caminho.</div></div>
+    <div class="prin"><div class="prin-num">05 · PESO</div><div class="prin-title">Peso 500 é o padrão</div><div class="prin-body">Títulos 600, display 700. Negritos 800 reservados para display hero. Evitar "bold decorativo".</div></div>
+    <div class="prin"><div class="prin-num">06 · FRIO</div><div class="prin-title">Neutros cinzas, não roxos</div><div class="prin-body">Fundo e borda não têm tinta. A percepção de "premium" vem do contraste calibrado, não da cor ambiente.</div></div>
+  </div>
+
+</div>
+</body>
+</html>

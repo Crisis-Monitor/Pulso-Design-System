@@ -222,42 +222,42 @@
    LIGHT THEME — cool warm-neutrals, sober single-family
 ══════════════════════════════════════════════════════════════════ */
 :root {
-  /* Foundations — aligned with Crisis Monitor repo (light) */
-  --background:        #F5F4FA;     /* page bg — soft lavender-white */
-  --foreground:        #171629;     /* primary text — indigo-deep */
+  /* Foundations — warm cool-neutrals (premium direction, de-lavendered) */
+  --background:        #FBFAF7;     /* page bg — warm off-white */
+  --foreground:        #1C1B22;     /* primary text — neutral near-black */
 
   --card:              #FFFFFF;
-  --card-foreground:   #171629;
+  --card-foreground:   #1C1B22;
 
   --popover:           #FFFFFF;
-  --popover-foreground:#171629;
+  --popover-foreground:#1C1B22;
 
-  --muted:             #F1EEFA;     /* sidebar, muted panel */
-  --muted-foreground:  #73718A;     /* support copy */
+  --muted:             #F2F1EC;     /* muted panel — warm neutral */
+  --muted-foreground:  #65646E;     /* support copy */
 
-  --accent:            #F1EEFA;     /* hover bg */
-  --accent-foreground: #171629;
+  --accent:            #F2F1EC;     /* hover bg */
+  --accent-foreground: #1C1B22;
 
-  --secondary:         #F1EEFA;
-  --secondary-foreground: #171629;
+  --secondary:         #F2F1EC;
+  --secondary-foreground: #1C1B22;
 
-  --surface-2:         #ECE7F8;     /* nested card, hover row (= elevated) */
-  --elevated:          #ECE7F8;     /* above card */
+  --surface-2:         #EBE9E2;     /* nested card, hover row (= elevated) */
+  --elevated:          #EBE9E2;     /* above card */
 
-  /* Foreground hierarchy (5 levels) — matches repo */
-  --fg:          #171629;
-  --fg-strong:   #0A0A14;
-  --fg-secondary:#4A4961;
-  --fg-muted:    #73718A;
-  --fg-subtle:   #706C88;  /* was #A09CB4 — darkened for AA on body text */
-  --fg-ghost:    #C5C2D2;
-  --fg-disabled: #D5CEC5;
+  /* Foreground hierarchy (5 levels) — neutral */
+  --fg:          #1C1B22;
+  --fg-strong:   #0A0A0F;
+  --fg-secondary:#46454F;
+  --fg-muted:    #65646E;
+  --fg-subtle:   #8C8B94;  /* neutral metadata/placeholder, AA on body */
+  --fg-ghost:    #BAB8C2;
+  --fg-disabled: #CFCDC4;
 
-  /* Borders — hairlines on lavender base */
-  --border:          #DDD7EE;
-  --border-strong:   rgba(23, 22, 41, 0.18);
-  --border-faint:    rgba(23, 22, 41, 0.05);
-  --input:           #DDD7EE;
+  /* Borders — hairlines from warm-neutral family */
+  --border:          rgba(20, 18, 12, 0.09);
+  --border-strong:   rgba(20, 18, 12, 0.14);
+  --border-faint:    rgba(20, 18, 12, 0.04);
+  --input:           rgba(20, 18, 12, 0.14);
 
   /* Brand — violet (repo canonical) */
   --primary:            #6C46F5;
@@ -406,15 +406,15 @@
   --chart-fill-soft:   color-mix(in oklab, var(--chart-1) 14%, white);
   --chart-fill-strong: color-mix(in oklab, var(--chart-1) 60%, white);
 
-  /* ── Sidebar — fixed chrome (identical in light + dark) ─── */
-  --sidebar:                    #0F0C1A;
-  --sidebar-foreground:         #F6F3FF;
-  --sidebar-primary:            #8A63FF;
+  /* ── Sidebar — adapts to theme (warm-gray panel in light) ─── */
+  --sidebar:                    #F5F3EE;
+  --sidebar-foreground:         #1C1B22;
+  --sidebar-primary:            #6C46F5;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent:             #2A1F55;
-  --sidebar-accent-foreground:  #FFFFFF;
-  --sidebar-border:             #2A2540;
-  --sidebar-ring:               color-mix(in oklab, #8A63FF 45%, transparent);
+  --sidebar-accent:             #EBE9E2;
+  --sidebar-accent-foreground:  #1C1B22;
+  --sidebar-border:             rgba(20, 18, 12, 0.09);
+  --sidebar-ring:               color-mix(in oklab, #6C46F5 45%, transparent);
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -598,7 +598,15 @@
   --chart-fill-soft:   color-mix(in oklab, var(--chart-1) 18%, black);
   --chart-fill-strong: color-mix(in oklab, var(--chart-1) 55%, black);
 
-  /* Sidebar dark — same fixed chrome as light (no override) */
+  /* Sidebar dark — adapts to theme (editorial near-black panel) */
+  --sidebar:                    #151126;
+  --sidebar-foreground:         #F6F3FF;
+  --sidebar-primary:            #8A63FF;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent:             #221B3D;
+  --sidebar-accent-foreground:  #F6F3FF;
+  --sidebar-border:             #302A50;
+  --sidebar-ring:               color-mix(in oklab, #8A63FF 45%, transparent);
 }
 
 /* ──────────────────────────────────────────────────────────────────
