@@ -585,11 +585,11 @@ Superfícies definem o fundo de cada camada da interface. Do mais distante (page
 
 | Token | Light | Dark | Uso |
 |-------|-------|------|-----|
-| `--background` | `#F5F4FA` | `#0F0C1A` | Fundo da página |
+| `--background` | `#FBFAF7` | `#0F0C1A` | Fundo da página |
 | `--card` | `#FFFFFF` | `#151126` | Cards, painéis |
-| `--elevated` | `#ECE7F8` | `#221B3D` | Popovers, dropdowns |
-| `--muted` | `#F1EEFA` | `#1B1630` | Backgrounds sutis, hover |
-| `--secondary` | `#F1EEFA` | `#1B1630` | Botões secundários |
+| `--elevated` | `#EBE9E2` | `#221B3D` | Popovers, dropdowns |
+| `--muted` | `#F2F1EC` | `#1B1630` | Backgrounds sutis, hover |
+| `--secondary` | `#F2F1EC` | `#1B1630` | Botões secundários |
 
 ### Marca (Brand)
 
@@ -688,11 +688,11 @@ Indicadores de variação métrica (mudança em relação a baseline).
 
 | Token | Light | Dark | Uso |
 |-------|-------|------|-----|
-| `--fg` | `#171629` | `#F6F3FF` | Texto principal |
-| `--fg-secondary` | `#4A4961` | `#C9C3E6` | Texto secundário |
-| `--fg-muted` | `#73718A` | `#9891B8` | Descrições, labels |
-| `--fg-subtle` | `#706C88` | `#9189B5` | Placeholders, metadados |
-| `--fg-disabled` | `#d5cec5` | `#3D3660` | Estados desabilitados |
+| `--fg` | `#1C1B22` | `#F6F3FF` | Texto principal |
+| `--fg-secondary` | `#46454F` | `#C9C3E6` | Texto secundário |
+| `--fg-muted` | `#65646E` | `#9891B8` | Descrições, labels |
+| `--fg-subtle` | `#8C8B94` | `#9189B5` | Placeholders, metadados |
+| `--fg-disabled` | `#CFCDC4` | `#3D3660` | Estados desabilitados |
 
 ### Cores Auxiliares
 
@@ -707,13 +707,15 @@ Indicadores de variação métrica (mudança em relação a baseline).
 
 ### Sidebar
 
-| Token | Value | Uso |
-|-------|-------|-----|
-| `--sidebar` | `#0F0C1A` | Fundo da sidebar (sempre dark) |
-| `--sidebar-foreground` | `#F6F3FF` | Texto da sidebar |
-| `--sidebar-accent` | `#2A1F55` | Item ativo |
-| `--sidebar-primary` | `#6C46F5` / `#8A63FF` | Item primário |
-| `--sidebar-ring` | `color-mix(in oklab, #8A63FF 45%, transparent)` | Focus ring |
+A sidebar **adapta ao tema** (painel cinza-quente no claro, near-black editorial no escuro).
+
+| Token | Light | Dark | Uso |
+|-------|-------|------|-----|
+| `--sidebar` | `#F5F3EE` | `#151126` | Fundo da sidebar |
+| `--sidebar-foreground` | `#1C1B22` | `#F6F3FF` | Texto da sidebar |
+| `--sidebar-accent` | `#EBE9E2` | `#221B3D` | Item ativo |
+| `--sidebar-primary` | `#6C46F5` | `#8A63FF` | Item primário |
+| `--sidebar-ring` | `color-mix(in oklab, #6C46F5 45%, transparent)` | `color-mix(in oklab, #8A63FF 45%, transparent)` | Focus ring |
 
 ## Typography
 

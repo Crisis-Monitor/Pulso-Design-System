@@ -1,0 +1,604 @@
+<!DOCTYPE html><html data-src-ver="eea28bb7" lang="pt-BR" class="pm" data-pm="light"><head>
+
+
+
+
+
+
+<meta charset="UTF-8">
+<title>Crisis Monitor — Dashboard Premium</title>
+<link rel="stylesheet" href="../../tokens-premium.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+/* ── Tweaks: Density ── */
+[data-density="compact"]   { --tw-pad-card: 14px 16px; --tw-pad-row: 8px 16px;  --tw-pad-page: 24px 24px; --tw-h-topbar: 52px; --tw-kpi-pad: 16px 18px; --tw-kpi-num: 24px; }
+[data-density="comfort"]   { --tw-pad-card: 22px 24px; --tw-pad-row: 12px 22px; --tw-pad-page: 40px 32px; --tw-h-topbar: 60px; --tw-kpi-pad: 22px 24px; --tw-kpi-num: 28px; }
+[data-density="spacious"]  { --tw-pad-card: 32px 32px; --tw-pad-row: 18px 28px; --tw-pad-page: 56px 48px; --tw-h-topbar: 72px; --tw-kpi-pad: 30px 32px; --tw-kpi-num: 32px; }
+
+/* ── Tweaks: Surface treatment ── */
+[data-surface="hairline"] .surface-card { background: var(--pm-surface); border: 1px solid var(--pm-border); box-shadow: none; }
+[data-surface="hairline"] .surface-table { border: 1px solid var(--pm-border); box-shadow: none; }
+[data-surface="elevated"] .surface-card { background: var(--pm-surface); border: 1px solid transparent; box-shadow: 0 1px 2px rgba(20,18,10,0.04), 0 8px 24px -10px rgba(20,18,10,0.10); }
+[data-surface="elevated"] .surface-table { border: 1px solid transparent; box-shadow: 0 1px 2px rgba(20,18,10,0.04), 0 8px 24px -10px rgba(20,18,10,0.10); }
+[data-surface="elevated"] .kpis { background: transparent; border: none; gap: 12px; box-shadow: none; }
+[data-surface="elevated"] .kpi { background: var(--pm-surface); border-radius: var(--pm-radius-md); box-shadow: 0 1px 2px rgba(20,18,10,0.04), 0 8px 24px -10px rgba(20,18,10,0.10); }
+[data-surface="mono"] .surface-card { background: var(--pm-bg-subtle); border: 1px solid var(--pm-border-faint); box-shadow: none; }
+[data-surface="mono"] .surface-table { background: var(--pm-bg-subtle); border: 1px solid var(--pm-border-faint); box-shadow: none; }
+[data-surface="mono"] .kpis { background: transparent; border: 1px solid var(--pm-border-faint); }
+[data-surface="mono"] .kpi { background: var(--pm-bg); }
+
+/* ── Tweaks: Accent temperature ── */
+[data-accent="indigo"]  { --pm-accent: #5D52FF; --pm-accent-hover: #4D41F5; --pm-accent-soft: rgba(93,82,255,0.10); --pm-accent-border: rgba(93,82,255,0.26); }
+[data-accent="violet"]  { --pm-accent: #7C3AED; --pm-accent-hover: #6D28D9; --pm-accent-soft: rgba(124,58,237,0.10); --pm-accent-border: rgba(124,58,237,0.26); }
+[data-accent="slate"]   { --pm-accent: #475569; --pm-accent-hover: #334155; --pm-accent-soft: rgba(71,85,105,0.10); --pm-accent-border: rgba(71,85,105,0.26); }
+[data-accent="violet"] .avatar { background: linear-gradient(135deg,#A78BFA,#7C3AED); }
+[data-accent="slate"]  .avatar { background: linear-gradient(135deg,#94A3B8,#475569); }
+[data-accent="violet"] .cris-avatar { background: #7C3AED; }
+[data-accent="slate"]  .cris-avatar { background: #475569; }
+
+html, body { height: 100%; }
+html { background: var(--pm-bg); }
+body { background: var(--pm-bg) !important; overflow: hidden; }
+
+/* ── Layout ── */
+.app { display: grid; grid-template-columns: 220px 1fr; height: 100vh; }
+
+/* ── Sidebar ── */
+.sb { background: var(--pm-bg-subtle); border-right: 1px solid var(--pm-border); display: flex; flex-direction: column; }
+.sb-head { padding: 18px 18px 16px; border-bottom: 1px solid var(--pm-border-faint); display: flex; align-items: center; gap: 10px; }
+.sb-logo { width: 22px; height: 22px; border-radius: 5px; background: var(--pm-fg-strong); display: flex; align-items: center; justify-content: center; color: var(--pm-surface); font-weight: 700; font-size: 11px; letter-spacing: -0.02em; }
+.sb-brand { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+.sb-brand-name { font-size: 13px; font-weight: 600; color: var(--pm-fg-strong); letter-spacing: var(--pm-tracking-tight); }
+.sb-brand-org { font-size: 11px; color: var(--pm-fg-subtle); }
+.sb-caret { color: var(--pm-fg-subtle); }
+
+.sb-section { padding: 20px 12px 4px; }
+.sb-section + .sb-section { padding-top: 24px; }
+.sb-label { font-family: var(--font-mono); font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--pm-fg-subtle); padding: 0 10px 12px; }
+.sb-item { display: flex; align-items: center; gap: 11px; padding: 9px 10px; margin-bottom: 2px; border-radius: var(--pm-radius-sm); cursor: pointer; font-size: 13px; color: var(--pm-fg-muted); transition: color var(--pm-dur-fast); position: relative; }
+.sb-item:hover { color: var(--pm-fg); background: var(--pm-surface-2); }
+.sb-item.active { color: var(--pm-fg-strong); background: var(--pm-surface); box-shadow: var(--pm-shadow-sm); }
+.sb-item.active::before { content: ''; position: absolute; left: -12px; top: 50%; transform: translateY(-50%); width: 2px; height: 18px; background: var(--pm-accent); border-radius: 1px; }
+.sb-ico { width: 14px; height: 14px; flex-shrink: 0; color: currentColor; }
+.sb-count { margin-left: auto; font-family: var(--font-mono); font-size: 10px; color: var(--pm-fg-subtle); padding: 1px 5px; background: var(--pm-surface-2); border-radius: var(--pm-radius-xs); border: 1px solid var(--pm-border-faint); }
+.sb-item.active .sb-count { color: var(--pm-fg); background: var(--pm-bg-subtle); }
+
+/* cases list */
+.sb-case { display: grid; grid-template-columns: 8px 1fr auto; gap: 10px; padding: 8px 10px; margin-bottom: 2px; border-radius: var(--pm-radius-sm); cursor: pointer; align-items: center; }
+.sb-case:hover { background: var(--pm-surface-2); }
+.sb-case-dot { width: 6px; height: 6px; border-radius: 50%; }
+.sb-case-name { font-size: 12.5px; color: var(--pm-fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sb-case-score { font-family: var(--font-mono); font-size: 10px; color: var(--pm-fg-subtle); letter-spacing: -0.02em; }
+
+.sb-foot { margin-top: auto; padding: 14px 16px; border-top: 1px solid var(--pm-border-faint); display: flex; align-items: center; gap: 10px; }
+.avatar { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg,#8A7FFF,#5D52FF); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+.sb-foot-meta { flex: 1; min-width: 0; }
+.sb-foot-name { font-size: 12px; font-weight: 500; color: var(--pm-fg); letter-spacing: var(--pm-tracking-tight); }
+.sb-foot-role { font-size: 10.5px; color: var(--pm-fg-subtle); }
+
+/* ── Main ── */
+.main { overflow-y: auto; display: flex; flex-direction: column; }
+.topbar { height: 72px; padding: 0 32px; border-bottom: 1px solid var(--pm-border); display: flex; align-items: center; gap: 14px; background: var(--pm-bg); flex-shrink: 0; }
+.crumb { font-size: 12.5px; color: var(--pm-fg-subtle); }
+.crumb b { color: var(--pm-fg); font-weight: 500; }
+.crumb-sep { color: var(--pm-fg-ghost); margin: 0 6px; }
+.topbar-spacer { flex: 1; }
+.topbar-search { display: flex; align-items: center; gap: 8px; padding: 0 14px; height: 36px; background: var(--pm-surface); border: 1px solid var(--pm-border); border-radius: var(--pm-radius-sm); min-width: 320px; font-size: 13px; color: var(--pm-fg-subtle); }x; font-size: 12.5px; color: var(--pm-fg-subtle); transition: border-color var(--pm-dur-fast); }
+.topbar-search:hover { border-color: var(--pm-border-strong); }
+.topbar-search kbd { margin-left: auto; font-family: var(--font-mono); font-size: 10px; padding: 1px 5px; background: var(--pm-bg-subtle); border: 1px solid var(--pm-border-faint); border-radius: 3px; color: var(--pm-fg-subtle); }
+.topbar-btn { display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; height: 36px; border-radius: var(--pm-radius-sm); border: 1px solid var(--pm-border); background: var(--pm-surface); font-size: 13px; color: var(--pm-fg); cursor: pointer; font-family: var(--font-sans); font-weight: 500; }12.5px; color: var(--pm-fg); cursor: pointer; font-family: var(--font-sans); font-weight: 500; transition: border-color var(--pm-dur-fast), background var(--pm-dur-fast); }
+.topbar-btn:hover { border-color: var(--pm-border-strong); background: var(--pm-surface-2); }
+.icon-btn { width: 36px; height: 36px; padding: 0; justify-content: center; color: var(--pm-fg-muted); position: relative; }
+.icon-btn .dot { position: absolute; top: 6px; right: 6px; width: 6px; height: 6px; border-radius: 50%; background: var(--pm-risk-critical); border: 1.5px solid var(--pm-bg); }
+.btn-primary { background: var(--pm-accent); color: var(--pm-accent-fg); border: 1px solid var(--pm-accent); padding: 0 16px; height: 36px; border-radius: var(--pm-radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; letter-spacing: -0.005em; transition: background var(--pm-dur-fast); box-shadow: 0 1px 0 rgba(255,255,255,0.12) inset, 0 1px 2px rgba(63,51,232,0.18); }
+.btn-primary:hover { background: var(--pm-accent-hover); }
+
+/* ── Page ── */
+.page { padding: 40px 32px 56px; max-width: 100%; }
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 24px; }
+.page-kicker { font-family: var(--font-mono); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--pm-fg-subtle); margin-bottom: 8px; }
+.page-title { font-size: var(--pm-text-display); font-weight: 700; letter-spacing: var(--pm-tracking-tight); color: var(--pm-fg-strong); line-height: 1.1; }
+.page-sub { font-size: var(--pm-text-body); color: var(--pm-fg-muted); margin-top: 6px; max-width: 560px; line-height: 1.5; }
+.page-head-actions { display: flex; gap: 8px; }
+
+/* ── KPI strip ── */
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--pm-border); border: 1px solid var(--pm-border); border-radius: var(--pm-radius-md); overflow: hidden; margin-bottom: 40px; }
+.kpi { background: var(--pm-surface); padding: 20px 22px; }
+.kpi-label { font-size: 12px; color: var(--pm-fg-muted); margin-bottom: 12px; letter-spacing: var(--pm-tracking-tight); font-weight: 500; }
+.kpi-value { font-family: var(--font-mono); font-size: 28px; font-weight: 500; color: var(--pm-fg-strong); letter-spacing: -0.02em; line-height: 1; }
+.kpi-value .unit { font-size: 15px; color: var(--pm-fg-subtle); font-weight: 400; }
+.kpi-delta { font-size: 11.5px; margin-top: 10px; font-family: var(--font-mono); display: flex; align-items: center; gap: 4px; }
+.kpi-delta.up { color: var(--pm-risk-critical); }
+.kpi-delta.dn { color: var(--pm-risk-low); }
+.kpi-delta.flat { color: var(--pm-fg-subtle); }
+
+/* ── Section ── */
+.section { margin-bottom: 40px; }
+.section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; }
+.section-title { font-size: var(--pm-text-h1); font-weight: 600; color: var(--pm-fg-strong); letter-spacing: var(--pm-tracking-tight); }
+.section-action { font-size: 12.5px; color: var(--pm-fg-muted); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+.section-action:hover { color: var(--pm-fg-strong); }
+
+/* ── Table ── */
+.table { border: 1px solid var(--pm-border); border-radius: var(--pm-radius-md); overflow: hidden; background: var(--pm-surface); }
+.th, .tr { display: grid; grid-template-columns: 32px 2.2fr 90px 120px 1fr 90px 80px; align-items: center; gap: 16px; padding: 10px 20px; }
+.th { background: var(--pm-bg-subtle); border-bottom: 1px solid var(--pm-border); font-family: var(--font-mono); font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--pm-fg-subtle); }
+.th span { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+.tr { border-bottom: 1px solid var(--pm-border-faint); font-size: 13px; transition: background var(--pm-dur-fast); cursor: pointer; }
+.tr:last-child { border-bottom: none; }
+.tr:hover { background: var(--pm-bg-subtle); }
+.tr-dot { width: 8px; height: 8px; border-radius: 50%; }
+.tr-title { font-weight: 500; color: var(--pm-fg-strong); letter-spacing: var(--pm-tracking-tight); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tr-sub { font-size: 11px; color: var(--pm-fg-subtle); margin-top: 2px; display: flex; gap: 8px; }
+.tr-score { font-family: var(--font-mono); font-size: 13px; font-weight: 500; letter-spacing: -0.02em; }
+.tr-score .sub { color: var(--pm-fg-subtle); font-weight: 400; }
+.tr-chip { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: var(--pm-radius-xs); font-size: 11px; font-weight: 500; font-family: var(--font-mono); letter-spacing: 0.02em; border: 1px solid; width: fit-content; }
+.chip-critical { color: var(--pm-risk-critical); background: var(--pm-risk-critical-bg); border-color: var(--pm-risk-critical-border); }
+.chip-high { color: var(--pm-risk-high); background: var(--pm-risk-high-bg); border-color: var(--pm-risk-high-border); }
+.chip-medium { color: var(--pm-risk-medium); background: var(--pm-risk-medium-bg); border-color: var(--pm-risk-medium-border); }
+.chip-low { color: var(--pm-risk-low); background: var(--pm-risk-low-bg); border-color: var(--pm-risk-low-border); }
+.tr-owner { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--pm-fg-muted); }
+.tr-owner-avatar { width: 20px; height: 20px; border-radius: 50%; font-size: 9px; font-weight: 600; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.tr-upd { font-family: var(--font-mono); font-size: 11.5px; color: var(--pm-fg-subtle); }
+.tr-action { color: var(--pm-fg-subtle); cursor: pointer; text-align: right; }
+.tr-action:hover { color: var(--pm-fg); }
+
+/* spark */
+.spark { width: 60px; height: 18px; }
+
+/* ── Two column ── */
+.two { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+.card { background: var(--pm-surface); border: 1px solid var(--pm-border); border-radius: var(--pm-radius-md); padding: 20px 22px; }
+.card-title { font-size: 14px; font-weight: 600; color: var(--pm-fg-strong); letter-spacing: var(--pm-tracking-tight); margin-bottom: 4px; }
+.card-sub { font-size: 12px; color: var(--pm-fg-muted); margin-bottom: 16px; }
+
+/* Activity */
+.activity-item { display: grid; grid-template-columns: 8px 1fr auto; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--pm-border-faint); align-items: flex-start; }
+.activity-item:last-child { border-bottom: none; padding-bottom: 0; }
+.activity-item:first-child { padding-top: 0; }
+.activity-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; }
+.activity-dot.critical { background: var(--pm-risk-critical); }
+.activity-dot.medium { background: var(--pm-risk-medium); }
+.activity-dot.info { background: var(--pm-risk-info); }
+.activity-dot.low { background: var(--pm-risk-low); }
+.activity-body { font-size: 13px; line-height: 1.5; color: var(--pm-fg); }
+.activity-body b { font-weight: 500; color: var(--pm-fg-strong); }
+.activity-meta { font-size: 11px; color: var(--pm-fg-subtle); margin-top: 3px; display: flex; gap: 8px; }
+.activity-time { font-family: var(--font-mono); font-size: 11px; color: var(--pm-fg-subtle); flex-shrink: 0; }
+
+/* Cris card — light, accent indigo, hairline */
+.cris-card { background: var(--pm-surface); color: var(--pm-fg); border: 1px solid var(--pm-border); border-radius: var(--pm-radius-md); padding: 22px 24px; position: relative; overflow: hidden; }
+.cris-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--pm-accent); opacity: 0.7; }
+.cris-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.cris-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--pm-accent), color-mix(in oklab, var(--pm-accent) 70%, #000)); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #fff; }
+.cris-name { font-size: 13.5px; font-weight: 600; color: var(--pm-fg-strong); letter-spacing: var(--pm-tracking-tight); }
+.cris-status { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--pm-fg-subtle); margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.cris-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--pm-risk-low); box-shadow: 0 0 0 3px var(--pm-risk-low-bg); }
+.cris-text { font-size: 13px; line-height: 1.6; color: var(--pm-fg-muted); margin-bottom: 18px; }
+.cris-text b { color: var(--pm-fg-strong); font-weight: 600; }
+.cris-actions { display: flex; flex-direction: column; gap: 6px; }
+.cris-action { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: transparent; border: 1px solid var(--pm-border-faint); border-radius: var(--pm-radius-sm); font-size: 12.5px; color: var(--pm-fg); cursor: pointer; transition: background var(--pm-dur-fast), border-color var(--pm-dur-fast); }
+.cris-action:hover { background: var(--pm-bg-subtle); border-color: var(--pm-border); }
+.cris-action-kind { font-family: var(--font-mono); font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--pm-accent); margin-right: 12px; flex-shrink: 0; min-width: 48px; }
+.cris-action svg { color: var(--pm-fg-subtle); transition: transform var(--pm-dur-fast), color var(--pm-dur-fast); }
+.cris-action:hover svg { color: var(--pm-accent); transform: translateX(2px); }
+
+/* icons shared */
+.i { stroke-width: 2; }
+</style>
+</head>
+<body data-cc-id="cc-56" style="background-color: rgb(250, 250, 250); cursor: crosshair;">
+<div class="app">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sb" data-cc-id="cc-15">
+    <div class="sb-head" data-cc-id="cc-29">
+      <div class="sb-logo">CM</div>
+      <div class="sb-brand"><span class="sb-brand-name" data-cc-id="cc-31">Crisis Monitor</span><span class="sb-brand-org" data-cc-id="cc-30">Dotcase · Produção</span></div>
+      <svg class="sb-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    </div>
+
+    <div class="sb-section" data-cc-id="cc-26">
+      <div class="sb-item active" data-cc-id="cc-28">
+        <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect></svg>
+        <span>Visão geral</span>
+      </div>
+      <div class="sb-item" data-cc-id="cc-27">
+        <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path></svg>
+        <span>Monitoramentos</span><span class="sb-count">12</span>
+      </div>
+      <div class="sb-item">
+        <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline></svg>
+        <span>Analytics</span>
+      </div>
+      <div class="sb-item" data-cc-id="cc-32">
+        <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line></svg>
+        <span>Comparar</span>
+      </div>
+      <div class="sb-item" data-cc-id="cc-33">
+        <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+        <span>Menções</span><span class="sb-count" data-cc-id="cc-34">284</span>
+      </div>
+    </div>
+
+    <div class="sb-section" data-cc-id="cc-35">
+      <div class="sb-label" data-cc-id="cc-36">Casos ativos</div>
+      <div class="sb-case" data-cc-id="cc-37"><span class="sb-case-dot" style="background:var(--pm-risk-critical)"></span><span class="sb-case-name" data-cc-id="cc-76">Operação Água Nova</span><span class="sb-case-score">74</span></div>
+      <div class="sb-case" data-cc-id="cc-39"><span class="sb-case-dot" style="background:var(--pm-risk-high)"></span><span class="sb-case-name" data-cc-id="cc-38">Alfa Industrial</span><span class="sb-case-score">51</span></div>
+      <div class="sb-case" data-cc-id="cc-75"><span class="sb-case-dot" style="background:var(--pm-risk-medium)"></span><span class="sb-case-name" data-cc-id="cc-40">Portaria 443</span><span class="sb-case-score">38</span></div>
+      <div class="sb-case" data-cc-id="cc-41"><span class="sb-case-dot" style="background:var(--pm-risk-low)"></span><span class="sb-case-name" data-cc-id="cc-42">Ruído Sul</span><span class="sb-case-score">22</span></div>
+      <div class="sb-case" data-cc-id="cc-44"><span class="sb-case-dot" style="background:var(--pm-risk-low)"></span><span class="sb-case-name" data-cc-id="cc-43">Projeto Borda</span><span class="sb-case-score">14</span></div>
+    </div>
+
+    <div class="sb-section" data-cc-id="cc-47">
+      <div class="sb-item" data-cc-id="cc-74">
+        <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>
+        <span data-cc-id="cc-45">Documentação</span>
+      </div>
+      <div class="sb-item" data-cc-id="cc-48">
+        <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        <span data-cc-id="cc-46">Configurações</span>
+      </div>
+    </div>
+
+    <div class="sb-foot">
+      <div class="avatar">NS</div>
+      <div class="sb-foot-meta"><div class="sb-foot-name">Neviton Santana</div><div class="sb-foot-role">Analista · Dotcase</div></div>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--pm-fg-subtle)" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="main">
+
+    <div class="topbar" data-cc-id="cc-1">
+      <div class="crumb"><b>Workspace</b><span class="crumb-sep">/</span>Visão geral</div>
+      <div class="topbar-spacer"></div>
+      <div class="topbar-search" data-cc-id="cc-2">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <span data-cc-id="cc-9">Buscar casos, menções, pessoas…</span>
+        <kbd data-cc-id="cc-55">⌘K</kbd>
+      </div>
+      <button class="topbar-btn icon-btn" id="theme-toggle" title="Alternar tema">
+        <svg class="theme-ico light-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+        <svg class="theme-ico dark-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </button>
+      <button class="topbar-btn icon-btn" title="Notificações">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        <span class="dot"></span>
+      </button>
+      <button class="btn-primary">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Novo monitoramento
+      </button>
+    </div>
+
+    <div class="page" data-cc-id="cc-7">
+
+      <!-- ── Page head ── -->
+      <div class="page-head" data-cc-id="cc-54">
+        <div data-cc-id="cc-52">
+          <div class="page-kicker" data-cc-id="cc-58">23 de abril, 2026 · quinta-feira</div>
+          <h1 class="page-title" data-cc-id="cc-53">Bom dia, Neviton.</h1>
+          <p class="page-sub" data-cc-id="cc-10">5 casos ativos. 3 com atividade significativa nas últimas 6 horas — um exige revisão manual.</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="topbar-btn">Últimas 24h <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+          <button class="topbar-btn">Exportar</button>
+        </div>
+      </div>
+
+      <!-- ── KPI strip ── -->
+      <div class="kpis">
+        <div class="kpi" data-cc-id="cc-23">
+          <div class="kpi-label" data-cc-id="cc-25">Casos ativos</div>
+          <div class="kpi-value" data-cc-id="cc-24">12</div>
+          <div class="kpi-delta flat">— sem alteração</div>
+        </div>
+        <div class="kpi" data-cc-id="cc-51">
+          <div class="kpi-label" data-cc-id="cc-50">Score médio</div>
+          <div class="kpi-value" data-cc-id="cc-11">42<span class="unit">/100</span></div>
+          <div class="kpi-delta up" data-cc-id="cc-89">↑ 6 pts vs ontem</div>
+        </div>
+        <div class="kpi" data-cc-id="cc-90">
+          <div class="kpi-label" data-cc-id="cc-92">Menções 24h</div>
+          <div class="kpi-value" data-cc-id="cc-57">284</div>
+          <div class="kpi-delta up" data-cc-id="cc-91">↑ 18% vs ontem</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Cobertura Tier 1</div>
+          <div class="kpi-value">7</div>
+          <div class="kpi-delta dn">↓ 2 veículos</div>
+        </div>
+      </div>
+
+      <!-- ── Casos table ── -->
+      <section class="section">
+        <div class="section-head" data-cc-id="cc-22">
+          <h2 class="section-title" data-cc-id="cc-88">Casos que pedem atenção</h2>
+          <a class="section-action" href="#">Ver todos os 12 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
+        </div>
+
+        <div class="table" data-cc-id="cc-61">
+          <div class="th" data-cc-id="cc-12">
+            <span></span>
+            <span>Caso</span>
+            <span>Score</span>
+            <span>Risco</span>
+            <span>Responsável</span>
+            <span>Tendência</span>
+            <span>Atualizado</span>
+          </div>
+
+          <div class="tr" data-cc-id="cc-49">
+            <span class="tr-dot" style="background:var(--pm-risk-critical)" data-cc-id="cc-87"></span>
+            <div>
+              <div class="tr-title" data-cc-id="cc-21">Operação Água Nova</div>
+              <div class="tr-sub"><span>47 menções</span><span>·</span><span>3 Tier 1</span><span>·</span><span data-cc-id="cc-20">aberto há 6 dias</span></div>
+            </div>
+            <span class="tr-score">74<span class="sub"> /100</span></span>
+            <span class="tr-chip chip-critical">Crítico</span>
+            <span class="tr-owner"><span class="tr-owner-avatar" style="background: linear-gradient(135deg, rgb(138, 127, 255), rgb(93, 82, 255)); ">NS</span>Neviton</span>
+            <svg class="spark" viewBox="0 0 60 18" fill="none"><path d="M0 14 L8 12 L16 13 L24 10 L32 9 L40 7 L48 5 L60 3" stroke="var(--pm-risk-critical)" stroke-width="1.5"></path></svg>
+            <span class="tr-upd">agora</span>
+          </div>
+
+          <div class="tr" data-cc-id="cc-18">
+            <span class="tr-dot" style="background:var(--pm-risk-high)"></span>
+            <div>
+              <div class="tr-title" data-cc-id="cc-13">Alfa Industrial — Licença Ambiental</div>
+              <div class="tr-sub"><span>18 menções</span><span>·</span><span>1 Tier 1</span><span>·</span><span data-cc-id="cc-19">aberto há 2 dias</span></div>
+            </div>
+            <span class="tr-score">51<span class="sub"> /100</span></span>
+            <span class="tr-chip chip-high">Alto</span>
+            <span class="tr-owner"><span class="tr-owner-avatar" style="background: linear-gradient(135deg, rgb(245, 162, 59), rgb(217, 119, 6)); ">ML</span>Marina L.</span>
+            <svg class="spark" viewBox="0 0 60 18" fill="none"><path d="M0 10 L8 11 L16 9 L24 10 L32 8 L40 11 L48 9 L60 8" stroke="var(--pm-risk-high)" stroke-width="1.5"></path></svg>
+            <span class="tr-upd">12 min</span>
+          </div>
+
+          <div class="tr" data-cc-id="cc-14">
+            <span class="tr-dot" style="background:var(--pm-risk-medium)"></span>
+            <div>
+              <div class="tr-title" data-cc-id="cc-17">Portaria 443 — Regulamentação</div>
+              <div class="tr-sub"><span>6 menções</span><span>·</span><span>0 Tier 1</span><span>·</span><span>aberto há 5 dias</span></div>
+            </div>
+            <span class="tr-score">38<span class="sub"> /100</span></span>
+            <span class="tr-chip chip-medium">Médio</span>
+            <span class="tr-owner"><span class="tr-owner-avatar" style="background: linear-gradient(135deg, rgb(122, 140, 240), rgb(59, 77, 159)); ">RC</span>Rafael C.</span>
+            <svg class="spark" viewBox="0 0 60 18" fill="none"><path d="M0 7 L8 9 L16 8 L24 11 L32 10 L40 12 L48 11 L60 13" stroke="var(--pm-risk-medium)" stroke-width="1.5"></path></svg>
+            <span class="tr-upd">1h</span>
+          </div>
+
+          <div class="tr" data-cc-id="cc-16">
+            <span class="tr-dot" style="background:var(--pm-risk-low)"></span>
+            <div>
+              <div class="tr-title">Ruído Sul — Associação de moradores</div>
+              <div class="tr-sub"><span>3 menções</span><span>·</span><span>0 Tier 1</span><span>·</span><span>aberto há 8 dias</span></div>
+            </div>
+            <span class="tr-score">22<span class="sub"> /100</span></span>
+            <span class="tr-chip chip-low">Baixo</span>
+            <span class="tr-owner"><span class="tr-owner-avatar" style="background: linear-gradient(135deg, rgb(78, 203, 124), rgb(21, 128, 61)); ">BM</span>Beatriz M.</span>
+            <svg class="spark" viewBox="0 0 60 18" fill="none"><path d="M0 8 L8 10 L16 11 L24 13 L32 14 L40 13 L48 14 L60 15" stroke="var(--pm-risk-low)" stroke-width="1.5"></path></svg>
+            <span class="tr-upd">3h</span>
+          </div>
+
+          <div class="tr" data-cc-id="cc-59">
+            <span class="tr-dot" style="background:var(--pm-risk-low)"></span>
+            <div>
+              <div class="tr-title">Projeto Borda</div>
+              <div class="tr-sub"><span>1 menção</span><span>·</span><span>0 Tier 1</span><span>·</span><span>aberto há 14 dias</span></div>
+            </div>
+            <span class="tr-score" data-cc-id="cc-60">14<span class="sub"> /100</span></span>
+            <span class="tr-chip chip-low">Baixo</span>
+            <span class="tr-owner"><span class="tr-owner-avatar" style="background: linear-gradient(135deg, rgb(78, 203, 124), rgb(21, 128, 61)); ">BM</span>Beatriz M.</span>
+            <svg class="spark" viewBox="0 0 60 18" fill="none"><path d="M0 14 L8 14 L16 14 L24 15 L32 14 L40 15 L48 14 L60 15" stroke="var(--pm-risk-low)" stroke-width="1.5"></path></svg>
+            <span class="tr-upd">ontem</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Two column ── -->
+      <div class="two" data-cc-id="cc-64">
+        <section class="card" style="padding: 0px; " data-cc-id="cc-63">
+          <div style="padding: 20px 22px 0px; " data-cc-id="cc-62">
+            <div class="card-title" data-cc-id="cc-66">Atividade recente</div>
+            <div class="card-sub" data-cc-id="cc-67">Últimas 6 horas</div>
+          </div>
+          <div style="padding: 0px 22px 20px; " data-cc-id="cc-71">
+            <div class="activity-item" data-cc-id="cc-68">
+              <span class="activity-dot critical"></span>
+              <div data-cc-id="cc-72">
+                <div class="activity-body" data-cc-id="cc-73"><b data-cc-id="cc-77">Folha de S.Paulo</b> publicou matéria sobre Água Nova.</div>
+                <div class="activity-meta"><span>Escalada · Tier 1 · sentimento negativo</span></div>
+              </div>
+              <span class="activity-time">14:32</span>
+            </div>
+            <div class="activity-item" data-cc-id="cc-69">
+              <span class="activity-dot info"></span>
+              <div data-cc-id="cc-86">
+                <div class="activity-body"><b>Cris</b> identificou novo ator relevante em Alfa Industrial.</div>
+                <div class="activity-meta"><span>Revisão recomendada</span></div>
+              </div>
+              <span class="activity-time">13:48</span>
+            </div>
+            <div class="activity-item" data-cc-id="cc-83">
+              <span class="activity-dot medium"></span>
+              <div>
+                <div class="activity-body" data-cc-id="cc-78"><b data-cc-id="cc-85">Marina L.</b> atualizou o briefing de Alfa Industrial.</div>
+                <div class="activity-meta"><span data-cc-id="cc-84">3 fatos adicionados</span></div>
+              </div>
+              <span class="activity-time" data-cc-id="cc-70">12:10</span>
+            </div>
+            <div class="activity-item">
+              <span class="activity-dot low"></span>
+              <div>
+                <div class="activity-body"><b data-cc-id="cc-82">Ruído Sul</b> sem novas menções nas últimas 12 horas.</div>
+                <div class="activity-meta"><span data-cc-id="cc-81">Tendência estável</span></div>
+              </div>
+              <span class="activity-time">11:45</span>
+            </div>
+            <div class="activity-item" data-cc-id="cc-79">
+              <span class="activity-dot info"></span>
+              <div>
+                <div class="activity-body"><b data-cc-id="cc-80">Relatório semanal</b> de Água Nova gerado automaticamente.</div>
+                <div class="activity-meta"><span>Pronto para revisão</span></div>
+              </div>
+              <span class="activity-time">09:00</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="cris-card">
+          <div class="cris-head">
+            <div class="cris-avatar">C</div>
+            <span class="cris-name">Cris</span>
+            <span class="cris-status">Online</span>
+          </div>
+          <p class="cris-text">Tenho <b>3 sinais</b> que merecem sua atenção esta manhã. A escalada em Água Nova tem 83% de chance de chegar a veículos internacionais em 48h.</p>
+          <div class="cris-actions">
+            <div class="cris-action">
+              <span class="cris-action-kind">Revisar</span>
+              <span style="flex: 1">Nota institucional para Água Nova</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+            <div class="cris-action">
+              <span class="cris-action-kind">Brief</span>
+              <span style="flex: 1">Resumo executivo · 5 bullets</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+            <div class="cris-action">
+              <span class="cris-action-kind">Alerta</span>
+              <span style="flex: 1">Configurar threshold · Alfa</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+          </div>
+        </section>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function(){
+  var root = document.documentElement;
+  var saved = localStorage.getItem('pm-theme') || 'light';
+  root.setAttribute('data-pm', saved);
+  function syncIcons(){
+    var mode = root.getAttribute('data-pm');
+    var l = document.querySelector('.light-ico');
+    var d = document.querySelector('.dark-ico');
+    if(!l||!d) return;
+    l.style.display = mode === 'dark' ? 'none' : '';
+    d.style.display = mode === 'dark' ? '' : 'none';
+  }
+  syncIcons();
+  var btn = document.getElementById('theme-toggle');
+  if(btn) btn.addEventListener('click', function(){
+    var next = root.getAttribute('data-pm') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-pm', next);
+    localStorage.setItem('pm-theme', next);
+    syncIcons();
+  });
+})();
+</script>
+
+<div id="tweaks-mount"></div>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel">
+const { useEffect } = React;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "density": "comfort",
+  "surface": "elevated",
+  "accent": "indigo"
+}/*EDITMODE-END*/;
+
+function applyTweaks(t){
+  const root = document.documentElement;
+  root.setAttribute('data-density', t.density);
+  root.setAttribute('data-surface', t.surface);
+  root.setAttribute('data-accent', t.accent);
+  // Apply density-driven CSS overrides via inline custom prop binding
+  const overrides = {
+    'compact':  { card:'14px 16px', row:'8px 16px',  page:'24px 24px', topbar:'52px', kpiPad:'16px 18px', kpiNum:'24px' },
+    'comfort':  { card:'22px 24px', row:'12px 22px', page:'40px 32px', topbar:'60px', kpiPad:'22px 24px', kpiNum:'28px' },
+    'spacious': { card:'32px 32px', row:'18px 28px', page:'56px 48px', topbar:'72px', kpiPad:'30px 32px', kpiNum:'32px' },
+  };
+  const o = overrides[t.density] || overrides.comfort;
+  document.querySelectorAll('.card').forEach(el => el.style.padding = o.card);
+  document.querySelectorAll('.tr, .th').forEach(el => el.style.padding = o.row);
+  const page = document.querySelector('.page'); if(page){ page.style.padding = o.page + ' ' + o.page.split(' ')[1]; page.style.paddingTop = o.page.split(' ')[0]; }
+  const topbar = document.querySelector('.topbar'); if(topbar){ topbar.style.height = o.topbar; }
+  document.querySelectorAll('.kpi').forEach(el => el.style.padding = o.kpiPad);
+  document.querySelectorAll('.kpi-value').forEach(el => el.style.fontSize = o.kpiNum);
+}
+
+function App(){
+  const [tweaks, setTweak] = window.useTweaks(TWEAK_DEFAULTS);
+  const { TweaksPanel, TweakSection, TweakRadio } = window;
+
+  useEffect(() => { applyTweaks(tweaks); }, [tweaks]);
+
+  return (
+    <TweaksPanel title="Tweaks">
+      <TweakSection
+        title="Densidade"
+        description="Reorganiza o ritmo vertical inteiro — paddings, alturas e tamanho das métricas."
+      >
+        <TweakRadio
+          value={tweaks.density}
+          onChange={v => setTweak('density', v)}
+          options={[
+            { value:'compact',  label:'Compact' },
+            { value:'comfort',  label:'Comfort' },
+            { value:'spacious', label:'Spacious' },
+          ]}
+        />
+      </TweakSection>
+
+      <TweakSection
+        title="Tratamento de superfície"
+        description="Como cards e tabelas se diferenciam do fundo. Hairline = Linear; Elevated = Stripe; Mono = Mercury."
+      >
+        <TweakRadio
+          value={tweaks.surface}
+          onChange={v => setTweak('surface', v)}
+          options={[
+            { value:'hairline', label:'Hairline' },
+            { value:'elevated', label:'Elevated' },
+            { value:'mono',     label:'Mono' },
+          ]}
+        />
+      </TweakSection>
+
+      <TweakSection
+        title="Acento"
+        description="Usado em CTA primário, foco, indicadores ativos e avatares. Slate retira a cor da paleta operacional."
+      >
+        <TweakRadio
+          value={tweaks.accent}
+          onChange={v => setTweak('accent', v)}
+          options={[
+            { value:'indigo', label:'Indigo' },
+            { value:'violet', label:'Violet' },
+            { value:'slate',  label:'Slate' },
+          ]}
+        />
+      </TweakSection>
+    </TweaksPanel>
+  );
+}
+
+const mount = document.getElementById('tweaks-mount');
+ReactDOM.createRoot(mount).render(<App/>);
+
+// Apply initial tweaks on load (before user opens panel)
+document.documentElement.setAttribute('data-density', TWEAK_DEFAULTS.density);
+document.documentElement.setAttribute('data-surface', TWEAK_DEFAULTS.surface);
+document.documentElement.setAttribute('data-accent', TWEAK_DEFAULTS.accent);
+</script>
+
+
+</body></html>

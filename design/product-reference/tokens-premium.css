@@ -1,0 +1,193 @@
+/**
+ * Crisis Monitor — Premium Direction Tokens
+ *
+ * Philosophy shift inspired by Linear, Done.app, Mercury:
+ *   - Tighter radii (6–10px max), not 12–22px
+ *   - Cool neutrals, not purple-tinted
+ *   - Brand purple as accent, not as pervasive background tint
+ *   - Hairlines over shadows for structure
+ *   - Strict 8pt spacing grid
+ *   - Confident typography, no gradient text, generous line-height
+ *   - Muted, matte feel — signal comes from density, not saturation
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* ── Type ─────────────────────────────────────────────────────── */
+  --font-sans: 'Manrope', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Menlo', monospace;
+
+  /* Linear uses tighter display scale and more consistent body sizes */
+  --pm-text-display-lg: 34px;   /* hero page titles */
+  --pm-text-display:    24px;   /* page title */
+  --pm-text-h1:         18px;   /* section header */
+  --pm-text-h2:         15px;   /* card title */
+  --pm-text-body:       14px;   /* main text */
+  --pm-text-support:    13px;   /* descriptions, secondary */
+  --pm-text-label:      12px;   /* labels, badges */
+  --pm-text-micro:      11px;   /* metadata, kickers */
+
+  --pm-leading-tight:   1.2;    /* display, titles */
+  --pm-leading-normal:  1.45;   /* body */
+  --pm-leading-relaxed: 1.6;    /* long-form support text */
+
+  --pm-tracking-tight:  -0.02em; /* display, titles */
+  --pm-tracking-normal: -0.005em;
+  --pm-tracking-kicker: 0.08em;  /* mono kickers, uppercase labels */
+
+  /* ── Radius — sharper, more confident ────────────────────────── */
+  --pm-radius-xs:    4px;  /* chips, small toggles */
+  --pm-radius-sm:    6px;  /* inputs, buttons */
+  --pm-radius-md:    8px;  /* cards, menus */
+  --pm-radius-lg:   10px;  /* large surfaces */
+  --pm-radius-full: 9999px;
+
+  /* ── 8pt grid — absolute values, no improvisation ────────────── */
+  --pm-s-1:   4px;   --pm-s-2:   8px;
+  --pm-s-3:  12px;   --pm-s-4:  16px;
+  --pm-s-5:  20px;   --pm-s-6:  24px;
+  --pm-s-8:  32px;   --pm-s-10: 40px;
+  --pm-s-12: 48px;   --pm-s-16: 64px;
+  --pm-s-20: 80px;
+
+  /* ── Vertical rhythm — canonical section spacing ─────────────── */
+  --pm-rhythm-tight:     24px;  /* dense dashboards */
+  --pm-rhythm-comfort:   40px;  /* standard surfaces */
+  --pm-rhythm-editorial: 72px;  /* marketing, conceito */
+
+  /* ── Control heights ─────────────────────────────────────────── */
+  --pm-h-compact:    28px;
+  --pm-h-default:    32px;
+  --pm-h-prominent:  36px;
+  --pm-h-hero:       44px;
+
+  /* ── Shadows — nearly invisible, structure comes from borders ── */
+  --pm-shadow-sm: 0 1px 2px rgb(8 10 18 / 0.04);
+  --pm-shadow:    0 2px 6px -2px rgb(8 10 18 / 0.06), 0 1px 2px rgb(8 10 18 / 0.04);
+  --pm-shadow-lg: 0 12px 24px -12px rgb(8 10 18 / 0.10), 0 1px 2px rgb(8 10 18 / 0.04);
+
+  /* ── Motion ──────────────────────────────────────────────────── */
+  --pm-ease:        cubic-bezier(0.2, 0.9, 0.3, 1);
+  --pm-dur-fast:    120ms;
+  --pm-dur-normal:  200ms;
+  --pm-dur-slow:    320ms;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   LIGHT THEME — cool greys, not warm purples
+══════════════════════════════════════════════════════════════════ */
+:root, [data-pm="light"] {
+
+  /* Foundations — warm off-white, sober, single-family neutrals */
+  --pm-bg:         #FBFAF7;    /* app background · warm off-white */
+  --pm-bg-subtle:  #F5F3EE;    /* sidebar / muted panel */
+  --pm-surface:    #FFFFFF;    /* card, elevated */
+  --pm-surface-2:  #FAF8F4;    /* nested card, hover row */
+
+  /* Text — firm, readable, slightly warm-neutral */
+  --pm-fg:         #1A1A20;    /* primary text */
+  --pm-fg-strong:  #0A0A0F;    /* display titles */
+  --pm-fg-muted:   #5E5D68;    /* support copy */
+  --pm-fg-subtle:  #8D8B96;    /* metadata, placeholders */
+  --pm-fg-ghost:   #BAB8C2;    /* disabled, watermark */
+
+  /* Borders — hairlines from same warm family */
+  --pm-border:         rgba(20, 18, 10, 0.08);  /* default hairline */
+  --pm-border-strong:  rgba(20, 18, 10, 0.14);  /* emphasized */
+  --pm-border-faint:   rgba(20, 18, 10, 0.04);  /* dividers inside cards */
+
+  /* Brand — refined from the original #6C46F5 toward Linear's indigo */
+  --pm-accent:          #5D52FF;  /* primary action */
+  --pm-accent-hover:    #4D41F5;
+  --pm-accent-pressed:  #3F33E8;
+  --pm-accent-fg:       #FFFFFF;
+  --pm-accent-soft:     rgba(93, 82, 255, 0.10);
+  --pm-accent-border:   rgba(93, 82, 255, 0.24);
+  --pm-accent-subtle:   #EEECFF;
+
+  /* Focus ring */
+  --pm-ring: rgba(93, 82, 255, 0.35);
+
+  /* ── Risk palette — calibrated, matte, not neon ────────────── */
+  --pm-risk-critical:      #D63D4E;
+  --pm-risk-critical-bg:   #FBEEF0;
+  --pm-risk-critical-border: rgba(214, 61, 78, 0.22);
+
+  --pm-risk-high:          #D97706;
+  --pm-risk-high-bg:       #FCF3E8;
+  --pm-risk-high-border:   rgba(217, 119, 6, 0.22);
+
+  --pm-risk-medium:        #A16207;
+  --pm-risk-medium-bg:     #FCF7E4;
+  --pm-risk-medium-border: rgba(161, 98, 7, 0.22);
+
+  --pm-risk-low:           #15803D;
+  --pm-risk-low-bg:        #E8F4ED;
+  --pm-risk-low-border:    rgba(21, 128, 61, 0.22);
+
+  --pm-risk-info:          #3B4D9F;
+  --pm-risk-info-bg:       #EDEFF9;
+  --pm-risk-info-border:   rgba(59, 77, 159, 0.20);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   DARK THEME — editorial near-black, not pure black
+══════════════════════════════════════════════════════════════════ */
+[data-pm="dark"] {
+  --pm-bg:         #0C0B10;
+  --pm-bg-subtle:  #121118;
+  --pm-surface:    #17161E;
+  --pm-surface-2:  #1E1D27;
+
+  --pm-fg:         #E9E8EF;
+  --pm-fg-strong:  #FFFFFF;
+  --pm-fg-muted:   #A1A0AD;
+  --pm-fg-subtle:  #737280;
+  --pm-fg-ghost:   #4E4D58;
+
+  --pm-border:        rgba(255, 255, 255, 0.08);
+  --pm-border-strong: rgba(255, 255, 255, 0.14);
+  --pm-border-faint:  rgba(255, 255, 255, 0.04);
+
+  --pm-accent:         #7B71FF;
+  --pm-accent-hover:   #8A81FF;
+  --pm-accent-pressed: #6A5FFF;
+  --pm-accent-soft:    rgba(123, 113, 255, 0.12);
+  --pm-accent-border:  rgba(123, 113, 255, 0.28);
+  --pm-accent-subtle:  rgba(123, 113, 255, 0.06);
+
+  --pm-ring: rgba(123, 113, 255, 0.45);
+
+  --pm-risk-critical:       #F47080;
+  --pm-risk-critical-bg:    rgba(244, 112, 128, 0.10);
+  --pm-risk-critical-border:rgba(244, 112, 128, 0.26);
+
+  --pm-risk-high:           #F5A23B;
+  --pm-risk-high-bg:        rgba(245, 162, 59, 0.10);
+  --pm-risk-high-border:    rgba(245, 162, 59, 0.26);
+
+  --pm-risk-medium:         #E5C14B;
+  --pm-risk-medium-bg:      rgba(229, 193, 75, 0.08);
+  --pm-risk-medium-border:  rgba(229, 193, 75, 0.22);
+
+  --pm-risk-low:            #4ECB7C;
+  --pm-risk-low-bg:         rgba(78, 203, 124, 0.10);
+  --pm-risk-low-border:     rgba(78, 203, 124, 0.24);
+
+  --pm-risk-info:           #7A8CF0;
+  --pm-risk-info-bg:        rgba(122, 140, 240, 0.10);
+  --pm-risk-info-border:    rgba(122, 140, 240, 0.24);
+}
+
+/* ── Reset/body helper ─────────────────────────────────────────── */
+.pm *, .pm *::before, .pm *::after { box-sizing: border-box; margin: 0; padding: 0; }
+.pm {
+  font-family: var(--font-sans);
+  color: var(--pm-fg);
+  background: var(--pm-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv11", "ss01", "ss03";
+  letter-spacing: var(--pm-tracking-normal);
+}
