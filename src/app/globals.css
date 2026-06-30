@@ -224,6 +224,7 @@
 :root {
   /* Foundations — warm cool-neutrals (premium direction, de-lavendered) */
   --background:        #FBFAF7;     /* page bg — warm off-white */
+  --nextra-bg:         251, 250, 247 !important; /* = --background (R,G,B) — chrome do Nextra casa com a página (important: vence a ordem do build) */
   --foreground:        #1C1B22;     /* primary text — neutral near-black */
 
   --card:              #FFFFFF;
@@ -422,6 +423,7 @@
 ══════════════════════════════════════════════════════════════════ */
 .dark {
   --background:        #0F0C1A;
+  --nextra-bg:         15, 12, 26 !important;   /* = --background (dark, R,G,B) */
   --foreground:        #F6F3FF;
 
   --card:              #151126;
