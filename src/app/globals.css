@@ -655,3 +655,16 @@
   0%, 100% { opacity: 1; }
   50%      { opacity: 0.5; }
 }
+
+/* ── Sidebar: rodapé (troca de tema + colapsar) movido para o TOPO ──────────────
+   Por padrão o Nextra renderiza esses controles em .nextra-sidebar-footer, sticky
+   no rodapé da sidebar. Levamos para o topo: order -1 (vira o 1º item flex) e
+   invertemos a aderência/sticky e a borda (separador agora embaixo, não em cima).
+   globals.css é importado depois do estilo do Nextra, então estas regras vencem. */
+.nextra-sidebar-footer {
+  order: -1;
+  top: 0;
+  bottom: auto;
+  border-top-width: 0;
+  border-bottom-width: 1px;
+}
