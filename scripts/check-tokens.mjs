@@ -23,6 +23,7 @@ const STRICT = process.argv.includes("--strict");
 /** Token → motivo. Divergências aqui não falham o modo --strict. */
 const ALLOWLIST = {
   // ex.: "--tracking-kicker": "camada visual é snapshot v2; v3 mudou para 0.12em",
+  "--nextra-bg": "específico do chrome do Nextra (docs); não existe no showcase HTML standalone",
 };
 
 // ─── Parsing ────────────────────────────────────────────────────────────────

@@ -224,7 +224,6 @@
 :root {
   /* Foundations — warm cool-neutrals (premium direction, de-lavendered) */
   --background:        #FBFAF7;     /* page bg — warm off-white */
-  --nextra-bg:         251, 250, 247 !important; /* = --background (R,G,B) — chrome do Nextra casa com a página (important: vence a ordem do build) */
   --foreground:        #1C1B22;     /* primary text — neutral near-black */
 
   --card:              #FFFFFF;
@@ -423,7 +422,6 @@
 ══════════════════════════════════════════════════════════════════ */
 .dark {
   --background:        #0F0C1A;
-  --nextra-bg:         15, 12, 26 !important;   /* = --background (dark, R,G,B) */
   --foreground:        #F6F3FF;
 
   --card:              #151126;
@@ -657,6 +655,15 @@
   0%, 100% { opacity: 1; }
   50%      { opacity: 0.5; }
 }
+
+/* ── Chrome do Nextra = fundo da página ─────────────────────────────────────────
+   --nextra-bg (rodapé de controles da sidebar, navbar, busca) por padrão é #111
+   (dark) / #fafafa (light), destoando do --background do Pulso. Alinhamos os dois.
+   Em :root:root / :root.dark (specificity maior) para vencer o default do Nextra
+   SEM !important e SEM entrar no artefato de tokens (build-tokens lê só :root/.dark
+   exatos; check-tokens trata --nextra-bg via allowlist por ser chrome, não token). */
+:root:root { --nextra-bg: 251, 250, 247; }  /* = --background (light) */
+:root.dark { --nextra-bg: 15, 12, 26; }      /* = --background (dark) */
 
 /* ── Sidebar: rodapé (troca de tema + colapsar) movido para o TOPO ──────────────
    Por padrão o Nextra renderiza esses controles em .nextra-sidebar-footer, sticky
