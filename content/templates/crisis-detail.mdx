@@ -12,7 +12,7 @@ Página de detalhe de uma crise específica. Concentra todas as informações, m
 ```
 ┌─────────────────────────────────────────────┐
 │  Header (flat, sem Card wrapper)            │
-│  [Score]  Nome da Crise  [Status] [Alerta]  │
+│  (Anel)  Nome da Crise  [Status] [Alerta]   │
 │           Criado em · X dias · Atualizado   │
 │                              [Equipe (av.)] │
 ├─────────────────────────────────────────────┤
@@ -38,9 +38,9 @@ Página de detalhe de uma crise específica. Concentra todas as informações, m
 
 | Seção | Componentes |
 |-------|-------------|
-| Header | bloco de score custom, `MonitoringStatusBadge`, `AvatarGroup` |
+| Header | anel de score (`conic-gradient`), `RiskChangeHighlight`, `MonitoringStatusBadge`, `AvatarGroup` |
 | Tabs | underline com `border-b-2 border-brand` (não `Tabs` shadcn padrão) |
-| Score | bloco retangular tintado — não usa `Progress`/gauge |
+| Score | anel circular (`conic-gradient` + máscara interna), não usa `Progress`/SVG |
 | KPI strip | `DeltaChip` inline ao label |
 | Próxima Ação | card com borda esquerda colorida por prioridade |
 | Timeline | `Accordion`, `Avatar`, `Separator` |
@@ -49,42 +49,43 @@ Página de detalhe de uma crise específica. Concentra todas as informações, m
 
 ## Padrão de Score
 
-**Atenção:** o score de crise (`getAttentionScore()` em `lib/attention-score.ts`) usa uma escala diferente da escala genérica de risco `--risk-stable/monitor/*` descrita em outros documentos deste sistema. São **duas escalas que não coincidem** — não tratar como sinônimos.
+O score de crise (`getAttentionScore()` em `lib/attention-score.ts`) usa a **mesma escala canônica de risco** documentada em `patterns/risk-levels` e nos tokens `--risk-stable/monitor/attention/high/critical-*` do app. Não há mais divergência entre label e cor — ambos vêm da mesma banda.
 
-### Bandas reais (`AttentionScore`)
+### Bandas (fonte única — `AttentionScore` e `--risk-*`)
 
-| Range | Label |
-|-------|-------|
-| 0–20 | Ruído |
-| 21–40 | Atenção |
-| 41–60 | Alerta |
-| 61–80 | Crise |
-| 81–100 | Crítico |
+| Range | Label | Token de cor |
+|-------|-------|--------------|
+| 0–19 | Estável | `--risk-stable-text` |
+| 20–39 | Monitor | `--risk-monitor-text` |
+| 40–59 | Atenção | `--risk-attention-text` |
+| 60–79 | Alto | `--risk-high-text` |
+| 80–100 | Crítico | `--risk-critical-text` |
 
-### Cor do bloco de score no header
+> Histórico: até jul/2026, `attention-score.ts` usava labels e faixas próprias (Ruído/Atenção/Alerta/Crise/Crítico, 0-20/21-40/41-60/61-80/81-100) com classes Tailwind hardcoded, divergentes da escala canônica. Corrigido para eliminar a fonte dupla de verdade — ver Issue #272 do Crisis-Monitor.
 
-O bloco de score (`crisis-header.tsx`) colore o texto pelo mesmo range numérico, mas com apenas 3 tokens de cor + um fallback neutro — **não** um token por banda:
-
-| Range | Token de cor |
-|-------|--------------|
-| ≥ 81 | `--risk-critical-text` |
-| 61–80 | `--risk-high-text` |
-| 41–60 | `--risk-attention-text` |
-| ≤ 40 | `text-muted-foreground` |
-
-O rótulo exibido (`band.label`) vem das 5 bandas de `AttentionScore` acima; a cor vem dessa segunda tabela de 4 faixas. Um score de 74, por exemplo, mostra o label "Crise" com a cor de `--risk-high-text` (âmbar/laranja), não vermelho crítico.
-
-Estrutura visual (não é gauge circular, é bloco retangular):
+Estrutura visual — anel circular via `conic-gradient`, não um bloco retangular nem SVG:
 
 ```tsx
-<div className="flex flex-col items-center justify-center text-center rounded-[calc(var(--surface-radius)-0.5rem)] border-none bg-[color:color-mix(in_oklab,var(--card)_90%,var(--brand-muted))] px-4 py-3 shadow-none">
-  <span className="text-[11px] uppercase tracking-[0.22em] opacity-70">Score</span>
-  <span className="mt-1 text-3xl font-semibold leading-none">{score}</span>
-  <span className="mt-1 text-[11px] uppercase tracking-[0.18em] opacity-70">{band.label}</span>
+<div
+  className="relative grid size-[92px] shrink-0 place-items-center rounded-full"
+  style={{ background: `conic-gradient(${ringColorVar} ${score}%, var(--border) 0)` }}
+>
+  <div className="absolute inset-[6px] rounded-full bg-card shadow-[var(--shadow-lg)]" />
+  <div className="relative flex flex-col items-center leading-none">
+    <RiskChangeHighlight value={score} className={`font-mono text-[26px] font-semibold ${scoreTextClass}`}>
+      {score}
+    </RiskChangeHighlight>
+    <span className="mt-0.5 font-mono text-[10px] text-fg-subtle">/100</span>
+    <span className={`mt-1 text-[9px] font-semibold uppercase tracking-[0.14em] ${scoreTextClass}`}>
+      {band.label}
+    </span>
+  </div>
 </div>
 ```
 
-Números de score usam `.mono` ou `[data-numeric]` para manter numerais tabulares.
+`ringColorVar` e `scoreTextClass` usam os mesmos 5 limiares (19/39/59/79/100) e os mesmos tokens `--risk-*-text` da tabela acima — cor do anel, cor do número e label sempre coerentes entre si.
+
+Números de score usam `.mono` ou `[data-numeric]` para manter numerais tabulares. `RiskChangeHighlight` anima o valor quando o score muda entre renders.
 
 ## Acento de Prioridade (card "Próxima Ação Recomendada")
 
