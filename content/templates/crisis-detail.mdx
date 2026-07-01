@@ -11,18 +11,19 @@ Página de detalhe de uma crise específica. Concentra todas as informações, m
 
 ```
 ┌─────────────────────────────────────────────┐
-│  Header                                     │
-│  ← Back | Nome da Crise | [Status Badge]    │
-│  Descrição | Criado em | Última atualização │
+│  Header (flat, sem Card wrapper)            │
+│  [Score]  Nome da Crise  [Status] [Alerta]  │
+│           Criado em · X dias · Atualizado   │
+│                              [Equipe (av.)] │
 ├─────────────────────────────────────────────┤
-│  Tabs: Visão Geral | Timeline | Cobertura   │
+│  Tabs (underline, border-b-2 border-brand)  │
+│  Resumo | Timeline | Cobertura              │
 │                                             │
-│  [Tab Content]                              │
+│  [Tab Content: Resumo]                      │
 │  ┌──────────────────┐  ┌──────────────────┐ │
-│  │ Score Gauge      │  │ Timeline         │ │
-│  │ [visual circular]│  │ - Evento 1       │ │
-│  │ Score: 42        │  │ - Evento 2       │ │
-│  │ Risk: High       │  │ - Evento 3       │ │
+│  │ KPI strip        │  │ Próxima Ação     │ │
+│  │ label + chip Δ   │  │ [borda colorida  │ │
+│  │ valor grande     │  │  por prioridade] │ │
 │  └──────────────────┘  └──────────────────┘ │
 │  ┌──────────────────┐  ┌──────────────────┐ │
 │  │ Fontes/Mídia     │  │ Ações Rápidas    │ │
@@ -37,26 +38,79 @@ Página de detalhe de uma crise específica. Concentra todas as informações, m
 
 | Seção | Componentes |
 |-------|-------------|
-| Header | `PageHeader`, `Badge`, `Button` |
-| Tabs | `Tabs`, `TabsList`, `TabsContent` |
-| Score | `MetricCard`, `Progress`, `Badge` |
+| Header | bloco de score custom, `MonitoringStatusBadge`, `AvatarGroup` |
+| Tabs | underline com `border-b-2 border-brand` (não `Tabs` shadcn padrão) |
+| Score | bloco retangular tintado — não usa `Progress`/gauge |
+| KPI strip | `DeltaChip` inline ao label |
+| Próxima Ação | card com borda esquerda colorida por prioridade |
 | Timeline | `Accordion`, `Avatar`, `Separator` |
 | Fontes | `Card`, `MetricCard` compacto |
 | Ações | `DropdownMenu`, `Button` |
 
 ## Padrão de Score
 
-O score de crise usa uma escala de 0–100 com bandas visuais de risco. Use tokens `--risk-*`, não tokens delta — delta descreve variação de métrica.
+**Atenção:** o score de crise (`getAttentionScore()` em `lib/attention-score.ts`) usa uma escala diferente da escala genérica de risco `--risk-stable/monitor/*` descrita em outros documentos deste sistema. São **duas escalas que não coincidem** — não tratar como sinônimos.
 
-| Range | Label | Tokens |
-|-------|-------|--------|
-| 0–19 | Estável | `--risk-stable-*` |
-| 20–39 | Monitor | `--risk-monitor-*` |
-| 40–59 | Atenção | `--risk-attention-*` |
-| 60–79 | Alto | `--risk-high-*` |
-| 80–100 | Crítico | `--risk-critical-*` |
+### Bandas reais (`AttentionScore`)
+
+| Range | Label |
+|-------|-------|
+| 0–20 | Ruído |
+| 21–40 | Atenção |
+| 41–60 | Alerta |
+| 61–80 | Crise |
+| 81–100 | Crítico |
+
+### Cor do bloco de score no header
+
+O bloco de score (`crisis-header.tsx`) colore o texto pelo mesmo range numérico, mas com apenas 3 tokens de cor + um fallback neutro — **não** um token por banda:
+
+| Range | Token de cor |
+|-------|--------------|
+| ≥ 81 | `--risk-critical-text` |
+| 61–80 | `--risk-high-text` |
+| 41–60 | `--risk-attention-text` |
+| ≤ 40 | `text-muted-foreground` |
+
+O rótulo exibido (`band.label`) vem das 5 bandas de `AttentionScore` acima; a cor vem dessa segunda tabela de 4 faixas. Um score de 74, por exemplo, mostra o label "Crise" com a cor de `--risk-high-text` (âmbar/laranja), não vermelho crítico.
+
+Estrutura visual (não é gauge circular, é bloco retangular):
+
+```tsx
+<div className="flex flex-col items-center justify-center text-center rounded-[calc(var(--surface-radius)-0.5rem)] border-none bg-[color:color-mix(in_oklab,var(--card)_90%,var(--brand-muted))] px-4 py-3 shadow-none">
+  <span className="text-[11px] uppercase tracking-[0.22em] opacity-70">Score</span>
+  <span className="mt-1 text-3xl font-semibold leading-none">{score}</span>
+  <span className="mt-1 text-[11px] uppercase tracking-[0.18em] opacity-70">{band.label}</span>
+</div>
+```
 
 Números de score usam `.mono` ou `[data-numeric]` para manter numerais tabulares.
+
+## Acento de Prioridade (card "Próxima Ação Recomendada")
+
+Prioridade de ação usa tokens **delta**, não tokens de risco — é uma escala independente da do score:
+
+| Prioridade | Token |
+|-----------|-------|
+| `critica` | `--delta-error-*` |
+| `alta` | `--delta-warn-*` |
+| `media` | `--delta-info-*` |
+
+Implementação em `response-playbook.tsx`. Nunca usar cor literal (hex/hsl) para prioridade.
+
+## KPI Strip
+
+Cada métrica exibe o chip de variação (`DeltaChip`) **inline ao label**, na mesma linha — não abaixo do valor:
+
+```tsx
+<div className="flex flex-wrap items-center gap-x-1 gap-y-0.5">
+  <span className="text-xs text-muted-foreground">{label}</span>
+  <DeltaChip value={delta} tone={trendToneMap[trendDirection]} size="xs" />
+</div>
+<span className="text-2xl font-semibold tabular-nums leading-none">{value}</span>
+```
+
+`tone` é derivado de `trendDirection`: `up → success`, `down → error`, `flat → neutral`. Implementação em `crisis-overview.tsx`.
 
 ## Estado Vazio
 
